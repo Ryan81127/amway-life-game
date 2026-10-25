@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>人生升級：安麗闖關 v2</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#0f1a2e;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;color:#1b2440}
+#app{max-width:480px;margin:0 auto;min-height:100%;position:relative;background:linear-gradient(#bfe7ff,#e9f7ff 60%,#d5f0c8);overflow:hidden}
+.scr{display:none;min-height:100vh;padding:12px 14px 80px}
+.scr.on{display:block}
+h1,h2,h3{margin:.3em 0}
+.btn{display:inline-block;border:0;border-radius:14px;padding:12px 18px;font-size:17px;font-weight:700;background:#ff8a3d;color:#fff;box-shadow:0 4px 0 #c85d16;cursor:pointer;margin:4px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #c85d16}
+.btn.g{background:#38b26a;box-shadow:0 4px 0 #23794a}.btn.b{background:#3d7dff;box-shadow:0 4px 0 #2552b8}.btn.s{background:#8a94ad;box-shadow:0 4px 0 #5b647b;font-size:14px;padding:8px 12px}
+.card{background:#fff;border-radius:16px;padding:12px;margin:10px 0;box-shadow:0 3px 10px #0002}
+.hud{display:flex;justify-content:space-between;align-items:center;font-size:13px;background:#1b2440;color:#fff;border-radius:12px;padding:6px 10px}
+.bar{height:10px;background:#0003;border-radius:6px;overflow:hidden;flex:1;margin:0 8px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffd23d,#ff8a3d);width:0;transition:width .4s}
+#hero{font-size:44px;display:inline-block;position:relative}
+#hero .hat{position:absolute;top:-22px;left:8px;font-size:28px}
+.area{display:flex;align-items:center;gap:10px;background:#fffd;border-radius:16px;padding:10px;margin:12px 0;border:3px solid #fff;cursor:pointer;position:relative}
+.area.lock{background:#0002;border-color:#0001;cursor:default}
+.area .ic{font-size:36px;width:52px;text-align:center}
+.area.lock .ic{filter:brightness(0);opacity:.55}
+.area small{color:#556}
+.stars{color:#ffb400;letter-spacing:2px}
+.path{width:6px;height:22px;background:repeating-linear-gradient(#fff 0 6px,transparent 6px 12px);margin:-12px auto -12px 36px}
+#stage{position:relative}
+canvas{display:block;width:100%;border-radius:14px;background:#14213d;touch-action:none}
+.opt{display:block;width:100%;text-align:left;border:2px solid #d8def0;background:#f7f9ff;border-radius:12px;padding:11px;font-size:16px;margin:7px 0;cursor:pointer}
+.opt.ok{background:#d5f7df;border-color:#38b26a}.opt.no{background:#ffe0e0;border-color:#e44}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.on{display:flex}
+.modal .card{max-width:440px;width:100%;max-height:90vh;overflow:auto;animation:pop .35s}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes evo{0%{transform:scale(1);filter:brightness(1)}40%{transform:scale(1.6) rotate(20deg);filter:brightness(4)}100%{transform:scale(1);filter:none}}
+.evo{animation:evo 1.4s 2;display:inline-block}
+.gems span{font-size:13px;padding:3px 8px;border-radius:10px;background:#0001;margin-right:4px}
+.gems span.on{background:#ffe27a}
+.chip{display:inline-block;padding:6px 10px;margin:3px;border-radius:10px;background:#eef2ff;border:2px solid #cdd6f5;font-size:15px;cursor:pointer}
+.chip.ok{background:#d5f7df;border-color:#38b26a}.chip.no{background:#ffe0e0;border-color:#e44}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid #e3e7f3;padding:5px;text-align:left}
+.ladder div{display:flex;justify-content:space-between;padding:3px 8px;border-radius:6px;font-size:14px}
+.ladder div.on{background:#ffd23d;font-weight:700}
+.note{font-size:12px;color:#a33;font-weight:700}
+footer{position:absolute;bottom:0;left:0;right:0;font-size:11px;color:#445;text-align:center;padding:10px;background:#fff8}
+.town{font-size:30px;min-height:44px;letter-spacing:4px}
+.combo{font-weight:800;color:#ff8a3d}
+iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
+</style>
+</head>
+<body>
+<div id="app">
+<section class="scr on" id="s-title">
+  <div style="text-align:center;padding-top:30px">
+    <div style="font-size:64px">🏡🌱⭐</div>
+    <h1>人生升級：安麗闖關</h1>
+    <p>六大區域冒險：從新人到卓越新星<br>邊玩邊學《安麗新人手冊》與《卓越新星計劃》</p>
+    <div class="card" style="text-align:left">
+      <label>冒險者名字 <input id="nameIn" maxlength="10" style="font-size:16px;padding:6px;border-radius:8px;border:1px solid #ccd;width:60%"></label>
+    </div>
+    <button class="btn" id="startBtn">開始冒險 ▶</button>
+    <p style="font-size:13px;color:#556">進度自動存在這支手機（localStorage）</p>
+  </div>
+</section>
+<section class="scr" id="s-map"></section>
+<section class="scr" id="s-play">
+  <div class="hud"><span id="pTitle">區域</span><span id="pInfo"></span></div>
+  <div id="stage" style="margin-top:8px"></div>
+</section>
+<footer>直銷商個人製作，非安麗官方網站｜內容依安麗台灣公開資訊整理，以官網公告為準｜任何收入相關數字皆為示範試算，非保證、因人而異</footer>
+</div>
+<div class="modal" id="modal"><div class="card" id="mbox"></div></div>
