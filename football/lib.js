@@ -481,7 +481,8 @@ function normalizeEvent(ev, league) {
     clock: clockLabel(status),
     venue: comp.venue?.fullName || ev.venue?.fullName || "",
     home: teams.home,
-    away: teams.away
+    away: teams.away,
+    odds: parseBook((comp.odds || [])[0])
   };
 }
 
@@ -883,7 +884,8 @@ function buildModel(data, leagueSlug) {
     table: readTable(data),
     scorers: readScorers(data),
     form: readForm(data),
-    h2h: readH2H(data, home, away)
+    h2h: readH2H(data, home, away),
+    odds: parseBook((data.pickcenter || [])[0] || (data.odds || [])[0])
   };
 }
 
@@ -1262,6 +1264,8 @@ function updateMemory(model) {
   });
   if (mem.snapshots.length > 80) mem.snapshots = mem.snapshots.slice(-80);
   if (mem.checkpoints.length > 80) mem.checkpoints = mem.checkpoints.slice(-80);
+  const sig = oddsSig(model.odds);
+  if (!mem.oddsStamp || mem.oddsStamp.sig !== sig) mem.oddsStamp = { sig, at: Date.now() };
   saveMemory(model.id, mem);
   return mem;
 }
@@ -1404,6 +1408,467 @@ function loadSeason(league, id) {
   return seasonCache.get(key);
 }
 
+function parseAmerican(value) {
+  if (typeof value === "number" && Number.isFinite(value) && value !== 0) return value;
+  const text = String(value ?? "").trim();
+  if (!/^[+-]?\d+(?:\.\d+)?$/.test(text)) return null;
+  const n = Number(text);
+  return Number.isFinite(n) && n !== 0 ? n : null;
+}
+
+function parseLine(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const m = String(value ?? "").trim().match(/^[ou]?\s*([+-]?\d+(?:\.\d+)?)$/i);
+  return m ? Number(m[1]) : null;
+}
+
+function priceFromAmerican(american, line) {
+  const n = parseAmerican(american);
+  if (n == null) return null;
+  const decimal = n > 0 ? n / 100 + 1 : 100 / Math.abs(n) + 1;
+  const implied = n > 0 ? 100 / (n + 100) : Math.abs(n) / (Math.abs(n) + 100);
+  return {
+    american: n,
+    decimal: Math.round(decimal * 100) / 100,
+    implied,
+    line: line == null ? null : line
+  };
+}
+
+function readQuote(node) {
+  if (node == null) return null;
+  if (typeof node === "number" || typeof node === "string") return priceFromAmerican(node, null);
+  const line = parseLine(node.line);
+  return priceFromAmerican(node.odds ?? node.moneyLine, line);
+}
+
+function withLine(quote, line) {
+  if (!quote || quote.line != null || line == null) return quote;
+  return { ...quote, line };
+}
+
+function sideQuote(block, fallbackAmerican, fallbackLine) {
+  const open = block ? readQuote(block.open) : null;
+  const close = block ? readQuote(block.close) : null;
+  const live = block ? readQuote(block.live || block.current) : null;
+  let pre = close || open;
+  if (!pre && fallbackAmerican != null) pre = priceFromAmerican(fallbackAmerican, fallbackLine);
+  pre = withLine(pre, fallbackLine);
+  return { open, close, pre, live: withLine(live, live?.line != null ? live.line : fallbackLine) };
+}
+
+function spreadFallback(raw) {
+  const n = Number(raw?.spread);
+  if (!Number.isFinite(n)) return { home: null, away: null };
+  const mag = Math.abs(n);
+  if (raw.homeTeamOdds?.favorite === true) return { home: -mag, away: mag };
+  if (raw.awayTeamOdds?.favorite === true) return { home: mag, away: -mag };
+  return { home: null, away: null };
+}
+
+function parseBook(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const lines = spreadFallback(raw);
+  const book = {
+    moneyline: {
+      home: sideQuote(raw.moneyline?.home, raw.homeTeamOdds?.moneyLine, null),
+      away: sideQuote(raw.moneyline?.away, raw.awayTeamOdds?.moneyLine, null),
+      draw: sideQuote(raw.moneyline?.draw, raw.drawOdds?.moneyLine, null)
+    },
+    spread: {
+      home: sideQuote(raw.pointSpread?.home, raw.homeTeamOdds?.spreadOdds, lines.home),
+      away: sideQuote(raw.pointSpread?.away, raw.awayTeamOdds?.spreadOdds, lines.away)
+    },
+    total: {
+      over: sideQuote(raw.total?.over, raw.overOdds, raw.overUnder),
+      under: sideQuote(raw.total?.under, raw.underOdds, raw.overUnder)
+    }
+  };
+  const quotes = [
+    book.moneyline.home, book.moneyline.away, book.moneyline.draw,
+    book.spread.home, book.spread.away, book.total.over, book.total.under
+  ];
+  const any = quotes.some((item) => item.pre || item.live);
+  return any ? book : null;
+}
+
+function oddsSig(book) {
+  if (!book) return "";
+  const bit = (quote) => (quote ? `${quote.line}:${quote.american}` : "-");
+  const side = (group, name) => `${bit(group[name]?.pre)}/${bit(group[name]?.live)}`;
+  return [
+    side(book.moneyline, "home"), side(book.moneyline, "away"), side(book.moneyline, "draw"),
+    side(book.spread, "home"), side(book.spread, "away"),
+    side(book.total, "over"), side(book.total, "under")
+  ].join("|");
+}
+
+function fmtDecimal(n) {
+  return (Math.round(Number(n) * 100) / 100).toFixed(2);
+}
+
+function fmtAmerican(n) {
+  if (n == null) return "";
+  const rounded = Math.round(Number(n));
+  return rounded > 0 ? `+${rounded}` : String(rounded);
+}
+
+function fmtPct(p) {
+  return `${trimNum(p * 100)}%`;
+}
+
+function quoteText(quote) {
+  if (!quote) return "";
+  return `歐賠 ${fmtDecimal(quote.decimal)}（隱含 ${fmtPct(quote.implied)}，美式 ${fmtAmerican(quote.american)}）`;
+}
+
+function fmtHandicap(n) {
+  if (n == null || Number.isNaN(Number(n))) return "";
+  if (n > 0) return `+${trimNum(n)}`;
+  if (n < 0) return `-${trimNum(Math.abs(n))}`;
+  return "0";
+}
+
+function handicapWords(who, line) {
+  if (line == null) return who;
+  if (line > 0) return `${who}受讓 ${trimNum(line)}`;
+  if (line < 0) return `${who}讓 ${trimNum(Math.abs(line))}`;
+  return `${who}平手`;
+}
+
+function activeQuote(group, liveMatch) {
+  if (liveMatch && group?.live) return group.live;
+  return group?.pre || group?.live || null;
+}
+
+function formRecord(model, id) {
+  const block = (model.form || []).find((item) => item.id === id);
+  if (!block) return null;
+  const results = block.games.map((game) => game.result).filter((result) => result === "W" || result === "D" || result === "L");
+  if (!results.length) return null;
+  return {
+    name: block.name,
+    n: results.length,
+    w: results.filter((result) => result === "W").length,
+    d: results.filter((result) => result === "D").length,
+    l: results.filter((result) => result === "L").length
+  };
+}
+
+function recentTotals(model, id) {
+  const block = (model.form || []).find((item) => item.id === id);
+  if (!block) return null;
+  let games = 0;
+  let goals = 0;
+  for (const game of block.games) {
+    const m = String(game.score || "").match(/(\d+)\s*[-–]\s*(\d+)/);
+    if (!m) continue;
+    games += 1;
+    goals += Number(m[1]) + Number(m[2]);
+  }
+  if (!games) return null;
+  return { name: block.name, games, goals, avg: Math.round((goals / games) * 10) / 10 };
+}
+
+function tableNums(row) {
+  if (!row) return null;
+  const num = (key) => {
+    if (row[key] == null || row[key] === "") return null;
+    const n = Number(String(row[key]).replace("+", ""));
+    return Number.isFinite(n) ? n : null;
+  };
+  const rank = num("rank");
+  if (rank == null) return null;
+  return { rank, points: num("points"), gd: num("pointDifferential") };
+}
+
+function scorePair(model) {
+  const home = Number(model.home.score);
+  const away = Number(model.away.score);
+  if (!Number.isFinite(home) || !Number.isFinite(away)) return null;
+  return { home, away, total: home + away };
+}
+
+function cardTally(model) {
+  const tally = { home: { y: 0, r: 0 }, away: { y: 0, r: 0 } };
+  for (const ev of model.events || []) {
+    const side = ev.teamId === model.home.id ? "home" : ev.teamId === model.away.id ? "away" : "";
+    if (!side) continue;
+    if (ev.kind === "yellow") tally[side].y += 1;
+    if (ev.kind === "red") tally[side].r += 1;
+  }
+  return tally;
+}
+
+function collectSignals(model) {
+  const signals = [];
+  const homeForm = formRecord(model, model.home.id);
+  const awayForm = formRecord(model, model.away.id);
+  if (homeForm && awayForm && Math.abs(homeForm.w - awayForm.w) >= 2) {
+    const homeBetter = homeForm.w > awayForm.w;
+    signals.push({
+      key: homeBetter ? "home" : "away",
+      text: `${homeBetter ? homeForm.name : awayForm.name}近 ${homeBetter ? homeForm.n : awayForm.n} 場 ${homeBetter ? homeForm.w : awayForm.w} 勝，${homeBetter ? awayForm.name : homeForm.name} ${homeBetter ? awayForm.w : homeForm.w} 勝。`
+    });
+  }
+  const decided = (model.h2h?.hw || 0) + (model.h2h?.aw || 0) + (model.h2h?.dr || 0);
+  if (decided >= 3 && Math.abs(model.h2h.hw - model.h2h.aw) >= 2) {
+    const homeBetter = model.h2h.hw > model.h2h.aw;
+    signals.push({
+      key: homeBetter ? "home" : "away",
+      text: `交手 ${decided} 場，${model.home.name} ${model.h2h.hw} 勝、和局 ${model.h2h.dr}、${model.away.name} ${model.h2h.aw} 勝。`
+    });
+  }
+  const homeTable = tableNums(model.table?.[model.home.id]);
+  const awayTable = tableNums(model.table?.[model.away.id]);
+  if (homeTable && awayTable && Math.abs(homeTable.rank - awayTable.rank) >= 3) {
+    const homeBetter = homeTable.rank < awayTable.rank;
+    signals.push({
+      key: homeBetter ? "home" : "away",
+      text: `積分榜 ${homeBetter ? model.home.name : model.away.name} 第 ${homeBetter ? homeTable.rank : awayTable.rank}，${homeBetter ? model.away.name : model.home.name} 第 ${homeBetter ? awayTable.rank : homeTable.rank}。`
+    });
+  }
+  const playing = model.minute.phase !== "pre" && model.minute.phase !== "ft";
+  const score = scorePair(model);
+  if (playing && score && score.home !== score.away) {
+    signals.push({
+      key: score.home > score.away ? "home" : "away",
+      text: `目前比分 ${model.home.name} ${score.home} 比 ${model.away.name} ${score.away}（${model.minute.label}）。`
+    });
+  } else if (playing && score && score.home === score.away) {
+    signals.push({ key: "draw", text: `目前 ${score.home} 比 ${score.away}，兩邊都沒領先（${model.minute.label}）。` });
+  }
+  if (playing && model.stats.mode === "match") {
+    const sotH = model.stats.home.shotsOnTarget;
+    const sotA = model.stats.away.shotsOnTarget;
+    if (typeof sotH === "number" && typeof sotA === "number" && Math.abs(sotH - sotA) >= 3) {
+      signals.push({
+        key: sotH > sotA ? "home" : "away",
+        text: `射正 ${model.home.name} ${trimNum(sotH)}、${model.away.name} ${trimNum(sotA)}。`
+      });
+    }
+  }
+  const cards = cardTally(model);
+  if (cards.home.r !== cards.away.r) {
+    const homeMore = cards.home.r > cards.away.r;
+    signals.push({
+      key: homeMore ? "away" : "home",
+      text: `${homeMore ? model.home.name : model.away.name} ${homeMore ? cards.home.r : cards.away.r} 張紅牌，${homeMore ? model.away.name : model.home.name} ${homeMore ? cards.away.r : cards.home.r} 張。`
+    });
+  } else if (Math.abs(cards.home.y - cards.away.y) >= 2) {
+    const homeMore = cards.home.y > cards.away.y;
+    signals.push({
+      key: homeMore ? "away" : "home",
+      text: `黃牌 ${model.home.name} ${cards.home.y}、${model.away.name} ${cards.away.y}。`
+    });
+  }
+  return signals;
+}
+
+function confidenceFor(gap, agree, disagree) {
+  if (gap >= 15 && agree >= 2 && disagree === 0) return "高";
+  if ((gap >= 8 && agree >= 1 && disagree === 0) || (gap >= 12 && agree >= 2)) return "中";
+  return "低";
+}
+
+function leanFromSignals(topKey, gap, signals, labels) {
+  const agree = signals.filter((signal) => signal.key === topKey);
+  const disagree = signals.filter((signal) => signal.key !== topKey);
+  if (gap < 6 && agree.length === 0) {
+    return { key: null, label: "傾向不明顯", confidence: "低", cite: signals.slice(0, 2) };
+  }
+  if (disagree.length >= 2 && agree.length === 0) {
+    const counts = {};
+    for (const signal of signals) counts[signal.key] = (counts[signal.key] || 0) + 1;
+    const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    if (best && best[1] >= 2 && labels[best[0]]) {
+      return { key: best[0], label: labels[best[0]], confidence: "低", cite: signals.filter((signal) => signal.key === best[0]).slice(0, 2) };
+    }
+    return { key: null, label: "傾向不明顯", confidence: "低", cite: signals.slice(0, 2) };
+  }
+  return {
+    key: topKey,
+    label: labels[topKey],
+    confidence: confidenceFor(gap, agree.length, disagree.length),
+    cite: (agree.length ? agree : signals).slice(0, 2)
+  };
+}
+
+function spokenLines(seed, first, second) {
+  const alt = second ? [`數據上比較支持這個讀法：${second}`, first] : [first];
+  return pick(seed, [[first, second].filter(Boolean), alt]).slice(0, 2);
+}
+
+function oddsRows(label, group, liveMatch) {
+  const pre = group?.pre;
+  const live = liveMatch && group?.live ? group.live : null;
+  const bits = [];
+  if (pre) bits.push(`開賽 ${quoteText(pre)}`);
+  if (live && (!pre || live.american !== pre.american || live.line !== pre.line)) bits.push(`目前 ${quoteText(live)}`);
+  else if (live && pre) bits.push("目前與開賽盤相同");
+  if (pre?.line != null && live?.line != null && pre.line !== live.line) {
+    bits.push(`盤口從 ${trimNum(Math.abs(pre.line))} 改為 ${trimNum(Math.abs(live.line))}`);
+  }
+  if (!bits.length && group?.live) bits.push(quoteText(group.live));
+  return { label, line: bits.join("；"), pre, live, use: live || pre };
+}
+
+function moneylineMarket(model, book) {
+  const liveMatch = model.minute.phase !== "pre";
+  const home = oddsRows("主勝", book.moneyline.home, liveMatch);
+  const draw = oddsRows("和局", book.moneyline.draw, liveMatch);
+  const away = oddsRows("客勝", book.moneyline.away, liveMatch);
+  const options = [home, draw, away].filter((row) => row.use);
+  if (options.length < 2) return null;
+  const ranked = [...options].sort((a, b) => b.use.implied - a.use.implied);
+  const gap = (ranked[0].use.implied - ranked[1].use.implied) * 100;
+  const labels = { home: "偏向主勝", away: "偏向客勝", draw: "偏向和局" };
+  const keyOf = { 主勝: "home", 和局: "draw", 客勝: "away" };
+  const topKey = keyOf[ranked[0].label];
+  const decision = model.minute.phase === "ft"
+    ? { key: null, label: "完賽對照", confidence: "低", cite: [] }
+    : leanFromSignals(topKey, gap, collectSignals(model), labels);
+  const sum = options.reduce((total, row) => total + row.use.implied, 0);
+  const reasons = [
+    `目前用來判斷的價格：${options.map((row) => `${row.label} ${quoteText(row.use)}`).join("，")}。三邊原始隱含合計 ${fmtPct(sum)}。`
+  ];
+  for (const signal of decision.cite) reasons.push(signal.text);
+  if (model.minute.phase === "ft") {
+    const score = scorePair(model);
+    if (score) reasons.push(`全場比分 ${model.home.name} ${score.home} 比 ${model.away.name} ${score.away}，這裡只做對照。`);
+  }
+  const picked = options.find((row) => keyOf[row.label] === decision.key);
+  const spoken = decision.key && picked
+    ? spokenLines(`${model.id}-ml-${decision.key}`, `從盤口看，${picked.label}歐賠 ${fmtDecimal(picked.use.decimal)}，原始隱含大約 ${fmtPct(picked.use.implied)}。`, decision.cite[0] ? decision.cite[0].text : "其他數據沒有再往同一邊加碼。")
+    : ["從盤口看，獨贏三邊沒有差很多。", "數據上也沒有明顯站邊，傾向先放不明顯。"];
+  return { title: "不讓分（獨贏）", rows: [home, draw, away].filter((row) => row.line), lean: decision.label, confidence: decision.confidence, reasons: reasons.slice(0, 3), spoken };
+}
+
+function spreadMarket(model, book) {
+  const liveMatch = model.minute.phase !== "pre";
+  const home = oddsRows(handicapWords("主隊", (liveMatch && book.spread.home.live?.line != null ? book.spread.home.live.line : book.spread.home.pre?.line)), book.spread.home, liveMatch);
+  const away = oddsRows(handicapWords("客隊", (liveMatch && book.spread.away.live?.line != null ? book.spread.away.live.line : book.spread.away.pre?.line)), book.spread.away, liveMatch);
+  if (!home.use || !away.use) return null;
+  const ranked = [home, away].sort((a, b) => b.use.implied - a.use.implied);
+  const gap = (ranked[0].use.implied - ranked[1].use.implied) * 100;
+  const homeLine = home.use.line;
+  const awayLine = away.use.line;
+  const labels = { home: `偏向${home.label}`, away: `偏向${away.label}` };
+  const score = scorePair(model);
+  const signals = collectSignals(model).filter((signal) => signal.key !== "draw");
+  const playing = model.minute.phase !== "pre" && model.minute.phase !== "ft";
+  if (playing && score && awayLine != null && awayLine < 0) {
+    const covering = score.away > score.home;
+    signals.unshift({
+      key: covering ? "away" : "home",
+      text: `${away.label}，要全場贏球才過盤。目前 ${model.home.name} ${score.home} 比 ${model.away.name} ${score.away}。`
+    });
+  } else if (playing && score && homeLine != null && homeLine < 0) {
+    const covering = score.home > score.away;
+    signals.unshift({
+      key: covering ? "home" : "away",
+      text: `${home.label}，要全場贏球才過盤。目前 ${model.home.name} ${score.home} 比 ${model.away.name} ${score.away}。`
+    });
+  }
+  const topKey = ranked[0] === home ? "home" : "away";
+  const decision = model.minute.phase === "ft"
+    ? { key: null, label: "完賽對照", confidence: "低", cite: [] }
+    : leanFromSignals(topKey, gap, signals, labels);
+  const reasons = [`讓分價格：${home.label} ${quoteText(home.use)}；${away.label} ${quoteText(away.use)}。`];
+  for (const signal of decision.cite) reasons.push(signal.text);
+  const picked = decision.key === "home" ? home : decision.key === "away" ? away : null;
+  const spoken = picked
+    ? spokenLines(`${model.id}-sp-${decision.key}`, `從盤口看，${picked.label}的歐賠是 ${fmtDecimal(picked.use.decimal)}，原始隱含 ${fmtPct(picked.use.implied)}。`, decision.cite[0] ? decision.cite[0].text : "")
+    : ["從盤口看，讓分兩邊沒有差很多。", "數據沒有明顯幫某一邊，傾向先放不明顯。"];
+  return { title: "讓分", rows: [home, away], lean: decision.label, confidence: decision.confidence, reasons: reasons.slice(0, 3), spoken };
+}
+
+function totalMarket(model, book) {
+  const liveMatch = model.minute.phase !== "pre";
+  const over = oddsRows("大分", book.total.over, liveMatch);
+  const under = oddsRows("小分", book.total.under, liveMatch);
+  if (!over.use || !under.use) return null;
+  const line = (liveMatch && over.live?.line != null ? over.live.line : over.use.line);
+  const ranked = [over, under].sort((a, b) => b.use.implied - a.use.implied);
+  const gap = (ranked[0].use.implied - ranked[1].use.implied) * 100;
+  const labels = { over: "偏向大分", under: "偏向小分" };
+  const signals = [];
+  const notes = [];
+  const score = scorePair(model);
+  const playing = model.minute.phase !== "pre";
+  if (playing && score && line != null) {
+    if (score.total > line) signals.push({ key: "over", text: `目前進球 ${score.total}，已經超過 ${trimNum(line)}。` });
+    else notes.push(`目前進球 ${score.total}，大小分 ${trimNum(line)}，大分還要再進至少 ${Math.max(Math.floor(line) + 1 - score.total, 0)} 球。`);
+  }
+  if (playing && model.stats.mode === "match") {
+    const shots = [model.stats.home.totalShots, model.stats.away.totalShots];
+    const sot = [model.stats.home.shotsOnTarget, model.stats.away.shotsOnTarget];
+    if (shots.every((n) => typeof n === "number") && sot.every((n) => typeof n === "number")) {
+      const shotSum = shots[0] + shots[1];
+      const sotSum = sot[0] + sot[1];
+      const late = model.minute.base >= 75;
+      if (late && shotSum <= 10 && score) signals.push({ key: "under", text: `${model.minute.label} 射門合計 ${trimNum(shotSum)}、射正合計 ${trimNum(sotSum)}，進球 ${score.total}。` });
+      else if (sotSum >= 8 && score && score.total <= 1) signals.push({ key: "over", text: `射正合計 ${trimNum(sotSum)}，射門合計 ${trimNum(shotSum)}，目前進球 ${score.total}。` });
+    }
+  }
+  const homeTotals = recentTotals(model, model.home.id);
+  const awayTotals = recentTotals(model, model.away.id);
+  if (homeTotals && awayTotals && line != null) {
+    const bothHigh = homeTotals.avg >= line + 0.4 && awayTotals.avg >= line + 0.4;
+    const bothLow = homeTotals.avg <= line - 0.4 && awayTotals.avg <= line - 0.4;
+    if (bothHigh || bothLow) {
+      signals.push({
+        key: bothHigh ? "over" : "under",
+        text: `${homeTotals.name}近 ${homeTotals.games} 場比賽總進球平均 ${trimNum(homeTotals.avg)}，${awayTotals.name}近 ${awayTotals.games} 場平均 ${trimNum(awayTotals.avg)}。`
+      });
+    }
+  }
+  const topKey = ranked[0] === over ? "over" : "under";
+  let decision = model.minute.phase === "ft"
+    ? { key: null, label: "完賽對照", confidence: "低", cite: signals.slice(0, 1) }
+    : leanFromSignals(topKey, gap, signals, labels);
+  if (playing && score && line != null && score.total > line) {
+    decision = { key: "over", label: "偏向大分", confidence: "高", cite: signals.filter((signal) => signal.key === "over").slice(0, 2) };
+  }
+  const titleLine = line == null ? "" : ` ${trimNum(line)}`;
+  const reasons = [`大小分價格：大分 ${quoteText(over.use)}；小分 ${quoteText(under.use)}。`];
+  for (const note of notes) reasons.push(note);
+  for (const signal of decision.cite) {
+    if (!reasons.includes(signal.text)) reasons.push(signal.text);
+  }
+  const picked = decision.key === "over" ? over : decision.key === "under" ? under : null;
+  const spoken = picked
+    ? spokenLines(`${model.id}-ou-${decision.key}`, `從盤口看，${picked.label}${titleLine} 的歐賠是 ${fmtDecimal(picked.use.decimal)}，原始隱含 ${fmtPct(picked.use.implied)}。`, decision.cite[0] ? decision.cite[0].text : "")
+    : [`從盤口看，大分和小分沒有差很多。`, "數據沒有明顯偏向大小，傾向先放不明顯。"];
+  return { title: `大小分（大/小${titleLine}）`, rows: [over, under], lean: decision.label, confidence: decision.confidence, reasons: reasons.slice(0, 3), spoken };
+}
+
+function oddsReport(model) {
+  const book = model?.odds;
+  if (!book) return null;
+  const markets = [moneylineMarket(model, book), spreadMarket(model, book), totalMarket(model, book)].filter(Boolean);
+  if (!markets.length) return null;
+  const liveMatch = model.minute.phase !== "pre";
+  const groups = [book.moneyline.home, book.moneyline.away, book.moneyline.draw, book.spread.home, book.spread.away, book.total.over, book.total.under];
+  const hasLive = liveMatch && groups.some((group) => group.live && (!group.pre || group.live.american !== group.pre.american || group.live.line !== group.pre.line));
+  return { markets, hasLive };
+}
+
+function scheduleOddsLine(match) {
+  const book = match?.odds;
+  if (!book) return "";
+  const live = match.state === "in";
+  const pick = (group) => (live && group?.live ? group.live : group?.pre || group?.live);
+  const home = pick(book.moneyline.home);
+  const draw = pick(book.moneyline.draw);
+  const away = pick(book.moneyline.away);
+  const over = pick(book.total.over);
+  const parts = [];
+  if (home && away) parts.push(`獨贏 ${fmtDecimal(home.decimal)}/${draw ? fmtDecimal(draw.decimal) : "–"}/${fmtDecimal(away.decimal)}`);
+  if (over?.line != null) parts.push(`大小 ${trimNum(over.line)}`);
+  return parts.join(" · ");
+}
+
 function grokText(model) {
   const lines = [];
   lines.push(`【賽況快照】${model.leagueName}`);
@@ -1440,6 +1905,18 @@ function grokText(model) {
     for (const player of list) lines.push(`${player.jersey || "-"} ${player.name} ${player.posZh || player.posAbbr || ""}`.trim());
     lines.push("");
   }
+  const report = oddsReport(model, state.memory?.oddsStamp?.at || null);
+  lines.push("盤口（ESPN／DraftKings 美式盤換算，僅供分析，非投注建議）");
+  if (!report) lines.push("本場暫無盤口資料");
+  else {
+    for (const market of report.markets) {
+      lines.push(market.title);
+      for (const row of market.rows) lines.push(`  ${row.line}`);
+      lines.push(`  傾向：${market.lean}（信心${market.confidence}）`);
+      for (const reason of market.reasons) lines.push(`  ${reason}`);
+    }
+  }
+  lines.push("");
   lines.push(`更新 ${taipeiClock(new Date())} 台北`);
   lines.push("資料來源：ESPN");
   return lines.join("\n");

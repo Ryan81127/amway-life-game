@@ -220,6 +220,8 @@ function matchCard(match) {
     teamLine(match.home, pre),
     teamLine(match.away, pre)
   );
+  const oddsLine = scheduleOddsLine(match);
+  if (oddsLine) card.append(h("p", { class: "odds-mini" }, oddsLine.includes("獨贏") ? `盤口 ${oddsLine}（主/和/客）` : `盤口 ${oddsLine}`));
   if (match.venue) card.append(h("p", { class: "faint" }, match.venue));
   return card;
 }
@@ -262,7 +264,7 @@ function renderMatch(app, route) {
       h("button", { class: "retry", onclick: () => loadMatch(route.league, route.event) }, "重試")));
   }
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
-  wrap.append(scoreboard(model), grokButton(model), analysisBlock(model), cheatBlock(model), checkpointBlock(), timeline(model), statsBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model));
+  wrap.append(scoreboard(model), grokButton(model), oddsBlock(model), analysisBlock(model), cheatBlock(model), checkpointBlock(), timeline(model), statsBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model));
   app.append(wrap, footer());
   app.dataset.ready = "1";
   app.dataset.view = "match";
@@ -328,6 +330,37 @@ function grokButton(model) {
   const button = h("button", { class: "grok" }, "複製賽況給 Grok Bot");
   button.addEventListener("click", () => copyText(grokText(model), button));
   return h("div", { class: "row-actions" }, button);
+}
+
+function oddsBlock(model) {
+  const report = oddsReport(model);
+  const seenAt = state.memory?.oddsStamp?.at || state.summaryLoadedAt;
+  const block = h("section", { class: "block", id: "odds" }, h("h2", null, "盤口參考與數據傾向"));
+  block.append(h("p", { class: "odds-note" }, "賠率來源：ESPN（DraftKings 美式盤），可能與台灣運彩不同；僅供分析參考，不構成投注建議。在台灣僅台灣運彩為合法管道，請理性投注。"));
+  if (!report) {
+    block.append(h("p", null, "本場暫無盤口資料"));
+    return block;
+  }
+  const stamp = seenAt ? `數字抓於 ${taipeiClock(new Date(seenAt))}（台北）` : "";
+  block.append(h("p", { class: "faint" }, report.hasLive ? `有開賽盤，也有目前盤。${stamp}` : `以下是開賽盤。${stamp}`));
+  for (const market of report.markets) block.append(oddsMarket(market));
+  return block;
+}
+
+function oddsMarket(market) {
+  const conf = market.confidence === "高" ? "conf-high" : market.confidence === "中" ? "conf-mid" : "conf-low";
+  return h("article", { class: "cp" },
+    h("h3", null, market.title),
+    h("div", { class: market.rows.length > 2 ? "price-grid" : "price-grid two" }, market.rows.map((row) => h("div", { class: "price" },
+      h("span", { class: "lbl" }, row.label),
+      h("b", null, row.use ? fmtDecimal(row.use.decimal) : "–"),
+      h("span", { class: "faint" }, row.use ? `隱含 ${fmtPct(row.use.implied)} · 美式 ${fmtAmerican(row.use.american)}` : "")
+    ))),
+    h("p", { class: "faint" }, market.rows.map((row) => `${row.label}：${row.line}`).join(" ")),
+    h("p", { class: "lean" }, market.lean, " · ", h("span", { class: `tag ${conf}` }, `信心${market.confidence}`)),
+    h("ul", { class: "bullets" }, market.reasons.map((reason) => h("li", null, reason))),
+    scriptBlock(market.spoken)
+  );
 }
 
 function analysisBlock(model) {

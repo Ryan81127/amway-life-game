@@ -539,6 +539,58 @@ img { display: block; }
 
 .cp h3 { margin: 0 0 4px; font-size: 16px; }
 
+.odds-note {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #241c12;
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.odds-mini {
+  margin: 8px 0 0;
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.price-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.price {
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--card-2);
+  text-align: center;
+}
+
+.price b {
+  display: block;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.price .faint {
+  display: block;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.price .lbl { color: var(--muted); font-size: 13px; font-weight: 800; }
+
+.lean { font-weight: 900; }
+
+.conf-high { color: var(--green); }
+.conf-mid { color: var(--gold); }
+.conf-low { color: var(--faint); }
+
 .grid-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
