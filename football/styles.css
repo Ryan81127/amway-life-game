@@ -581,6 +581,7 @@ img { display: block; }
   display: block;
   font-size: 12px;
   line-height: 1.35;
+  word-break: keep-all;
 }
 
 .price .lbl { color: var(--muted); font-size: 13px; font-weight: 800; }
