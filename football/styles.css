@@ -14,7 +14,7 @@
   --green: #3ddc97;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   --pad: 16px;
-  --header: 64px;
+  --header: 118px;
 }
 
 * { box-sizing: border-box; }
@@ -53,15 +53,24 @@ img { display: block; }
   top: 0;
   z-index: 20;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
   min-height: var(--header);
   padding: 10px var(--pad);
   background: rgba(7, 10, 16, 0.92);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(12px);
 }
+
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.langbar { display: flex; gap: 8px; }
 
 .brand { min-width: 0; flex: 1; }
 
@@ -539,6 +548,58 @@ img { display: block; }
 
 .cp h3 { margin: 0 0 4px; font-size: 16px; }
 
+.pitches { display: grid; gap: 12px; }
+
+.pitch {
+  position: relative;
+  height: 460px;
+  margin-top: 8px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  background:
+    linear-gradient(rgba(255,255,255,.16), rgba(255,255,255,.16)) center 50% / 100% 2px no-repeat,
+    radial-gradient(circle at 50% 50%, transparent 54px, rgba(255,255,255,.16) 55px, rgba(255,255,255,.16) 57px, transparent 58px),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.05) 0 8%, transparent 8% 16%),
+    #146c3a;
+  overflow: hidden;
+}
+
+.dot { position: absolute; transform: translate(-50%, -50%); }
+
+.dot {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #102018;
+  color: #fff;
+}
+
+.dot .num { font-weight: 900; font-size: 13px; }
+
+.dot .pname, .dot .came, .dot .redtag {
+  position: absolute;
+  left: 50%;
+  width: 78px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
+  text-shadow: 0 1px 2px #000;
+}
+
+.dot .pname { top: 34px; }
+.dot .came { top: 48px; color: var(--gold); font-weight: 800; }
+.dot .redtag { top: 48px; color: #ff8b98; font-weight: 800; }
+.dot.off { opacity: 0.72; }
+.dot.sent { border-color: #ff4d67; background: #4a1420; }
+
+.gloss { width: 100%; border-collapse: collapse; margin: 0 0 14px; font-size: 13px; }
+.gloss caption { caption-side: top; text-align: left; font-weight: 900; padding: 10px 0 4px; }
+.gloss th, .gloss td { border-bottom: 1px solid var(--line); padding: 6px 4px; vertical-align: top; text-align: left; }
+.term-card { padding: 8px 0; border-bottom: 1px solid var(--line); }
+
 .odds-note {
   margin: 8px 0;
   padding: 10px 12px;
@@ -664,7 +725,7 @@ footer.foot {
 }
 
 @media (min-width: 800px) {
-  .squads { grid-template-columns: 1fr 1fr; }
+  .squads, .pitches { grid-template-columns: 1fr 1fr; }
   .side .name { font-size: 20px; }
   .wrap { padding-bottom: 64px; }
 }

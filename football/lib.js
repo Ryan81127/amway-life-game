@@ -174,7 +174,39 @@ const state = {
 };
 
 function teamZh(id, fallback) {
-  return TEAM_ZH[String(id)] || fallback || "球隊";
+  const key = String(id || "");
+  const tw = TEAM_ZH[key];
+  if (locale() === "cn") {
+    if (TEAM_CN[key]) return TEAM_CN[key];
+    if (tw) return han(tw);
+  }
+  return tw || fallback || (locale() === "cn" ? "球队" : "球隊");
+}
+
+function relabelNames() {
+  const fix = (side) => {
+    if (side?.id) side.name = teamZh(side.id, side.rawName || side.name);
+  };
+  for (const match of state.matches) {
+    fix(match.home);
+    fix(match.away);
+  }
+  const model = state.model;
+  if (!model) return;
+  fix(model.home);
+  fix(model.away);
+  for (const ev of model.events || []) {
+    if (ev.teamId) ev.teamName = teamZh(ev.teamId, ev.teamName);
+  }
+  for (const block of model.form || []) {
+    if (block.id) block.name = teamZh(block.id, block.name);
+  }
+  for (const game of model.h2h?.games || []) {
+    for (const team of game.teams || []) if (team.id) team.name = teamZh(team.id, team.name);
+  }
+  for (const scorer of model.scorers || []) {
+    /* team name is rewritten when cheat lines render from current side names */
+  }
 }
 
 function posZh(abbr) {
@@ -1872,6 +1904,10 @@ function scheduleOddsLine(match) {
 function grokText(model) {
   const lines = [];
   lines.push(`【賽況快照】${model.leagueName}`);
+  lines.push(`用語：${locale() === "cn" ? "大陆用语" : "台灣用語"}`);
+  const homeShape = model.roster?.home?.formation || "未公布";
+  const awayShape = model.roster?.away?.formation || "未公布";
+  lines.push(`陣型：${model.home.name} ${homeShape}；${model.away.name} ${awayShape}`);
   lines.push(`${model.home.name}（主） vs ${model.away.name}（客）`);
   lines.push(`比分 ${model.home.score}-${model.away.score}`);
   lines.push(`狀態 ${model.minute.label}（${phaseText(model.minute)}）`);
@@ -1919,7 +1955,8 @@ function grokText(model) {
   lines.push("");
   lines.push(`更新 ${taipeiClock(new Date())} 台北`);
   lines.push("資料來源：ESPN");
-  return lines.join("\n");
+  const text = lines.join("\n");
+  return locale() === "cn" ? speak(text) : text;
 }
 
 function anyLive() {

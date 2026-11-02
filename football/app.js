@@ -42,11 +42,12 @@ async function copyText(text, button) {
 
 function scriptBlock(lines) {
   if (!lines?.length) return null;
-  const button = h("button", { class: "copy" }, "複製口播");
-  button.addEventListener("click", () => copyText(lines.join("\n"), button));
+  const shown = lines.map((line) => speak(line));
+  const button = h("button", { class: "copy" }, ui("複製口播"));
+  button.addEventListener("click", () => copyText(shown.join("\n"), button));
   return h("div", { class: "script" },
-    h("div", { class: "script-k" }, "口播"),
-    lines.map((line) => h("p", { class: "say" }, line)),
+    h("div", { class: "script-k" }, ui("口播")),
+    shown.map((line) => h("p", { class: "say" }, line)),
     button
   );
 }
@@ -66,7 +67,7 @@ function logoNode(src, abbr) {
 }
 
 function footer() {
-  return h("footer", { class: "foot" }, "資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。");
+  return h("footer", { class: "foot" }, ui("資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。"));
 }
 
 function errorBox(retry) {
@@ -114,17 +115,33 @@ function render() {
   }
 }
 
+function langToggle() {
+  const go = (next) => {
+    if (locale() === next) return;
+    setLocale(next);
+    relabelNames();
+    maybeRender({ soft: true });
+  };
+  return h("div", { class: "langbar", role: "group", "aria-label": "用語" },
+    h("button", { class: "chip", "aria-pressed": String(locale() === "tw"), onclick: () => go("tw") }, "台灣用語"),
+    h("button", { class: "chip", "aria-pressed": String(locale() === "cn"), onclick: () => go("cn") }, "大陆用语")
+  );
+}
+
 function headerBar(title, sub, actions) {
   return h("header", { class: "top" },
-    h("div", { class: "brand" }, h("h1", null, title), sub ? h("p", { class: "sub", id: "updated" }, sub) : null),
-    h("div", { class: "top-actions" }, actions)
+    h("div", { class: "top-row" },
+      h("div", { class: "brand" }, h("h1", null, ui(title)), sub ? h("p", { class: "sub", id: "updated" }, ui(sub)) : null),
+      h("div", { class: "top-actions" }, actions)
+    ),
+    langToggle()
   );
 }
 
 function renderSchedule(app) {
   const bounds = windowBounds();
   const sub = state.scheduleLoadedAt ? `更新於 ${taipeiClock(new Date(state.scheduleLoadedAt))}` : "台北時間";
-  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: () => manualRefresh() }, "重新整理");
+  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: () => manualRefresh() }, ui("重新整理"));
   app.append(headerBar("足球轉播看板", sub, [refresh]));
   const wrap = h("div", { class: "wrap" });
   wrap.append(h("p", { class: "faint" }, "昨天到未來 7 天 · 台北時間 · 比賽中每 20 秒更新，其他每 3 分鐘"));
@@ -210,7 +227,7 @@ function matchCard(match) {
     event.preventDefault();
     openMatch(match.league, match.id);
   });
-  const status = h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), match.clock] : match.clock);
+  const status = h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(match.clock)] : ui(match.clock));
   card.append(
     h("div", { class: "card-top" },
       h("span", { class: "pill" }, match.leagueName),
@@ -221,7 +238,7 @@ function matchCard(match) {
     teamLine(match.away, pre)
   );
   const oddsLine = scheduleOddsLine(match);
-  if (oddsLine) card.append(h("p", { class: "odds-mini" }, oddsLine.includes("獨贏") ? `盤口 ${oddsLine}（主/和/客）` : `盤口 ${oddsLine}`));
+  if (oddsLine) card.append(h("p", { class: "odds-mini" }, ui(oddsLine.includes("獨贏") ? `盤口 ${oddsLine}（主/和/客）` : `盤口 ${oddsLine}`)));
   if (match.venue) card.append(h("p", { class: "faint" }, match.venue));
   return card;
 }
@@ -239,12 +256,12 @@ function renderMatch(app, route) {
     class: state.summaryLoading ? "icon-btn busy" : "icon-btn",
     id: "refresh",
     onclick: () => manualRefresh()
-  }, "重新整理");
+  }, ui("重新整理"));
   const sub = state.summaryLoadedAt ? `更新於 ${taipeiClock(new Date(state.summaryLoadedAt))}` : "讀取比賽";
   app.append(headerBar(
     model ? `${model.home.name} 對 ${model.away.name}` : "比賽",
     sub,
-    [h("button", { class: "back", onclick: () => goSchedule() }, "← 賽程"), refresh]
+    [h("button", { class: "back", onclick: () => goSchedule() }, ui("← 賽程")), refresh]
   ));
   const wrap = h("div", { class: "wrap" });
   if (!model && state.summaryLoading) {
@@ -264,7 +281,7 @@ function renderMatch(app, route) {
       h("button", { class: "retry", onclick: () => loadMatch(route.league, route.event) }, "重試")));
   }
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
-  wrap.append(scoreboard(model), grokButton(model), oddsBlock(model), analysisBlock(model), cheatBlock(model), checkpointBlock(), timeline(model), statsBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model));
+  wrap.append(scoreboard(model), grokButton(model), formationBlock(model), oddsBlock(model), analysisBlock(model), cheatBlock(model), checkpointBlock(), timeline(model), statsBlock(model), glossaryBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model));
   app.append(wrap, footer());
   app.dataset.ready = "1";
   app.dataset.view = "match";
@@ -335,8 +352,8 @@ function grokButton(model) {
 function oddsBlock(model) {
   const report = oddsReport(model);
   const seenAt = state.memory?.oddsStamp?.at || state.summaryLoadedAt;
-  const block = h("section", { class: "block", id: "odds" }, h("h2", null, "盤口參考與數據傾向"));
-  block.append(h("p", { class: "odds-note" }, "賠率來源：ESPN（DraftKings 美式盤），可能與台灣運彩不同；僅供分析參考，不構成投注建議。在台灣僅台灣運彩為合法管道，請理性投注。"));
+  const block = h("section", { class: "block", id: "odds" }, h("h2", null, ui("盤口參考與數據傾向")));
+  block.append(h("p", { class: "odds-note" }, ui("賠率來源：ESPN（DraftKings 美式盤），可能與台灣運彩不同；僅供分析參考，不構成投注建議。在台灣僅台灣運彩為合法管道，請理性投注。")));
   if (!report) {
     block.append(h("p", null, "本場暫無盤口資料"));
     return block;
@@ -350,15 +367,15 @@ function oddsBlock(model) {
 function oddsMarket(market) {
   const conf = market.confidence === "高" ? "conf-high" : market.confidence === "中" ? "conf-mid" : "conf-low";
   return h("article", { class: "cp" },
-    h("h3", null, market.title),
+    h("h3", null, ui(market.title)),
     h("div", { class: market.rows.length > 2 ? "price-grid" : "price-grid two" }, market.rows.map((row) => h("div", { class: "price" },
       h("span", { class: "lbl" }, row.label),
       h("b", null, row.use ? fmtDecimal(row.use.decimal) : "–"),
       h("span", { class: "faint" }, row.use ? `隱含 ${fmtPct(row.use.implied)} · 美式 ${fmtAmerican(row.use.american)}` : "")
     ))),
     h("p", { class: "faint" }, market.rows.map((row) => `${row.label}：${row.line}`).join(" ")),
-    h("p", { class: "lean" }, market.lean, " · ", h("span", { class: `tag ${conf}` }, `信心${market.confidence}`)),
-    h("ul", { class: "bullets" }, market.reasons.map((reason) => h("li", null, reason))),
+    h("p", { class: "lean" }, ui(market.lean), " · ", h("span", { class: `tag ${conf}` }, ui(`信心${market.confidence}`))),
+    h("ul", { class: "bullets" }, market.reasons.map((reason) => h("li", null, ui(reason)))),
     scriptBlock(market.spoken)
   );
 }
@@ -540,13 +557,170 @@ function statsBlock(model) {
     block.append(h("div", { class: "stat" },
       h("b", { class: "home-n" }, fmtStat(key, hv)),
       h("div", null,
-        h("span", { class: "lbl" }, label),
+        h("span", { class: "lbl" }, ui(label)),
         h("div", { class: "tracks" }, h("span", { class: "track home" }, homeBar), h("span", { class: "track away" }, awayBar))
       ),
       h("b", null, fmtStat(key, av))
     ));
   }
   if (!any) block.append(h("p", null, "技術統計尚未公布。"));
+  return block;
+}
+
+const PITCH_BAND = {
+  G: ["gk", 0], GK: ["gk", 0],
+  LB: ["def", 0], LWB: ["def", 0],
+  "CD-L": ["def", 1], LCB: ["def", 1],
+  CB: ["def", 2], CD: ["def", 2], SW: ["def", 2],
+  "CD-R": ["def", 3], RCB: ["def", 3],
+  RB: ["def", 4], RWB: ["def", 4],
+  LDM: ["dm", 0],
+  CDM: ["dm", 1], DM: ["dm", 1],
+  RDM: ["dm", 2],
+  LM: ["mid", 0],
+  LCM: ["mid", 1],
+  CM: ["mid", 2],
+  RCM: ["mid", 3],
+  RM: ["mid", 4],
+  LW: ["am", 0], "AM-L": ["am", 0], LAM: ["am", 0],
+  AM: ["am", 2], CAM: ["am", 2],
+  RW: ["am", 4], "AM-R": ["am", 4], RAM: ["am", 4],
+  LF: ["fwd", 0],
+  SS: ["fwd", 1],
+  F: ["fwd", 2], CF: ["fwd", 2], ST: ["fwd", 2],
+  RF: ["fwd", 4]
+};
+const BAND_TOP = { gk: 84, def: 68, dm: 54, mid: 40, am: 26, fwd: 12 };
+
+function pitchPlayers(block, events, teamId) {
+  const starters = block.players.filter((player) => player.starter);
+  const replaced = new Map();
+  for (const ev of events || []) {
+    if (ev.kind === "sub" && ev.teamId === teamId && ev.playerIds?.[1]) {
+      replaced.set(ev.playerIds[1], { name: ev.subOn, minute: ev.minuteLabel });
+    }
+  }
+  const pack = (player) => ({
+    player,
+    sub: replaced.get(player.id) || null,
+    sent: (player.redMins || []).length > 0 || (player.stats?.redCards || 0) > 0
+  });
+  const gk = starters.find((player) => player.posAbbr === "G" || player.posAbbr === "GK") || starters.find((player) => player.formationPlace === 1);
+  const rest = starters.filter((player) => player !== gk);
+  const depthOf = (player) => {
+    const role = PITCH_BAND[player.posAbbr];
+    const band = role ? role[0] : "mid";
+    return { d: { gk: 0, def: 1, dm: 2, mid: 3, am: 4, fwd: 5 }[band], x: role ? role[1] : 2 };
+  };
+  rest.sort((a, b) => depthOf(a).d - depthOf(b).d || depthOf(a).x - depthOf(b).x || a.formationPlace - b.formationPlace);
+  const counts = String(block.formation || "").split("-").map(Number).filter((n) => n > 0);
+  const rows = [];
+  if (counts.length && counts.reduce((sum, n) => sum + n, 0) === rest.length) {
+    let index = 0;
+    for (const count of counts) {
+      rows.push(rest.slice(index, index + count));
+      index += count;
+    }
+  } else {
+    const bands = ["def", "dm", "mid", "am", "fwd"];
+    for (const band of bands) {
+      const row = rest.filter((player) => (PITCH_BAND[player.posAbbr]?.[0] || "mid") === band);
+      if (row.length) rows.push(row);
+    }
+  }
+  const placed = [];
+  if (gk) placed.push({ ...pack(gk), x: 50, y: 88 });
+  rows.forEach((row, index) => {
+    const y = rows.length === 1 ? 40 : 76 - (index * 58) / (rows.length - 1);
+    row.forEach((player, col) => {
+      placed.push({ ...pack(player), x: ((col + 1) / (row.length + 1)) * 100, y });
+    });
+  });
+  return placed;
+}
+
+function formationBlock(model) {
+  const block = h("section", { class: "block", id: "formation" }, h("h2", null, ui("即時陣型")));
+  const home = model.roster?.home;
+  const away = model.roster?.away;
+  const ready = (home?.players || []).some((player) => player.starter) || (away?.players || []).some((player) => player.starter);
+  if (!ready) {
+    block.append(h("p", null, ui("首發名單通常賽前 1 小時公布")));
+    return block;
+  }
+  block.append(h("p", { class: "faint" }, ui("依首發陣型，換人後會標示")));
+  block.append(h("div", { class: "pitches" },
+    pitchCard(model, "home"),
+    pitchCard(model, "away")
+  ));
+  return block;
+}
+
+function pitchCard(model, side) {
+  const team = model[side];
+  const roster = model.roster[side];
+  const shape = roster.formation || "";
+  const note = formationNote(shape);
+  const card = h("div", { class: "pitch-card" },
+    h("h3", null, `${team.name}${shape ? " · " + shape : ""}`),
+    note ? h("p", { class: "faint" }, ui(note)) : null
+  );
+  const pitch = h("div", { class: "pitch", "aria-label": ui("陣型圖") });
+  for (const spot of pitchPlayers(roster, model.events, team.id)) {
+    const short = (spot.sub?.name || "").split(" ").slice(-1)[0];
+    pitch.append(h("button", {
+      class: `dot${spot.sent ? " sent" : ""}${spot.sub ? " off" : ""}`,
+      style: `left:${spot.x}%;top:${spot.y}%`,
+      onclick: () => openPlayer(spot.player.id)
+    },
+      h("span", { class: "num" }, spot.player.jersey || "–"),
+      h("span", { class: "pname" }, spot.player.name.split(" ").slice(-1)[0]),
+      spot.sub ? h("span", { class: "came" }, `↑${short}`) : null,
+      spot.sent ? h("span", { class: "redtag" }, ui("紅牌")) : null
+    ));
+  }
+  card.append(pitch);
+  return card;
+}
+
+function glossaryBlock(model) {
+  const block = h("section", { class: "block", id: "glossary" }, h("h2", null, ui("術語小幫手")));
+  const input = h("input", { class: "search", id: "gloss-search", type: "search", placeholder: ui("搜尋術語"), autocomplete: "off" });
+  const live = h("div", { id: "gloss-live" });
+  const tableWrap = h("div", { id: "gloss-table" });
+  const paint = () => {
+    const q = input.value.trim().toLowerCase();
+    live.replaceChildren();
+    if (!q) {
+      const terms = matchTerms(model);
+      if (terms.length) {
+        live.append(h("h3", null, ui("本場用得到")));
+        for (const term of terms) {
+          live.append(h("article", { class: "term-card" },
+            h("p", { class: "fact" }, `${term.tw} / ${term.cn} / ${term.en}`),
+            h("p", { class: "say" }, speak(term.line))
+          ));
+        }
+      }
+    }
+    tableWrap.replaceChildren();
+    for (const [id, label] of GLOSS_GROUPS) {
+      const rows = GLOSSARY.filter((item) => item.group === id && (!q || `${item.tw} ${item.cn} ${item.en}`.toLowerCase().includes(q)));
+      if (!rows.length) continue;
+      const table = h("table", { class: "gloss" },
+        h("caption", null, ui(label)),
+        h("tr", null, h("th", null, "台灣說法"), h("th", null, "大陆说法"), h("th", null, "English"))
+      );
+      for (const row of rows) {
+        table.append(h("tr", null, h("td", null, row.tw), h("td", null, row.cn), h("td", null, row.en)));
+      }
+      tableWrap.append(table);
+    }
+    if (!tableWrap.childNodes.length) tableWrap.append(h("p", null, ui("沒有符合的術語")));
+  };
+  input.addEventListener("input", paint);
+  paint();
+  block.append(input, live, tableWrap);
   return block;
 }
 
