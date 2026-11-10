@@ -545,16 +545,31 @@ function normalizeEvent(ev, league) {
 
 function wantedDays(mode) {
   const bounds = windowBounds();
-  if (mode !== "live") {
-    return { ...bounds, days: eachYmd(addDays(bounds.start, -1), addDays(bounds.end, 1)), full: true };
+  const near = [addDays(bounds.today, -1), bounds.today, addDays(bounds.today, 1)];
+  if (mode === "live") {
+    const set = new Set();
+    const leagues = new Set();
+    for (const match of state.matches) {
+      if (match.state !== "in" || !match.date) continue;
+      set.add(match.date.slice(0, 10));
+      set.add(taipeiYmd(match.date));
+      leagues.add(match.league);
+    }
+    if (!set.size) return { ...bounds, days: near, full: false, leagues: null };
+    return { ...bounds, days: [...set].filter(Boolean).sort(), full: false, leagues };
   }
-  const set = new Set([addDays(bounds.today, -1), bounds.today, addDays(bounds.today, 1)]);
-  for (const match of state.matches) {
-    if (match.state !== "in" || !match.date) continue;
-    set.add(match.date.slice(0, 10));
-    set.add(taipeiYmd(match.date));
-  }
-  return { ...bounds, days: [...set].filter(Boolean).sort(), full: false };
+  if (mode === "today") return { ...bounds, days: near, full: false, leagues: null };
+  return { ...bounds, days: eachYmd(addDays(bounds.start, -1), addDays(bounds.end, 1)), full: true, leagues: null };
+}
+
+/* 每個聯賽每一天的賽程快取：避免每次刷新都重抓十幾天、被 ESPN 限流 */
+const dayCache = new Map();
+
+function dayTtl(day) {
+  const today = taipeiYmd(new Date());
+  if (day >= addDays(today, -1) && day <= addDays(today, 1)) return 0;
+  if (day < today) return 6 * 3600 * 1000;
+  return 20 * 60 * 1000;
 }
 
 async function probeRange(days) {
@@ -582,10 +597,15 @@ async function fetchLeague(slug, days) {
     return data.events || [];
   }
   const chunks = await Promise.all(days.map((day) => limit(async () => {
+    const key = `${slug}:${day}`;
+    const hit = dayCache.get(key);
+    if (hit && Date.now() - hit.t < dayTtl(day)) return hit.events;
     try {
       const data = await fetchJson(`${API}/${slug}/scoreboard?dates=${day.replaceAll("-", "")}`);
+      dayCache.set(key, { t: Date.now(), events: data.events || [] });
       return data.events || [];
     } catch (err) {
+      if (hit) return hit.events;
       if (err.name === "AbortError") throw err;
       return null;
     }

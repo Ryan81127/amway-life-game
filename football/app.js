@@ -1139,7 +1139,8 @@ async function loadSchedule(mode) {
     const ok = new Set();
     const errors = [];
     let done = 0;
-    await Promise.all(LEAGUES.map(async (league) => {
+    const targets = plan.leagues ? LEAGUES.filter((league) => plan.leagues.has(league.slug)) : LEAGUES;
+    await Promise.all(targets.map(async (league) => {
       try {
         const events = await fetchLeague(league.slug, plan.days);
         if (token !== state.token) return;
@@ -1154,7 +1155,7 @@ async function loadSchedule(mode) {
         errors.push(league.name);
       } finally {
         done += 1;
-        setProgress(`載入賽程中… ${done}/${LEAGUES.length}`);
+        setProgress(`載入賽程中… ${done}/${targets.length}`);
       }
     }));
     if (token !== state.token) return;
@@ -1167,7 +1168,10 @@ async function loadSchedule(mode) {
       state.matches = [...map.values()];
     }
     state.leagueErrors = errors;
-    if (plan.full && errors.length < LEAGUES.length) state.fullLoaded = true;
+    if (plan.full && errors.length < LEAGUES.length) {
+      state.fullLoaded = true;
+      state.fullAt = Date.now();
+    }
     state.scheduleReady = state.matches.length > 0 || errors.length < LEAGUES.length;
     state.scheduleLoadedAt = Date.now();
     state.scheduleError = !state.matches.length && errors.length === LEAGUES.length;
@@ -1239,7 +1243,7 @@ async function manualRefresh() {
   clearTimeout(state.timer);
   const route = readRoute();
   if (route.event && route.league) await loadMatch(route.league, route.event);
-  else await loadSchedule(anyLive() ? "live" : "full");
+  else await loadSchedule(anyLive() ? "live" : "today");
   armTimer();
 }
 
@@ -1255,14 +1259,20 @@ function armTimer() {
 async function autoRefresh() {
   try {
     const route = readRoute();
-    if (route.event && route.league) await loadMatch(route.league, route.event);
-    else await loadSchedule(state.matches.some((match) => match.state === "in") ? "live" : "full");
+    if (document.hidden) { /* 分頁在背景時不打 API，回到畫面再更新 */ }
+    else if (route.event && route.league) await loadMatch(route.league, route.event);
+    else if (document.hidden) { /* 分頁在背景時不打 API */ }
+    else if (state.matches.some((match) => match.state === "in")) await loadSchedule("live");
+    else await loadSchedule(Date.now() - (state.fullAt || 0) > 30 * 60 * 1000 ? "full" : "today");
   } finally {
     armTimer();
   }
 }
 
 function boot() {
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && Date.now() - Math.max(state.scheduleLoadedAt || 0, state.summaryLoadedAt || 0) > 20000) manualRefresh();
+  });
   window.addEventListener("popstate", () => {
     loadRoute();
   });
