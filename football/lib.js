@@ -13,7 +13,9 @@ const LEAGUES = [
   { slug: "uefa.europa", name: "歐霞" },
   { slug: "usa.1", name: "美職聯" },
   { slug: "jpn.1", name: "J1 聯賽" },
-  { slug: "fifa.world", name: "世界盃" }
+  { slug: "fifa.world", name: "世界盃" },
+  { slug: "uefa.nations", name: "歐國聯" },
+  { slug: "fifa.friendly", name: "國際友誼賽" }
 ];
 
 const STATUS_ZH = {
@@ -42,6 +44,22 @@ const STATUS_ZH = {
 };
 
 const TEAM_ZH = {
+  162: "義大利", 164: "西班牙", 202: "阿根廷", 204: "玻利維亞", 205: "巴西", 207: "智利",
+  208: "哥倫比亞", 209: "厄瓜多", 210: "巴拉圭", 211: "秘魯", 212: "烏拉圭", 213: "委內瑞拉",
+  214: "哥斯大黎加", 215: "宏都拉斯", 444: "愛沙尼亞", 445: "賽普勒斯", 447: "法羅群島", 448: "英格蘭",
+  449: "荷蘭", 450: "捷克", 451: "南韓", 452: "波士尼亞", 453: "馬爾他", 454: "俄羅斯", 455: "希臘",
+  456: "拉脫維亞", 457: "烏克蘭", 458: "芬蘭", 459: "比利時", 460: "立陶宛", 461: "以色列",
+  462: "保加利亞", 463: "北馬其頓", 464: "挪威", 465: "土耳其", 466: "瑞典", 468: "斯洛伐克",
+  469: "伊朗", 470: "冰島", 471: "波蘭", 472: "斯洛維尼亞", 473: "羅馬尼亞", 474: "奧地利",
+  475: "瑞士", 476: "愛爾蘭", 477: "克羅埃西亞", 478: "法國", 479: "丹麥", 480: "匈牙利",
+  481: "德國", 482: "葡萄牙", 483: "摩爾多瓦", 578: "威爾斯", 579: "亞美尼亞", 580: "蘇格蘭",
+  581: "亞塞拜然", 582: "盧森堡", 583: "白俄羅斯", 584: "喬治亞", 585: "阿爾巴尼亞", 586: "北愛爾蘭",
+  587: "安道爾", 588: "聖馬利諾", 589: "列支敦斯登", 627: "日本", 628: "澳洲", 655: "沙烏地阿拉伯",
+  658: "中國", 841: "科威特", 2405: "馬來西亞", 2570: "烏茲別克", 2619: "哈薩克", 2649: "多明尼加",
+  2664: "蘇利南", 2666: "紐西蘭", 2917: "約旦", 4375: "伊拉克", 4380: "敘利亞", 4381: "巴林",
+  4384: "新加坡", 4385: "印度", 4388: "黎巴嫩", 4397: "阿聯", 4398: "卡達", 4895: "印尼",
+  6014: "葉門", 6167: "巴勒斯坦", 6686: "史瓦帝尼", 6724: "吉爾吉斯", 6757: "塞爾維亞",
+  6775: "蒙特內哥羅", 7349: "越南", 14561: "中華台北", 16721: "直布羅陀", 18272: "科索沃",
   359: "阿森納", 362: "阿斯頓維拉", 349: "伯恩茅斯", 337: "布蘭特福德", 331: "布萊頓",
   363: "切爾西", 388: "考文垂", 384: "水晶宮", 368: "埃弗頓", 370: "富勒姆",
   306: "赫爾城", 373: "伊普斯威奇", 357: "里茲聯", 364: "利物浦", 382: "曼城",
@@ -92,7 +110,10 @@ const POS_ZH = {
   RM: "右中場", LM: "左中場", AM: "攻擊中場", CAM: "攻擊中場",
   "AM-R": "右前腰", "AM-L": "左前腰", RAM: "右前腰", LAM: "左前腰",
   RW: "右翼", LW: "左翼", RF: "右前鋒", LF: "左前鋒", CF: "中鋒", ST: "前鋒",
-  F: "前鋒", SS: "二前鋒", D: "後衛", M: "中場"
+  F: "前鋒", SS: "二前鋒", D: "後衛", M: "中場",
+  "CF-L": "左中鋒", "CF-R": "右中鋒", "CM-L": "左中場", "CM-R": "右中場", "DM-L": "左後腰", "DM-R": "右後腰",
+  "F-L": "左前鋒", "F-R": "右前鋒", "LB-L": "左後衛", "RB-R": "右後衛", LF: "左前鋒", RF: "右前鋒",
+  LWF: "左邊鋒", RWF: "右邊鋒", SUB: "替補"
 };
 
 const MATCH_STATS = [
@@ -166,6 +187,10 @@ const state = {
   summaryStaleError: false,
   summaryLoadedAt: 0,
   filter: "all",
+  day: "",
+  tab: "all",
+  pred: null,
+  predAbort: null,
   token: 0,
   abort: null,
   timer: 0,
@@ -343,7 +368,7 @@ function inWindow(iso, start, end) {
 
 function windowBounds() {
   const today = taipeiYmd(new Date());
-  return { today, start: addDays(today, -1), end: addDays(today, 7) };
+  return { today, start: addDays(today, -3), end: addDays(today, 7) };
 }
 
 function compZh(name) {
@@ -668,7 +693,7 @@ function buildEvents(raw, home, away) {
     const kind = classifyEvent(ev);
     const clock = ev.clock?.displayValue || "";
     const parsed = parseClock(clock);
-    const names = (ev.participants || []).map((p) => p.athlete?.displayName).filter(Boolean);
+    const names = (ev.participants || []).map((p) => playerZh(p.athlete?.displayName)).filter(Boolean);
     const ids = (ev.participants || []).map((p) => String(p.athlete?.id || ""));
     let period = Number(ev.period?.number || ev.period || 0);
     const base = parsed?.base || 0;
@@ -735,11 +760,15 @@ function readRoster(block) {
     players: (block?.roster || []).map((row) => {
       const athlete = row.athlete || {};
       const abbr = row.position?.abbreviation || "";
+      const en = athlete.displayName || athlete.fullName || "";
+      const zh = playerZh(en);
+      const known = zh && zh !== en;
       return {
         id: String(athlete.id || ""),
-        name: athlete.displayName || athlete.fullName || "球員",
-        shortName: athlete.shortName || "",
-        lastName: athlete.lastName || "",
+        name: zh || "球員",
+        en,
+        shortName: known ? zh : athlete.shortName || "",
+        lastName: known ? zh : athlete.lastName || "",
         jersey: row.jersey || athlete.jersey || "",
         posAbbr: abbr,
         posZh: posZh(abbr),
@@ -813,7 +842,7 @@ function readScorers(data) {
       if (!goals) continue;
       out.push({
         teamName,
-        player: top.athlete?.displayName || "",
+        player: playerZh(top.athlete?.displayName || ""),
         goals: goals[1],
         matches: matches ? matches[1] : ""
       });
@@ -916,6 +945,18 @@ function buildModel(data, leagueSlug) {
     table: readTable(data),
     scorers: readScorers(data),
     form: readForm(data),
+    formIds: (data.lastFiveGames || []).map((block) => ({
+      id: String(block.team?.id || ""),
+      events: (block.events || []).map((ev) => ({
+        id: String(ev.id),
+        date: ev.gameDate,
+        home: String(ev.homeTeamId || ""),
+        away: String(ev.awayTeamId || ""),
+        hs: Number(ev.homeTeamScore),
+        as: Number(ev.awayTeamScore)
+      }))
+    })),
+    commentary: typeof parseCommentary === "function" ? parseCommentary(data.commentary || [], home, away) : [],
     h2h: readH2H(data, home, away),
     odds: parseBook((data.pickcenter || [])[0] || (data.odds || [])[0])
   };
@@ -1972,5 +2013,5 @@ function readRoute() {
     league = league || hash.get("league");
     event = event || hash.get("event");
   }
-  return { league, event, filter: query.get("filter") || "all" };
+  return { league, event, filter: query.get("filter") || "all", day: query.get("day") || "", tab: query.get("tab") || "" };
 }

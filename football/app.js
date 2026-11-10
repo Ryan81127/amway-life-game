@@ -103,7 +103,11 @@ function maybeRender(options) {
 
 function render() {
   const route = readRoute();
-  if (!route.event) state.filter = route.filter || "all";
+  if (!route.event) {
+    state.filter = route.filter || "all";
+    state.day = route.day || "";
+    state.tab = ["live", "pre", "post"].includes(route.tab) ? route.tab : "all";
+  }
   const app = document.getElementById("app");
   app.replaceChildren();
   try {
@@ -113,6 +117,14 @@ function render() {
     console.error(err);
     app.append(h("div", { class: "wrap" }, errorBox(() => location.reload())), footer());
   }
+  centerDateStrip();
+}
+
+function centerDateStrip() {
+  const strip = document.querySelector(".datestrip");
+  const btn = strip?.querySelector('[aria-pressed="true"]');
+  if (!strip || !btn) return;
+  strip.scrollLeft = btn.offsetLeft - strip.clientWidth / 2 + btn.clientWidth / 2;
 }
 
 function langToggle() {
@@ -128,23 +140,95 @@ function langToggle() {
   );
 }
 
-function headerBar(title, sub, actions) {
-  return h("header", { class: "top" },
+function headerBar(title, sub, actions, extra) {
+  return h("header", { class: extra ? "top compact" : "top" },
     h("div", { class: "top-row" },
       h("div", { class: "brand" }, h("h1", null, ui(title)), sub ? h("p", { class: "sub", id: "updated" }, ui(sub)) : null),
       h("div", { class: "top-actions" }, actions)
     ),
-    langToggle()
+    extra || langToggle()
   );
+}
+
+function bucketOf(match) {
+  if (match.state === "in") return "live";
+  if (match.state === "pre") return "pre";
+  return "post";
+}
+
+function dayMatches(day, today) {
+  const byLeague = state.matches.filter((match) => state.filter === "all" || match.league === state.filter);
+  return byLeague.filter((match) => taipeiYmd(match.date) === day || (day === today && match.state === "in"));
+}
+
+function setScheduleParams(next) {
+  const url = new URL(location.href);
+  url.search = "";
+  url.hash = "";
+  const filter = next.filter ?? state.filter;
+  const day = next.day ?? state.day;
+  const tab = next.tab ?? state.tab;
+  if (filter && filter !== "all") url.searchParams.set("filter", filter);
+  if (day && day !== taipeiYmd(new Date())) url.searchParams.set("day", day);
+  if (tab && tab !== "all") url.searchParams.set("tab", tab);
+  history.replaceState({}, "", url);
+  maybeRender({ soft: false });
+}
+
+function dateStrip(bounds, day) {
+  const strip = h("div", { class: "datestrip", role: "tablist", "aria-label": "選擇日期" });
+  for (const ymd of eachYmd(bounds.start, bounds.end)) {
+    const meta = ymdMeta(ymd);
+    const list = dayMatches(ymd, bounds.today);
+    const live = list.some((match) => match.state === "in");
+    let rel = meta.wd;
+    if (ymd === bounds.today) rel = "今天";
+    else if (ymd === addDays(bounds.today, 1)) rel = "明天";
+    else if (ymd === addDays(bounds.today, -1)) rel = "昨天";
+    strip.append(h("button", {
+      class: ymd === bounds.today ? "day-btn today" : "day-btn",
+      role: "tab",
+      "aria-pressed": String(ymd === day),
+      onclick: () => setScheduleParams({ day: ymd, tab: "all" })
+    },
+    h("span", { class: "d-rel" }, ui(rel)),
+    h("span", { class: "d-num" }, `${meta.m}/${meta.d}`),
+    h("span", { class: "d-cnt" }, live ? [h("span", { class: "live-dot" }), String(list.length)] : (list.length ? `${list.length} 場` : "–"))));
+  }
+  return strip;
+}
+
+function statusTabs(groups) {
+  const tabs = [
+    ["all", "全部", groups.live.length + groups.pre.length + groups.post.length],
+    ["live", "進行中", groups.live.length],
+    ["pre", "未開賽", groups.pre.length],
+    ["post", "已完賽", groups.post.length]
+  ];
+  return h("div", { class: "status-tabs", role: "toolbar", "aria-label": "比賽狀態" }, tabs.map(([id, label, n]) => h("button", {
+    class: `stab ${id}`,
+    "aria-pressed": String(state.tab === id),
+    onclick: () => {
+      setScheduleParams({ tab: id });
+      window.scrollTo(0, 0);
+    }
+  }, id === "live" && n ? h("span", { class: "live-dot" }) : null, ui(label), h("b", null, String(n)))));
 }
 
 function renderSchedule(app) {
   const bounds = windowBounds();
+  const day = state.day && state.day >= bounds.start && state.day <= bounds.end ? state.day : bounds.today;
+  state.day = day;
+  const list = dayMatches(day, bounds.today);
+  const groups = {
+    live: list.filter((match) => bucketOf(match) === "live").sort(sortMatch),
+    pre: list.filter((match) => bucketOf(match) === "pre").sort(sortMatch),
+    post: list.filter((match) => bucketOf(match) === "post").sort((a, b) => sortMatch(b, a))
+  };
   const sub = state.scheduleLoadedAt ? `更新於 ${taipeiClock(new Date(state.scheduleLoadedAt))}` : "台北時間";
   const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: () => manualRefresh() }, ui("重新整理"));
-  app.append(headerBar("足球轉播看板", sub, [refresh]));
+  app.append(headerBar("足球轉播看板", sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
   const wrap = h("div", { class: "wrap" });
-  wrap.append(h("p", { class: "faint" }, "昨天到未來 7 天 · 台北時間 · 比賽中每 20 秒更新，其他每 3 分鐘"));
   if (!state.matches.length && !state.scheduleError && !state.scheduleReady) {
     wrap.append(h("p", { class: "muted", id: "progress" }, "載入賽程中…"));
     app.append(wrap, footer());
@@ -160,26 +244,31 @@ function renderSchedule(app) {
     wrap.append(h("div", { class: "banner" }, `部分聯賽暫時無法取得：${state.leagueErrors.join("、")}。`));
   }
   wrap.append(chipRow());
-  const filtered = state.matches.filter((match) => state.filter === "all" || match.league === state.filter);
-  const live = filtered.filter((match) => match.state === "in").sort(sortMatch);
-  wrap.append(h("div", { class: "section-h", id: "live-section" },
-    h("h2", null, "進行中"),
-    h("span", { class: "faint" }, live.length ? `${live.length} 場` : "目前沒有進行中的比賽")
-  ));
-  if (live.length) {
-    const dot = h("span", { class: "live-dot" });
-    live.forEach((match) => wrap.append(matchCard(match, dot)));
+  wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 20 秒更新"))));
+  const sections = [
+    ["live", "進行中", "目前沒有進行中的比賽"],
+    ["pre", "未開賽", "這天沒有還沒開始的比賽"],
+    ["post", "已完賽", "這天還沒有完賽的比賽"]
+  ].filter(([id]) => state.tab === "all" || state.tab === id);
+  let shown = 0;
+  for (const [id, title, emptyText] of sections) {
+    const items = groups[id];
+    if (state.tab === "all" && !items.length) continue;
+    wrap.append(h("div", { class: "section-h", id: `${id}-section` },
+      h("h2", null, id === "live" && items.length ? [h("span", { class: "live-dot" }), " ", ui(title)] : ui(title)),
+      h("span", { class: "faint" }, items.length ? `${items.length} 場` : ui(emptyText))
+    ));
+    items.forEach((match) => wrap.append(matchCard(match)));
+    shown += items.length;
   }
-  const days = eachYmd(bounds.start, bounds.end);
-  let any = false;
-  for (const ymd of days) {
-    const list = filtered.filter((match) => taipeiYmd(match.date) === ymd).sort(sortMatch);
-    if (!list.length) continue;
-    any = true;
-    wrap.append(h("div", { class: "day-h" }, dayTitle(ymd, bounds.today)));
-    list.forEach((match) => wrap.append(matchCard(match)));
+  if (!shown) {
+    const next = eachYmd(addDays(day, 1), bounds.end).find((ymd) => dayMatches(ymd, bounds.today).length);
+    wrap.append(h("div", { class: "empty" },
+      ui(state.tab === "all" ? "這天沒有比賽" : "這個分類沒有比賽"),
+      next ? h("button", { class: "retry", onclick: () => setScheduleParams({ day: next, tab: "all" }) }, ui(`看 ${dayTitle(next, bounds.today)}`)) : null
+    ));
   }
-  if (!any) wrap.append(h("div", { class: "empty" }, "這段期間沒有比賽"));
+  wrap.append(langToggle());
   app.append(wrap, footer());
   app.dataset.ready = state.scheduleReady ? "1" : "0";
   app.dataset.view = "schedule";
@@ -188,25 +277,20 @@ function renderSchedule(app) {
 
 function chipRow() {
   const row = h("div", { class: "chips", role: "toolbar", "aria-label": "聯賽篩選" });
-  const all = [{ slug: "all", name: "全部" }, ...LEAGUES];
+  const all = [{ slug: "all", name: "全部聯賽" }, ...LEAGUES];
   for (const league of all) {
     row.append(h("button", {
       class: "chip",
       "aria-pressed": String(state.filter === league.slug),
       onclick: () => setFilter(league.slug)
-    }, league.name));
+    }, ui(league.name)));
   }
   return row;
 }
 
 function setFilter(slug) {
   state.filter = slug;
-  const url = new URL(location.href);
-  url.search = "";
-  url.hash = "";
-  if (slug && slug !== "all") url.searchParams.set("filter", slug);
-  history.replaceState({}, "", url);
-  maybeRender({ soft: false });
+  setScheduleParams({ filter: slug });
 }
 
 function sortMatch(a, b) {
@@ -215,11 +299,20 @@ function sortMatch(a, b) {
   return LEAGUES.findIndex((l) => l.slug === a.league) - LEAGUES.findIndex((l) => l.slug === b.league);
 }
 
+function countdown(iso) {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (ms <= 0) return "即將開賽";
+  const mins = Math.round(ms / 60000);
+  if (mins < 60) return `${mins} 分鐘後開賽`;
+  if (mins < 24 * 60) return `${Math.floor(mins / 60)} 小時 ${mins % 60} 分後開賽`;
+  return "";
+}
+
 function matchCard(match) {
   const live = match.state === "in";
   const pre = match.state === "pre" || match.clock === "未開賽";
   const card = h("a", {
-    class: live ? "match-card live" : "match-card",
+    class: live ? "match-card live" : pre ? "match-card pre" : "match-card post",
     href: `?league=${encodeURIComponent(match.league)}&event=${encodeURIComponent(match.id)}`
   });
   card.addEventListener("click", (event) => {
@@ -230,8 +323,8 @@ function matchCard(match) {
   const status = h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(match.clock)] : ui(match.clock));
   card.append(
     h("div", { class: "card-top" },
-      h("span", { class: "pill" }, match.leagueName),
-      h("span", null, `${taipeiHM(match.date)} 台北`),
+      h("span", { class: "pill" }, ui(match.leagueName)),
+      h("span", null, `${taipeiYmd(match.date) !== state.day ? shortDate(match.date) + " " : ""}${taipeiHM(match.date)} 台北`),
       status
     ),
     teamLine(match.home, pre),
@@ -239,7 +332,14 @@ function matchCard(match) {
   );
   const oddsLine = scheduleOddsLine(match);
   if (oddsLine) card.append(h("p", { class: "odds-mini" }, ui(oddsLine.includes("獨贏") ? `盤口 ${oddsLine}（主/和/客）` : `盤口 ${oddsLine}`)));
-  if (match.venue) card.append(h("p", { class: "faint" }, match.venue));
+  if (pre) {
+    const cd = countdown(match.date);
+    card.append(h("p", { class: "card-foot" }, cd ? h("span", { class: "faint" }, ui(cd)) : null, h("span", { class: "go" }, ui("看盤口預測 →"))));
+  } else if (!live) {
+    card.append(h("p", { class: "card-foot" }, h("span", { class: "go" }, ui("看全場復盤 →"))));
+  } else {
+    card.append(h("p", { class: "card-foot" }, h("span", { class: "go" }, ui("看即時復盤 →"))));
+  }
   return card;
 }
 
@@ -281,10 +381,83 @@ function renderMatch(app, route) {
       h("button", { class: "retry", onclick: () => loadMatch(route.league, route.event) }, "重試")));
   }
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
-  wrap.append(scoreboard(model), grokButton(model), formationBlock(model), oddsBlock(model), analysisBlock(model), cheatBlock(model), checkpointBlock(), timeline(model), statsBlock(model), glossaryBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model));
+  wrap.append(scoreboard(model), matchNav(model), grokButton(model));
+  const phase = model.minute.phase;
+  const pre = phase === "pre";
+  const done = phase === "ft" || model.minute.state === "post";
+  const hasComm = (model.commentary || []).length > 0;
+  if (pre) {
+    wrap.append(predSection(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model));
+  } else if (done) {
+    wrap.append(recapBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model));
+  } else {
+    wrap.append(analysisBlock(model), recapBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), movementBlock(model), oddsBlock(model), savedPredSection(model), formationBlock(model), cheatBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model));
+  }
   app.append(wrap, footer());
   app.dataset.ready = "1";
   app.dataset.view = "match";
+}
+
+function matchNav(model) {
+  const phase = model.minute.phase;
+  const pre = phase === "pre";
+  const items = pre
+    ? [["prediction", "盤口預測"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
+    : [["recap", "復盤"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
+  return h("nav", { class: "chips match-nav", "aria-label": "本頁區塊" }, items.map(([id, label]) => h("a", { class: "chip", href: "#" + id, onclick: (event) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  } }, ui(label))));
+}
+
+function predSection(model) {
+  const p = state.pred;
+  if (p && p.id === model.id && p.data) return predictionBlock(model, p.data);
+  return predictionBlock(model, null, { loading: !p || p.id !== model.id || p.status === "loading" });
+}
+
+function savedPredSection(model) {
+  const saved = loadPrediction(model.id);
+  const p = state.pred && state.pred.id === model.id ? state.pred : null;
+  const done = model.minute.phase === "ft" || model.minute.state === "post";
+  if (p?.data && !done) {
+    const box = h("details", { class: "block-details", id: "prediction" }, h("summary", null, ui(saved ? "賽前盤口預測（開賽前存檔，點開看）" : "賽前盤口預測（開賽後以賽前資料補算，點開看）")));
+    box.append(predictionBlock(model, p.data, { id: "prediction-inner", title: "賽前盤口預測", note: saved ? `存檔時間 ${taipeiClock(new Date(saved.at))}。` : "這個瀏覽器開賽前沒打開過本場，這份是用賽前盤與賽前近況補算的。" }));
+    return box;
+  }
+  if (!saved) return done ? null : h("section", { class: "block", id: "prediction" }, h("h2", null, ui("賽前盤口預測")), h("p", { class: "muted" }, ui("計算中…")));
+  const top = saved.top || {};
+  return h("section", { class: "block", id: "prediction" },
+    h("h2", null, ui("賽前盤口預測（存檔）")),
+    h("p", { class: "faint" }, ui(`存檔時間 ${taipeiClock(new Date(saved.at))}；預期進球 ${trimNum(saved.lh)} : ${trimNum(saved.la)}；主勝 ${pct(top.home || 0)}、和 ${pct(top.draw || 0)}、客勝 ${pct(top.away || 0)}。`)),
+    saved.best?.length ? h("ul", { class: "bullets" }, saved.best.map((b) => h("li", null, ui(`${b.market}｜${b.label}（${pct(b.p)}）`)))) : null,
+    h("p", { class: "faint" }, ui("命中對照在上方「全場整體復盤」。"))
+  );
+}
+
+async function ensurePrediction(model) {
+  const pre = model.minute.phase === "pre";
+  const done = model.minute.phase === "ft" || model.minute.state === "post";
+  if (done) return;
+  const cur = state.pred;
+  if (cur && cur.id === model.id && (cur.status === "loading" || (cur.status === "ok" && Date.now() - cur.at < (pre ? 10 * 60000 : 24 * 3600000)))) return;
+  state.predAbort?.abort();
+  const ctrl = new AbortController();
+  state.predAbort = ctrl;
+  state.pred = { id: model.id, status: "loading", at: Date.now(), data: cur && cur.id === model.id ? cur.data : null };
+  try {
+    const data = await runPrediction(model, ctrl.signal);
+    if (state.pred?.id !== model.id) return;
+    state.pred = { id: model.id, status: "ok", at: Date.now(), data };
+    if (pre) savePrediction(model, data);
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    console.error(err);
+    if (state.pred?.id === model.id) state.pred = { id: model.id, status: "err", at: Date.now(), data: null };
+  }
+  if (state.model?.id === model.id) maybeRender({ soft: true });
 }
 
 function goSchedule() {
@@ -297,6 +470,8 @@ function goSchedule() {
   url.search = "";
   url.hash = "";
   if (state.filter && state.filter !== "all") url.searchParams.set("filter", state.filter);
+  if (state.day && state.day !== taipeiYmd(new Date())) url.searchParams.set("day", state.day);
+  if (state.tab && state.tab !== "all") url.searchParams.set("tab", state.tab);
   history.replaceState({}, "", url);
   loadRoute();
 }
@@ -756,7 +931,7 @@ function allPlayers(model) {
 }
 
 function playerHit(player, q) {
-  return [player.name, player.shortName, player.lastName, player.jersey].some((value) => String(value || "").toLowerCase().includes(q));
+  return [player.name, player.en, player.shortName, player.lastName, player.jersey].some((value) => String(value || "").toLowerCase().includes(q));
 }
 
 function squad(block, team) {
@@ -794,7 +969,7 @@ function playerRow(player) {
 }
 
 function formBlock(model) {
-  const block = h("section", { class: "block" }, h("h2", null, "近況"));
+  const block = h("section", { class: "block", id: "form" }, h("h2", null, "近況"));
   if (!model.form.length) {
     block.append(h("p", null, "沒有近況資料。"));
     return block;
@@ -898,7 +1073,8 @@ function fillDialog(dialog, found, extra) {
     h("div", { class: "sheet-top" },
       h("div", null,
         h("p", { class: "faint" }, found.team.name),
-        h("h2", null, player.name)
+        h("h2", null, player.name),
+        player.en && player.en !== player.name ? h("p", { class: "faint" }, player.en) : null
       ),
       h("button", { class: "icon-btn", onclick: () => dialog.close() }, "關閉")
     ),
@@ -991,6 +1167,7 @@ async function loadSchedule(mode) {
       state.matches = [...map.values()];
     }
     state.leagueErrors = errors;
+    if (plan.full && errors.length < LEAGUES.length) state.fullLoaded = true;
     state.scheduleReady = state.matches.length > 0 || errors.length < LEAGUES.length;
     state.scheduleLoadedAt = Date.now();
     state.scheduleError = !state.matches.length && errors.length === LEAGUES.length;
@@ -1029,6 +1206,7 @@ async function loadMatch(league, id) {
     state.summaryLoading = false;
     state.summaryError = false;
     maybeRender({ soft: !!same });
+    ensurePrediction(model);
   } catch (err) {
     if (err.name === "AbortError" || token !== state.token) return;
     state.summaryLoading = false;
@@ -1045,7 +1223,11 @@ async function loadRoute() {
     await loadMatch(route.league, route.event);
     return;
   }
-  if (!state.matches.length) await loadSchedule("full");
+  if (!state.matches.length || !state.fullLoaded) {
+    if (!state.matches.length) await loadSchedule("live");
+    if (readRoute().event) return;
+    await loadSchedule("full");
+  }
   else {
     maybeRender({ soft: false });
     const age = Date.now() - state.scheduleLoadedAt;

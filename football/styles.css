@@ -755,3 +755,111 @@ footer.foot {
   70% { box-shadow: 0 0 0 8px rgba(255, 77, 103, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 77, 103, 0); }
 }
+
+/* ---------- 日期列與狀態分頁 ---------- */
+.top.compact { gap: 6px; min-height: 0; padding-bottom: 8px; }
+.datestrip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  padding: 2px 0;
+}
+.datestrip::-webkit-scrollbar { display: none; }
+.day-btn {
+  flex: none;
+  min-width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--muted);
+  line-height: 1.25;
+}
+.day-btn .d-rel { font-size: 12px; font-weight: 700; }
+.day-btn .d-num { font-family: "Barlow Condensed", sans-serif; font-size: 19px; font-weight: 700; color: var(--text); }
+.day-btn .d-cnt { font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+.day-btn.today .d-rel { color: var(--gold); }
+.day-btn[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.day-btn[aria-pressed="true"] .d-num, .day-btn[aria-pressed="true"] .d-rel { color: var(--gold-ink); }
+.status-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.stab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.stab b { font-family: "Barlow Condensed", sans-serif; font-size: 16px; color: var(--text); }
+.stab[aria-pressed="true"] { background: var(--card-2); border-color: var(--gold); color: var(--gold); }
+.stab.live[aria-pressed="true"] { border-color: var(--live); color: #ff8b98; }
+.stab .live-dot { margin: 0; }
+.day-h .faint { font-weight: 500; }
+.match-card.post { opacity: 0.92; }
+.card-foot { display: flex; justify-content: space-between; gap: 8px; margin: 8px 0 0; font-size: 13px; }
+.card-foot .go { color: var(--gold); font-weight: 700; margin-left: auto; }
+.match-nav { padding: 6px 0; }
+.match-nav .chip { text-decoration: none; }
+.langbar { margin-top: 20px; }
+
+/* ---------- 盤口預測 ---------- */
+.block.pred { border-color: rgba(61, 220, 151, 0.45); }
+.best { margin: 10px 0 14px; padding: 12px; border-radius: 14px; background: rgba(61, 220, 151, 0.08); border: 1px solid rgba(61, 220, 151, 0.35); }
+.best h3 { margin: 0 0 6px; font-size: 16px; color: var(--green); }
+.best-list { margin: 0; padding-left: 1.3em; }
+.best-list li { margin: 8px 0; }
+.best-list b { display: block; }
+.best-num { display: block; font-size: 14px; color: var(--text); }
+.best-list .faint { display: block; }
+.basis summary, .segs summary, .block-details summary { cursor: pointer; font-weight: 800; color: var(--gold); padding: 6px 0; }
+.block-details { margin: 14px 0; }
+.block-details > .block { margin-top: 6px; }
+.pmk .lean { margin: 2px 0 8px; }
+.ptable-wrap { overflow-x: auto; margin: 6px 0; }
+.ptable { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ptable th, .ptable td { padding: 6px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.ptable th { color: var(--faint); font-size: 12px; font-weight: 700; }
+.ptable th:first-child, .ptable td:first-child { text-align: left; white-space: normal; }
+.ptable tr.mk td { background: rgba(240, 195, 106, 0.08); }
+.ptable td.pos { color: var(--green); font-weight: 800; }
+.ptable td.neg { color: #ff8b98; }
+.score-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+
+/* ---------- 復盤 ---------- */
+.recap-nav { margin: 4px 0 6px; }
+.recap-nav .chip { text-decoration: none; }
+.recap-card h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.recap-card.full h3 { font-size: 18px; color: var(--gold); }
+.tag-live, .tag-done { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
+.tag-live { color: #ff8b98; border: 1px solid rgba(255, 77, 103, 0.6); }
+.tag-done { color: var(--faint); border: 1px solid var(--line); }
+.segs { margin-top: 12px; }
+.best-list b { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tag-val { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; color: var(--green); border: 1px solid rgba(61, 220, 151, 0.6); }
+.best-list li.wild { opacity: 0.9; }
+.warn { color: #ffb4bd !important; }
+.rate-team { margin: 10px 0 2px; font-weight: 800; color: var(--muted); }
+.rating-list { list-style: none; margin: 0; padding: 0; }
+.rating-list li { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.rating-list .rate { grid-row: span 2; align-self: center; text-align: center; font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 700; border-radius: 10px; background: var(--card-2); padding: 2px 0; }
+.rating-list li.mvp .rate { background: var(--gold); color: var(--gold-ink); }
+.rating-list .who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.rating-list .stat-line { display: block; }
+.link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ext { display: flex; flex-direction: column; gap: 2px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); color: var(--text); text-decoration: none; }
+.ext b { color: var(--gold); }
+.ext .faint { font-size: 12px; }
+.move-strong { border-left: 3px solid var(--live); padding-left: 6px; }
+@media (min-width: 800px) { .link-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
