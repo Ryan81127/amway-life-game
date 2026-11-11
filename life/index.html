@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#4a3320">
+<title>人生升級：安麗冒險 v3｜第 1 關 起點村（試玩版）</title>
+<style>
+:root{--ink:#4a3320;--wood:#8b5a2b;--wood2:#6e4320;--cream:#fff6e0;--parch:#f7e8c4;--orange:#e9823a;--green:#5f9446;--red:#c4472f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#d9c8a0;font-family:"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Microsoft JhengHei","Heiti TC",sans-serif;color:var(--ink);overscroll-behavior:none}
+#app{position:relative;max-width:430px;height:100vh;height:100dvh;margin:0 auto;overflow:hidden;
+ background:radial-gradient(120% 60% at 20% 0%,#d8ece6 0,transparent 60%),radial-gradient(90% 50% at 90% 20%,#f6e6c4 0,transparent 70%),linear-gradient(#e4efe2,#f6ecd3 55%,#ecdcb5)}
+#app:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:40;opacity:.22;mix-blend-mode:multiply;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .15 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+.scr{position:absolute;left:0;right:0;top:0;bottom:34px;overflow-y:auto;overflow-x:hidden;display:none;padding:10px 12px 18px;-webkit-overflow-scrolling:touch}
+.scr.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#foot{position:absolute;left:0;right:0;bottom:0;height:34px;z-index:45;background:#4a3320;color:var(--cream);font-size:13px;font-weight:800;text-align:center;line-height:34px;letter-spacing:.5px;border-top:3px solid #2f1f12}
+#mute{position:absolute;top:8px;right:8px;z-index:50;width:44px;height:44px;border-radius:50%;border:3px solid #4f2e12;background:linear-gradient(#a06a37,#74461f);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #4f2e12;cursor:pointer;padding:0}
+h1,h2,h3{margin:.25em 0}
+.sign{display:inline-block;background:repeating-linear-gradient(90deg,rgba(0,0,0,.07) 0 3px,transparent 3px 10px),linear-gradient(#9a6434,#74461f);color:var(--cream);font-size:16px;font-weight:900;padding:6px 12px;border-radius:10px;border:2px solid #4f2e12;box-shadow:0 3px 0 #4f2e12;text-shadow:0 1px 0 #3a210c;line-height:1.35}
+.dark{display:inline-block;background:#3e2a18;color:#fff6e0;font-size:16px;font-weight:900;padding:6px 10px;border-radius:10px;line-height:1.4}
+.parch{position:relative;background:radial-gradient(130% 90% at 50% 40%,#fbf0d4 0,#f3e0b4 75%,#e7cc94 100%);border:3px solid #a8743f;border-radius:14px;box-shadow:inset 0 0 22px rgba(150,100,40,.35),0 4px 10px rgba(60,40,10,.25);padding:12px;color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:3px solid #8a4a1c;border-radius:18px;padding:12px 22px;font-size:20px;font-weight:900;background:linear-gradient(#f7a85d,#dd7330);color:#fff;text-shadow:0 2px 0 #9b4d17;box-shadow:0 5px 0 #8a4a1c,0 8px 14px rgba(80,40,10,.25);cursor:pointer;font-family:inherit;text-decoration:none;line-height:1.3}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #8a4a1c}
+.btn.g{background:linear-gradient(#86c062,#4f8a36);border-color:#2f5e1f;box-shadow:0 5px 0 #2f5e1f;text-shadow:0 2px 0 #2f5e1f}
+.btn.w{background:linear-gradient(#a8784a,#7a4d25);border-color:#4f2e12;box-shadow:0 5px 0 #4f2e12;text-shadow:0 2px 0 #3a210c;font-size:17px;padding:10px 16px}
+.btn.line{background:linear-gradient(#2fd36b,#06a947);border-color:#05742f;box-shadow:0 5px 0 #05742f;text-shadow:0 2px 0 #05742f}
+.btn:disabled{filter:grayscale(.8) opacity(.6)}
+.wide{display:flex;width:100%}
+.c{text-align:center}
+.mt{margin-top:12px}
+p{font-size:16px;line-height:1.6;margin:.4em 0;text-wrap:pretty}
+.c,.aha,.c p{text-wrap:balance}
+@media (max-width:380px){.hud .sign{font-size:16px;padding:6px 8px}.hud .sign .lv{display:none}.coinp{font-size:16px;padding:4px 8px 4px 5px}.ogrid{gap:4px}.oc b{font-size:16px;letter-spacing:-1px}.steps{padding:4px 5px}.steps b{width:23px;height:23px;font-size:12px}}
+/* hud */
+.hud{display:flex;align-items:center;gap:6px;padding-right:52px;margin-bottom:8px}
+.steps{flex:1;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#f7e9c6,#ead39f);border:2px solid #a8743f;border-radius:20px;padding:4px 8px;box-shadow:0 2px 0 #a8743f}
+.steps i{flex:1;height:0;border-top:3px dotted #a8743f;margin:0 2px}
+.steps b{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-style:normal;flex:none;border:2px solid #a8743f;background:#e8d4a6;color:#8a6a45}
+.steps b.d{background:#5f9446;border-color:#3d6b2a;color:#fff}
+.steps b.c{background:#fff3d9;border-color:#e9823a;box-shadow:0 0 0 3px #f7c07f;color:#e9823a}
+/* welcome */
+#s-welcome{display:none;flex-direction:column;align-items:center;padding:0}
+#s-welcome.on{display:flex}
+.wscene{width:100%;height:50%;min-height:320px;position:relative;flex:none}
+.wscene>svg{position:absolute;inset:0;width:100%;height:100%}
+.wscene div svg{width:100%;height:auto;display:block}
+.wtitle{margin-top:-30px;z-index:2;text-align:center;padding:0 16px}
+.wtitle .big{font-size:44px;font-weight:900;color:#fff6e0;letter-spacing:2px;-webkit-text-stroke:2px #6e4320;text-shadow:0 4px 0 #6e4320,0 7px 12px rgba(60,30,5,.35);display:inline-block;transform:rotate(-2deg)}
+#wbtn{margin-top:16px;font-size:24px;padding:16px 36px;border-radius:40px;animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@media (prefers-reduced-motion:reduce){#wbtn{animation:none}}
+/* map */
+.mapwrap{position:relative}
+.mapwrap svg{width:100%;height:auto;display:block}
+.note100{display:block;text-align:center;margin:8px 0}
+/* story */
+.stage{position:relative;width:100%;border-radius:16px;overflow:hidden;border:3px solid #a8743f;box-shadow:0 4px 10px rgba(60,40,10,.25)}
+.stage svg.bg{display:block;width:100%;height:100%}
+.bubble{position:relative;margin-top:12px}
+.bubble:before{content:"";position:absolute;top:-16px;left:60px;border:8px solid transparent;border-bottom-color:#a8743f}
+.speaker{position:absolute;top:-16px;left:12px}
+/* eggs */
+.eggs{display:flex;justify-content:space-around;gap:6px;margin:6px 0}
+.egg{flex:1;max-width:118px;background:none;border:0;padding:0;cursor:pointer;font-family:inherit;text-align:center}
+.egg svg{width:100%;height:auto;display:block;transition:transform .2s}
+.egg.sel svg{transform:translateY(-6px) scale(1.06);filter:drop-shadow(0 0 10px #ffd27a)}
+.egg .lb{margin-top:4px;font-size:16px;padding:5px 6px;width:100%}
+.egg.wob svg{animation:wob .5s ease 2}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+table.ab{width:100%;border-collapse:collapse;font-size:16px}
+table.ab td{padding:6px 4px;border-bottom:2px dashed #d2b27a;font-weight:700}
+table.ab td:first-child{color:#7a5232;width:42%}
+table.ab td.y{color:#3d7a2a}table.ab td.n{color:#a3402a}
+.inp{width:100%;font-size:17px;font-weight:800;padding:10px 12px;border-radius:12px;border:3px solid #a8743f;background:#fffaf0;color:var(--ink);font-family:inherit}
+/* battle */
+.arena{position:relative;height:272px;border-radius:16px;overflow:hidden;border:3px solid #6e4320}
+.arena svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.mon{position:absolute;right:6%;top:42px;width:44%;max-width:170px;transition:transform .3s}
+.mon svg{width:100%;height:auto;display:block}
+.mon.in{animation:monin .6s ease}
+@keyframes monin{from{transform:translateX(120%)}to{transform:none}}
+.mon.hit{animation:hit .5s ease}
+@keyframes hit{0%,100%{transform:none}20%{transform:translateX(-12px) rotate(-6deg)}40%{transform:translateX(12px) rotate(6deg)}60%{transform:translateX(-8px)}80%{transform:translateX(6px)}}
+.mon.smug{animation:smug .7s ease}
+@keyframes smug{0%,100%{transform:none}50%{transform:translateY(-14px) scale(1.06)}}
+.hero{position:absolute;left:5%;bottom:6px;width:31%;max-width:120px}
+.hero svg{width:100%;height:auto;display:block}
+.pet{position:absolute;left:34%;bottom:10px;width:15%;max-width:60px}
+.pet svg{width:100%;display:block}
+.hp{position:absolute;right:8px;top:8px;margin-right:0}
+.hpL{position:absolute;left:8px;top:8px}
+.hearts{letter-spacing:1px}
+.qbox{margin-top:10px;font-size:17px;font-weight:800;line-height:1.55}
+.qtag{display:inline-block;margin-bottom:4px}
+.menu{display:grid;grid-template-columns:1fr 1fr;margin-top:10px;border:5px solid #6e4320;border-radius:16px;background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 3px,transparent 3px 10px),#7a4d25;padding:3px;box-shadow:0 5px 0 #4f2e12}
+.menu button{position:relative;display:flex;align-items:center;gap:6px;text-align:left;min-height:74px;margin:3px;padding:8px 8px 8px 8px;border:2px solid #a8743f;border-radius:10px;background:radial-gradient(130% 90% at 50% 40%,#fbf0d4 0,#f0dcae 100%);color:var(--ink);font-size:16px;font-weight:900;font-family:inherit;line-height:1.35;cursor:pointer}
+.menu button .ic{font-size:24px;flex:none;width:30px;text-align:center}
+.menu button:active,.menu button.on{background:#fff3c9;border-color:#e9823a}
+.menu button.on:before{content:"▶";position:absolute;left:-2px;top:50%;transform:translate(-50%,-50%);color:#e9823a;font-size:16px;text-shadow:0 0 3px #fff}
+.menu button.ok{background:#dff3cf;border-color:#4f8a36}
+.menu button.no{background:#fadcd2;border-color:#c4472f}
+.fb{margin-top:10px}
+.fb .ban{display:block;margin:-12px -12px 8px;padding:8px 12px;border-radius:10px 10px 0 0;color:#fff;font-size:18px;font-weight:900}
+.fb.okk .ban{background:#4f8a36}.fb.bad .ban{background:#b5452c}
+.fly{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:24px;font-weight:900;color:#fff;background:#4f8a36;border:3px solid #fff;border-radius:14px;padding:4px 14px;animation:flyup 1.1s ease forwards;pointer-events:none;z-index:5;white-space:nowrap}
+.fly.r{background:#b5452c}
+@keyframes flyup{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-140%) scale(1)}}
+/* result / aha */
+.bigok{font-size:24px;font-weight:900}
+.stepline{opacity:0;transform:translateY(8px);transition:all .45s ease;display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;margin:8px 0;padding:8px 10px;background:#fff7e3;border:2px solid #d9b77c;border-radius:12px}
+.stepline.on{opacity:1;transform:none}
+.stepline .ic{font-size:26px}
+.aha{font-size:19px;font-weight:900;line-height:1.55;text-align:center;color:#6e3a12}
+.badge{width:150px;margin:6px auto 0;display:block;animation:badge 1s ease}
+@keyframes badge{0%{transform:scale(.2) rotate(-30deg);opacity:0}70%{transform:scale(1.15) rotate(6deg);opacity:1}100%{transform:none}}
+.stars{font-size:40px;letter-spacing:6px;text-align:center;color:#c9b48a}
+.stars span{display:inline-block}
+.stars span.on{color:#f5b301;text-shadow:0 2px 0 #b67b00;animation:star .6s ease backwards}
+@keyframes star{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+.chk{list-style:none;padding:0;margin:6px 0}
+.chk li{font-size:16px;font-weight:800;padding:6px 0 6px 30px;position:relative;line-height:1.5}
+.chk li:before{content:"✔";position:absolute;left:4px;top:5px;color:#fff;background:#5f9446;border-radius:50%;width:22px;height:22px;font-size:13px;display:flex;align-items:center;justify-content:center}
+.disc{font-size:14px;font-weight:700;color:#7a3a1f;background:#fff1e0;border:2px dashed #d08a56;border-radius:10px;padding:8px 10px;margin-top:10px;line-height:1.55}
+.teaser{background:linear-gradient(#2d3b4a,#1d2733);color:#fff6e0;border-color:#0f171f;box-shadow:inset 0 0 30px rgba(0,0,0,.5)}
+.teaser svg{width:100%;height:auto;display:block}
+.kcards{display:grid;gap:8px;padding:2px}
+.kc{display:flex;align-items:center;gap:10px;background:#fffaf0;border:3px solid #a8743f;border-radius:12px;padding:8px 10px;font-size:16px;font-weight:900;line-height:1.45}
+.kc .e{font-size:30px;flex:none}
+.kc small{display:block;font-size:15px;font-weight:700;color:#6e4320}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.coinp{display:inline-flex;align-items:center;gap:4px;background:#3e2a18;color:#ffe27a;font-size:16px;font-weight:900;padding:5px 10px 5px 6px;border-radius:20px;border:2px solid #1f140a;white-space:nowrap;line-height:1.2}
+.coinp b{color:#fff;font-size:17px}
+.hud>.coinp{margin-left:auto}
+.lvsteps{margin-bottom:8px}
+.pv{width:150px;margin:0 auto 8px}
+.pv svg,.om svg,.wardpv svg{width:100%;height:auto;display:block}
+.wardpv{position:absolute;left:50%;bottom:6px;width:118px;transform:translateX(-50%)}
+.ogrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.oc{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border:3px solid #a8743f;border-radius:12px;background:#fffaf0;font-family:inherit;color:var(--ink);cursor:pointer;min-width:0}
+.oc b{font-size:16px;font-weight:900;white-space:nowrap;letter-spacing:-.5px}
+.oc .om{width:100%;max-width:70px}
+.oc.sel{border-color:#4f8a36;background:#e9f6dc;box-shadow:0 0 0 3px #a6d88a}
+.oc.locked .om{filter:saturate(.35) brightness(.92)}
+.ost{font-size:13px;font-weight:900;color:#6e4320;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+.ost.on{color:#3d6b2a}.ost.lock{color:#fff;background:#3e2a18;border-radius:10px;padding:1px 6px}
+#cropCv{width:min(300px,78vw);height:auto;aspect-ratio:1;border-radius:14px;border:3px solid #6e4320;touch-action:none;display:block;margin:0 auto;background:#e8d4a6}
+.zl{display:flex;align-items:center;gap:8px;margin:10px auto 0;max-width:320px;font-size:16px;font-weight:900}
+.zl input{flex:1;height:36px;accent-color:#e9823a}
+.toast{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);z-index:60;background:#3e2a18;color:#fff6e0;font-size:16px;font-weight:900;padding:10px 14px;border-radius:12px;border:2px solid #ffe27a;max-width:90%;text-align:center;animation:fade .3s}
+.coinbig{display:flex;align-items:center;justify-content:center;gap:8px;font-size:40px;font-weight:900;color:#b67b00;text-shadow:0 2px 0 #fff}
+.cfly{position:absolute;left:50%;top:50%;pointer-events:none;animation:cfly 1.1s ease-out forwards}
+@keyframes cfly{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}20%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);opacity:0}}
+#modal{position:absolute;inset:0;background:rgba(40,25,10,.6);display:none;align-items:center;justify-content:center;z-index:48;padding:16px}
+#modal.on{display:flex}
+#modal .parch{max-width:400px;width:100%;max-height:85%;overflow:auto}
+</style>
+</head>
+<body>
+<div id="app">
+<button id="mute" type="button" aria-label="聲音開關">🔊</button>
+
+<!-- 歡迎 -->
+<section class="scr on" id="s-welcome">
+  <div class="wscene" id="wscene"></div>
+  <div class="wtitle">
+    <div class="sign" style="font-size:17px">人生升級：安麗冒險 v3｜試玩版</div><br>
+    <div class="big" style="margin-top:10px">歡迎勇者！</div>
+    <div class="parch" style="margin-top:10px;max-width:340px">
+      <p style="margin:0;font-weight:800;font-size:17px">第 1 關「起點村」約 2 分鐘：<br>選一顆夥伴蛋、闖過 3 道抉擇和 1 道陷阱題，拿下「🌱 新手勇者」徽章！</p>
+    </div>
+    <button class="btn" id="wbtn" type="button">⚔️ 開始闖關</button>
+  </div>
+</section>
+
+<!-- 地圖 -->
+<section class="scr" id="s-map"></section>
+<!-- 劇情 -->
+<section class="scr" id="s-story"></section>
+<!-- 選蛋 -->
+<section class="scr" id="s-egg"></section>
+<!-- 遭遇戰 -->
+<section class="scr" id="s-battle"></section>
+<!-- 陷阱題結果 -->
+<section class="scr" id="s-trap"></section>
+<!-- 啊哈揭曉 -->
+<section class="scr" id="s-aha"></section>
+<!-- 結局 -->
+<section class="scr" id="s-end"></section>
+<!-- 打造我的勇者／裁切／衣櫃 -->
+<section class="scr" id="s-make"></section>
+<section class="scr" id="s-crop"></section>
+<section class="scr" id="s-ward"></section>
+<input type="file" id="fSelfie" accept="image/*" capture="user" hidden>
+<input type="file" id="fAlbum" accept="image/*" hidden>
+
+<div id="modal"><div class="parch" id="mbox"></div></div>
+<div id="foot">直銷商個人製作，非安麗官方網站</div>
+</div>
+
+<script>
+/* ======================= 設定 ======================= */
+const CFG={distributor:"Ryan",lineUrl:"https://line.me/ti/p/l2KcblqQbI"};
+const KEY="amway-life-game-v3";
+const $=s=>document.querySelector(s);
+const wait=ms=>new Promise(r=>setTimeout(r,G.fast?5:ms));
+const DEF={name:"",egg:"",done:{},badges:[],cards:[],plays:0,coins:0,owned:[],outfit:"cape",custom:false};
+let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){S=Object.assign({},DEF)}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+/* ======================= 聲音（Web Audio 自製，點擊後才播放） ======================= */
+const AU=(()=>{let ctx=null,master=null,noiseBuf=null,muted=false,mode="town",step=0,nextT=0,timer=null,started=false;
+ try{muted=localStorage.getItem(KEY+"-mute")==="1"}catch(e){}
+ const F=n=>440*Math.pow(2,(n-69)/12);
+ const SONG={
+  town:{bpm:112,chords:[[60,64,67],[57,60,64],[53,57,60],[55,59,62]],
+   mel:[72,76,79,76,77,76,74,72, 72,0,76,72,69,72,76,0, 77,0,81,79,77,76,74,72, 74,76,79,0,79,77,76,74,
+        72,76,79,84,83,79,76,79, 81,0,79,76,72,76,79,0, 77,81,84,81,79,77,76,77, 79,0,74,0,71,74,79,0]},
+  battle:{bpm:136,chords:[[57,60,64],[53,57,60],[60,64,67],[55,59,62]],
+   mel:[81,79,76,79,81,0,84,81, 77,76,77,81,79,0,77,76, 76,79,84,79,76,79,83,84, 83,0,79,0,74,76,79,83,
+        84,0,81,0,76,79,81,84, 81,79,77,0,77,81,84,0, 79,76,72,76,79,84,88,84, 86,0,83,0,79,83,86,0]}};
+ function init(){if(ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+  try{ctx=new AC({latencyHint:"interactive"})}catch(e){ctx=new AC()}
+  const comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
+  master=ctx.createGain();master.gain.value=muted?0:1;master.connect(comp);comp.connect(ctx.destination);
+  noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.5,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  document.addEventListener("visibilitychange",()=>{if(!ctx)return;document.hidden?ctx.suspend():ctx.resume()});return true}
+ function tone(t,f,dur,type,vol,att=.006){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+att);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.05)}
+ function noise(t,dur,vol,freq,type="highpass"){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;f.type=type;f.frequency.value=freq;
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+dur+.02)}
+ function playStep(t){const sg=SONG[mode],e=60/sg.bpm/2,i=step%64,bar=Math.floor((i%32)/8),ch=sg.chords[bar],m=sg.mel[i];
+  if(m){tone(t,F(m),e*1.6,"triangle",.30);tone(t,F(m),e*1.1,"square",.045);if(mode==="town")tone(t+.004,F(m+12),e*.8,"sine",.05)}
+  const arp=[0,2,1,2][i%4];tone(t,F(ch[arp]+12),e*1.5,"triangle",.11);
+  if(i%8===0||i%8===4){tone(t,F(ch[0]-12),e*2.6,"square",.06);tone(t,F(ch[0]),e*2.4,"triangle",.10)}
+  if(i%2===0)noise(t,.035,.07,7000);
+  if(i%8===2||i%8===6)noise(t,.12,.16,1800,"bandpass");
+  if(mode==="battle"&&i%2===1)noise(t,.025,.05,9000);
+  if(i%8===0){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(55,t+.12);g.gain.setValueAtTime(.35,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(master);o.start(t);o.stop(t+.2)}
+  step++;nextT+=e}
+ function sched(){if(!ctx||ctx.state!=="running")return;if(nextT<ctx.currentTime)nextT=ctx.currentTime+.02;while(nextT<ctx.currentTime+.15)playStep(nextT)}
+ function start(){if(!init())return;try{const r=ctx.resume();r&&r.catch&&r.catch(()=>{})}catch(e){}
+  try{const b=ctx.createBufferSource();b.buffer=ctx.createBuffer(1,1,22050);b.connect(ctx.destination);b.start(0)}catch(e){}
+  if(started)return;started=true;const t=ctx.currentTime+.02;
+  [84,88,91,96].forEach((n,k)=>{tone(t+k*.07,F(n),.5,"triangle",.32);tone(t+k*.07,F(n),.25,"square",.05)});
+  nextT=t+.32;sched();timer=setInterval(sched,25)}
+ function setMode(m){if(m===mode)return;mode=m;step=0}
+ function sfx(n){if(!ctx||muted)return;const t=ctx.currentTime+.01;
+  if(n==="click")tone(t,F(88),.09,"triangle",.2);
+  if(n==="ok")[76,80,83,88].forEach((x,k)=>tone(t+k*.06,F(x+4),.25,"triangle",.3));
+  if(n==="no"){tone(t,F(67),.22,"triangle",.28);tone(t+.16,F(63),.32,"triangle",.28)}
+  if(n==="crack"){noise(t,.08,.4,2500,"bandpass");noise(t+.1,.08,.35,3000,"bandpass");[79,84,88].forEach((x,k)=>tone(t+.18+k*.06,F(x),.3,"triangle",.28))}
+  if(n==="fan")[72,76,79,84,79,84,88].forEach((x,k)=>{tone(t+k*.11,F(x),.35,"triangle",.32);tone(t+k*.11,F(x),.2,"square",.05)})}
+ function paint(){const b=$("#mute");b.textContent=muted?"🔇":"🔊";b.setAttribute("aria-label",muted?"聲音已關閉，點一下開啟":"聲音已開啟，點一下關閉")}
+ function toggle(){muted=!muted;try{localStorage.setItem(KEY+"-mute",muted?"1":"0")}catch(e){}if(!ctx)start();if(master)master.gain.setTargetAtTime(muted?0:1,ctx.currentTime,.03);paint();if(!muted)sfx("click")}
+ return{start,setMode,sfx,toggle,paint,get state(){return ctx?ctx.state:"none"},get muted(){return muted},get mode(){return mode}}})();
+$("#mute").onclick=e=>{e.stopPropagation();AU.toggle()};AU.paint();
+document.addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest(".btn,.egg,.menu button"))AU.sfx("click")},true);
+
+/* ======================= 手繪 SVG 素材 ======================= */
+function rnd(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
+const DEFS=`<defs><filter id="wc" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe7e3"/><stop offset=".7" stop-color="#f6ecd2"/></linearGradient>
+<linearGradient id="path" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6d3a8"/><stop offset="1" stop-color="#cdb486"/></linearGradient>
+<radialGradient id="gl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6c9" stop-opacity=".95"/><stop offset="1" stop-color="#fff6c9" stop-opacity="0"/></radialGradient></defs>`;
+function stones(n,seed,y0,y1,cx,w0,w1){const r=rnd(seed);let s="";for(let i=0;i<n;i++){const y=y0+(y1-y0)*Math.pow(r(),.8),k=(y-y0)/(y1-y0),w=w0+(w1-w0)*k,x=cx+(r()-.5)*w*.95,sz=3+k*10;
+ s+=`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(sz*1.3).toFixed(1)}" ry="${(sz*.7).toFixed(1)}" fill="${r()>.5?"#d8c294":"#cbb07f"}" stroke="#a88d60" stroke-width="1.2" opacity=".9"/>`}return s}
+function flowers(n,seed,y0,y1){const r=rnd(seed),c=["#f08a4b","#f6c344","#e86f8f","#fff3e0","#c58be0"];let s="";for(let i=0;i<n;i++){const x=r()*390,y=y0+r()*(y1-y0);if(x>130&&x<260&&y>y0+20)continue;s+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(2.5+r()*2.5).toFixed(1)}" fill="${c[i%5]}" stroke="#fff" stroke-width=".8"/>`}return s}
+function tree(x,y,s,c1="#6f9e55",c2="#8cb866"){return`<g transform="translate(${x},${y}) scale(${s})"><rect x="-5" y="0" width="10" height="34" rx="3" fill="#7a5232"/><circle cx="0" cy="-14" r="26" fill="${c1}"/><circle cx="-18" cy="-2" r="18" fill="${c1}"/><circle cx="18" cy="-2" r="18" fill="${c1}"/><circle cx="-6" cy="-24" r="14" fill="${c2}" opacity=".8"/><circle cx="10" cy="-8" r="9" fill="${c2}" opacity=".6"/></g>`}
+function cottage(x,y,s,sign){return`<g transform="translate(${x},${y}) scale(${s})" filter="url(#wc)"><rect x="40" y="-112" width="16" height="34" fill="#9c8b7a" stroke="#6e5a48" stroke-width="2"/><rect x="0" y="-60" width="110" height="80" fill="#f4e4c4" stroke="#7a5232" stroke-width="3"/>
+<path d="M0 -60 L110 -60 M0 -20 L110 -20 M30 -60 L30 20 M80 -60 L80 20" stroke="#8a6040" stroke-width="3"/><path d="M-12 -56 L55 -112 L122 -56 Z" fill="#d9773f" stroke="#9b4d1f" stroke-width="3"/>
+<path d="M2 -66 L108 -66 M10 -76 L100 -76 M22 -88 L88 -88 M36 -100 L74 -100" stroke="#c0622d" stroke-width="2"/><path d="M42 20 L42 -10 Q55 -26 68 -10 L68 20Z" fill="#4f7d5a" stroke="#2f5238" stroke-width="2.5"/>
+<rect x="8" y="-50" width="18" height="20" fill="#bfe0e8" stroke="#7a5232" stroke-width="2.5"/><rect x="84" y="-50" width="18" height="20" fill="#bfe0e8" stroke="#7a5232" stroke-width="2.5"/><rect x="6" y="-30" width="22" height="7" rx="3" fill="#6f9e55"/><circle cx="11" cy="-31" r="3" fill="#f08a4b"/><circle cx="18" cy="-32" r="3" fill="#e86f8f"/><circle cx="24" cy="-31" r="3" fill="#f6c344"/></g>`+(sign?`<g transform="translate(${x-6},${y-30})"><rect x="-1" y="0" width="4" height="12" fill="#5a3a1c"/></g>`:"")}
+function signpost(x,y,labels){let s=`<g transform="translate(${x},${y})"><rect x="-5" y="-6" width="10" height="${labels.length*36+40}" rx="3" fill="#7a4d25" stroke="#4f2e12" stroke-width="2"/>`;
+ labels.forEach((l,i)=>{const w=l.length*17+30,dir=x>200?-1:(i%2?-1:1),yy=i*36;const p=dir>0?`M-8 ${yy} L${w-12} ${yy} L${w} ${yy+14} L${w-12} ${yy+28} L-8 ${yy+28}Z`:`M8 ${yy} L${-w+12} ${yy} L${-w} ${yy+14} L${-w+12} ${yy+28} L8 ${yy+28}Z`;
+  s+=`<path d="${p}" fill="#a0693a" stroke="#4f2e12" stroke-width="2.5"/><text x="${dir>0?(w-12)/2:(-w+12)/2}" y="${yy+21}" text-anchor="middle" font-size="18" font-weight="900" fill="#fff6e0" stroke="#4f2e12" stroke-width=".6">${l}</text>`});return s+"</g>"}
+function townScene(opt={}){const h=opt.h||360;return`<svg class="bg" viewBox="0 0 390 ${h}" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">${DEFS}
+<rect width="390" height="${h}" fill="url(#sky)"/><g opacity=".9"><ellipse cx="70" cy="50" rx="46" ry="16" fill="#fff"/><ellipse cx="100" cy="42" rx="30" ry="16" fill="#fff"/><ellipse cx="300" cy="70" rx="50" ry="15" fill="#fff"/><ellipse cx="330" cy="60" rx="26" ry="14" fill="#fff"/></g>
+<g transform="translate(0,${h-360})"><path d="M0 170 Q70 120 150 160 Q230 110 300 150 Q350 130 390 150 L390 260 L0 260Z" fill="#b5d19b" filter="url(#wc)"/><path d="M0 200 Q90 160 190 195 Q290 160 390 190 L390 360 L0 360Z" fill="#9dc380" filter="url(#wc)"/>
+${tree(30,195,.9)}${tree(345,190,1)}${tree(300,175,.6,"#7aa95e")}${tree(95,170,.55,"#7aa95e")}
+${opt.nohouse?"":cottage(18,250,.82)+cottage(268,205,.45)}
+<path d="M150 190 Q170 190 205 190 Q215 230 330 360 L40 360 Q140 240 150 190Z" fill="url(#path)" filter="url(#wc)"/>${stones(70,7,195,360,190,40,260)}
+${flowers(46,11,220,360)}${opt.signs?signpost(356,225,opt.signs):""}</g></svg>`}
+
+/* 勇者：圓滾滾小蘿蔔，背包＋綠圍巾 */
+function heroSVG(face="smile"){const eyes=face==="scared"?`<circle cx="48" cy="68" r="5" fill="#fff" stroke="#3a2a1a" stroke-width="2"/><circle cx="72" cy="68" r="5" fill="#fff" stroke="#3a2a1a" stroke-width="2"/>`:`<ellipse cx="48" cy="68" rx="4.5" ry="6" fill="#3a2a1a"/><ellipse cx="72" cy="68" rx="4.5" ry="6" fill="#3a2a1a"/><circle cx="49.5" cy="65.5" r="1.8" fill="#fff"/><circle cx="73.5" cy="65.5" r="1.8" fill="#fff"/>`;
+ const mouth=face==="cheer"?`<path d="M50 80 Q60 94 70 80 Z" fill="#c4472f" stroke="#3a2a1a" stroke-width="2"/>`:face==="scared"?`<ellipse cx="60" cy="84" rx="5" ry="6" fill="#3a2a1a"/>`:`<path d="M52 80 Q60 88 68 80" fill="none" stroke="#3a2a1a" stroke-width="3" stroke-linecap="round"/>`;
+ return`<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg"><g filter="url(#wc)"><rect x="76" y="50" width="34" height="50" rx="10" fill="#8a5a2b" stroke="#4f2e12" stroke-width="3"/><rect x="72" y="38" width="42" height="16" rx="8" fill="#a0693a" stroke="#4f2e12" stroke-width="3"/>
+<ellipse cx="46" cy="128" rx="12" ry="8" fill="#7a4d25" stroke="#4f2e12" stroke-width="2.5"/><ellipse cx="74" cy="128" rx="12" ry="8" fill="#7a4d25" stroke="#4f2e12" stroke-width="2.5"/>
+<path d="M60 18 C96 18 104 60 100 86 C96 116 80 124 60 124 C40 124 24 116 20 86 C16 60 24 18 60 18Z" fill="#f7efd6" stroke="#8a6a45" stroke-width="3"/>
+<path d="M60 20 C50 4 34 2 30 8 C40 10 50 14 58 22Z" fill="#7fb556" stroke="#3d6b2a" stroke-width="2.5"/><path d="M60 20 C68 2 86 0 92 6 C82 10 70 14 62 22Z" fill="#94c766" stroke="#3d6b2a" stroke-width="2.5"/>
+<path d="M24 94 Q60 112 96 94 L98 104 Q60 120 22 104Z" fill="#5f9446" stroke="#3d6b2a" stroke-width="2.5"/><path d="M30 102 L18 122 L32 118 L38 104Z" fill="#5f9446" stroke="#3d6b2a" stroke-width="2.5"/>
+<ellipse cx="22" cy="92" rx="7" ry="10" fill="#f7efd6" stroke="#8a6a45" stroke-width="2.5"/></g>${eyes}<ellipse cx="38" cy="80" rx="7" ry="4.5" fill="#f4a5a0" opacity=".8"/><ellipse cx="82" cy="80" rx="7" ry="4.5" fill="#f4a5a0" opacity=".8"/>${mouth}</svg>`}
+
+/* 疑惑雲／陷阱雲 */
+function cloudSVG(state="smug",trap=false){const c1=trap?"#a7a0b8":"#bfc2c8",c2=trap?"#c9c2da":"#dcdee2",st=trap?"#7d7592":"#8e9299";
+ let eyes,mouth,extra="";
+ if(state==="hit"){eyes=`<path d="M56 62 l10 8 l-10 8 M104 62 l-10 8 l10 8" stroke="#2b2b33" stroke-width="4" fill="none" stroke-linecap="round"/>`;mouth=`<path d="M66 92 q7 -6 14 0 q7 6 14 0" stroke="#2b2b33" stroke-width="4" fill="none" stroke-linecap="round"/>`;extra=`<text x="130" y="40" font-size="26" fill="#f6c344" stroke="#7a5232" stroke-width="1">✦</text><text x="18" y="38" font-size="20" fill="#f6c344" stroke="#7a5232" stroke-width="1">✦</text>`}
+ else if(state==="down"){eyes=`<path d="M54 70 q8 -8 16 0 M90 70 q8 -8 16 0" stroke="#2b2b33" stroke-width="4" fill="none" stroke-linecap="round"/>`;mouth=`<path d="M70 88 q10 10 20 0" stroke="#2b2b33" stroke-width="4" fill="none" stroke-linecap="round"/>`;extra=`<text x="118" y="44" font-size="22">💤</text>`}
+ else{eyes=`<ellipse cx="62" cy="70" rx="6" ry="8" fill="#2b2b33"/><ellipse cx="98" cy="70" rx="6" ry="8" fill="#2b2b33"/><circle cx="64" cy="66" r="2.4" fill="#fff"/><circle cx="100" cy="66" r="2.4" fill="#fff"/>${trap?`<path d="M50 54 L70 60 M110 54 L90 60" stroke="#2b2b33" stroke-width="4" stroke-linecap="round"/>`:""}`;
+  mouth=`<path d="M66 86 Q80 104 94 86 Z" fill="#7a2c2c" stroke="#2b2b33" stroke-width="3"/><path d="M72 87 l4 6 l4 -6" fill="#fff"/>`}
+ return`<svg viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg"><ellipse cx="80" cy="132" rx="52" ry="7" fill="#000" opacity=".15"/><g filter="url(#wc)">
+<g fill="${c1}" stroke="${st}" stroke-width="3"><circle cx="40" cy="78" r="30"/><circle cx="120" cy="78" r="30"/><circle cx="60" cy="48" r="30"/><circle cx="102" cy="46" r="32"/><circle cx="80" cy="86" r="40"/><circle cx="46" cy="104" r="20"/><circle cx="114" cy="104" r="20"/></g>
+<g fill="${c1}"><circle cx="80" cy="76" r="38"/><circle cx="58" cy="62" r="22"/><circle cx="104" cy="60" r="24"/></g><g fill="${c2}" opacity=".8"><circle cx="62" cy="40" r="12"/><circle cx="98" cy="36" r="10"/><circle cx="36" cy="72" r="8"/></g>
+<ellipse cx="62" cy="122" rx="9" ry="6" fill="${c1}" stroke="${st}" stroke-width="2.5"/><ellipse cx="98" cy="122" rx="9" ry="6" fill="${c1}" stroke="${st}" stroke-width="2.5"/></g>
+${eyes}<ellipse cx="48" cy="84" rx="7" ry="4" fill="#f4a5a0" opacity=".8"/><ellipse cx="112" cy="84" rx="7" ry="4" fill="#f4a5a0" opacity=".8"/>${mouth}${extra}${trap&&state==="smug"?`<g transform="translate(116,8) rotate(10)"><rect x="0" y="0" width="40" height="30" rx="5" fill="#fff6e0" stroke="#7a4d25" stroke-width="3"/><text x="20" y="23" text-anchor="middle" font-size="22" font-weight="900" fill="#c4472f">？</text></g>`:""}</svg>`}
+
+/* 村長 */
+function chiefSVG(){return`<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg"><g filter="url(#wc)"><rect x="96" y="20" width="7" height="124" rx="3" fill="#7a4d25" stroke="#4f2e12" stroke-width="2"/><circle cx="99.5" cy="20" r="9" fill="#7fb556" stroke="#3d6b2a" stroke-width="2"/>
+<path d="M24 146 C20 96 34 70 60 70 C86 70 100 96 96 146Z" fill="#c98a4b" stroke="#7a4d25" stroke-width="3"/><path d="M60 72 L60 146" stroke="#a5672f" stroke-width="3"/>
+<circle cx="60" cy="54" r="28" fill="#f6dfc0" stroke="#8a6a45" stroke-width="3"/><path d="M34 60 C36 96 84 96 86 60 C78 70 70 74 60 74 C50 74 42 70 34 60Z" fill="#fff" stroke="#bdbdbd" stroke-width="2.5"/>
+<path d="M28 36 Q60 4 92 36 Z" fill="#5f9446" stroke="#3d6b2a" stroke-width="3"/><rect x="24" y="33" width="72" height="9" rx="4" fill="#4f7d3a" stroke="#3d6b2a" stroke-width="2"/></g>
+<path d="M46 52 q5 -4 10 0 M64 52 q5 -4 10 0" stroke="#3a2a1a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="40" cy="60" rx="5" ry="3" fill="#f4a5a0"/><ellipse cx="80" cy="60" rx="5" ry="3" fill="#f4a5a0"/><ellipse cx="60" cy="64" rx="10" ry="4" fill="#fff"/></svg>`}
+
+/* 夥伴蛋與夥伴 */
+const EGGS={
+ friend:{n:"安麗之友",pet:"小芽",ic:"🌱",c1:"#d9efc4",c2:"#86b85f",pat:"dots",
+  rows:[["費用","0 元"],["新人 8 折上限","無"],["門市購買","✗ 不可","n"],["長客計畫","✗ 不可","n"],["事業權益","✗ 無","n"],["年度續約費","無"]],
+  tip:"想先試試看產品的人"},
+ member:{n:"生活會員",pet:"橘橘",ic:"🍊",c1:"#fde0c0",c2:"#ea8a3e",pat:"stripes",
+  rows:[["入會費","200 元（不退）"],["新人 8 折上限","1,000 元"],["門市購買","✓ 可","y"],["長客計畫","✓ 可","y"],["事業權益","✗ 無","n"],["年度續約費","200 元"]],
+  tip:"常用產品、想訂長客計畫，但不打算做事業的人"},
+ dist:{n:"直銷商",pet:"星星",ic:"⭐",c1:"#fff0b8",c2:"#e0a623",pat:"stars",
+  rows:[["押金","1,000 元（退會可退）"],["新人 8 折上限","1,500 元"],["門市購買","✓ 可","y"],["長客計畫","✓ 可","y"],["事業權益","✓ 有","y"],["年度續約費","500 元"]],
+  tip:"想經營第二份事業、領業績獎金的人"}};
+function eggSVG(k,cracked){const e=EGGS[k];let pat="";
+ if(e.pat==="dots")pat=[[34,40,7],[62,30,5],[70,62,8],[38,78,6],[60,94,7],[28,58,4]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="${e.c2}"/>`).join("");
+ if(e.pat==="stripes")pat=`<path d="M10 62 Q50 50 90 62 L91 72 Q50 60 9 72Z M8 88 Q50 76 92 88 L92 98 Q50 86 8 98Z" fill="${e.c2}"/>`;
+ if(e.pat==="stars")pat=[[34,46],[66,40],[50,74],[30,92],[70,92]].map(p=>`<text x="${p[0]}" y="${p[1]}" text-anchor="middle" font-size="18" fill="${e.c2}">★</text>`).join("");
+ const body=`<path d="M50 6 C80 6 94 60 94 80 C94 104 74 116 50 116 C26 116 6 104 6 80 C6 60 20 6 50 6Z" fill="${e.c1}" stroke="#8a6a45" stroke-width="3"/>`;
+ return`<svg viewBox="0 0 100 122" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="117" rx="34" ry="5" fill="#000" opacity=".15"/><g filter="url(#wc)">${body}${pat}<ellipse cx="34" cy="30" rx="8" ry="12" fill="#fff" opacity=".6"/></g>
+${cracked?`<path d="M10 60 L24 52 L32 64 L44 50 L54 64 L66 50 L76 62 L90 54" fill="none" stroke="#6e4320" stroke-width="3"/><g transform="translate(26,8) scale(.48)">${petInner(k)}</g>`:""}</svg>`}
+function petInner(k){const e=EGGS[k];const top=k==="friend"?`<path d="M50 14 C40 0 26 2 24 8 C34 10 42 14 48 20Z" fill="#7fb556" stroke="#3d6b2a" stroke-width="3"/>`:k==="member"?`<path d="M22 30 L26 6 L42 22Z M78 30 L74 6 L58 22Z" fill="${e.c2}" stroke="#8a4a1c" stroke-width="3"/>`:`<path d="M50 0 L56 14 L70 14 L59 23 L63 37 L50 29 L37 37 L41 23 L30 14 L44 14Z" fill="#f6c344" stroke="#a87412" stroke-width="2.5"/>`;
+ return`${top}<ellipse cx="50" cy="56" rx="38" ry="34" fill="${k==="friend"?"#bfe3a0":k==="member"?"#f6b26b":"#ffe27a"}" stroke="#6e4320" stroke-width="3"/><ellipse cx="38" cy="54" rx="4.5" ry="6" fill="#3a2a1a"/><ellipse cx="62" cy="54" rx="4.5" ry="6" fill="#3a2a1a"/><circle cx="39.5" cy="51.5" r="1.8" fill="#fff"/><circle cx="63.5" cy="51.5" r="1.8" fill="#fff"/><path d="M44 66 Q50 72 56 66" stroke="#3a2a1a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="28" cy="64" rx="6" ry="3.5" fill="#f4a5a0"/><ellipse cx="72" cy="64" rx="6" ry="3.5" fill="#f4a5a0"/>`}
+function petSVG(k){return`<svg viewBox="0 0 100 92" xmlns="http://www.w3.org/2000/svg">${petInner(k)}</svg>`}
+function badgeSVG(){return`<svg class="badge" viewBox="0 0 160 190" xmlns="http://www.w3.org/2000/svg"><path d="M50 110 L30 186 L56 172 L70 192 L80 120Z" fill="#d9773f" stroke="#8a4a1c" stroke-width="3"/><path d="M110 110 L130 186 L104 172 L90 192 L80 120Z" fill="#5f9446" stroke="#2f5e1f" stroke-width="3"/>
+<circle cx="80" cy="80" r="66" fill="url(#gl)"/><circle cx="80" cy="80" r="56" fill="#f6c344" stroke="#a87412" stroke-width="5"/><circle cx="80" cy="80" r="44" fill="#fff3c9" stroke="#e0a623" stroke-width="3" stroke-dasharray="4 4"/>
+<path d="M80 98 L80 72" stroke="#3d6b2a" stroke-width="5" stroke-linecap="round"/><path d="M80 76 C70 58 54 58 50 64 C60 66 70 70 78 78Z" fill="#7fb556" stroke="#3d6b2a" stroke-width="3"/><path d="M80 72 C88 52 106 52 110 58 C100 62 90 66 82 74Z" fill="#94c766" stroke="#3d6b2a" stroke-width="3"/>
+<rect x="34" y="102" width="92" height="28" rx="8" fill="#6e4320" stroke="#3a210c" stroke-width="2"/><text x="80" y="122" text-anchor="middle" font-size="18" font-weight="900" fill="#fff6e0">新手勇者</text></svg>`}
+
+
+/* ======================= 打造我的勇者：照片頭像＋造型＋遊戲金幣 ======================= */
+let PHOTO="";try{PHOTO=localStorage.getItem(KEY+"-photo")||""}catch(e){}
+const OUTFITS=[
+ {id:"cape",n:"冒險披風",p:0},{id:"shirt",n:"休閒襯衫",p:0},{id:"sport",n:"運動風",p:0},{id:"dress",n:"小洋裝",p:0},
+ {id:"suit",n:"西裝領袖",p:80},{id:"knight",n:"騎士盔甲",p:120},{id:"anchor",n:"主播外套",p:150},{id:"plat",n:"白金禮服",p:250}];
+const owned=id=>OUTFITS.find(o=>o.id===id).p===0||S.owned.includes(id);
+function coinIco(sz=20){return`<svg width="${sz}" height="${sz}" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;vertical-align:middle"><circle cx="20" cy="20" r="18" fill="#f6c344" stroke="#a87412" stroke-width="3"/><circle cx="20" cy="20" r="12.5" fill="#ffd95e" stroke="#e0a623" stroke-width="2"/><path d="M20 28 L20 19" stroke="#8a5a00" stroke-width="3" stroke-linecap="round"/><path d="M20 20 C16 13 11 14 10 16 C14 17 17 18 19 21Z M20 19 C23 11 29 11 30 13 C26 15 23 16 21 20Z" fill="#7a9e2e" stroke="#5a7a1c" stroke-width="1.2"/></svg>`}
+function coinPill(){return`<span class="coinp">${coinIco(20)}遊戲金幣 <b class="cnum">${S.coins}</b></span>`}
+function refreshCoins(){document.querySelectorAll(".cnum").forEach(e=>e.textContent=S.coins)}
+const INK="#5a3a1c",SK="#f6d2b0";
+function limb(d,c,w=9){return`<path d="${d}" stroke="${INK}" stroke-width="${w+4}" stroke-linecap="round" fill="none"/><path d="${d}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`}
+const ARMS=c=>limb("M39 86 Q27 98 27 116",c)+limb("M81 86 Q93 98 93 116",c)+`<circle cx="27" cy="119" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/><circle cx="93" cy="119" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/>`;
+const LEGS=(c,s)=>`<rect x="45" y="116" width="12" height="30" rx="5" fill="${c}" stroke="${INK}" stroke-width="2.5"/><rect x="63" y="116" width="12" height="30" rx="5" fill="${c}" stroke="${INK}" stroke-width="2.5"/><ellipse cx="49" cy="149" rx="10" ry="6" fill="${s}" stroke="${INK}" stroke-width="2.5"/><ellipse cx="71" cy="149" rx="10" ry="6" fill="${s}" stroke="${INK}" stroke-width="2.5"/>`;
+const TORSO=c=>`<path d="M38 82 Q60 74 82 82 L86 124 Q60 130 34 124Z" fill="${c}" stroke="${INK}" stroke-width="2.5"/>`;
+const NECK=`<rect x="54" y="66" width="12" height="16" rx="4" fill="${SK}" stroke="${INK}" stroke-width="2"/>`;
+function sparkle(x,y,s=1,c="#f6c344"){return`<path transform="translate(${x},${y}) scale(${s})" d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6Z" fill="${c}" stroke="#fff" stroke-width=".6"/>`}
+function outfitParts(id){switch(id){
+ case "cape":return{back:`<path d="M37 82 Q16 118 22 148 Q60 156 98 148 Q104 118 83 82Z" fill="#5f9446" stroke="#2f5e1f" stroke-width="2.5"/><path d="M30 120 Q60 128 90 120" stroke="#4f7d3a" stroke-width="2" fill="none"/>`,
+  front:LEGS("#7a5232","#6e4320")+TORSO("#c98a4b")+`<path d="M60 80 L60 124" stroke="#a5672f" stroke-width="2"/><rect x="35" y="106" width="50" height="7" fill="#6e4320"/><rect x="55" y="104" width="10" height="11" rx="2" fill="#f6c344" stroke="#a87412" stroke-width="1.5"/>`+ARMS("#c98a4b")+`<path d="M42 80 Q60 92 78 80 L80 86 Q60 98 40 86Z" fill="#7fb556" stroke="#2f5e1f" stroke-width="2"/><path d="M44 86 L36 104 L46 100Z" fill="#7fb556" stroke="#2f5e1f" stroke-width="2"/>`};
+ case "shirt":return{back:"",front:LEGS("#c9b48a","#8a5a2b")+TORSO("#8cc3e8")+`<g stroke="#5f9cc9" stroke-width="1.6" opacity=".8"><path d="M46 80 L44 124 M60 78 L60 128 M74 80 L76 124 M37 96 L83 96 M36 110 L85 110"/></g><path d="M50 79 L60 90 L70 79 L66 76 L60 83 L54 76Z" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="60" cy="100" r="1.8" fill="#fff"/><circle cx="60" cy="110" r="1.8" fill="#fff"/>`+limb("M39 86 Q29 96 28 106","#8cc3e8")+limb("M81 86 Q91 96 92 106","#8cc3e8")+limb("M28 107 Q27 112 27 116",SK,8)+limb("M92 107 Q93 112 93 116",SK,8)+`<circle cx="27" cy="119" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/><circle cx="93" cy="119" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/>`};
+ case "sport":return{back:"",front:`<rect x="45" y="116" width="12" height="30" rx="5" fill="#3d4f7a" stroke="${INK}" stroke-width="2.5"/><rect x="63" y="116" width="12" height="30" rx="5" fill="#3d4f7a" stroke="${INK}" stroke-width="2.5"/><path d="M47 118 L47 144 M73 118 L73 144" stroke="#fff" stroke-width="2"/><path d="M38 146 Q49 140 60 148 L60 153 L38 153Z M60 148 Q71 140 82 146 L82 153 L60 153Z" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M40 151 L58 151 M62 151 L80 151" stroke="#e0503a" stroke-width="2.5"/>`+TORSO("#f08a3a")+`<path d="M44 80 Q60 92 76 80" stroke="#fff" stroke-width="3" fill="none"/><circle cx="60" cy="104" r="9" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M60 98 L61.8 102 L66 102.4 L62.8 105 L63.8 109 L60 107 L56.2 109 L57.2 105 L54 102.4 L58.2 102Z" fill="#f08a3a"/><path d="M36 118 L84 118" stroke="#fff" stroke-width="3"/>`+ARMS("#f08a3a")+`<path d="M33 92 Q27 102 27 112 M87 92 Q93 102 93 112" stroke="#fff" stroke-width="2.5" fill="none"/>`};
+ case "dress":return{back:"",front:`<rect x="48" y="128" width="8" height="18" fill="${SK}" stroke="${INK}" stroke-width="2"/><rect x="64" y="128" width="8" height="18" fill="${SK}" stroke="${INK}" stroke-width="2"/><path d="M42 146 Q50 142 58 148 L58 152 L42 152Z M62 148 Q70 142 78 146 L78 152 L62 152Z" fill="#c4472f" stroke="${INK}" stroke-width="2"/>`+`<path d="M40 80 Q60 74 80 80 L82 104 L38 104Z" fill="#f2a0b5" stroke="${INK}" stroke-width="2.5"/><path d="M38 102 Q60 96 82 102 L96 136 Q60 146 24 136Z" fill="#f2a0b5" stroke="${INK}" stroke-width="2.5"/><g fill="#fff">${[[40,120],[56,112],[72,116],[48,132],[66,134],[84,128],[32,130]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6"/>`).join("")}</g><path d="M26 134 Q60 146 94 134" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="3 3"/><path d="M48 80 Q54 90 60 82 Q66 90 72 80" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M52 96 L60 100 L68 96 L68 106 L60 102 L52 106Z" fill="#c4472f" stroke="${INK}" stroke-width="1.5"/>`+limb("M40 86 Q30 98 28 114",SK,8)+`<path d="M36 82 Q30 86 32 92 Q38 92 42 86Z" fill="#f2a0b5" stroke="${INK}" stroke-width="2"/>`+limb("M80 86 Q90 98 92 114",SK,8)+`<path d="M84 82 Q90 86 88 92 Q82 92 78 86Z" fill="#f2a0b5" stroke="${INK}" stroke-width="2"/><circle cx="28" cy="117" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/><circle cx="92" cy="117" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/>`};
+ case "suit":return{back:"",front:LEGS("#2a3557","#1d1d24")+TORSO("#2f3d63")+`<path d="M50 78 L60 106 L70 78Z" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M57 84 L63 84 L65 104 L60 110 L55 104Z" fill="#c4472f" stroke="${INK}" stroke-width="1.5"/><path d="M48 78 L58 108 L44 96 L48 90 L42 86Z M72 78 L62 108 L76 96 L72 90 L78 86Z" fill="#24304f" stroke="${INK}" stroke-width="2"/><path d="M70 98 L78 96 L78 100Z" fill="#f6c344"/><circle cx="60" cy="114" r="2" fill="#f6c344"/><circle cx="60" cy="120" r="2" fill="#f6c344"/>`+ARMS("#2f3d63")+`<path d="M24 112 L31 112 M89 112 L96 112" stroke="#fff" stroke-width="3"/>`};
+ case "knight":return{back:`<path d="M37 82 Q16 118 20 150 Q60 156 100 150 Q104 118 83 82Z" fill="#b5452c" stroke="#7a2a1a" stroke-width="2.5"/>`,
+  front:`<rect x="45" y="116" width="12" height="30" rx="4" fill="#aab1bc" stroke="${INK}" stroke-width="2.5"/><rect x="63" y="116" width="12" height="30" rx="4" fill="#aab1bc" stroke="${INK}" stroke-width="2.5"/><path d="M45 128 L57 128 M63 128 L75 128" stroke="#7d8591" stroke-width="2"/><ellipse cx="49" cy="149" rx="10" ry="6" fill="#5b6370" stroke="${INK}" stroke-width="2.5"/><ellipse cx="71" cy="149" rx="10" ry="6" fill="#5b6370" stroke="${INK}" stroke-width="2.5"/>`+TORSO("#cfd5de")+`<path d="M37 98 Q60 106 83 98 M36 112 Q60 120 84 112" stroke="#8a929e" stroke-width="2" fill="none"/><path d="M38 82 Q60 74 82 82" stroke="#e0a623" stroke-width="3" fill="none"/><circle cx="60" cy="96" r="9" fill="#f6c344" stroke="#a87412" stroke-width="2"/><path d="M60 101 L60 94 M60 95 C57 90 54 91 53 92 C56 93 58 94 59.5 96Z M60 94 C62 89 66 89 67 90 C64 91 62 92 60.5 95Z" stroke="#3d6b2a" stroke-width="1.6" fill="#7fb556"/>`+ARMS("#b8bfca")+`<ellipse cx="36" cy="86" rx="11" ry="8" fill="#dfe4ea" stroke="${INK}" stroke-width="2.5"/><ellipse cx="84" cy="86" rx="11" ry="8" fill="#dfe4ea" stroke="${INK}" stroke-width="2.5"/><path d="M28 86 L44 86 M76 86 L92 86" stroke="#e0a623" stroke-width="2"/>`};
+ case "anchor":return{back:"",front:LEGS("#3a3a48","#1d1d24")+TORSO("#d0503a")+`<path d="M50 78 L60 98 L70 78Z" fill="#fff6e0" stroke="${INK}" stroke-width="2"/><path d="M48 78 L57 100 L46 108 L44 92 L41 86Z M72 78 L63 100 L74 108 L76 92 L79 86Z" fill="#b13f2b" stroke="${INK}" stroke-width="2"/><rect x="64" y="104" width="16" height="10" rx="2" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="68" cy="109" r="2.2" fill="#e0503a"/><path d="M71 109 L78 109" stroke="#5a3a1c" stroke-width="1.6"/>`+limb("M39 86 Q27 98 27 116","#d0503a")+limb("M81 86 Q94 94 90 104","#d0503a")+`<circle cx="27" cy="119" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/><rect x="87" y="96" width="4" height="18" rx="2" fill="#333" transform="rotate(-20 89 105)"/><circle cx="86" cy="94" r="6" fill="#444" stroke="#111" stroke-width="1.5"/><circle cx="89" cy="105" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/>`};
+ case "plat":return{back:"",front:`<path d="M40 80 Q60 74 80 80 L82 104 L38 104Z" fill="#f4f6fa" stroke="${INK}" stroke-width="2.5"/><path d="M38 102 Q60 96 82 102 L100 152 Q60 158 20 152Z" fill="url(#platg)" stroke="${INK}" stroke-width="2.5"/><path d="M28 140 Q60 150 92 140" stroke="#b9c3d6" stroke-width="2" fill="none"/><path d="M42 80 L80 104 L76 108 L38 86Z" fill="#b9c3d6" stroke="#7d8aa3" stroke-width="1.5"/><circle cx="60" cy="96" r="4" fill="#e9f1ff" stroke="#7d8aa3" stroke-width="1.5"/>${sparkle(36,124,.9)}${sparkle(76,132,1.1)}${sparkle(56,144,.8,"#fff")}${sparkle(86,116,.7)}${sparkle(46,110,.6,"#fff")}`+limb("M40 86 Q30 98 28 114",SK,8)+limb("M80 86 Q90 98 92 114",SK,8)+`<path d="M34 82 Q28 88 32 94 Q40 92 42 85Z M86 82 Q92 88 88 94 Q80 92 78 85Z" fill="#e9eef6" stroke="${INK}" stroke-width="2"/><circle cx="28" cy="117" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/><circle cx="92" cy="117" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2"/>`,
+  top:`<path d="M44 0 L48 -12 L54 -4 L60 -15 L66 -4 L72 -12 L76 0Z" fill="#e8edf5" stroke="#7d8aa3" stroke-width="2"/><circle cx="60" cy="-8" r="2.4" fill="#9fd3ff"/>`};}}
+let AVN=0;
+function avatarSVG(face="smile",o={}){const n=++AVN,outfit=o.outfit||S.outfit||"cape",photo=o.photo!==undefined?o.photo:PHOTO,P=outfitParts(outfit);
+ let head;
+ if(photo){head=`<clipPath id="hc${n}"><circle cx="60" cy="36" r="34"/></clipPath><circle cx="60" cy="36" r="38" fill="#fff6e0" stroke="${INK}" stroke-width="3"/><image href="${photo}" x="26" y="2" width="68" height="68" preserveAspectRatio="xMidYMid slice" clip-path="url(#hc${n})"/>`}
+ else{const eyes=face==="scared"?`<circle cx="49" cy="40" r="4.5" fill="#fff" stroke="#3a2a1a" stroke-width="2"/><circle cx="71" cy="40" r="4.5" fill="#fff" stroke="#3a2a1a" stroke-width="2"/>`:`<ellipse cx="49" cy="40" rx="4" ry="5.5" fill="#3a2a1a"/><ellipse cx="71" cy="40" rx="4" ry="5.5" fill="#3a2a1a"/><circle cx="50.4" cy="37.8" r="1.6" fill="#fff"/><circle cx="72.4" cy="37.8" r="1.6" fill="#fff"/>`;
+  const mouth=face==="cheer"?`<path d="M52 50 Q60 62 68 50Z" fill="#c4472f" stroke="#3a2a1a" stroke-width="2"/>`:face==="scared"?`<ellipse cx="60" cy="54" rx="4" ry="5" fill="#3a2a1a"/>`:`<path d="M53 51 Q60 58 67 51" fill="none" stroke="#3a2a1a" stroke-width="2.6" stroke-linecap="round"/>`;
+  head=`<path d="M60 6 C50 -6 38 -6 34 -1 C42 1 50 4 57 10Z" fill="#7fb556" stroke="#3d6b2a" stroke-width="2.2"/><path d="M60 6 C68 -7 82 -7 87 -2 C79 2 70 5 63 10Z" fill="#94c766" stroke="#3d6b2a" stroke-width="2.2"/><circle cx="60" cy="38" r="34" fill="#f7efd6" stroke="#8a6a45" stroke-width="3"/>${eyes}<ellipse cx="41" cy="50" rx="6" ry="3.8" fill="#f4a5a0" opacity=".8"/><ellipse cx="79" cy="50" rx="6" ry="3.8" fill="#f4a5a0" opacity=".8"/>${mouth}`}
+ let fx="";if(face==="cheer")fx=sparkle(104,8,1.3)+sparkle(14,16,1)+sparkle(100,40,.8,"#fff");
+ if(face==="scared")fx=`<path d="M103 12 Q109 22 103 26 Q97 22 103 12Z" fill="#8fd0ff" stroke="#3a7ab8" stroke-width="1.5"/><text x="8" y="20" font-size="22" font-weight="900" fill="#e0402a" stroke="#fff" stroke-width="1" font-family="sans-serif">!</text>`;
+ const attrs=o.attrs||"";
+ return`<svg ${attrs} viewBox="0 -16 120 176" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><linearGradient id="platg${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d4dbe8"/></linearGradient></defs><ellipse cx="60" cy="154" rx="34" ry="5" fill="#000" opacity=".15"/>${P.back}${NECK}${P.front.replace("url(#platg)",`url(#platg${n})`)}${head}${P.top||""}${fx}</svg>`}
+function heroHTML(face="smile"){return S.custom?avatarSVG(face):heroSVG(face)}
+
+/* ---- 照片：讀檔（含 EXIF 方向）→ 裁切 → 256px JPEG，只存在本機 ---- */
+const CROP={img:null,zoom:1,ox:0,oy:0,V:560,back:null,ptr:new Map(),pd:0};
+async function loadFile(file){let src=null;
+ try{if(window.createImageBitmap)src=await createImageBitmap(file,{imageOrientation:"from-image"})}catch(e){src=null}
+ if(!src)src=await new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error("img"));im.src=u});
+ const W=src.width,H=src.height,k=Math.min(1,1400/Math.max(W,H)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(W*k));c.height=Math.max(1,Math.round(H*k));
+ c.getContext("2d").drawImage(src,0,0,c.width,c.height);if(src.close)src.close();return c}
+function pickPhoto(kind,back){CROP.back=back;const inp=$(kind==="selfie"?"#fSelfie":"#fAlbum");inp.value="";inp.click()}
+async function onFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;
+ try{const c=await loadFile(f);openCrop(c)}catch(err){toast("這張照片讀不出來，換一張試試")}}
+function openCrop(c){Object.assign(CROP,{img:c,zoom:1,ox:0,oy:0});
+ $("#s-crop").innerHTML=`<div class="hud"><span class="sign" style="font-size:18px">✂️ 調整頭像</span></div>
+ <div class="parch c"><p style="font-weight:900;margin:0 0 8px">拖曳照片、移動滑桿，把臉放進圓圈裡</p>
+ <canvas id="cropCv" width="${CROP.V}" height="${CROP.V}"></canvas>
+ <label class="zl"><span>🔍 縮放</span><input type="range" id="zoom" min="1" max="4" step="0.01" value="1"></label>
+ <p style="margin:6px 0 0"><span class="dark">🔒 照片只存在你的手機，不會上傳</span></p></div>
+ <div class="row mt"><button class="btn w" type="button" id="cropNo">取消</button><button class="btn g" type="button" id="cropOk">✔ 使用這張</button></div>`;
+ const cv=$("#cropCv");drawCrop();
+ $("#zoom").oninput=e=>{CROP.zoom=+e.target.value;drawCrop()};
+ cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);CROP.ptr.set(e.pointerId,[e.clientX,e.clientY]);CROP.pd=0};
+ cv.onpointermove=e=>{if(!CROP.ptr.has(e.pointerId))return;const r=cv.getBoundingClientRect(),k=CROP.V/r.width,prev=CROP.ptr.get(e.pointerId);CROP.ptr.set(e.pointerId,[e.clientX,e.clientY]);
+  if(CROP.ptr.size===1){CROP.ox+=(e.clientX-prev[0])*k;CROP.oy+=(e.clientY-prev[1])*k}
+  else{const p=[...CROP.ptr.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);if(CROP.pd)CROP.zoom=Math.min(4,Math.max(1,CROP.zoom*d/CROP.pd));CROP.pd=d;$("#zoom").value=CROP.zoom}
+  drawCrop()};
+ cv.onpointerup=cv.onpointercancel=e=>{CROP.ptr.delete(e.pointerId);CROP.pd=0};
+ $("#cropNo").onclick=()=>(CROP.back||renderMake)();
+ $("#cropOk").onclick=finishCrop;show("s-crop")}
+function cropGeo(){const V=CROP.V,D=V*.84,w=CROP.img.width,h=CROP.img.height,s=D/Math.min(w,h)*CROP.zoom,mx=Math.max(0,w*s/2-D/2),my=Math.max(0,h*s/2-D/2);
+ CROP.ox=Math.max(-mx,Math.min(mx,CROP.ox));CROP.oy=Math.max(-my,Math.min(my,CROP.oy));return{V,D,w,h,s,x:V/2+CROP.ox-w*s/2,y:V/2+CROP.oy-h*s/2}}
+function drawCrop(){const cv=$("#cropCv");if(!cv||!CROP.img)return;const x=cv.getContext("2d"),g=cropGeo();x.clearRect(0,0,g.V,g.V);x.fillStyle="#e8d4a6";x.fillRect(0,0,g.V,g.V);
+ x.drawImage(CROP.img,g.x,g.y,g.w*g.s,g.h*g.s);x.save();x.beginPath();x.rect(0,0,g.V,g.V);x.arc(g.V/2,g.V/2,g.D/2,0,Math.PI*2,true);x.fillStyle="rgba(50,30,12,.6)";x.fill();x.restore();
+ x.beginPath();x.arc(g.V/2,g.V/2,g.D/2,0,Math.PI*2);x.lineWidth=8;x.strokeStyle="#fff6e0";x.setLineDash([18,12]);x.stroke();x.setLineDash([])}
+function exportHead(size,q){const g=cropGeo(),c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");x.fillStyle="#f7efd6";x.fillRect(0,0,size,size);
+ const sx=(g.V/2-g.D/2-g.x)/g.s,sy=(g.V/2-g.D/2-g.y)/g.s,sw=g.D/g.s;x.drawImage(CROP.img,sx,sy,sw,sw,0,0,size,size);return c.toDataURL("image/jpeg",q)}
+function finishCrop(){let url=exportHead(256,.85),stored=false;
+ for(const [sz,q] of [[256,.85],[192,.75],[128,.65]]){try{url=exportHead(sz,q);localStorage.setItem(KEY+"-photo",url);stored=true;break}catch(e){}}
+ if(!stored){url=exportHead(256,.85);toast("手機儲存空間不足：照片這次可以用，但關掉後不會保留")}
+ PHOTO=url;S.custom=true;save();AU.sfx("ok");CROP.img=null;(CROP.back||renderMake)()}
+function useDefaultHead(back){PHOTO="";try{localStorage.removeItem(KEY+"-photo")}catch(e){}S.custom=true;save();back&&back()}
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;$("#app").appendChild(d);setTimeout(()=>d.remove(),2600)}
+
+/* ---- 造型卡片 ---- */
+function outfitCard(o,mode){const has=owned(o.id),on=S.outfit===o.id;
+ const st=on?`<span class="ost on">✔ 穿著中</span>`:has?`<span class="ost">穿上</span>`:`<span class="ost lock">🔒 ${coinIco(16)}${o.p}</span>`;
+ return`<button type="button" class="oc ${on?"sel":""} ${has?"":"locked"}" data-o="${o.id}"><div class="om">${avatarSVG("smile",{outfit:o.id})}</div><b>${o.n}</b>${st}</button>`}
+function makeBox(back){return`<div class="pv" id="pv">${avatarSVG("cheer")}</div>
+ <div class="row"><button class="btn w" type="button" data-ph="selfie">📷 自拍</button><button class="btn w" type="button" data-ph="album">🖼️ 從相簿選照片</button><button class="btn w" type="button" data-ph="def">🙂 用預設頭像</button></div>
+ <p class="c" style="margin:8px 0 0"><span class="dark">🔒 照片只存在你的手機，不會上傳</span></p>`}
+function bindMake(root,back){root.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>{const k=b.dataset.ph;if(k==="def")useDefaultHead(back);else pickPhoto(k,back)});
+ root.querySelectorAll(".oc").forEach(b=>b.onclick=()=>tapOutfit(b.dataset.o,back))}
+function tapOutfit(id,back){const o=OUTFITS.find(x=>x.id===id);
+ if(owned(id)){S.outfit=id;S.custom=true;save();AU.sfx("click");return back()}
+ if(S.coins<o.p){modal(`<div class="c"><div style="width:110px;margin:0 auto">${avatarSVG("smile",{outfit:id})}</div><div class="bigok">「${o.n}」需要 ${coinIco(22)}${o.p} 遊戲金幣</div><p style="font-weight:800">你現在有 ${S.coins}，還差 ${o.p-S.coins}。<br>多闖關、多答對就能獲得更多遊戲金幣！</p><button class="btn wide" type="button" onclick="closeModal()">好，繼續努力</button></div>`);return}
+ modal(`<div class="c"><div style="width:120px;margin:0 auto">${avatarSVG("cheer",{outfit:id})}</div><div class="bigok">用 ${coinIco(22)}${o.p} 遊戲金幣<br>換「${o.n}」？</div><p style="font-weight:800">換完剩 ${S.coins-o.p} 遊戲金幣。遊戲金幣只能用來換造型。</p><div class="row"><button class="btn w" type="button" onclick="closeModal()">再想想</button><button class="btn g" type="button" id="buyOk">換！</button></div></div>`);
+ $("#buyOk").onclick=()=>{S.coins-=o.p;S.owned.push(id);S.outfit=id;S.custom=true;save();closeModal();AU.sfx("fan");back();toast(`獲得新造型「${o.n}」！`)}}
+
+/* ---- 打造我的勇者（選蛋後、第一次） ---- */
+function renderMake(){const back=renderMake;
+ $("#s-make").innerHTML=`${hud(1)}<div class="c"><span class="sign" style="font-size:18px">🧑‍🎨 打造我的勇者</span></div>
+ <div class="parch mt">${makeBox(back)}</div>
+ <div class="parch mt"><div class="sign" style="font-size:16px">👕 選一套造型</div><div class="ogrid mt">${OUTFITS.map(o=>outfitCard(o)).join("")}</div>
+ <p style="font-size:16px;font-weight:800;margin:8px 0 0;color:#6e4320">🔒 進階造型用「遊戲金幣」到衣櫃換；遊戲金幣只能用來換造型。</p></div>
+ <div class="c mt"><button class="btn g wide" id="makeOk" type="button">完成，出發闖關 ▶</button></div>`;
+ bindMake($("#s-make"),back);$("#makeOk").onclick=()=>{S.custom=true;save();R.i=0;R.correct=0;R.ans=[];renderBattle(false)};show("s-make")}
+
+/* ---- 衣櫃 ---- */
+let WARD_BACK=null;
+function renderWard(from){if(from)WARD_BACK=from;const back=()=>renderWard();
+ $("#s-ward").innerHTML=`<div class="hud"><span class="sign" style="font-size:18px">👗 衣櫃</span>${coinPill()}</div>
+ <div class="stage" style="height:220px">${townScene({h:220,nohouse:1})}<div class="wardpv">${avatarSVG("cheer")}</div></div>
+ <div class="parch mt"><div class="sign" style="font-size:16px">👕 造型</div><div class="ogrid mt">${OUTFITS.map(o=>outfitCard(o)).join("")}</div>
+ <p style="font-size:16px;font-weight:800;margin:8px 0 0;color:#6e4320">通關、答對題目可以獲得遊戲金幣。遊戲金幣只能用來換造型，沒有現實價值。</p></div>
+ <div class="parch mt"><div class="sign" style="font-size:16px">📷 換頭像照片</div><div class="mt">${makeBox(back).replace(/<div class="pv" id="pv">[\s\S]*?<\/svg><\/div>/,"")}</div></div>
+ <div class="c mt"><button class="btn wide" type="button" id="wardBack">⬅ 返回</button></div>`;
+ bindMake($("#s-ward"),back);$("#wardBack").onclick=()=>(WARD_BACK||renderMap)();show("s-ward")}
+
+/* ---- 遊戲金幣計算 ---- */
+function calcCoins(first){const rows=[["🏁 過關",30],[`✅ 答對 ${R.correct} 題`,R.correct*10],[`⭐ ${R.stars} 顆星`,R.stars*10]];if(R.trapOk)rows.push(["🛡️ 識破陷阱",10]);
+ const base=rows.reduce((a,r)=>a+r[1],0),gain=first?base:Math.max(1,Math.round(base*.3));return{rows,base,gain,first}}
+
+/* ======================= 遊戲資料（第 1 關） ======================= */
+const QS=[
+ {q:"小美只想先試用產品，不想付任何入會費，也不打算做事業。她適合哪一種身分？",
+  opts:[{ic:"🌱",t:"安麗之友",ok:1,why:"答對！安麗之友 0 元，最適合只想先試試看的小美。"},
+        {ic:"🍊",t:"生活會員",why:"生活會員要付入會費 200 元（不退）和年費 200 元，小美不想付入會費，安麗之友就夠了。"},
+        {ic:"⭐",t:"直銷商",why:"直銷商要押金 1,000 元、年費 500 元，是給想經營事業的人；小美不做事業，不需要。"},
+        {ic:"📦",t:"先買一大箱存貨",why:"不用！任何身分都沒有囤貨的義務，用多少買多少就好。"}]},
+ {q:"王阿姨想訂「長客計畫」每月定期配送，但沒有要做事業。她至少要是？",
+  opts:[{ic:"🌱",t:"安麗之友",why:"安麗之友不能訂長客計畫，也不能在門市購買喔。"},
+        {ic:"⭐",t:"直銷商",why:"直銷商也能訂長客計畫，但王阿姨不做事業，「至少」只要生活會員就可以。"},
+        {ic:"🍊",t:"生活會員",ok:1,why:"答對！想訂長客計畫，至少要是生活會員（入會費 200 元、年費 200 元）。"},
+        {ic:"🙅",t:"不用任何身分",why:"長客計畫需要會員編號，至少要是生活會員。"}]},
+ {q:"阿明想經營第二份事業、領業績獎金。他至少要是哪一種身分？",
+  opts:[{ic:"🍊",t:"生活會員",why:"生活會員沒有事業權益，不能領業績獎金。"},
+        {ic:"📣",t:"拉越多人加入越好",why:"不對喔！收入主要來自產品銷售與自用，不是來自推薦別人加入；也沒有推薦他人的義務。"},
+        {ic:"🌱",t:"安麗之友",why:"安麗之友沒有事業權益。"},
+        {ic:"⭐",t:"直銷商",ok:1,why:"答對！只有直銷商有事業權益，可以依業績領獎金。"}]}];
+const TRAP={q:"最後一題陷阱：「加入直銷商是免費的嗎？」",
+  opts:[{ic:"🎁",t:"是，一毛都不用花",why:"這就是陷阱！直銷商要押金 1,000 元（退會可退）和年度續約費 500 元。"},
+        {ic:"✅",t:"不是，押金 1,000（退會可退）、年費 500",ok:1,why:"答對！直銷商押金 1,000 元，退會時可以退回；每年續約費 500 元。"},
+        {ic:"💸",t:"要先買 3 萬元產品",why:"不用！加入沒有最低購買金額，也沒有囤貨的義務。"},
+        {ic:"👥",t:"要先找 3 個人加入",why:"不用！沒有推薦他人的義務。"}]};
+const STEPS=["劇情","選蛋","抉擇","陷阱","揭曉"];
+let R={};
+const G=window.__game={state:()=>S,run:()=>R,fast:false,phase:"welcome",audio:()=>({state:AU.state,muted:AU.muted,mode:AU.mode})};
+
+function hud(cur){return`<div class="hud"><span class="sign" style="flex:none">第 1 關<span class="lv">｜起點村</span></span>${coinPill()}</div><div class="steps lvsteps" aria-label="關卡進度">${STEPS.map((s,i)=>(i?"<i></i>":"")+`<b class="${i<cur?"d":i==cur?"c":""}" title="${s}">${i<cur?"✓":i==cur?"📍":"🔒"}</b>`).join("")}</div>`}
+function show(id){document.querySelectorAll(".scr").forEach(e=>e.classList.toggle("on",e.id===id));const el=$("#"+id);if(el)el.scrollTop=0;G.phase=id.slice(2);AU.setMode(id==="s-battle"?"battle":"town")}
+function modal(h){$("#mbox").innerHTML=h;$("#modal").classList.add("on")}
+function closeModal(){$("#modal").classList.remove("on")}
+
+document.body.insertAdjacentHTML("afterbegin",`<svg width="0" height="0" style="position:absolute" aria-hidden="true">${DEFS}</svg>`);
+/* ---------- 歡迎 ---------- */
+$("#wscene").innerHTML=townScene({h:360,signs:["起點村","白金之巔"]})+`<div style="position:absolute;left:22%;bottom:7%;width:24%">${heroSVG("cheer")}</div><div style="position:absolute;left:45%;bottom:13%;width:19%">${cloudSVG("smug")}</div>`;
+$("#wbtn").onclick=()=>{AU.start();AU.sfx("fan");renderMap()};
+
+/* ---------- 地圖 ---------- */
+function renderMap(){const d=S.done[1];
+ const nodes=[[78,470,"🏡","起點村",1],[262,418,"💰","？？？",0],[96,346,"🤝","？？？",0],[272,274,"🥉","？？？",0],[104,200,"🗼","？？？",0],[262,124,"🏆","白金之巔",0]];
+ let path=`M78 470 C180 470 290 450 262 418 S60 380 96 346 S300 310 272 274 S80 240 104 200 S300 160 262 124 S120 60 92 48`;
+ let svg=`<svg viewBox="0 0 390 540" xmlns="http://www.w3.org/2000/svg">${DEFS}<rect x="4" y="4" width="382" height="532" rx="18" fill="#f3e2b8" stroke="#a8743f" stroke-width="4"/>
+ <g filter="url(#wc)" opacity=".85"><path d="M20 520 Q120 470 200 500 Q300 530 370 490 L370 532 L20 532Z" fill="#b5d19b"/><path d="M300 40 Q340 20 372 50 L372 110 Q330 90 300 40Z" fill="#cde3ef"/><path d="M14 260 Q50 230 40 300 Q20 330 14 300Z" fill="#b5d19b"/></g>
+ ${tree(345,380,.55)}${tree(30,420,.5)}${tree(40,140,.45,"#7aa95e")}${tree(340,215,.45,"#7aa95e")}${cottage(300,500,.32)}
+ <path d="${path}" fill="none" stroke="#c9a46a" stroke-width="16" stroke-linecap="round"/><path d="${path}" fill="none" stroke="#fff6e0" stroke-width="4" stroke-dasharray="8 10" stroke-linecap="round"/>`;
+ nodes.forEach((n,i)=>{const open=i===0,lock=!open;svg+=`<g ${open?'id="node1" style="cursor:pointer"':""}>${open?`<circle cx="${n[0]}" cy="${n[1]}" r="40" fill="url(#gl)"/>`:""}<circle cx="${n[0]}" cy="${n[1]}" r="27" fill="${open?"#fff3c9":"#c9b48a"}" stroke="${open?"#e9823a":"#8a6a45"}" stroke-width="4"/>
+  <text x="${n[0]}" y="${n[1]+9}" text-anchor="middle" font-size="26" ${lock?'opacity=".35" style="filter:grayscale(1) brightness(.4)"':""}>${n[2]}</text>${lock?`<text x="${n[0]+20}" y="${n[1]-14}" font-size="16">🔒</text>`:""}
+  <rect x="${n[0]-((n[3].length*18+40)/2)}" y="${n[1]+31}" width="${n[3].length*18+40}" height="28" rx="8" fill="${open?"#6e4320":"#5b4a3a"}" stroke="#3a210c" stroke-width="2"/><text x="${n[0]}" y="${n[1]+51}" text-anchor="middle" font-size="18" font-weight="900" fill="#fff6e0">${i+1}. ${n[3]}</text></g>`});
+ svg+=`<g><rect x="30" y="26" width="132" height="40" rx="10" fill="#3e2a18" stroke="#1f140a" stroke-width="2"/><text x="96" y="52" text-anchor="middle" font-size="16" font-weight="900" fill="#fff6e0">🔒 未開放區域</text></g>
+ ${S.custom?avatarSVG(d?"cheer":"smile",{attrs:`x="${d?226:112}" y="${d?362:414}" width="54" height="79"`}):`<g transform="translate(${d?232:120},${d?380:432}) scale(.42)">${heroSVG(d?"cheer":"smile").replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"")}</g>`}`;
+ svg+=d?`<text x="78" y="425" text-anchor="middle" font-size="22" fill="#f5b301" stroke="#8a5a00" stroke-width=".8">${"★".repeat(d.stars)}${"☆".repeat(3-d.stars)}</text>`:"";
+ svg+="</svg>";
+ $("#s-map").innerHTML=`<div class="hud" style="padding-right:52px"><span class="sign" style="font-size:18px">🗺 人生升級地圖</span></div>
+ <div style="display:flex;gap:6px;align-items:center;margin:-2px 0 8px;flex-wrap:nowrap">${S.name?`<span class="dark" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto">${esc(S.name)}${S.badges.length?" 🌱":""}</span>`:""}${coinPill()}<button class="btn w" type="button" id="toWard" style="font-size:16px;padding:6px 10px;margin:0 0 0 auto;flex:none;white-space:nowrap">👗 衣櫃</button></div>
+ <div class="mapwrap">${svg}</div>
+ <span class="note100"><span class="dark">📌 本遊戲假設已達個人 100 PV</span></span>
+ <div class="parch" style="padding:10px 12px"><p style="margin:0;font-weight:800">從「起點村」出發，一路升級到「白金之巔」。每過一關，地圖就點亮一段路！<br><span style="color:#8a5a2b">（試玩版只開放第 1 關；🔒 銀獎章以上等 Ryan 補上資料後開放）</span></p></div>
+ <div class="c mt"><button class="btn wide" id="go1" type="button">${d?"🔁 再玩一次第 1 關":"▶ 進入第 1 關「起點村」"}</button>${d?`<button class="btn line wide mt" type="button" onclick="renderEnd()">🎉 看第 1 關結算</button>`:""}</div>
+ <p class="c" style="font-size:14px;font-weight:700;color:#7a5232">進度自動存在這支手機　<button class="btn w" style="font-size:14px;padding:4px 10px" type="button" onclick="if(confirm('確定清除進度？')){localStorage.removeItem(KEY);location.reload()}">重置進度</button></p>`;
+ $("#toWard").onclick=()=>renderWard(renderMap);$("#go1").onclick=startLevel;const n1=$("#node1");if(n1)n1.onclick=startLevel;show("s-map")}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ---------- 劇情 ---------- */
+function startLevel(){R={i:0,correct:0,ans:[],trapOk:false,egg:"",seen:{},t0:Date.now()};
+ $("#s-story").innerHTML=`${hud(0)}<div class="stage" style="height:330px">${townScene({h:330})}<div style="position:absolute;left:8%;bottom:6%;width:32%">${chiefSVG()}</div><div style="position:absolute;right:12%;bottom:5%;width:30%">${heroHTML("smile")}</div></div>
+ <div class="parch bubble" style="padding-top:22px"><span class="sign speaker">🧓 村長</span><p style="font-size:19px;font-weight:900;margin:4px 0">「冒險前，先選好你的身分卡！為家人打造第二份事業，就從看懂規則開始。」</p></div>
+ <p class="c" style="font-weight:800;color:#6e4320">這一關你會學到：三種身分的差別、加入要花多少錢</p>
+ <div class="c"><button class="btn wide" id="toEgg" type="button">好！去選夥伴蛋 ▶</button></div>`;
+ $("#toEgg").onclick=renderEggs;show("s-story")}
+
+/* ---------- 選蛋 ---------- */
+function renderEggs(){
+ $("#s-egg").innerHTML=`${hud(1)}<div class="c"><span class="sign" style="font-size:18px">🥚 選一顆夥伴蛋</span></div>
+ <p class="c" style="font-weight:800;margin:6px 0">點蛋孵出夥伴，看看牠的能力卡！</p>
+ <div class="eggs">${Object.keys(EGGS).map(k=>`<button class="egg" type="button" data-k="${k}">${eggSVG(k,false)}<span class="sign lb">${EGGS[k].n}</span></button>`).join("")}</div>
+ <div id="abil" class="parch mt" style="min-height:120px"><p class="c" style="font-weight:800;color:#8a6a45;margin-top:30px">⬆ 先點一顆蛋，看看裡面是誰</p></div>
+ <div class="parch mt" style="padding:10px"><label style="font-size:16px;font-weight:900">替你的勇者取個名字：<input class="inp" id="nameIn" maxlength="10" placeholder="例如：小安勇者" value="${esc(S.name||"")}"></label></div>
+ <div class="c mt"><button class="btn g wide" id="eggOk" type="button" disabled>就選牠！帶著出發 ▶</button></div>
+ <p class="c" style="font-size:15px;font-weight:700;color:#7a5232">選哪顆都能闖關；下一步的情境題會考這三張卡喔！</p>`;
+ document.querySelectorAll(".egg").forEach(b=>b.onclick=()=>pickEgg(b.dataset.k));
+ $("#eggOk").onclick=confirmEgg;show("s-egg")}
+function pickEgg(k){R.egg=k;R.seen[k]=1;AU.sfx("crack");
+ document.querySelectorAll(".egg").forEach(b=>{const on=b.dataset.k===k;b.classList.toggle("sel",on);b.classList.toggle("wob",on);b.innerHTML=`${eggSVG(b.dataset.k,!!R.seen[b.dataset.k])}<span class="sign lb">${EGGS[b.dataset.k].n}</span>`});
+ const e=EGGS[k];
+ $("#abil").innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:62px;flex:none">${petSVG(k)}</div><div><div class="sign">${e.ic} ${e.n}｜夥伴「${e.pet}」</div><div style="font-size:15px;font-weight:800;margin-top:4px;color:#6e4320">適合：${e.tip}</div></div></div>
+ <table class="ab">${e.rows.map(r=>`<tr><td>${r[0]}</td><td class="${r[2]||""}">${r[1]}</td></tr>`).join("")}</table>`;
+ $("#eggOk").disabled=false;$("#eggOk").innerHTML=`就選「${e.pet}」！帶著出發 ▶`}
+function confirmEgg(){if(!R.egg)return;S.name=($("#nameIn").value||"").trim()||"新手勇者";S.egg=R.egg;save();R.i=0;R.correct=0;R.ans=[];if(!S.custom)return renderMake();renderBattle(false)}
+
+/* ---------- 遭遇戰（2×2 指令選單） ---------- */
+function renderBattle(trap){const q=trap?TRAP:QS[R.i],hpLeft=trap?1:3-R.correct;R.trap=trap;R.locked=false;
+ $("#s-battle").innerHTML=`${hud(trap?3:2)}<div class="arena">${townScene({h:272,nohouse:1})}
+ <div class="hp"><span class="dark" style="font-size:16px">${trap?"陷阱雲":"疑惑雲"} <span class="hearts">${"❤️".repeat(Math.max(hpLeft,0))}${"🤍".repeat(trap?0:3-Math.max(hpLeft,0))}</span></span></div>
+ <div class="hpL"><span class="dark" style="font-size:16px">勇者 ${esc(S.name)}</span></div>
+ <div class="mon in" id="mon">${cloudSVG("smug",trap)}</div><div class="hero" id="hero">${heroHTML("smile")}</div><div class="pet">${petSVG(S.egg||"friend")}</div></div>
+ <div class="parch qbox"><span class="sign qtag" style="font-size:16px">${trap?"⚠️ 陷阱題":`情境 ${R.i+1}／3`}</span><div id="qt">${q.q}</div></div>
+ <div id="act"><div class="menu" role="group" aria-label="選項">${q.opts.map((o,j)=>`<button type="button" data-j="${j}"><span class="ic">${o.ic}</span><span>${o.t}</span></button>`).join("")}</div></div>`;
+ document.querySelectorAll(".menu button").forEach(b=>{b.onpointerenter=()=>{document.querySelectorAll(".menu button").forEach(x=>x.classList.remove("on"));b.classList.add("on")};b.onclick=()=>answer(+b.dataset.j)});
+ show("s-battle")}
+function answer(j){if(R.locked)return;R.locked=true;const q=R.trap?TRAP:QS[R.i],o=q.opts[j],ok=!!o.ok,right=q.opts.findIndex(x=>x.ok);
+ document.querySelectorAll(".menu button").forEach((b,k)=>{b.classList.remove("on");if(k===j)b.classList.add(ok?"ok":"no");if(k===right)b.classList.add("ok")});
+ const mon=$("#mon"),ar=$(".arena");
+ if(ok){AU.sfx("ok");mon.classList.remove("in");mon.classList.add("hit");mon.innerHTML=cloudSVG("hit",R.trap);$("#hero").innerHTML=heroHTML("cheer");ar.insertAdjacentHTML("beforeend",`<div class="fly">${R.trap?"識破陷阱！":"說得好！"}</div>`)}
+ else{AU.sfx("no");mon.classList.remove("in");mon.classList.add("smug");$("#hero").innerHTML=heroHTML("scared");ar.insertAdjacentHTML("beforeend",`<div class="fly r">差一點！</div>`)}
+ if(R.trap){R.trapOk=ok;R.trapPick=j}else{R.ans.push(ok);if(ok)R.correct++}
+ const extra=ok?"":`<p style="margin:6px 0 0;font-weight:900;color:#3d6b2a">✔ 正解：${q.opts[right].t}</p>`;
+ setTimeout(()=>{const last=!R.trap&&R.i===2;
+  $("#act").innerHTML=`<div class="parch fb ${ok?"okk":"bad"}"><span class="ban">${ok?"⭕ 答對了！":"❌ 為什麼不是這個？"}</span><p style="font-weight:800;margin:0">${o.why}</p>${extra}
+  <div class="c mt"><button class="btn wide" id="nx" type="button">${R.trap?"看結果 ▶":last?"結算 3 道抉擇 ▶":"下一題 ▶"}</button></div></div>`;
+  $("#nx").onclick=next},G.fast?5:650)}
+function next(){if(R.trap)return renderTrapResult();
+ if(R.i<2){R.i++;return renderBattle(false)}
+ if(R.correct>=2){$("#mon").innerHTML=cloudSVG("down");return renderPassGate()}
+ renderFail()}
+function renderPassGate(){modal(`<div class="c"><div style="width:120px;margin:0 auto">${cloudSVG("down")}</div><div class="bigok">🎉 3 道抉擇答對 ${R.correct} 題，過關！</div><p style="font-weight:800">疑惑雲睡著了……但前面好像還有一朵紫色的雲在等你！</p><button class="btn wide" id="toTrap" type="button">迎戰陷阱題 ▶</button></div>`);
+ $("#toTrap").onclick=()=>{closeModal();renderBattle(true)}}
+function renderFail(){modal(`<div class="c"><div style="width:120px;margin:0 auto">${cloudSVG("smug")}</div><div class="bigok">差一點！答對 ${R.correct}／3 題</div><p style="font-weight:800">答對 2 題就能過關。失敗不扣任何東西，再挑戰一次吧！</p><button class="btn wide" id="retry" type="button">🔁 再挑戰一次</button></div>`);
+ $("#retry").onclick=()=>{closeModal();R.i=0;R.correct=0;R.ans=[];renderBattle(false)}}
+
+/* ---------- 陷阱題結果 ---------- */
+function renderTrapResult(){const ok=R.trapOk;
+ $("#s-trap").innerHTML=`${hud(3)}<div class="parch c"><div style="width:130px;margin:0 auto">${cloudSVG(ok?"down":"smug",true)}</div>
+ <div class="bigok" style="color:${ok?"#3d6b2a":"#b5452c"}">${ok?"✅ 識破陷阱！":"❌ 小心，這是陷阱！"}</div>
+ <p style="font-size:18px;font-weight:900">加入直銷商「不是免費的」</p></div>
+ <div class="parch mt"><div class="stepline on"><span class="ic">💰</span><span>直銷商押金 <b>1,000 元</b>（退會可退）</span></div>
+ <div class="stepline on"><span class="ic">📅</span><span>年度續約費 <b>500 元</b></span></div>
+ <p style="font-weight:800;margin-top:10px;color:#6e4320">對照一下：生活會員入會費 200 元（不退）、年費 200 元；安麗之友 0 元。</p>
+ <p style="font-weight:800;color:#6e4320">聽到有人說「完全不用錢」，記得先問清楚！</p></div>
+ <div class="c mt"><button class="btn wide" id="toAha" type="button">💡 看「啊哈！」揭曉 ▶</button></div>`;
+ $("#toAha").onclick=renderAha;show("s-trap")}
+
+/* ---------- 啊哈揭曉＋徽章＋星星＋下一關剪影 ---------- */
+function calcStars(){return(R.correct>=2?1:0)+(R.correct===3?1:0)+(R.trapOk?1:0)}
+async function renderAha(){const st=calcStars();R.stars=st;
+ const prev=S.done[1];const CG=calcCoins(!prev);S.coins=(S.coins||0)+CG.gain;R.coinGain=CG.gain;S.done[1]={stars:Math.max(st,prev?prev.stars:0),last:st,egg:S.egg,at:Date.now()};
+ if(!S.badges.includes("新手勇者"))S.badges.push("新手勇者");["三種身分卡","加入要花多少","新人須知"].forEach(c=>{if(!S.cards.includes(c))S.cards.push(c)});S.plays=(S.plays||0)+1;save();
+ $("#s-aha").innerHTML=`${hud(4)}<div class="c"><span class="sign" style="font-size:20px">💡 啊哈！揭曉</span></div>
+ <div class="parch mt"><div class="stepline" id="a1"><span class="ic">💰</span><span>押金 1,000 元（退會可退）</span></div>
+ <div class="stepline" id="a2"><span class="ic">📅</span><span>每年續約費 500 元</span></div>
+ <div class="stepline" id="a3"><span class="ic">📱</span><span>用 Am-Card 查業績、訂貨、辦續約</span></div>
+ <div class="aha stepline" id="a4" style="display:block;background:#fff3c9;border-color:#e9823a">「一切從 1,000 元押金開始，<br>加入後用 Am-Card<br>查業績、訂貨、辦續約！」</div></div>
+ <div class="parch mt c" id="bdg" style="opacity:0;transition:opacity .4s"></div>
+ <div class="parch mt c" id="cc" style="opacity:0;transition:opacity .4s;position:relative;overflow:hidden"><div class="sign" style="font-size:16px">${coinIco(18)} 獲得遊戲金幣</div>
+ <div class="coinbig mt">${coinIco(44)}<span>+<b id="cgain">0</b></span></div>
+ <table class="ab" style="text-align:left">${CG.rows.map(r=>`<tr><td>${r[0]}</td><td>+${r[1]}</td></tr>`).join("")}${CG.first?"":`<tr><td>🔁 重玩（×30%）</td><td>共 +${CG.gain}</td></tr>`}</table>
+ <p style="font-weight:900;margin:8px 0 0">目前共有 ${coinPill()}</p>
+ <p style="font-size:16px;font-weight:800;margin:6px 0 0;color:#6e4320">遊戲金幣只能用來換造型 👗，沒有現實價值。</p></div>
+
+ <div class="parch teaser mt" id="tz" style="opacity:0;transition:opacity .5s"><div class="sign" style="font-size:16px">🔒 下一關預告</div>${teaserSVG()}<p style="font-weight:900;font-size:17px;margin:4px 0 0;color:#ffe6a8">第 2 關「？？？」</p><p style="font-weight:800;color:#fff6e0;margin:2px 0">你的小店好像要開張了……天上掉下來的發光球，是什麼呢？</p></div>
+<div class="parch mt"><div class="sign" style="font-size:16px">📜 新人須知</div><ul class="chk"><li>沒有推薦他人或囤貨的義務</li><li>收入主要來自產品銷售與自用，不是來自推薦</li><li>加入後 30 日內可書面解約退貨</li></ul></div>
+ <div class="disc">以上金額皆為依安麗獎金制度計算的示範試算，非保證收入；實際收入依個人與團隊業績而定，正式辦法以安麗官網為準。（第 1 關只有費用，沒有收入金額）</div>
+ <div class="c mt"><button class="btn line wide" id="toEnd" type="button">🎉 領取獎勵，看結局 ▶</button></div>`;
+ show("s-aha");
+ for(const id of["a1","a2","a3","a4"]){await wait(550);const el=$("#"+id);if(el){el.classList.add("on");AU.sfx("click")}}
+ await wait(400);AU.sfx("fan");
+ $("#bdg").innerHTML=`<div class="sign" style="font-size:16px">🏅 獲得徽章</div>${badgeSVG()}<div class="stars" aria-label="${st} 顆星">${[0,1,2].map(k=>`<span class="${k<st?"on":""}" style="animation-delay:${.3+k*.25}s">★</span>`).join("")}</div>
+ <p style="font-weight:800;margin:0;font-size:15px">★ 過關　★ 3 道抉擇全對　★ 識破陷阱題</p><p style="font-weight:900;margin:4px 0 0">🌱 ${esc(S.name)} 成為「新手勇者」！</p>`;
+ $("#bdg").style.opacity=1;await wait(600);
+ const cc=$("#cc");if(cc){cc.style.opacity=1;AU.sfx("ok");for(let i=0;i<10;i++){const a=Math.random()*Math.PI*2,r=60+Math.random()*70;cc.insertAdjacentHTML("beforeend",`<span class="cfly" style="--dx:${(Math.cos(a)*r).toFixed(0)}px;--dy:${(Math.sin(a)*r-40).toFixed(0)}px;animation-delay:${i*60}ms">${coinIco(26)}</span>`)}
+  const n=CG.gain,t0=performance.now(),dur=G.fast?10:900;await new Promise(res=>{const f=()=>{const k=Math.min(1,(performance.now()-t0)/dur),el=$("#cgain");if(el)el.textContent=Math.round(n*k);if(k<1)requestAnimationFrame(f);else res()};f()});refreshCoins()}
+ await wait(400);$("#tz").style.opacity=1;
+ $("#toEnd").onclick=renderEnd}
+function teaserSVG(){let orbs="";const r=rnd(5);for(let i=0;i<9;i++){const x=20+r()*350,y=10+r()*90;orbs+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(6+r()*6).toFixed(1)}" fill="#ffe27a" opacity=".85"/><circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(12+r()*8).toFixed(1)}" fill="url(#gl)" opacity=".6"/>`}
+ return`<svg viewBox="0 0 390 170" xmlns="http://www.w3.org/2000/svg">${orbs}<g transform="translate(150,60) scale(.75)" style="filter:brightness(0)" opacity=".85">${heroSVG("cheer").replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"")}</g><g transform="translate(40,120) scale(.5)" opacity=".7">${cottage(0,0,1).replace(/fill="#[0-9a-f]+"/g,'fill="#0b1118"')}</g><text x="300" y="150" font-size="40" fill="#fff6e0" opacity=".9" font-weight="900">？</text></svg>`}
+
+/* ---------- 結局 ---------- */
+function renderEnd(){const d=S.done[1]||{stars:0},e=EGGS[S.egg||"friend"];
+ $("#s-end").innerHTML=`<div class="hud"><span class="sign" style="font-size:18px">🎉 第 1 關通關！</span></div>
+ <div class="stage" style="height:230px">${townScene({h:230,signs:["第 2 關"]})}<div style="position:absolute;left:18%;bottom:6%;width:30%">${heroHTML("cheer")}</div><div style="position:absolute;left:46%;bottom:8%;width:15%">${petSVG(S.egg||"friend")}</div></div>
+ <div class="parch mt c"><p style="font-size:19px;font-weight:900;margin:0">🌱 新手勇者　${esc(S.name)}</p><p style="margin:6px 0">${coinPill()}　<button class="btn w" type="button" id="endWard" style="font-size:17px;padding:6px 12px">👗 衣櫃換造型</button></p><p style="font-weight:800;margin:4px 0">夥伴：${e.ic} ${e.n}「${e.pet}」｜最佳 <span style="color:#e0a623">${"★".repeat(d.stars)}${"☆".repeat(3-d.stars)}</span></p></div>
+ <div class="parch mt"><div class="sign" style="font-size:16px">📖 收進圖鑑的知識卡</div><div class="kcards mt">
+  <div class="kc"><div class="e">🪪</div><div>三種身分卡<small>安麗之友 0 元／生活會員入會費 200／直銷商押金 1,000</small></div></div>
+  <div class="kc"><div class="e">💰</div><div>加入要花多少<small>押金 1,000（退會可退）＋年費 500</small></div></div>
+  <div class="kc"><div class="e">📜</div><div>新人須知<small>不用推薦、不用囤貨；30 日內可書面解約退貨</small></div></div></div></div>
+ <div class="parch mt c"><h2 style="font-size:21px">想更了解？跟 ${CFG.distributor} 聊聊</h2><p style="font-weight:700;margin:0 0 8px">對身分、費用或下一關有問題，直接 LINE 問我！</p>
+  <a class="btn line wide" href="${CFG.lineUrl}" target="_blank" rel="noopener" id="lineBtn">💬 想更了解？跟 Ryan 聊聊</a>
+  <div class="row mt"><button class="btn w" type="button" id="shareBtn">📸 存成績卡</button><button class="btn w" type="button" onclick="startLevel()">🔁 重玩</button><button class="btn w" type="button" onclick="renderMap()">🗺 回地圖</button></div><div id="sc"></div></div>
+ <div class="disc">以上金額皆為依安麗獎金制度計算的示範試算，非保證收入；實際收入依個人與團隊業績而定，正式辦法以安麗官網為準。費用資料以安麗官網公告為準。</div>`;
+ $("#shareBtn").onclick=shareCard;$("#endWard").onclick=()=>renderWard(renderEnd);show("s-end")}
+async function avatarImage(){try{const svg=avatarSVG("cheer"),u=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));const im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=u});return im}catch(e){return null}}
+async function shareCard(){let av=S.custom?await avatarImage():null;try{drawShare(av)}catch(e){drawShare(null)}}
+function drawShare(av){const c=document.createElement("canvas");c.width=600;c.height=800;const x=c.getContext("2d");
+ const g=x.createLinearGradient(0,0,0,800);g.addColorStop(0,"#d8ece6");g.addColorStop(1,"#f3e2b8");x.fillStyle=g;x.fillRect(0,0,600,800);
+ x.strokeStyle="#a8743f";x.lineWidth=10;x.strokeRect(20,20,560,760);const t=(s,y,sz,col="#4a3320")=>{x.fillStyle=col;x.font=`900 ${sz}px "PingFang TC","Noto Sans TC","Noto Sans CJK TC",sans-serif`;x.textAlign="center";x.fillText(s,300,y)};
+ const d=S.done[1]||{stars:0};t("人生升級：安麗冒險",110,44);t("第 1 關 起點村 通關！",180,34,"#6e4320");if(av){x.drawImage(av,210,220,180,240)}else t("🌱",330,120);t(`${S.name}｜新手勇者`,500,38);t("★".repeat(d.stars)+"☆".repeat(3-d.stars),570,56,"#e0a623");
+ t(`夥伴：${EGGS[S.egg||"friend"].n}`,630,30);t("直銷商個人製作，非安麗官方網站",740,22,"#7a5232");
+ c.toBlob(b=>{if(!b){if(av)drawShare(null);return}const u=URL.createObjectURL(b);$("#sc").innerHTML=`<img src="${u}" alt="成績卡" style="width:100%;border-radius:12px;margin-top:10px;border:3px solid #a8743f"><a class="btn g" download="amway-v3-level1.png" href="${u}">下載成績卡</a>`;
+  try{const f=new File([b],"amway-v3-level1.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:"人生升級：安麗冒險"}).catch(()=>{})}catch(e){}})}
+
+$("#fSelfie").onchange=onFile;$("#fAlbum").onchange=onFile;
+Object.assign(G,{renderMake,renderWard,tapOutfit,openCrop,finishCrop,addCoins:n=>{S.coins+=n;save();refreshCoins()},photo:()=>PHOTO,renderMap,startLevel,renderEggs,pickEgg,confirmEgg,answer,next,renderAha,renderEnd,
+ correct:()=>(R.trap?TRAP:QS[R.i]).opts.findIndex(o=>o.ok),
+ toTrap:()=>{closeModal();renderBattle(true)},retry:()=>{closeModal();R.i=0;R.correct=0;R.ans=[];renderBattle(false)}});
+</script>
+</body>
+</html>
