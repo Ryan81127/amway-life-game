@@ -1082,7 +1082,7 @@ function halfRecap(model, p, status) {
   ];
   const star = [...ph, ...pa].sort((a, b) => b.score - a.score)[0];
   if (star) spoken.push(`最亮眼的是 ${playerLine(star)}。`);
-  return { id: "h" + p, title, status, lines, players, spoken, hasData: items.length > 0 };
+  return { id: "h" + p, title, status, lines, players, spoken, tally: t, hasData: items.length > 0 };
 }
 
 function ratePlayers(model) {
@@ -1391,7 +1391,7 @@ function recapBlock(model) {
     } else {
       card.append(h("p", { class: "faint" }, ui("這個瀏覽器沒有這場的賽前預測存檔（要在開賽前打開過這場），所以不做預測對照。")));
     }
-    card.append(scriptBlock(full.spoken));
+    card.append(anchorBlocks(anchorFull(model, full)));
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-ft" }, ui("全場")));
   }
@@ -1401,7 +1401,7 @@ function recapBlock(model) {
     const card = h("article", { class: "cp recap-card", id: "recap-h" + p }, h("h3", null, ui(r.title), " ", recapStatus(status)));
     card.append(h("ul", { class: "bullets" }, r.lines.map((x) => h("li", null, ui(x)))));
     if (r.players.length) card.append(h("p", { class: "faint" }, ui("球員表現：")), h("ul", { class: "bullets" }, r.players.map((x) => h("li", null, ui(x)))));
-    card.append(scriptBlock(r.spoken));
+    card.append(anchorBlocks(anchorHalf(model, p, status, r.tally)));
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-h" + p }, ui(p === 1 ? "上半場" : "下半場")));
   }
@@ -1415,7 +1415,7 @@ function recapBlock(model) {
       card.append(h("p", { class: "fact" }, ui(r.scoreText)));
       if (hasComm) card.append(h("p", { class: "faint" }, ui(r.bits)));
       card.append(h("ul", { class: "bullets" }, r.lines.map((x) => h("li", null, ui(x)))));
-      card.append(scriptBlock(r.spoken));
+      card.append(anchorBlocks(anchorSegment(model, seg, status, r)));
       wrap.append(card);
     }
     block.append(wrap);
@@ -1458,4 +1458,194 @@ function linksBlock(model) {
     ))));
   }
   return block;
+}
+
+/* ---------- 主播口播稿：短版（約 30 秒）＋長版（約 60–90 秒） ---------- */
+
+function pickVar(model, salt, list) {
+  let n = 0;
+  for (const ch of String(model.id) + salt) n = (n * 31 + ch.charCodeAt(0)) >>> 0;
+  return list[n % list.length];
+}
+
+function goalLine(g) {
+  const who = g.scorer || g.teamName;
+  const how = g.style ? `，${g.style}` : "";
+  const ast = g.assist ? `，${g.assist} 助攻` : "";
+  return `${g.minuteLabel} ${who}${g.scorer ? `（${g.teamName}）` : ""}破門${how}${ast}`;
+}
+
+function scoreSay(model, s) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  if (s.home === s.away) return `${hn} ${s.home} 比 ${s.away} 和 ${an}`;
+  return s.home > s.away ? `${hn} ${s.home} 比 ${s.away} 領先 ${an}` : `${an} ${s.away} 比 ${s.home} 領先 ${hn}`;
+}
+
+function cardsOn(model, pred) {
+  return (model.events || []).filter((ev) => ev.kind === "yellow" && pred(ev)).map((ev) => `${ev.playerNames[0] || ""}（${ev.teamName}）`).filter((x) => !x.startsWith("（"));
+}
+
+function lookAhead(model, score, phase) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const diff = score.home - score.away;
+  const trail = diff > 0 ? an : diff < 0 ? hn : "";
+  const lead = diff > 0 ? hn : diff < 0 ? an : "";
+  if (phase === "ht") {
+    if (!diff) return pickVar(model, "ht0", [`下半場關鍵在誰先打破僵局，第一個進球很可能決定走勢。`, `半場還是平手，下半場換人調整會是勝負手，請留意兩隊教練的第一張換人牌。`]);
+    if (Math.abs(diff) === 1) return `${trail}下半場勢必壓上找扳平球，${lead}可以利用對手身後空檔打反擊，這段攻守轉換會很精彩。`;
+    return `${lead}已經握有 ${Math.abs(diff)} 球優勢，下半場看${trail}能不能先追回一球把比賽拉回懸念。`;
+  }
+  if (phase === "late") {
+    if (!diff) return `比賽進入最後階段還是平手，任何一次定位球都可能是致勝機會。`;
+    return `${trail}剩下時間不多，接下來會把人往前場堆，${lead}要守住這個比分。`;
+  }
+  if (!diff) return `下一段看哪一隊先把握機會，比分還在原點。`;
+  return `${trail}需要回應，下一段的壓迫強度值得注意。`;
+}
+
+function anchorSegment(model, seg, status, r) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const t = r.tally;
+  const hasComm = r.hasData;
+  const endSort = seg.p * 100000 + Math.min(seg.to, 200) * 100 + 99;
+  const score = cumScore(model, endSort);
+  const goals = goalsIn(model, (ev) => inSeg(ev, seg));
+  const idx = SEGMENTS.indexOf(seg);
+  const prev = idx > 0 && SEGMENTS[idx - 1].p === seg.p ? tallyOf((model.commentary || []).filter((it) => inSeg(it, SEGMENTS[idx - 1])), []) : null;
+  const dom = dominance(t, hn, an);
+  const open = status === "live"
+    ? `${seg.title}打到現在，${scoreSay(model, score)}。`
+    : pickVar(model, seg.id, [`${seg.title}結束，${scoreSay(model, score)}。`, `來看${seg.title}這一段，打完${scoreSay(model, score)}。`, `${seg.title}告一段落，目前${scoreSay(model, score)}。`]);
+  const long = [open];
+  if (goals.length) long.push(`這段的進球：${goals.map(goalLine).join("；")}。`);
+  if (hasComm) {
+    long.push(`數據上，射門 ${t.home.shots} 比 ${t.away.shots}，射正 ${t.home.sot} 比 ${t.away.sot}，角球 ${t.home.corners} 比 ${t.away.corners}，預期進球 xG ${fx(t.home.xg)} 比 ${fx(t.away.xg)}。`);
+    long.push(`${dom.text}${prev ? (pressure(t.home) + pressure(t.away) > pressure(prev.home) + pressure(prev.away) + 3 ? "，節奏比上一段明顯加快" : pressure(t.home) + pressure(t.away) + 3 < pressure(prev.home) + pressure(prev.away) ? "，節奏比上一段慢下來" : "") : ""}。`);
+    if (!goals.length && Math.max(t.home.xg, t.away.xg) >= 0.5) long.push(`${t.home.xg > t.away.xg ? hn : an}這段製造了不錯的機會但沒能破門，進球可能只是時間問題。`);
+  }
+  const cards = (model.events || []).filter((ev) => (ev.kind === "yellow" || ev.kind === "red") && inSeg(ev, seg));
+  if (cards.length) long.push(`紀律方面，${cards.map((ev) => `${ev.minuteLabel} ${ev.playerNames[0] || ev.teamName}${ev.kind === "red" ? "被直接罰下" : "吃到黃牌"}`).join("、")}。`);
+  const subs = (model.events || []).filter((ev) => ev.kind === "sub" && ev.subOn && inSeg(ev, seg));
+  if (subs.length) long.push(`換人調整：${subs.map((ev) => `${ev.teamName}換上 ${ev.subOn}、換下 ${ev.subOff}`).join("；")}。`);
+  const items = (model.commentary || []).filter((it) => inSeg(it, seg));
+  const star = [...playersOf(items, "home"), ...playersOf(items, "away")].filter((p) => p.score > 0.5).sort((a, b) => b.score - a.score)[0];
+  if (star) long.push(`這段最搶眼的是 ${star.name}，${playerLine(star).split("：")[1]}。`);
+  if (!hasComm && !goals.length && !cards.length) long.push("這段 ESPN 沒有細部數據，場面上沒有進球或紅黃牌。");
+  long.push(lookAhead(model, score, seg.id === "s6" || seg.id === "s5" ? "late" : seg.id === "s3" ? "ht" : "mid"));
+  const short = [open, goals.length ? `關鍵是${goals.map(goalLine).join("、")}。` : hasComm ? `射門 ${t.home.shots} 比 ${t.away.shots}，${dom.text}。` : "", long[long.length - 1]].filter(Boolean);
+  return { short, long };
+}
+
+function anchorHalf(model, p, status, t) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const hasComm = (model.commentary || []).length > 0;
+  const ft = model.minute.phase === "ft" || model.minute.state === "post";
+  const cum = p === 1
+    ? { home: Number(model.home.linescores?.[0]?.displayValue ?? 0) || cumScore(model, 199999).home, away: Number(model.away.linescores?.[0]?.displayValue ?? 0) || cumScore(model, 199999).away }
+    : (ft ? { home: Number(model.home.score) || 0, away: Number(model.away.score) || 0 } : cumScore(model, 299999));
+  const goals = goalsIn(model, (ev) => (ev.period || 1) === p);
+  const long = [];
+  long.push(status === "live"
+    ? `${p === 1 ? "上半場" : "下半場"}打到現在，${scoreSay(model, cum)}。`
+    : p === 1 ? pickVar(model, "h1", [`半場哨音響起，${scoreSay(model, cum)}。`, `上半場結束，${scoreSay(model, cum)}，我們來整理這 45 分鐘。`]) : `${ft ? "下半場打完" : "下半場"}，${scoreSay(model, cum)}。`);
+  if (goals.length) long.push(`進球回顧：${goals.map(goalLine).join("；")}。`);
+  else long.push(`這個半場沒有進球。`);
+  if (hasComm) {
+    long.push(`技術統計，射門 ${t.home.shots} 比 ${t.away.shots}，射正 ${t.home.sot} 比 ${t.away.sot}，角球 ${t.home.corners} 比 ${t.away.corners}，預期進球 xG ${fx(t.home.xg)} 比 ${fx(t.away.xg)}。`);
+    const st = model.stats?.mode === "match" ? model.stats : null;
+    if (p === 1 && st && st.home.possessionPct != null && status !== "live") long.push(`控球率 ${trimNum(st.home.possessionPct)}% 對 ${trimNum(st.away.possessionPct)}%${st.home.passPct != null ? `，傳球成功率 ${trimNum(st.home.passPct)}% 對 ${trimNum(st.away.passPct)}%` : ""}。`);
+    const xr = [xgRead(hn, t.home), xgRead(an, t.away)].filter(Boolean);
+    if (xr.length) long.push(`${xr.join("；")}。`);
+    long.push(`${dominance(t, hn, an).text}。`);
+  }
+  const items = (model.commentary || []).filter((it) => it.period === p);
+  const tops = [...playersOf(items, "home").slice(0, 1).map((x) => ({ ...x, team: hn })), ...playersOf(items, "away").slice(0, 1).map((x) => ({ ...x, team: an }))].filter((x) => x.score > 0.5);
+  if (tops.length) long.push(`球員方面，${tops.map((x) => `${x.team}的 ${x.name}（${playerLine(x).split("：")[1]}）`).join("，")}表現最突出。`);
+  const yel = cardsOn(model, (ev) => (ev.period || 1) <= p);
+  if (p === 1 && yel.length) long.push(`要注意已經背著黃牌的球員：${yel.join("、")}，下半場防守動作會比較保守。`);
+  const saved = loadPrediction(model.id);
+  if (saved && p === 1) {
+    const pace = (cum.home + cum.away) * 2;
+    long.push(`對照賽前預測，模型預估全場約 ${trimNum(saved.lh + saved.la)} 球，目前半場進球的步調換算全場大約 ${pace} 球，${pace > saved.lh + saved.la + 0.8 ? "比預期更開放" : pace < saved.lh + saved.la - 0.8 ? "比預期更保守" : "大致符合預期"}。`);
+  }
+  if (p === 1) long.push(lookAhead(model, cum, "ht"));
+  else if (!ft) long.push(lookAhead(model, cum, "late"));
+  const short = [long[0], goals.length ? `進球：${goals.map(goalLine).join("、")}。` : "", hasComm ? `射門 ${t.home.shots} 比 ${t.away.shots}，xG ${fx(t.home.xg)} 比 ${fx(t.away.xg)}。` : "", p === 1 ? lookAhead(model, cum, "ht") : ""].filter(Boolean);
+  return { short, long };
+}
+
+function settleLine(model) {
+  const b = model.odds;
+  const hs = Number(model.home.score);
+  const as = Number(model.away.score);
+  if (!b || !Number.isFinite(hs) || !Number.isFinite(as)) return [];
+  const out = [];
+  const q = (g) => g?.close || g?.pre || g?.open || null;
+  const ah = q(b.spread.home);
+  if (ah?.line != null) {
+    const exact = Array.from({ length: hs + 1 }, (_, i) => Array.from({ length: as + 1 }, (_, j) => (i === hs && j === as ? 1 : 0)));
+    const d = lineDist(exact, FN.homeAH, ah.line);
+    const res = d.win ? "主隊贏盤" : d.halfWin ? "主隊贏半" : d.push ? "走水" : d.halfLose ? "主隊輸半" : "客隊贏盤";
+    out.push(`讓球盤（${ahWords("home", ah.line)}）結果：${res}`);
+  }
+  const ou = q(b.total.over);
+  if (ou?.line != null) {
+    const tot = hs + as;
+    out.push(`大小 ${num2(ou.line)}：全場 ${tot} 球，${tot > ou.line ? "開大" : tot < ou.line ? "開小" : "走水"}`);
+  }
+  out.push(`雙方進球：${hs > 0 && as > 0 ? "是" : "否"}`);
+  return out;
+}
+
+function anchorFull(model, full) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const hs = Number(model.home.score) || 0;
+  const as = Number(model.away.score) || 0;
+  const st = model.stats?.mode === "match" ? model.stats : null;
+  const winner = hs > as ? hn : as > hs ? an : "";
+  const loser = hs > as ? an : as > hs ? hn : "";
+  const long = [];
+  long.push(winner
+    ? pickVar(model, "ft", [`全場比賽結束，${winner} ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 擊敗 ${loser}！`, `終場哨響，${winner}以 ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 拿下 ${loser}。`])
+    : `全場比賽結束，${hn} 和 ${an} ${hs} 比 ${as} 握手言和。`);
+  const goals = goalsIn(model, () => true);
+  if (goals.length) long.push(`進球回顧：${goals.map(goalLine).join("；")}。`);
+  const ht = [model.home.linescores?.[0]?.displayValue, model.away.linescores?.[0]?.displayValue];
+  if (ht[0] != null && ht[1] != null) {
+    const h1 = Number(ht[0]) - Number(ht[1]);
+    const fin = hs - as;
+    if (h1 === 0 && fin !== 0) long.push(`半場還是 ${ht[0]} 比 ${ht[1]} 平手，${winner}下半場打破僵局，這是本場的勝負關鍵。`);
+    else if (h1 !== 0 && Math.sign(h1) !== Math.sign(fin)) long.push(`半場 ${ht[0]} 比 ${ht[1]}，下半場比賽被${fin === 0 ? "追平" : "逆轉"}，這是本場最大的轉折。`);
+    else long.push(`半場 ${ht[0]} 比 ${ht[1]}，${winner ? `${winner}一路把優勢保持到終場` : "雙方下半場都沒能打破平衡"}。`);
+  }
+  if (st) {
+    long.push(`全場控球 ${trimNum(st.home.possessionPct ?? 0)}% 對 ${trimNum(st.away.possessionPct ?? 0)}%，射門 ${trimNum(st.home.totalShots ?? 0)} 比 ${trimNum(st.away.totalShots ?? 0)}，射正 ${trimNum(st.home.shotsOnTarget ?? 0)} 比 ${trimNum(st.away.shotsOnTarget ?? 0)}，角球 ${trimNum(st.home.wonCorners ?? 0)} 比 ${trimNum(st.away.wonCorners ?? 0)}。`);
+  }
+  if ((model.commentary || []).length) {
+    const all = tallyOf(model.commentary, []);
+    long.push(`從預期進球看，xG ${fx(all.home.xg)} 比 ${fx(all.away.xg)}，${all.home.xg - all.away.xg >= 0.8 ? `${hn}的機會質量明顯較好` : all.away.xg - all.home.xg >= 0.8 ? `${an}的機會質量明顯較好` : "兩隊機會質量差不多"}${winner && ((winner === hn && all.away.xg > all.home.xg + 0.5) || (winner === an && all.home.xg > all.away.xg + 0.5)) ? `，${winner}贏在把握度` : ""}。`);
+  }
+  if (full.mvp) long.push(`本場 MVP 給 ${full.mvp.name}，看板評分 ${full.mvp.score} 分${full.mvp.bits ? `，${full.mvp.bits}` : ""}。`);
+  const others = full.players.filter((p) => !full.mvp || p.name !== full.mvp.name).slice(0, 2);
+  if (others.length) long.push(`另外 ${others.map((p) => `${p.team}的 ${p.name}${p.bits ? `（${p.bits}）` : ""}`).join("、")}也有亮眼表現。`);
+  const reds = (model.events || []).filter((ev) => ev.kind === "red");
+  if (reds.length) long.push(`紅牌影響：${reds.map((ev) => `${ev.minuteLabel} ${ev.playerNames[0] || ""}（${ev.teamName}）`).join("、")}被罰下，讓比賽形勢改變。`);
+  const settle = settleLine(model);
+  if (settle.length) long.push(`盤口結算：${settle.join("；")}。`);
+  if (full.review) long.push(`賽前預測對照：命中 ${full.review.hits}/${full.review.judged} 項，${full.review.xg}。`);
+  long.push(pickVar(model, "bye", ["以上就是這場比賽的完整復盤，感謝收看，我們下一場見。", "這場比賽就為大家整理到這裡，謝謝收看，下一場再會。"]));
+  const short = [long[0], goals.length ? `進球：${goals.map(goalLine).join("、")}。` : "", full.mvp ? `MVP 是 ${full.mvp.name}。` : "", settle.length ? `${settle.slice(0, 2).join("，")}。` : ""].filter(Boolean);
+  return { short, long };
+}
+
+function anchorBlocks(script) {
+  return h("div", { class: "anchor" },
+    scriptBlock(script.short, "口播短版（約 30 秒）"),
+    h("details", { class: "anchor-long", open: true }, h("summary", null, ui("口播長版（約 60–90 秒）")), scriptBlock(script.long, "完整稿"))
+  );
 }

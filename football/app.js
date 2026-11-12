@@ -40,13 +40,14 @@ async function copyText(text, button) {
   }, 1400);
 }
 
-function scriptBlock(lines) {
-  if (!lines?.length) return null;
+function scriptBlock(lines, label) {
+  lines = (lines || []).filter(Boolean);
+  if (!lines.length) return null;
   const shown = lines.map((line) => speak(line));
   const button = h("button", { class: "copy" }, ui("複製口播"));
   button.addEventListener("click", () => copyText(shown.join("\n"), button));
   return h("div", { class: "script" },
-    h("div", { class: "script-k" }, ui("口播")),
+    h("div", { class: "script-k" }, ui(label || "口播")),
     shown.map((line) => h("p", { class: "say" }, line)),
     button
   );
@@ -763,23 +764,43 @@ const PITCH_BAND = {
   LF: ["fwd", 0],
   SS: ["fwd", 1],
   F: ["fwd", 2], CF: ["fwd", 2], ST: ["fwd", 2],
-  RF: ["fwd", 4]
+  RF: ["fwd", 4],
+  "CD-C": ["def", 2], "LB-L": ["def", 0], "RB-R": ["def", 4],
+  "DM-L": ["dm", 0], "DM-C": ["dm", 1], "DM-R": ["dm", 2],
+  "CM-L": ["mid", 1], "CM-C": ["mid", 2], "CM-R": ["mid", 3],
+  "AM-C": ["am", 2], LWF: ["am", 0], RWF: ["am", 4],
+  "CF-L": ["fwd", 1], "CF-C": ["fwd", 2], "CF-R": ["fwd", 3], "F-L": ["fwd", 1], "F-R": ["fwd", 3]
 };
 const BAND_TOP = { gk: 84, def: 68, dm: 54, mid: 40, am: 26, fwd: 12 };
 
 function pitchPlayers(block, events, teamId) {
   const starters = block.players.filter((player) => player.starter);
-  const replaced = new Map();
+  const byId = new Map(block.players.filter((player) => player.id).map((player) => [player.id, player]));
+  /* 換人來源一：ESPN 名單的 subbedOutFor（最準）；來源二：事件的球員順序（上場, 下場） */
+  const fromEvents = new Map();
   for (const ev of events || []) {
     if (ev.kind === "sub" && ev.teamId === teamId && ev.playerIds?.[1]) {
-      replaced.set(ev.playerIds[1], { name: ev.subOn, minute: ev.minuteLabel });
+      fromEvents.set(ev.playerIds[1], { id: ev.playerIds[0], name: ev.subOn, minute: ev.minuteLabel });
     }
   }
-  const pack = (player) => ({
-    player,
-    sub: replaced.get(player.id) || null,
-    sent: (player.redMins || []).length > 0 || (player.stats?.redCards || 0) > 0
-  });
+  const nextOf = (player) => {
+    if (player.outFor && byId.has(player.outFor)) return { player: byId.get(player.outFor), minute: player.outMin || player.subOff || "" };
+    const ev = fromEvents.get(player.id);
+    if (ev) return { player: byId.get(ev.id) || { id: ev.id, name: ev.name, jersey: "", posAbbr: "" }, minute: ev.minute };
+    return null;
+  };
+  const isSent = (player) => player.redPlay || (player.redMins || []).length > 0 || (player.stats?.redCards || 0) > 0;
+  const pack = (starter) => {
+    let cur = starter;
+    const chain = [];
+    for (let guard = 0; guard < 4; guard += 1) {
+      const next = nextOf(cur);
+      if (!next) break;
+      chain.push({ off: cur, minute: next.minute });
+      cur = next.player;
+    }
+    return { player: cur, starter, chain, sent: isSent(cur) };
+  };
   const gk = starters.find((player) => player.posAbbr === "G" || player.posAbbr === "GK") || starters.find((player) => player.formationPlace === 1);
   const rest = starters.filter((player) => player !== gk);
   const depthOf = (player) => {
@@ -815,15 +836,23 @@ function pitchPlayers(block, events, teamId) {
 }
 
 function formationBlock(model) {
-  const block = h("section", { class: "block", id: "formation" }, h("h2", null, ui("即時陣型")));
+  const block = h("section", { class: "block", id: "formation" }, h("h2", null, ui(model.minute.phase === "pre" ? "預計陣型" : "即時陣型")));
   const home = model.roster?.home;
   const away = model.roster?.away;
   const ready = (home?.players || []).some((player) => player.starter) || (away?.players || []).some((player) => player.starter);
+  const checked = state.summaryLoadedAt ? `（最後檢查 ${taipeiClock(new Date(state.summaryLoadedAt)).slice(0, 5)}）` : "";
   if (!ready) {
-    block.append(h("p", null, ui("首發名單通常賽前 1 小時公布")));
+    if (model.minute.phase === "pre") {
+      block.append(h("p", null, ui(`首發名單還沒公布，通常開賽前約 1 小時出來。開賽前 90 分鐘內看板每分鐘自動檢查一次${checked}。`)));
+    } else {
+      block.append(h("p", null, ui(`ESPN 沒有提供這場的陣容資料${checked}。國際友誼賽、青年賽和部分小聯賽常見，這種情況看板無法畫陣型；可到下方「外部資料站」的 FotMob 或 Sofascore 查陣容。`)));
+    }
     return block;
   }
-  block.append(h("p", { class: "faint" }, ui("依首發陣型，換人後會標示")));
+  const swaps = ["home", "away"].reduce((n, side) => n + pitchPlayers(model.roster[side], model.events, model[side].id).filter((spot) => spot.chain.length).length, 0);
+  block.append(h("p", { class: "faint" }, ui(model.minute.phase === "pre"
+    ? `首發已公布${checked}。`
+    : `場上目前球員${swaps ? `（已換人 ${swaps} 次，金框為替補上場）` : ""}，每次更新會自動換上新球員${checked}。`)));
   block.append(h("div", { class: "pitches" },
     pitchCard(model, "home"),
     pitchCard(model, "away")
@@ -841,21 +870,38 @@ function pitchCard(model, side) {
     note ? h("p", { class: "faint" }, ui(note)) : null
   );
   const pitch = h("div", { class: "pitch", "aria-label": ui("陣型圖") });
-  for (const spot of pitchPlayers(roster, model.events, team.id)) {
-    const short = (spot.sub?.name || "").split(" ").slice(-1)[0];
+  const spots = pitchPlayers(roster, model.events, team.id);
+  for (const spot of spots) {
+    const last = spot.chain[spot.chain.length - 1];
     pitch.append(h("button", {
-      class: `dot${spot.sent ? " sent" : ""}${spot.sub ? " off" : ""}`,
+      class: `dot${spot.sent ? " sent" : ""}${spot.chain.length ? " swapped" : ""}`,
       style: `left:${spot.x}%;top:${spot.y}%`,
-      onclick: () => openPlayer(spot.player.id)
+      onclick: () => spot.player.id && openPlayer(spot.player.id)
     },
       h("span", { class: "num" }, spot.player.jersey || "–"),
-      h("span", { class: "pname" }, spot.player.name.split(" ").slice(-1)[0]),
-      spot.sub ? h("span", { class: "came" }, `↑${short}`) : null,
+      h("span", { class: "pname" }, shortZh(spot.player)),
+      last ? h("span", { class: "came" }, `↓${shortZh(spot.starter)} ${last.minute || ""}`.trim()) : null,
       spot.sent ? h("span", { class: "redtag" }, ui("紅牌")) : null
     ));
   }
   card.append(pitch);
+  const outs = spots.filter((spot) => spot.chain.length);
+  if (outs.length) {
+    card.append(h("ul", { class: "sub-list" }, outs.flatMap((spot) => spot.chain.map((step, i) => {
+      const on = i + 1 < spot.chain.length ? spot.chain[i + 1].off : spot.player;
+      return h("li", null, ui(`${step.minute || ""} ${on.name} 換下 ${step.off.name}`.trim()));
+    }))));
+  }
   return card;
+}
+
+function shortZh(player) {
+  const name = player?.name || "";
+  if (/[\u4e00-\u9fff]/.test(name)) {
+    const part = name.split("·");
+    return part[part.length - 1];
+  }
+  return name.split(" ").slice(-1)[0];
 }
 
 function glossaryBlock(model) {
@@ -1251,9 +1297,12 @@ function armTimer() {
   clearTimeout(state.timer);
   const route = readRoute();
   const live = route.event ? state.model?.minute?.state === "in" : state.matches.some((match) => match.state === "in");
+  const m = route.event ? state.model : null;
+  const soon = m && m.minute?.phase === "pre" && new Date(m.kickoff || 0) - Date.now() < 90 * 60000
+    && !(m.roster?.home?.players || []).some((player) => player.starter);
   state.timer = setTimeout(() => {
     autoRefresh();
-  }, live ? 20000 : 180000);
+  }, live ? 20000 : soon ? 60000 : 180000);
 }
 
 async function autoRefresh() {
