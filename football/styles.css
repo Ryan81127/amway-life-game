@@ -895,3 +895,6 @@ footer.foot {
 .moment { margin: 8px 0; }
 .moment-tag { background: var(--gold); color: var(--gold-ink); font-weight: 900; }
 .slogan { margin: 10px 0 4px; text-align: center; font-weight: 900; font-size: 16px; color: var(--green); }
+.sport-switch{display:flex;gap:8px;margin:4px 0 12px}
+.sport-switch a{flex:1;text-align:center;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);color:inherit;text-decoration:none;font-weight:700}
+.sport-switch a[aria-current="page"]{background:rgba(240,195,106,.16);border-color:rgba(240,195,106,.6)}

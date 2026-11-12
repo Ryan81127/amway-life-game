@@ -244,6 +244,7 @@ function renderSchedule(app) {
   if (state.leagueErrors.length) {
     wrap.append(h("div", { class: "banner" }, `部分聯賽暫時無法取得：${state.leagueErrors.join("、")}。`));
   }
+  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 NBA")));
   wrap.append(chipRow());
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 20 秒更新"))));
   const sections = [
