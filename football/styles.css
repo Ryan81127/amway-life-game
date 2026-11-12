@@ -868,3 +868,11 @@ footer.foot {
 .sub-list { margin: 8px 0 0; padding-left: 1.1em; font-size: 13px; color: var(--muted); }
 .anchor { display: grid; gap: 8px; margin-top: 8px; }
 .anchor-long summary { cursor: pointer; font-weight: 800; color: var(--gold); padding: 4px 0; }
+.fresh { margin: 8px 0 0; text-align: center; font-size: 12px; color: var(--green); }
+.goal-flash {
+  position: fixed; left: 50%; top: 12px; transform: translateX(-50%); z-index: 50;
+  max-width: min(92vw, 560px); padding: 14px 18px; border-radius: 16px;
+  background: var(--gold); color: var(--gold-ink); font-size: 18px; font-weight: 900; text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); animation: goalpop 0.6s ease-out 3;
+}
+@keyframes goalpop { 0% { transform: translateX(-50%) scale(0.9); } 50% { transform: translateX(-50%) scale(1.05); } 100% { transform: translateX(-50%) scale(1); } }

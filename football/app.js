@@ -502,12 +502,15 @@ function scoreboard(model) {
   } else {
     center.append(
       h("div", { class: "nums" }, model.home.score, h("span", null, "-"), model.away.score),
-      h("div", { class: live ? "clock live" : "clock" }, model.minute.label),
+      h("div", { class: live ? "clock live" : "clock", id: "live-clock" }, model.minute.label),
       phase && phase !== model.minute.label ? h("div", { class: "faint" }, phase) : null,
       halfH != null && halfA != null ? h("div", { class: "faint" }, `上半場 ${halfH}-${halfA}`) : null
     );
   }
   board.append(h("div", { class: "board-grid" }, teamCol(model.home, "主"), center, teamCol(model.away, "客")));
+  if (live) {
+    board.append(h("p", { class: "fresh", id: "fresh" }, ui(freshText())));
+  }
   return board;
 }
 
@@ -1239,6 +1242,7 @@ async function loadMatch(league, id) {
   state.summaryLoading = true;
   state.summaryError = false;
   if (!same) {
+    state.lastPulseSig = null;
     state.summaryStaleError = false;
     state.model = null;
     state.memory = null;
@@ -1256,6 +1260,7 @@ async function loadMatch(league, id) {
     state.summaryLoading = false;
     state.summaryError = false;
     maybeRender({ soft: !!same });
+    showGoalFlash();
     ensurePrediction(model);
   } catch (err) {
     if (err.name === "AbortError" || token !== state.token) return;
@@ -1293,6 +1298,93 @@ async function manualRefresh() {
   armTimer();
 }
 
+/* ---------- 即時偵測：每 5 秒打一次輕量的比分端點，有變化就立刻抓完整資料 ---------- */
+
+function freshText() {
+  const at = state.pulseAt || state.summaryLoadedAt;
+  if (!at) return "";
+  const sec = Math.max(0, Math.round((Date.now() - at) / 1000));
+  return `● 即時偵測中・${sec} 秒前確認・ESPN 資料本身約比電視慢 30–90 秒`;
+}
+
+function pulseSig(c) {
+  return [c.status?.period, ...(c.competitors || []).map((x) => x.score), (c.details || []).length].join("|");
+}
+
+function modelSig(m) {
+  return [m.minute.period, m.home.score, m.away.score, (m.events || []).filter((ev) => ev.kind !== "marker").length].join("|");
+}
+
+async function pulse() {
+  const route = readRoute();
+  const m = state.model;
+  if (!route.event || !m || m.minute.state !== "in" || document.hidden || state.pulseBusy) return;
+  state.pulseBusy = true;
+  try {
+    const day = String(m.kickoff || "").slice(0, 10).replaceAll("-", "");
+    const res = await fetch(`${API}/${route.league}/scoreboard?dates=${day}&_=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    const ev = (data.events || []).find((e) => String(e.id) === String(route.event));
+    const c = ev?.competitions?.[0];
+    if (!c) return;
+    state.pulseAt = Date.now();
+    const sig = pulseSig(c);
+    const scoreNow = Object.fromEntries((c.competitors || []).map((x) => [x.homeAway, Number(x.score)]));
+    const clock = c.status?.displayClock;
+    const el = document.getElementById("live-clock");
+    if (el && clock) el.textContent = clock;
+    const scoreChanged = scoreNow.home !== Number(m.home.score) || scoreNow.away !== Number(m.away.score);
+    const scoreKey = `${route.event}:${scoreNow.home}-${scoreNow.away}`;
+    if (scoreChanged && state.alertedScore !== scoreKey) {
+      state.alertedScore = scoreKey;
+      goalAlert(m, scoreNow, c);
+    }
+    const first = state.lastPulseSig == null;
+    const changed = sig !== state.lastPulseSig;
+    state.lastPulseSig = sig;
+    /* 比分或事件數變了就立刻重抓；完整資料還沒跟上比分時，每 8 秒再追一次 */
+    if ((changed && !first) || (scoreChanged && Date.now() - (state.summaryLoadedAt || 0) > 8000)) {
+      await loadMatch(route.league, route.event);
+    }
+  } catch { /* 偵測失敗就等下一輪 */ } finally {
+    state.pulseBusy = false;
+    const f = document.getElementById("fresh");
+    if (f) f.textContent = freshText();
+  }
+}
+
+function goalAlert(m, now, comp) {
+  const prev = { home: Number(m.home.score), away: Number(m.away.score) };
+  const side = now.home > prev.home ? "home" : now.away > prev.away ? "away" : null;
+  if (!side) return;
+  const goal = [...(comp.details || [])].reverse().find((d) => d.scoringPlay);
+  const who = playerZh(goal?.athletesInvolved?.[0]?.displayName || "");
+  const min = goal?.clock?.displayValue || comp.status?.displayClock || "";
+  const text = `⚽ 進球！${m[side].name}${who ? " " + who : ""} ${min}｜${m.home.name} ${now.home} : ${now.away} ${m.away.name}`;
+  state.goalFlash = { text, until: Date.now() + 25000 };
+  showGoalFlash();
+  try { navigator.vibrate?.([200, 100, 200]); } catch { /* 不支援就略過 */ }
+}
+
+function showGoalFlash() {
+  document.getElementById("goal-flash")?.remove();
+  const g = state.goalFlash;
+  if (!g || Date.now() > g.until) return;
+  const node = h("div", { class: "goal-flash", id: "goal-flash", role: "alert", onclick: () => { state.goalFlash = null; node.remove(); } }, ui(g.text));
+  document.body.append(node);
+  setTimeout(() => node.remove(), g.until - Date.now());
+}
+
+function armPulse() {
+  clearInterval(state.pulseTimer);
+  state.pulseTimer = setInterval(() => {
+    pulse();
+    const f = document.getElementById("fresh");
+    if (f) f.textContent = freshText();
+  }, 5000);
+}
+
 function armTimer() {
   clearTimeout(state.timer);
   const route = readRoute();
@@ -1302,7 +1394,7 @@ function armTimer() {
     && !(m.roster?.home?.players || []).some((player) => player.starter);
   state.timer = setTimeout(() => {
     autoRefresh();
-  }, live ? 20000 : soon ? 60000 : 180000);
+  }, live ? (route.event ? 30000 : 10000) : soon ? 60000 : 180000);
 }
 
 async function autoRefresh() {
@@ -1318,7 +1410,12 @@ async function autoRefresh() {
   }
 }
 
+function bootPulse() {
+  armPulse();
+}
+
 function boot() {
+  bootPulse();
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && Date.now() - Math.max(state.scheduleLoadedAt || 0, state.summaryLoadedAt || 0) > 20000) manualRefresh();
   });
