@@ -17,7 +17,8 @@ function storyClean(text) {
 }
 
 function storySentences(text) {
-  return storyClean(text).split(/(?<=[。！？])/).map((s) => s.trim()).filter((s) => s.length >= 14 && s.length <= 160);
+  return storyClean(text).split(/(?<=[。！？])/).map((s) => s.trim())
+    .filter((s) => s.length >= 14 && s.length <= 160 && !/^[令而但並且其此這該同後於在因由及與、，；：（]/.test(s) && !/^(之後|此後|其後|同年|隨後|然而|不過|另外|此外)/.test(s));
 }
 
 function storyScore(s) {
@@ -240,7 +241,7 @@ function historyBlock(model) {
   block.append(h("h3", null, ui("⚔️ 兩隊之間")));
   if (cross.length) {
     block.append(h("ul", { class: "reasons" }, cross.map((x) => h("li", null, ui(x)))));
-    say.push(`說到這兩隊之間的故事：${cross[0]}`);
+    say.push(`說到這兩隊之間的故事：${cross.slice(0, 2).join("")}`);
   } else {
     block.append(h("p", { class: "faint" }, ui("維基百科和 ESPN 都沒有兩隊直接交手的故事，這種「初次見面」反而好聊：誰先適應對方，誰就拿下主動權。")));
   }
@@ -255,7 +256,7 @@ function historyBlock(model) {
     if (!s.info.length && !s.stories.length) block.append(h("p", { class: "faint" }, ui("條目內容太少，整理不出亮點。")));
     block.append(h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${s.title}」 · `), h("a", { href: s.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
     const hook = s.info.find((x) => /綽號/.test(x));
-    const hit = s.stories[0];
+    const hit = s.stories.find((x) => x.length <= 95) || "";
     const worst = s.info.find((x) => /最慘一敗/.test(x));
     const best = s.info.find((x) => /最大勝仗/.test(x));
     const line = [hook ? `${name}${hook}` : "", hit || "", worst ? `${worst}，那一場大概是隊史不能提的傷疤` : best || ""].filter(Boolean).join("；");
