@@ -203,7 +203,7 @@ function matchCard(m) {
 
 function teamLine(t, pre, tag) {
   return h("div", { class: "team-row" },
-    h("div", { class: "team-id" }, logoNode(t.logo, t.abbr), h("strong", null, ui(t.name)), h("span", { class: "faint" }, ` ${tag}${t.record ? " · " + t.record : ""}`)),
+    h("div", { class: "team-id" }, logoNode(t.logo, t.abbr), h("strong", null, ui(t.name)), h("span", { class: "faint" }, ui(` ${tag}${t.record ? " · " + t.record : ""}`))),
     h("span", { class: "score-side" }, pre ? "–" : (t.score ?? "–")));
 }
 
@@ -304,7 +304,7 @@ function scoreboard(m) {
   const pre = m.status.phase === "pre";
   const live = m.status.state === "in";
   const board = h("section", { class: "board", id: "board" });
-  board.append(h("p", { class: "faint" }, [m.venue, m.city, m.attendance ? `觀眾 ${m.attendance.toLocaleString()}` : ""].filter(Boolean).join(" · ")));
+  board.append(h("p", { class: "faint" }, ui([m.venue, m.city, m.attendance ? `觀眾 ${m.attendance.toLocaleString()}` : ""].filter(Boolean).join(" · "))));
   const center = h("div", { class: "scoreline" });
   if (pre) {
     center.append(h("div", { class: "clock" }, taipeiHM(m.kickoff)), h("div", { class: "faint" }, `${shortDate(m.kickoff)} ${ui("台北 · 未開賽")}`), h("div", { class: "faint" }, ui(countdown(m.kickoff))));
@@ -329,7 +329,7 @@ function teamCol(t, tag) {
   const col = h("div", { class: "side" });
   const color = safeColor(t.color);
   if (color) col.style.borderTop = `3px solid ${color}`;
-  col.append(h("span", { class: "tag" }, ui(tag)), logoNode(t.logo, t.abbr), h("div", { class: "name" }, ui(t.name)), h("div", { class: "faint" }, [t.record, t.split ? `${tag === "主" ? "主場" : "客場"} ${t.split}` : ""].filter(Boolean).join(" · ")));
+  col.append(h("span", { class: "tag" }, ui(tag)), logoNode(t.logo, t.abbr), h("div", { class: "name" }, ui(t.name)), h("div", { class: "faint" }, ui([t.record, t.split ? `${tag === "主" ? "主場" : "客場"} ${t.split}` : ""].filter(Boolean).join(" · "))));
   return col;
 }
 
