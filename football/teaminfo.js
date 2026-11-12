@@ -12,7 +12,7 @@ const COUNTRY_ZH = {
   Australia: "澳洲", Croatia: "克羅埃西亞", Serbia: "塞爾維亞", Denmark: "丹麥", Sweden: "瑞典", Norway: "挪威", Finland: "芬蘭", Iceland: "冰島", Poland: "波蘭",
   Switzerland: "瑞士", Austria: "奧地利", "Czech Republic": "捷克", Czechia: "捷克", Slovakia: "斯洛伐克", Slovenia: "斯洛維尼亞", Hungary: "匈牙利", Romania: "羅馬尼亞", Greece: "希臘", Turkey: "土耳其", Türkiye: "土耳其", Ukraine: "烏克蘭", Georgia: "喬治亞",
   Morocco: "摩洛哥", Senegal: "塞內加爾", Nigeria: "奈及利亞", Ghana: "迦納", "Ivory Coast": "象牙海岸", "Côte d'Ivoire": "象牙海岸", Cameroon: "喀麥隆", Egypt: "埃及", Algeria: "阿爾及利亞", Tunisia: "突尼西亞", Mali: "馬利", Guinea: "幾內亞",
-  "Saudi Arabia": "沙烏地阿拉伯", Iran: "伊朗", Qatar: "卡達", Iraq: "伊拉克", Uzbekistan: "烏茲別克", Kyrgyzstan: "吉爾吉斯", Thailand: "泰國", Vietnam: "越南", Indonesia: "印尼", Malaysia: "馬來西亞", Singapore: "新加坡", Philippines: "菲律賓", India: "印度",
+  "Saudi Arabia": "沙烏地阿拉伯", Iran: "伊朗", Qatar: "卡達", Iraq: "伊拉克", Uzbekistan: "烏茲別克", Kyrgyzstan: "吉爾吉斯", "Kyrgyz Republic": "吉爾吉斯", Thailand: "泰國", Vietnam: "越南", Indonesia: "印尼", Malaysia: "馬來西亞", Singapore: "新加坡", Philippines: "菲律賓", India: "印度",
   Jamaica: "牙買加", "Bosnia-Herzegovina": "波士尼亞", "Bosnia and Herzegovina": "波士尼亞", Albania: "阿爾巴尼亞", Kosovo: "科索沃", "North Macedonia": "北馬其頓", Montenegro: "蒙特內哥羅", Israel: "以色列", "New Zealand": "紐西蘭"
 };
 
@@ -23,6 +23,11 @@ function injZh(text, map) {
 }
 
 const tiStore = new Map();
+const S2T = {};
+for (const [tw, cn] of Object.entries(typeof HAN === "object" ? HAN : {})) if (!S2T[cn]) S2T[cn] = tw;
+function toTw(text) {
+  return String(text || "").replace(/[\u3400-\u9fff]/g, (ch) => S2T[ch] || ch);
+}
 
 function tiKey(model) {
   return model.leagueSlug + ":" + model.id;
@@ -38,13 +43,14 @@ function statMap(athlete) {
 
 async function fetchRoster(league, teamId, national) {
   const tries = [league];
-  if (national) tries.push("fifa.world", "fifa.friendly");
+  if (national) tries.push("fifa.friendly", "fifa.worldq.afc", "fifa.worldq.uefa", "fifa.worldq.conmebol", "fifa.worldq.concacaf", "fifa.worldq.caf", "afc.asian.cup");
+  let fallback = null;
   for (const lg of [...new Set(tries)]) {
     try {
       const data = await fetchJson(`${API}/${lg}/teams/${teamId}/roster`);
       const list = data.athletes || [];
       if (!list.length) continue;
-      return {
+      const parsed = {
         league: lg,
         season: data.season?.displayName || "",
         players: list.map((a) => {
@@ -81,16 +87,19 @@ async function fetchRoster(league, teamId, national) {
           };
         })
       };
+      if (parsed.players.some((p) => p.apps > 0)) return parsed;
+      if (!fallback) fallback = parsed;
     } catch { /* 換下一個聯賽再試 */ }
   }
-  return { league, season: "", players: [] };
+  return fallback || { league, season: "", players: [] };
 }
 
 /* 近 5 場：每位球員出場數、先發數、分鐘、進球、助攻，以及最近一場是否在名單 */
 async function recentUsage(model, side, signal) {
   const teamId = model[side].id;
+  const kick = new Date(model.kickoff || Date.now()).getTime();
   const list = ((model.formIds || []).find((b) => b.id === teamId)?.events || [])
-    .slice().sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 5);
+    .filter((ev) => ev.id !== model.id && (!ev.date || new Date(ev.date).getTime() < kick)).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 5);
   const lim = pLimit(3);
   const slims = await Promise.all(list.map((ev) => lim(async () => {
     try { return { ev, slim: await fetchSlim(ev.id, signal) }; } catch { return { ev, slim: null }; }
@@ -144,7 +153,7 @@ async function wikiHistory(team, national) {
       const zhTitle = page.langlinks?.[0]?.title;
       if (zhTitle) {
         const zh = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(zhTitle)}`, { headers: { "Accept-Language": "zh-tw" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-        if (zh?.extract) out = { lang: "zh", title: zh.title || zhTitle, text: zh.extract, url: zh.content_urls?.desktop?.page || `https://zh.wikipedia.org/wiki/${encodeURIComponent(zhTitle)}` };
+        if (zh?.extract) out = { lang: "zh", title: toTw(zh.title || zhTitle), text: zh.extract, url: zh.content_urls?.desktop?.page || `https://zh.wikipedia.org/wiki/${encodeURIComponent(zhTitle)}` };
       }
       if (!out && page.extract) out = { lang: "en", title: page.title, text: page.extract, url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}` };
     }
@@ -211,7 +220,11 @@ function starList(model, side, ti) {
     const score = (p ? p.goals * 3 + p.assists * 2 + p.apps * 0.5 : 0) + (u ? u.min / 90 * 1.4 + (u.g * 2 + u.a) : 0);
     list.push({ id, en, name: playerZh(en), p, u, score });
   }
-  return list.filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
+  const scored = list.filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
+  if (scored.length) return scored;
+  /* 沒有任何數據時，至少列出名單上的攻擊球員 */
+  const rank = { F: 0, M: 1, D: 2, G: 3 };
+  return list.filter((x) => x.p).sort((a, b) => (rank[a.p.pos] ?? 4) - (rank[b.p.pos] ?? 4)).slice(0, 4).map((x) => ({ ...x, rosterOnly: true }));
 }
 
 function todayStatus(model, side, id) {
@@ -255,7 +268,7 @@ function starsBlock(model) {
       return h("div", { class: "cp" },
         h("div", { class: "kc-head" }, h("strong", null, s.name), s.name !== s.en ? h("span", { class: "faint" }, s.en) : null, today ? h("span", { class: today.includes("未進") ? "tag-bad" : "tag-val" }, ui(today)) : null),
         meta ? h("p", { class: "faint" }, ui(meta)) : null,
-        h("p", null, ui(starLine(model, side, s, ti) || "目前只有名單，沒有數據。")));
+        h("p", null, ui(starLine(model, side, s, ti) || "ESPN 只有名單，沒有這位球員的出場數據。")));
     });
     block.append(...rows);
     const top = stars[0];
@@ -380,7 +393,7 @@ function teamInfoCards(model) {
         eff: { status: "需更新", why: "維基百科摘要，數字播前請確認" }
       });
     }
-    for (const s of starList(model, side, ti).slice(0, 3)) {
+    for (const s of starList(model, side, ti).filter((x) => !x.rosterOnly).slice(0, 3)) {
       const line = starLine(model, side, s, ti);
       if (!line) continue;
       cards.push({
