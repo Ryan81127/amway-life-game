@@ -12,7 +12,7 @@ const COUNTRY_ZH = {
   Australia: "澳洲", Croatia: "克羅埃西亞", Serbia: "塞爾維亞", Denmark: "丹麥", Sweden: "瑞典", Norway: "挪威", Finland: "芬蘭", Iceland: "冰島", Poland: "波蘭",
   Switzerland: "瑞士", Austria: "奧地利", "Czech Republic": "捷克", Czechia: "捷克", Slovakia: "斯洛伐克", Slovenia: "斯洛維尼亞", Hungary: "匈牙利", Romania: "羅馬尼亞", Greece: "希臘", Turkey: "土耳其", Türkiye: "土耳其", Ukraine: "烏克蘭", Georgia: "喬治亞",
   Morocco: "摩洛哥", Senegal: "塞內加爾", Nigeria: "奈及利亞", Ghana: "迦納", "Ivory Coast": "象牙海岸", "Côte d'Ivoire": "象牙海岸", Cameroon: "喀麥隆", Egypt: "埃及", Algeria: "阿爾及利亞", Tunisia: "突尼西亞", Mali: "馬利", Guinea: "幾內亞",
-  "Saudi Arabia": "沙烏地阿拉伯", Iran: "伊朗", Qatar: "卡達", Iraq: "伊拉克", Uzbekistan: "烏茲別克", Kyrgyzstan: "吉爾吉斯", Thailand: "泰國", Vietnam: "越南", Indonesia: "印尼", Malaysia: "馬來西亞", Singapore: "新加坡", Philippines: "菲律賓", India: "印度",
+  "Saudi Arabia": "沙烏地阿拉伯", Iran: "伊朗", Qatar: "卡達", Iraq: "伊拉克", Uzbekistan: "烏茲別克", Kyrgyzstan: "吉爾吉斯", "Kyrgyz Republic": "吉爾吉斯", Thailand: "泰國", Vietnam: "越南", Indonesia: "印尼", Malaysia: "馬來西亞", Singapore: "新加坡", Philippines: "菲律賓", India: "印度",
   Jamaica: "牙買加", "Bosnia-Herzegovina": "波士尼亞", "Bosnia and Herzegovina": "波士尼亞", Albania: "阿爾巴尼亞", Kosovo: "科索沃", "North Macedonia": "北馬其頓", Montenegro: "蒙特內哥羅", Israel: "以色列", "New Zealand": "紐西蘭"
 };
 
