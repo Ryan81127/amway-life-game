@@ -891,3 +891,7 @@ footer.foot {
 .banter { margin-top: 8px; padding: 10px; border-radius: 12px; background: var(--card-2); }
 .banter h4 { margin: 6px 0 2px; font-size: 14px; color: var(--gold); }
 .banter p { margin: 3px 0; }
+.formula { margin: 4px 0 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
+.moment { margin: 8px 0; }
+.moment-tag { background: var(--gold); color: var(--gold-ink); font-weight: 900; }
+.slogan { margin: 10px 0 4px; text-align: center; font-weight: 900; font-size: 16px; color: var(--green); }

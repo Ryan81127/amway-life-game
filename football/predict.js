@@ -1417,6 +1417,7 @@ function recapBlock(model) {
         subs: [], score: { home: hs, away: as }, late: false,
         comeback: flip ? `半場 ${h1[0]}:${h1[1]}，終場 ${hs}:${as}。` : ""
       }), moodLines(model, { phase: "ft", salt: "ft", score: { home: hs, away: as } })));
+      card.append(momentBlock(model, { max: 4 }));
     }
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-ft" }, ui("全場")));
@@ -1944,6 +1945,183 @@ function moodNowBlock(model) {
     h("h2", null, ui("此刻可以說（觀眾心聲）")),
     h("p", { class: "faint" }, ui("不是正確解說，是觀眾心裡想說的話：先把情緒說出來，大家就會覺得你跟他們一起看球。依比賽狀態自動更換。"))
   );
-  block.append(moodSection(mood, "吐槽／碎碎念／自嘲／嘮嗑"));
+  block.append(momentBlock(model));
+  block.append(moodSection(mood, "吐槽／碎碎念／自嘲／嘮嗑", m.phase === "pre" || !detectMoments(model).length));
   return block;
+}
+
+/* ---------- 主播速查表：即時賽況 → 情緒反應 → 幽默比喻 → 觀眾互動 ----------
+   每個情境有台灣口語（tw）與大陸口語（cn）兩套；切到「大陆用语」時自動換成 cn。 */
+
+const QUIPS = {
+  wonder: { label: "神奇進球",
+    tw: { emo: ["哇靠！這球也能進？", "太扯了吧這一腳！", "我整個人站起來了！"], joke: ["球門是裝了導航嗎？", "這不是射門，這是神仙下凡！", "這腳應該收門票！"] },
+    cn: { emo: ["我嘞個豆！這球都能進？", "離譜！這腳太離譜了！", "臥槽！神仙球！"], joke: ["球門裝導航了吧！", "這不是射門，這是神仙下凡啊！", "這球牛逼，必須收費！"] },
+    ask: { tw: "這球給幾分？1 到 10 分，留言打分數！", cn: "這球給幾分？彈幕打分！" } },
+  sitter: { label: "空門不進",
+    tw: { emo: ["不是啦兄弟！這球都沒進？", "怎麼可能！門都開著耶！"], joke: ["這球我阿嬤穿拖鞋都要搖頭了！", "球門寬 7 公尺，他硬是找到第 8 公尺。"] },
+    cn: { emo: ["不是哥們兒！這都不進？", "繃不住了！空門都能打偏？"], joke: ["這球我奶奶都要搖頭了！", "球門七米寬，他愣是找到第八米。"] },
+    ask: { tw: "這球你覺得難度幾分？誠實回答！", cn: "這球難度幾顆星？扣在評論區！" } },
+  misses: { label: "連續射偏",
+    tw: { emo: ["又偏了，又偏了！", "我的血壓跟著射門一起飆！"], joke: ["再這樣射下去，看台的觀眾都要變成撿球員了！", "隔壁五金行都想來進貨了！"] },
+    cn: { emo: ["又打飛了！看麻了！", "這準星是借來的吧？"], joke: ["再這麼射，看台觀眾都要變撿球員了！", "隔壁五金店都想來進貨了！"] },
+    ask: { tw: "你覺得下一腳會進嗎？會的打 1，不會的打 2！", cn: "下一腳能進嗎？能的扣 1！" } },
+  leak: { label: "防守漏人",
+    tw: { emo: ["人整個放掉了！", "後防在發呆嗎？"], joke: ["這防守是自動門嗎？感應到就開！", "後衛線剛剛集體去排隊買飲料了。"] },
+    cn: { emo: ["人直接放了！離譜！", "後防在幹嘛呢？"], joke: ["這防守是自動門嗎？", "後衛線集體去買奶茶了吧？"] },
+    ask: { tw: "這球該怪誰？後衛還是門將？留言點名！", cn: "這球鍋誰背？評論區點名！" } },
+  error: { label: "失誤送禮",
+    tw: { emo: ["送了送了！", "這下尷尬了！"], joke: ["今天是來給對面送溫暖的嗎？", "這一腳比聖誕老公公還大方。"] },
+    cn: { emo: ["繃不住了！", "抽象！太抽象了！"], joke: ["今天是來給對面送溫暖的？", "這操作屬於是整活了。"] },
+    ask: { tw: "你看過最誇張的烏龍是哪一次？", cn: "你見過最抽象的烏龍是哪次？" } },
+  breakaway: { label: "快攻突破",
+    tw: { emo: ["衝起來了！", "這速度太快了！"], joke: ["這是在趕末班車啊！", "後衛追到懷疑人生。"] },
+    cn: { emo: ["殺瘋了！", "上強度了！"], joke: ["這是趕末班車啊！", "後衛追得腿都麻了。"] },
+    ask: { tw: "比速度，你覺得場上誰最快？", cn: "場上誰最快？評論區投票！" } },
+  burst: { label: "球星爆發",
+    tw: { emo: ["他終於醒了！", "這就是球星！"], joke: ["剛剛是在省電模式嗎？", "前面都在暖機，現在才開渦輪。"] },
+    cn: { emo: ["大哥終於醒了！", "殺瘋了殺瘋了！"], joke: ["剛才在省電模式嗎？", "前面在熱身，現在才開大招。"] },
+    ask: { tw: "今天的 MVP 是不是已經決定了？", cn: "今天 MVP 是不是穩了？" } },
+  stamina: { label: "體能見底",
+    tw: { emo: ["腳都抬不起來了！", "大家都在喘了！"], joke: ["電量剩百分之五了，快幫他插充電器！", "這時候換人就像幫手機換行動電源。"] },
+    cn: { emo: ["腿都灌鉛了！", "大家都在喘了！"], joke: ["電量剩百分之五了！", "這時候換人就跟換充電寶一樣。"] },
+    ask: { tw: "換你上場，你覺得自己能撐幾分鐘？", cn: "換你上場能撐幾分鐘？扣數字！" } },
+  comeback: { label: "逆轉",
+    tw: { emo: ["壞了壞了！", "比賽整個翻過來了！"], joke: ["劇本不對勁了！編劇是不是喝醉了？", "剛剛還在慶祝的人，現在笑不出來了。"] },
+    cn: { emo: ["壞了，劇本不對勁了！", "繃不住了！翻盤了！"], joke: ["編劇今天喝多了吧？", "剛才還在慶祝的，現在麻了。"] },
+    ask: { tw: "剛剛誰說沒戲的？出來面對！", cn: "剛剛誰說沒戲的？站出來！" } },
+  tight: { label: "膠著",
+    tw: { emo: ["誰都不讓誰！", "這場咬得好緊！"], joke: ["這比分跟拔河一樣，兩邊都在咬牙！", "雙方像在搶最後一個停車位。"] },
+    cn: { emo: ["誰也不讓誰！", "硬解！硬碰硬！"], joke: ["這比分跟拔河一樣！", "跟搶最後一個停車位似的。"] },
+    ask: { tw: "你覺得誰會先撐不住？主隊打 1、客隊打 2！", cn: "誰先頂不住？主隊扣 1、客隊扣 2！" } },
+  dispute: { label: "爭議判罰",
+    tw: { emo: ["這哨子有點東西！", "等一下，這球有爭議！"], joke: ["裁判今天的哨子好像有自己的想法。", "VAR 看那麼久，我泡麵都泡好了。"] },
+    cn: { emo: ["這哨子有點東西！", "還有說法？"], joke: ["裁判這哨子有自己的想法。", "VAR 看這麼久，泡麵都泡好了。"] },
+    ask: { tw: "這球該不該判？兄弟們怎麼看？", cn: "這球該不該判？兄弟們怎麼看？" } },
+  predRight: { label: "預測正確",
+    tw: { emo: ["我這嘴今天是不是開過光了？", "說中了！"], joke: ["賽前預測準到我自己都怕。", "下次買彩券前先來問我。"] },
+    cn: { emo: ["我這嘴今天開過光了吧？", "說中了！"], joke: ["賽前預測準到我自己都怕。", "下次買彩票先來問我。"] },
+    ask: { tw: "賽前有誰跟我押一樣的？留言報到！", cn: "賽前跟我押一樣的扣 1！" } },
+  predWrong: { label: "預測失準",
+    tw: { emo: ["主播被現場打臉了！", "好，我閉嘴。"], joke: ["我收回賽前講的每一句話。", "我的預測今天是來搞笑的。"] },
+    cn: { emo: ["主播被現場打臉了！", "打臉來得太快了！"], joke: ["我收回賽前說的每一句話。", "我的預測今天屬於是抽象了。"] },
+    ask: { tw: "賽前有人比我準嗎？留言炫耀一下！", cn: "有比我準的嗎？評論區炫一下！" } },
+  dull: { label: "冷場",
+    tw: { emo: ["這幾分鐘好安靜……", "兩隊都在試探。"], joke: ["這三分鐘看得我老了三歲！", "節奏慢到我以為在看高爾夫。"] },
+    cn: { emo: ["這幾分鐘太安靜了……", "看麻了。"], joke: ["這三分鐘看得我老了三歲！", "節奏慢得跟看高爾夫似的。"] },
+    ask: { tw: "明天要上班上課的打 1！", cn: "明天要上班的扣 1！" } },
+  decider: { label: "決勝時刻",
+    tw: { emo: ["最後關頭了！", "每一次觸球都可能決定比賽！"], joke: ["兄弟們，心臟準備好了沒？", "現在去上廁所的人，等一下會後悔。"] },
+    cn: { emo: ["最後關頭了！", "上強度了！"], joke: ["兄弟們，心臟準備好了沒？", "現在去廁所的，等會兒要後悔。"] },
+    ask: { tw: "最後幾分鐘，你押誰進球？", cn: "最後幾分鐘押誰進球？" } }
+};
+
+const QUIP_ORDER = ["comeback", "wonder", "sitter", "leak", "error", "dispute", "burst", "breakaway", "misses", "decider", "predWrong", "predRight", "tight", "stamina", "dull"];
+
+const SLOGANS = {
+  tw: ["球可以不進，氣氛不能冷！", "兄弟們，精彩一起看，熱鬧一起喊！"],
+  cn: ["球可以不進，氣氛不能冷！", "兄弟們，精彩一起看，熱鬧一起喊！"]
+};
+
+const EXTRA_ASKS = {
+  tw: ["大家今天從哪裡來看的？留言報個縣市！", "這球給幾分？", "明天要上班上課的打 1！", "剛剛誰說沒戲的？", "下一場我們繼續見！"],
+  cn: ["今天都哪兒來的？評論區報個地名！", "這球給幾分？", "明天要上班的扣 1！", "剛剛誰說沒戲的？", "下場接著見！"]
+};
+
+function detectMoments(model) {
+  const m = model.minute;
+  if (m.phase === "pre") return [];
+  const ft = m.phase === "ft" || m.state === "post";
+  const comm = model.commentary || [];
+  const curP = ft ? 2 : m.period;
+  const curB = ft ? 95 : (m.base || 0);
+  const ago = (it) => (it.period === curP ? curB - (it.base || 0) : 99);
+  const recent = (mins) => comm.filter((it) => ago(it) >= 0 && ago(it) <= mins);
+  const nameOf = (side) => (side === "home" ? model.home.name : model.away.name);
+  const hs = Number(model.home.score) || 0;
+  const as = Number(model.away.score) || 0;
+  const diff = hs - as;
+  const found = [];
+  const add = (key, detail) => { if (!found.some((f) => f.key === key)) found.push({ key, detail }); };
+  const win = ft ? 99 : 4;
+
+  for (const it of recent(win).filter((x) => x.type === "goal" || x.type === "penalty-scored")) {
+    if (it.xg && it.xg <= 0.06) add("wonder", `${it.clock} ${it.player || nameOf(it.side)}（${nameOf(it.side)}）在幾乎不可能的位置破門`);
+    if (it.xg >= 0.35 && it.type === "goal" && !/penalt/i.test(it.text)) add("leak", `${it.clock} ${nameOf(it.side === "home" ? "away" : "home")}防守漏人，${it.player || nameOf(it.side)}在門前輕鬆得手`);
+  }
+  for (const it of recent(win).filter((x) => x.shot && x.type !== "goal" && x.xg >= 0.35)) {
+    add("sitter", `${it.clock} ${it.player || nameOf(it.side)}（${nameOf(it.side)}）錯失必進機會`);
+  }
+  for (const ev of (model.events || []).filter((e) => e.kind === "goal" && e.style === "烏龍")) {
+    if (ft || ago(ev) <= win) add("error", `${ev.minuteLabel} 出現烏龍球`);
+  }
+  if (recent(win).some((it) => /fast break/i.test(it.text) && it.shot)) {
+    const it = recent(win).find((x) => /fast break/i.test(x.text) && x.shot);
+    add("breakaway", `${it.clock} ${nameOf(it.side)}打出快速反擊`);
+  }
+  if (recent(win).some((it) => /VAR|video review|penalty/i.test(it.text) && !/scores|converts/i.test(it.text))) {
+    const it = recent(win).find((x) => /VAR|video review|penalty/i.test(x.text));
+    add("dispute", `${it.clock} ${/VAR|video/i.test(it.text) ? "VAR 介入" : "出現點球判罰"}`);
+  }
+  for (const side of ["home", "away"]) {
+    const shots = comm.filter((it) => it.side === side && it.shot && ago(it) >= 0 && ago(it) <= (ft ? 99 : 15));
+    const last3 = shots.slice(-3);
+    if (last3.length === 3 && last3.every((it) => !it.sot)) add("misses", `${nameOf(side)}最近 3 次射門全部沒打正`);
+  }
+  const scorers = new Map();
+  for (const ev of (model.events || []).filter((e) => e.kind === "goal" && e.scorer && e.style !== "烏龍")) scorers.set(ev.scorer, (scorers.get(ev.scorer) || 0) + 1);
+  const hot = [...scorers.entries()].find(([, n]) => n >= 2);
+  if (hot) add("burst", `${hot[0]} 已經進了 ${hot[1]} 球`);
+  /* 逆轉：比分領先的一方換人了 */
+  let cum = { home: 0, away: 0 };
+  let ledHome = false; let ledAway = false;
+  for (const g of goalsIn(model, () => true)) {
+    if (g.side) cum[g.side] += 1;
+    if (cum.home > cum.away) ledHome = true;
+    if (cum.away > cum.home) ledAway = true;
+  }
+  if ((ledAway && diff > 0) || (ledHome && diff < 0)) add("comeback", `${diff > 0 ? model.home.name : model.away.name}一度落後，現在 ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 反超`);
+  if (!ft && curP >= 2 && curB >= 85 && Math.abs(diff) <= 1) add("decider", `第 ${curB} 分鐘，${model.home.name} ${hs} 比 ${as} ${model.away.name}，差距只有 ${Math.abs(diff)} 球`);
+  else if (curP >= 2 && curB >= 60 && Math.abs(diff) <= 1) add("tight", `第 ${curB} 分鐘，${model.home.name} ${hs} 比 ${as} ${model.away.name}，雙方咬得很緊`);
+  if (!ft && curP >= 2 && curB >= 70) add("stamina", `比賽進入第 ${curB} 分鐘，雙方體能明顯下滑`);
+  if (!ft && commRich(model) && curB >= 10 && !recent(5).some((it) => it.shot)) add("dull", "最近 5 分鐘雙方都沒有射門");
+  const saved = loadPrediction(model.id);
+  if (saved && (ft || (curP >= 2 && curB >= 60))) {
+    const fav = (saved.top?.home || 0) >= (saved.top?.away || 0) ? "home" : "away";
+    const favName = nameOf(fav);
+    const favDiff = fav === "home" ? diff : -diff;
+    if (favDiff > 0) add("predRight", `賽前模型看好${favName}，目前${favName}領先`);
+    else if (favDiff < 0) add("predWrong", `賽前模型看好${favName}，結果${favName}落後`);
+  }
+  return QUIP_ORDER.map((k) => found.find((f) => f.key === k)).filter(Boolean);
+}
+
+function fourStep(model, moment, salt) {
+  const q = QUIPS[moment.key];
+  const v = locale() === "cn" ? q.cn : q.tw;
+  const ask = locale() === "cn" ? q.ask.cn : q.ask.tw;
+  const [emo] = pickN(model, salt + moment.key + "e", v.emo, 1);
+  const [joke] = pickN(model, salt + moment.key + "j", v.joke, 1);
+  return [`${moment.detail}。`, emo, joke, ask];
+}
+
+function momentBlock(model, opts = {}) {
+  const moments = detectMoments(model).slice(0, opts.max || 3);
+  const m = model.minute;
+  const salt = `${m.period}-${Math.floor((m.base || 0) / 3)}`;
+  const frag = h("div", { class: "moments" });
+  frag.append(h("p", { class: "formula" }, ui("核心公式：即時賽況 → 情緒反應 → 幽默比喻 → 觀眾互動")));
+  if (moments.length) {
+    for (const mo of moments) {
+      const lines = fourStep(model, mo, salt);
+      const box = h("div", { class: "moment" }, h("span", { class: "pill moment-tag" }, ui(QUIPS[mo.key].label)));
+      box.append(scriptBlock(lines, "四步口播"));
+      frag.append(box);
+    }
+  } else if (m.phase !== "pre") {
+    frag.append(h("p", { class: "faint" }, ui("目前沒有偵測到特別情境（進球、錯失機會、爭議、冷場等），可先用下方的觀眾心聲。")));
+  }
+  const loc = locale() === "cn" ? "cn" : "tw";
+  frag.append(h("p", { class: "slogan" }, ui(pickN(model, salt + "slogan", SLOGANS[loc], 1)[0])));
+  return frag;
 }

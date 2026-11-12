@@ -138,7 +138,7 @@ function interactionLines(model, cards) {
   ];
   if (phase === "in") base.unshift(`現在比分 ${model.home.score}:${model.away.score}，你覺得終場會變嗎？留言預測！`);
   if (phase === "ft" || model.minute.state === "post") base.unshift(`終場 ${model.home.score}:${model.away.score}，你賽前有猜中嗎？`);
-  const asks = cards.map((c) => c.ask).filter(Boolean);
+  const asks = [...cards.map((c) => c.ask), ...(EXTRA_ASKS[locale() === "cn" ? "cn" : "tw"] || [])].filter(Boolean);
   const seen = new Set();
   const out = [];
   for (const line of [...asks, ...base]) {
