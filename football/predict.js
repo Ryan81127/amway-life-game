@@ -1416,7 +1416,7 @@ function recapBlock(model) {
         goals: [], cards: (model.events || []).filter((ev) => ev.kind === "red"),
         subs: [], score: { home: hs, away: as }, late: false,
         comeback: flip ? `半場 ${h1[0]}:${h1[1]}，終場 ${hs}:${as}。` : ""
-      })));
+      }), moodLines(model, { phase: "ft", salt: "ft", score: { home: hs, away: as } })));
     }
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-ft" }, ui("全場")));
@@ -1435,6 +1435,11 @@ function recapBlock(model) {
       subs: (model.events || []).filter((ev) => ev.kind === "sub" && ev.subOn && (ev.period || 1) === p),
       score: p === 1 ? cumScore(model, 199999) : { home: Number(model.home.score) || 0, away: Number(model.away.score) || 0 },
       late: p === 2
+    }), moodLines(model, {
+      phase: p === 1 ? "ht" : (model.minute.phase === "ft" || model.minute.state === "post") ? "ft" : "seg",
+      salt: "h" + p, t: commRich(model) ? r.tally : null,
+      goals: goalsIn(model, (ev) => (ev.period || 1) === p),
+      score: p === 1 ? cumScore(model, 199999) : { home: Number(model.home.score) || 0, away: Number(model.away.score) || 0 }
     })));
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-h" + p }, ui(p === 1 ? "上半場" : "下半場")));
@@ -1455,6 +1460,12 @@ function recapBlock(model) {
         goals: goalsIn(model, (ev) => inSeg(ev, seg)),
         cards: (model.events || []).filter((ev) => (ev.kind === "yellow" || ev.kind === "red") && inSeg(ev, seg)),
         subs: (model.events || []).filter((ev) => ev.kind === "sub" && ev.subOn && inSeg(ev, seg)),
+        score: cumScore(model, seg.p * 100000 + Math.min(seg.to, 200) * 100 + 99),
+        late: seg.id === "s5" || seg.id === "s6"
+      }), moodLines(model, {
+        phase: "seg", salt: seg.id, t: r.hasData ? r.tally : null,
+        goals: goalsIn(model, (ev) => inSeg(ev, seg)),
+        cards: (model.events || []).filter((ev) => (ev.kind === "yellow" || ev.kind === "red") && inSeg(ev, seg)),
         score: cumScore(model, seg.p * 100000 + Math.min(seg.to, 200) * 100 + 99),
         late: seg.id === "s5" || seg.id === "s6"
       })));
@@ -1789,17 +1800,150 @@ function banter(model, ctx) {
   };
 }
 
-function banterBlock(b) {
-  if (!b || (!b.pro.length && !b.fun.length && !b.spicy.length)) return document.createDocumentFragment();
+function banterBlock(b, mood) {
+  const frag = document.createDocumentFragment();
+  if (mood) frag.append(moodSection(mood, "觀眾心聲：吐槽／碎碎念／自嘲／嘮嗑"));
+  if (!b || (!b.pro.length && !b.fun.length && !b.spicy.length)) return frag;
   const sec = (title, list) => (list.length ? [h("h4", null, ui(title)), ...list.map((x) => h("p", null, ui(x)))] : []);
-  const all = [...b.pro, ...b.fun, ...b.spicy].map((x) => speak(x));
+  const all = [...b.fun, ...b.spicy, ...b.pro].map((x) => speak(x));
   const btn = h("button", { class: "copy" }, ui("全部複製"));
   btn.addEventListener("click", () => copyText(all.join("\n"), btn));
-  return h("details", { class: "banter", open: true },
-    h("summary", null, ui("口語補充：專業／輕鬆／嗆辣")),
-    ...sec("專業資訊（可當分析）", b.pro),
+  frag.append(h("details", { class: "banter" },
+    h("summary", null, ui("更多：幽默、嗆辣、專業補充")),
     ...sec("輕鬆幽默", b.fun),
     ...sec("嗆辣幹話（成人時段，自行斟酌）", b.spicy),
+    ...sec("專業資訊（想認真時再用）", b.pro),
+    btn
+  ));
+  return frag;
+}
+
+/* ---------- 觀眾心聲：吐槽／碎碎念／自我調侃／無關嘮嗑（情緒同步，不講正確解說） ---------- */
+
+const MOOD_KINDS = [["tucao", "吐槽"], ["mutter", "碎碎念"], ["self", "自我調侃"], ["chat", "無關嘮嗑"]];
+
+function taipeiHour() {
+  return Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", hour12: false }).format(new Date())) % 24;
+}
+
+function moodLines(model, ctx = {}) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const m = model.minute;
+  const s = ctx.score || { home: Number(model.home.score) || 0, away: Number(model.away.score) || 0 };
+  const diff = s.home - s.away;
+  const lead = diff > 0 ? hn : diff < 0 ? an : "";
+  const trail = diff > 0 ? an : diff < 0 ? hn : "";
+  const t = ctx.t;
+  const goals = ctx.goals || [];
+  const cards = ctx.cards || [];
+  const phase = ctx.phase || (m.phase === "pre" ? "pre" : m.phase === "ht" ? "ht" : (m.phase === "ft" || m.state === "post") ? "ft" : "live");
+  const late = ctx.late ?? (m.period >= 2 && m.base >= 75);
+  const b = { tucao: [], mutter: [], self: [], chat: [] };
+  const hour = taipeiHour();
+  const night = hour < 6;
+
+  if (phase === "pre") {
+    b.mutter.push("等開賽的這段時間最難熬，比等外送還焦慮。", "首發名單快出來了吧？我已經刷新第八次了。");
+    b.self.push("先講好，我賽前預測從來沒準過，跟我反著買的朋友可能會發財。", "我今天做了很多功課，但等一下開賽第一分鐘可能就全部忘光。");
+    b.chat.push("零食飲料都準備好了嗎？我先承認我已經吃掉半包洋芋片。", `${hn}跟${an}，今天你穿哪一隊的顏色來看？`);
+    b.tucao.push("每次說『今天會是一場精彩的比賽』，結果都踢 0 比 0，我今天不說了。");
+  }
+  if (phase === "ht") {
+    b.chat.push("中場休息，廁所、泡麵、倒水，十五分鐘之內全部搞定！", "趁現在去伸個懶腰，下半場才不會腳麻。");
+    b.mutter.push(diff ? `${trail}休息室現在應該很熱鬧，教練大概在拍桌子。` : "上半場打完還平手，我的心情就像捷運誤點，不上不下。");
+    b.self.push("上半場我講了 45 分鐘，口水大概可以裝一瓶礦泉水。");
+  }
+  if (phase === "ft") {
+    if (lead) {
+      b.tucao.push(`${trail}今天這樣踢，回去應該會被教練約談。`);
+      b.mutter.push(`恭喜支持${lead}的朋友，今晚可以安心睡覺了。支持${trail}的，我懂，先去喝杯水。`);
+    } else {
+      b.mutter.push("看了九十分鐘，最後握手言和，我的情緒到底要放哪裡？");
+    }
+    b.self.push("比賽結束了，我的喉嚨也差不多結束了。");
+    b.chat.push(night ? "好啦，該睡了，明天上班上課的朋友，祝你們不要在會議上打瞌睡。" : "比賽踢完，有沒有人跟我一樣突然好想吃宵夜？");
+  }
+  if (phase === "live" || phase === "seg") {
+    for (const g of goals.slice(-1)) {
+      const conceded = g.side === "home" ? an : g.side === "away" ? hn : "";
+      if (conceded) b.tucao.push(`${conceded}的後防剛剛是在發呆嗎？人整個放掉耶！`);
+      b.mutter.push(`進了進了！${g.scorer || g.teamName}，我剛剛水喝到一半差點噴出來。`);
+      b.self.push("我賽前是不是說這隊今天很難進球？好，我閉嘴，當我沒說。");
+      b.chat.push("進球了！現在叫宵夜的朋友可以加點一份，算是慶祝。");
+    }
+    for (const c of cards.slice(-1)) {
+      const who = c.playerNames?.[0] || c.teamName;
+      b.tucao.push(c.kind === "red" ? `${who}這腳下去，紅牌我完全不意外，你是來踢球還是來拆房子的？` : `這張牌給得有點快喔，裁判今天是不是趕著下班？`);
+      b.mutter.push(`${who}，冷靜一點，再一張你就要提早去洗澡了。`);
+    }
+    if (t) {
+      const shots = t.home.shots + t.away.shots;
+      const misser = t.home.shots - t.home.goals >= 5 ? hn : t.away.shots - t.away.goals >= 5 ? an : "";
+      if (misser) {
+        b.tucao.push(`${misser}這種球都打不進，我阿嬤穿拖鞋都比較準。`);
+        b.mutter.push("又偏了……我的血壓跟著射門一起往上飆。");
+      }
+      if (shots <= 2 && !goals.length) {
+        b.tucao.push("兩隊在中場傳來傳去，傳到我都想起身去倒垃圾了。");
+        b.mutter.push("拜託誰來射一腳就好，射飛也沒關係，至少讓我醒一下。");
+        b.self.push("我現在比球員還想射門，可惜我只會射飛鏢。");
+        b.chat.push("趁這段場上比較平靜，大家可以先去裝個水、上個廁所。");
+      }
+    }
+    if (late && Math.abs(diff) <= 1) {
+      b.mutter.push("最後十分鐘了，心臟不好的朋友請先坐穩、扶好。", `${trail || "兩隊"}現在每一次進攻，我的手都在抖。`);
+      b.chat.push("這種關鍵時刻，最怕家裡網路突然卡住，大家先別開別的影片。");
+    }
+    if (Math.abs(diff) >= 3) {
+      b.tucao.push(`這個比分，${trail}的球迷可以先去刷牙準備睡覺了。`);
+      b.chat.push(`${lead}領先這麼多，我們來聊點別的好了，大家今天晚餐吃什麼？`);
+    }
+    b.tucao.push("畫面延遲的朋友先別急著罵，資料跟轉播本來就會差個半分鐘。", "這畫質有時候糊到，我以為在看水彩畫。");
+    b.self.push("我講話太快的時候大家多包涵，我腦袋跟不上嘴巴，嘴巴跟不上球。");
+  }
+  if (night) {
+    b.chat.push(`現在台灣時間凌晨 ${hour} 點，還在線上的都是真愛，請大家互相留言打個招呼。`);
+    b.self.push("我的眼睛已經在打架，但嘴巴還是很有精神，這就是職業素養。");
+  } else if (hour >= 18) {
+    b.chat.push("晚餐吃飽了嗎？看球配鹹酥雞還是滷味？留言告訴我。");
+  }
+  const salt = ctx.salt || `${m.period}-${Math.floor((m.base || 0) / 3)}`;
+  const out = {};
+  for (const [k] of MOOD_KINDS) out[k] = pickN(model, salt + k, b[k], 2);
+  return out;
+}
+
+function moodSection(mood, title, open = true) {
+  const has = MOOD_KINDS.some(([k]) => mood[k]?.length);
+  if (!has) return document.createDocumentFragment();
+  const all = MOOD_KINDS.flatMap(([k]) => mood[k] || []).map((x) => speak(x));
+  const btn = h("button", { class: "copy" }, ui("全部複製"));
+  btn.addEventListener("click", () => copyText(all.join("\n"), btn));
+  return h("details", { class: "banter mood", open },
+    h("summary", null, ui(title)),
+    ...MOOD_KINDS.flatMap(([k, label]) => (mood[k]?.length ? [h("h4", null, ui(label)), ...mood[k].map((x) => h("p", null, ui(x)))] : [])),
     btn
   );
+}
+
+/* 比賽頁頂部：此刻可以說（跟著比賽狀態每 3 分鐘換一批） */
+function moodNowBlock(model) {
+  const m = model.minute;
+  const since = (ev) => (m.period === (ev.period || 1) ? (m.base || 0) - (ev.base || 0) : 99);
+  const recent = (model.events || []).filter((ev) => since(ev) >= 0 && since(ev) <= 4);
+  const goals = recent.filter((ev) => ev.kind === "goal").map((ev) => ({ ...ev, side: goalSide(ev, model) }));
+  const cards = recent.filter((ev) => ev.kind === "yellow" || ev.kind === "red");
+  let t = null;
+  if (commRich(model) && m.state === "in") {
+    const cur = SEGMENTS.find((seg) => segState(seg, m) === "live");
+    if (cur) t = tallyOf((model.commentary || []).filter((it) => inSeg(it, cur)), goalsIn(model, (ev) => inSeg(ev, cur)));
+  }
+  const mood = moodLines(model, { goals, cards, t });
+  const block = h("section", { class: "block mood-now", id: "mood" },
+    h("h2", null, ui("此刻可以說（觀眾心聲）")),
+    h("p", { class: "faint" }, ui("不是正確解說，是觀眾心裡想說的話：先把情緒說出來，大家就會覺得你跟他們一起看球。依比賽狀態自動更換。"))
+  );
+  block.append(moodSection(mood, "吐槽／碎碎念／自嘲／嘮嗑"));
+  return block;
 }

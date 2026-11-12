@@ -382,7 +382,7 @@ function renderMatch(app, route) {
       h("button", { class: "retry", onclick: () => loadMatch(route.league, route.event) }, "重試")));
   }
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
-  wrap.append(scoreboard(model), matchNav(model), grokButton(model));
+  wrap.append(scoreboard(model), matchNav(model), grokButton(model), moodNowBlock(model));
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const done = phase === "ft" || model.minute.state === "post";
