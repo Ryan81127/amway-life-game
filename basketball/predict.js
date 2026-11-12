@@ -423,7 +423,7 @@ function sliceRecap(model, periods, label) {
     ["抄截／火鍋", `${s.home.stl}／${s.home.blk}`, `${s.away.stl}／${s.away.blk}`],
     ["犯規", s.home.pf, s.away.pf]
   ];
-  if (!plays.length) return { label, rows, lines: [], s, f, win, empty: true };
+  if (!plays.length) return { label, periods, rows, lines: [], s, f, win, empty: true };
   const W = win ? model[win].name : null;
   const L = win ? model[win === "home" ? "away" : "home"].name : null;
   if (label === "全場") lines.push(win ? `${W} ${Math.max(s.home.pts, s.away.pts)}：${Math.min(s.home.pts, s.away.pts)} 擊敗 ${L}，贏 ${Math.abs(s.home.pts - s.away.pts)} 分。` : "全場打平。");
@@ -453,7 +453,7 @@ function sliceRecap(model, periods, label) {
   const ta = topScorer(s.away);
   const best = [th && `${H} ${th.name} ${th.pts} 分`, ta && `${A} ${ta.name} ${ta.pts} 分`].filter(Boolean);
   if (best.length) lines.push(`這段得分王：${best.join("；")}。`);
-  return { label, rows, lines, s, f, win, W, L, th, ta, empty: false };
+  return { label, periods, rows, lines, s, f, win, W, L, th, ta, empty: false };
 }
 
 function quarterList(model) {
@@ -810,11 +810,13 @@ function anchorSlice(model, rec, kind) {
   const H = model.home.name;
   const A = model.away.name;
   const { s, f, W, L, th, ta } = rec;
-  const total = { h: Number(model.home.score), a: Number(model.away.score) };
+  const upto = Math.max(...rec.periods);
+  const sumTo = (side) => (model[side].linescores || []).slice(0, upto).reduce((a, x) => a + (Number(x) || 0), 0);
+  const total = { h: sumTo("home") || Number(model.home.score), a: sumTo("away") || Number(model.away.score) };
   const short = [];
   const long = [];
   short.push(W ? `${rec.label}結束，${W} 這段 ${Math.max(s.home.pts, s.away.pts)} 比 ${Math.min(s.home.pts, s.away.pts)} 贏下來！` : `${rec.label}結束，兩隊這段打成平手，誰都不讓誰！`);
-  if (kind !== "full") short.push(`目前總比分 ${H} ${total.h}、${A} ${total.a}。`);
+  if (kind !== "full") short.push(`${kind === "half" && upto === 2 ? "半場" : "打完這段"}總比分 ${H} ${total.h}、${A} ${total.a}。`);
   if (f.runs[0]) short.push(`關鍵是 ${model[f.runs[0].side].name} 那一波 ${f.runs[0].pts} 比 0，直接把節奏搶走。`);
   const star = [th, ta].filter(Boolean).sort((a, b) => b.pts - a.pts)[0];
   if (star) short.push(`這段最燙手的是 ${star.name}，一個人拿 ${star.pts} 分。`);

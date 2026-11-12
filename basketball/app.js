@@ -561,7 +561,7 @@ function playsBlock(m) {
   return h("section", { class: "panel", id: "plays" }, h("h2", null, ui("關鍵逐球（最新 40 筆）")),
     h("ul", { class: "plays" }, list.map((p) => h("li", { class: p.side || "" },
       h("span", { class: "faint" }, `${p.period <= 4 ? "Q" + p.period : "OT" + (p.period - 4)} ${p.clock}`), " ",
-      h("b", null, p.side ? ui(m[p.side].name) : ""), " ",
+      h("b", null, p.side ? ui(m[(p.blk || p.stl) && !p.score ? (p.side === "home" ? "away" : "home") : p.side].name) : ""), " ",
       ui(playText(p)),
       p.score ? h("span", { class: "faint" }, ` ${m.away.name} ${p.as}:${p.hs} ${m.home.name}`) : null))),
     h("p", { class: "faint" }, ui("球員中文名依名單對照，原文保留未翻譯部分。")));
