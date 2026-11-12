@@ -1,0 +1,84 @@
+{
+  "teamId": "14561",
+  "name": "中華台北",
+  "cards": [
+    {
+      "id": "tpe-asian-games-gold",
+      "topic": "球隊",
+      "title": "1954、1958 亞運連續兩屆金牌",
+      "fact": "1950、60 年代以中華民國名義出賽的男足，靠著一批來自香港的頂尖球員（俗稱「香港腳」），在 1954 年馬尼拉、1958 年東京亞運連續拿下足球金牌。",
+      "sources": [
+        { "name": "中央社 Focus Taiwan", "url": "https://focustaiwan.tw/sports/202606120006" },
+        { "name": "Wikipedia：Mok Chun Wah", "url": "https://en.wikipedia.org/wiki/Mok_Chun_Wah" }
+      ],
+      "checked": "2026-11-13",
+      "say": "很多人不知道，我們的男足曾經是亞洲冠軍。1954 年馬尼拉、1958 年東京，兩屆亞運連續拿下足球金牌。當時陣中主力很多是來自香港的球員，大家叫他們『香港腳』。那是台灣足球史上最風光的一段。",
+      "humor": {
+        "light": "我們也曾經是亞洲霸主，只是那個年代電視還是黑白的。",
+        "spicy": "上一次亞運奪金到現在快七十年，這冠軍荒比某些人的單身史還長。"
+      },
+      "ask": "你知道台灣足球曾經拿過亞運金牌嗎？留言 +1！",
+      "when": ["開場", "冷場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "tpe-asian-cup-1960",
+      "topic": "球隊",
+      "title": "1960 亞洲盃季軍：隊史最佳成績",
+      "fact": "中華台北男足最好的洲際成績是 1960 年亞洲盃第三名，1968 年也打進亞洲盃準決賽；但至今從未打進世界盃會內賽。",
+      "sources": [
+        { "name": "Wikipedia：Chinese Taipei national football team", "url": "https://www.wikiwand.com/en/articles/Chinese_Taipei_national_football_team" }
+      ],
+      "checked": "2026-11-13",
+      "say": "台灣男足在亞洲盃最好的成績是 1960 年拿到第三名，1968 年也打進過四強。雖然現在世界排名不高，但我們的足球不是一直都在底層，曾經也在亞洲站上頒獎台。",
+      "humor": {
+        "light": "亞洲盃季軍，在 1960 年也是可以上報紙頭版的好消息。",
+        "spicy": "世界盃我們沒去過，但看世界盃熬夜的功力，台灣絕對世界一流。"
+      },
+      "ask": "你覺得台灣男足什麼時候能再打進亞洲盃？",
+      "when": ["冷場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "tpe-ofc-years",
+      "topic": "趣聞",
+      "title": "曾經是大洋洲足聯的一員",
+      "fact": "因政治因素，中華台北在 1975 至 1989 年間被迫離開亞足聯與亞運，改以大洋洲足球聯合會（OFC）成員身分參賽，1989 年才重新回到亞足聯。",
+      "sources": [
+        { "name": "Wikipedia：Chinese Taipei national football team", "url": "https://www.doc.surf/wiki/chinese-taipei-national-football-team" }
+      ],
+      "checked": "2026-11-13",
+      "say": "一個冷知識：台灣男足有十幾年不是亞洲足聯的成員。1975 到 1989 年，我們是在大洋洲足聯，跟紐西蘭、斐濟這些球隊同一區。1989 年才回到亞洲。",
+      "humor": {
+        "light": "那段時間台灣足球大概是全世界移動距離最遠的『鄰居』。",
+        "spicy": "地圖上明明在亞洲，比賽卻被丟去大洋洲，這遠距離戀愛談了 14 年。"
+      },
+      "ask": "你知道台灣曾經屬於大洋洲足聯嗎？知道的留個 1！",
+      "when": ["冷場", "暫停"],
+      "status": "已查證"
+    }
+  ],
+  "rivals": {
+    "6724": [
+      {
+        "id": "tpe-kgz-wcq2024",
+        "topic": "球隊",
+        "title": "上次交手：世界盃資格賽兩戰皆敗",
+        "fact": "兩隊在 2026 世界盃亞洲區資格賽第二輪同組：2024 年 3 月 21 日在高雄國家體育場（Nanzih Football Stadium）中華台北 0:2 落敗，客場在比斯凱克則以 1:5 輸球。",
+        "sources": [
+          { "name": "ESPN 賽事頁（高雄）", "url": "https://www.espn.com/soccer/match/_/gameId/687426" },
+          { "name": "Sky Sports（比斯凱克）", "url": "https://www.skysports.com/football/kyrgyzstan-vs-chinese-taipei/495479" }
+        ],
+        "checked": "2026-11-13",
+        "say": "這兩隊不陌生。上一屆世界盃資格賽同組，2024 年 3 月在高雄，我們 0 比 2 輸球；到了吉爾吉斯首都比斯凱克，更是 1 比 5。所以今天對中華隊來說，是一場討回面子的比賽。",
+        "humor": {
+          "light": "上次被進 5 球，這次只要少丟幾球，都算進步。",
+          "spicy": "兩場被灌 7 球，今天再輸大概要把吉爾吉斯列入黑名單。"
+        },
+        "ask": "今天中華隊能不能從吉爾吉斯身上拿分？猜比分！",
+        "when": ["開場", "賽後"],
+        "status": "已查證"
+      }
+    ]
+  }
+}

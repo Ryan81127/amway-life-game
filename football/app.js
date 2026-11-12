@@ -388,11 +388,11 @@ function renderMatch(app, route) {
   const done = phase === "ft" || model.minute.state === "post";
   const hasComm = commRich(model);
   if (pre) {
-    wrap.append(predSection(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model));
+    wrap.append(...[predSection(model), cardsBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else if (done) {
-    wrap.append(recapBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model));
+    wrap.append(...[recapBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else {
-    wrap.append(analysisBlock(model), recapBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), movementBlock(model), oddsBlock(model), savedPredSection(model), formationBlock(model), cheatBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model));
+    wrap.append(...[analysisBlock(model), recapBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), movementBlock(model), oddsBlock(model), savedPredSection(model), formationBlock(model), cheatBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   }
   app.append(wrap, footer());
   app.dataset.ready = "1";
@@ -403,8 +403,8 @@ function matchNav(model) {
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const items = pre
-    ? [["prediction", "盤口預測"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
-    : [["recap", "復盤"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
+    ? [["prediction", "盤口預測"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
+    : [["recap", "復盤"], ["cards", "知識卡"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
   return h("nav", { class: "chips match-nav", "aria-label": "本頁區塊" }, items.map(([id, label]) => h("a", { class: "chip", href: "#" + id, onclick: (event) => {
     const target = document.getElementById(id);
     if (!target) return;
@@ -500,12 +500,12 @@ function scoreboard(model) {
   if (pre) {
     center.append(h("div", { class: "clock" }, taipeiHM(model.kickoff)), h("div", { class: "faint" }, "未開賽 · 台北"));
   } else {
-    center.append(
+    center.append(...[
       h("div", { class: "nums" }, model.home.score, h("span", null, "-"), model.away.score),
       h("div", { class: live ? "clock live" : "clock", id: "live-clock" }, model.minute.label),
       phase && phase !== model.minute.label ? h("div", { class: "faint" }, phase) : null,
       halfH != null && halfA != null ? h("div", { class: "faint" }, `上半場 ${halfH}-${halfA}`) : null
-    );
+    ].filter(Boolean));
   }
   board.append(h("div", { class: "board-grid" }, teamCol(model.home, "主"), center, teamCol(model.away, "客")));
   if (live) {
@@ -1262,6 +1262,7 @@ async function loadMatch(league, id) {
     maybeRender({ soft: !!same });
     showGoalFlash();
     ensurePrediction(model);
+    ensureCards(model);
   } catch (err) {
     if (err.name === "AbortError" || token !== state.token) return;
     state.summaryLoading = false;

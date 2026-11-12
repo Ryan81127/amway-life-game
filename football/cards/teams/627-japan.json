@@ -1,0 +1,126 @@
+{
+  "teamId": "627",
+  "name": "日本",
+  "cards": [
+    {
+      "id": "jpn-first-win-brazil",
+      "topic": "球隊",
+      "title": "日本史上第一次贏巴西",
+      "fact": "2025 年 10 月 14 日在東京體育場的友誼賽，日本上半場 0:2 落後，下半場靠南野拓實、中村敬斗、上田綺世連進三球 3:2 逆轉，第 14 次交手才首次擊敗巴西，對戰紀錄變成 1 勝 2 和 11 負。",
+      "sources": [
+        { "name": "日本足協 JFA 賽後報導", "url": "https://jfajp-img.jh.bit-drive.ne.jp/eng/news/00035627/" },
+        { "name": "Reuters／The Star", "url": "https://www.thestar.com.my/sport/football/2025/10/14/soccer-japan-fight-back-to-earn-first-ever-win-over-brazil" }
+      ],
+      "checked": "2026-11-13",
+      "say": "日本跟巴西交手了 14 次，前 13 次全都沒贏。直到去年 10 月在東京，日本上半場還 0 比 2 落後，下半場南野拓實、中村敬斗、上田綺世連進三球，3 比 2 大逆轉，終於拿下隊史第一勝。所以今天巴西不會再把日本當成熱身對手。",
+      "humor": {
+        "light": "等了 13 場才贏一次，日本球迷的耐心大概跟排拉麵名店差不多。",
+        "spicy": "前 13 場被巴西當沙包打，第 14 場直接翻桌，這叫做忍到最後一刻再爆氣。"
+      },
+      "ask": "你覺得日本那場 3:2 是實力還是運氣？留言告訴我！",
+      "when": ["開場", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "jpn-wc2026-r32",
+      "topic": "球隊",
+      "title": "世界盃 32 強：差一點就改寫歷史",
+      "fact": "2026 世界盃 32 強日本對巴西，佐野海舟第 29 分鐘先進球，巴西靠卡塞米羅第 56 分鐘扳平、馬丁內利補時第 95 分鐘絕殺，2:1 淘汰日本。日本至今仍未在世界盃淘汰賽贏過。",
+      "sources": [
+        { "name": "J.League 官方報導", "url": "https://www.jleague.co/news/fifa-world-cup-2026-round-of-32-recap-japan-suffer-dramatic-late-defeat-to-brazil/" },
+        { "name": "Sky Sports 賽果", "url": "https://www.skysports.com/football/brazil-vs-japan/report/549839" }
+      ],
+      "checked": "2026-11-13",
+      "say": "今年夏天世界盃 32 強，日本先由佐野海舟破門，一度領先巴西整整半場。結果巴西下半場扳平，補時第 95 分鐘馬丁內利絕殺。日本到現在還沒在世界盃淘汰賽贏過一場，今晚這場友誼賽，對日本來說多少有一點討債的味道。",
+      "humor": {
+        "light": "領先了大半場，最後 5 分鐘被拿走，這種心情就像外送到家門口才被別人簽收。",
+        "spicy": "補時第 95 分鐘被絕殺，這已經不是輸球，是心臟被拔掉再還給你。"
+      },
+      "ask": "今晚日本能不能討回那場世界盃的債？猜比分留言！",
+      "when": ["開場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "jpn-samurai-blue",
+      "topic": "文化",
+      "title": "Samurai Blue 武士藍",
+      "fact": "日本男足國家隊官方暱稱為「SAMURAI BLUE」，日本足協的對外報導也以此稱呼國家隊，藍色球衣是球隊最具辨識度的象徵。",
+      "sources": [
+        { "name": "日本足協 JFA", "url": "https://jfajp-img.jh.bit-drive.ne.jp/eng/news/00035627/" },
+        { "name": "Jiji Press", "url": "https://english.adnkronos.com/2025/10/14/japan-marks-1st-victory-over-brazil-in-intl-soccer-friendly/" }
+      ],
+      "checked": "2026-11-13",
+      "say": "日本隊的官方暱稱叫 Samurai Blue，武士藍。今天場上那一片藍色，就是他們最有代表性的顏色。等一下如果藍色球衣一直往前壓，代表武士準備拔刀了。",
+      "humor": {
+        "light": "武士藍上場，巴西黃要小心不要被切成兩半。",
+        "spicy": "名字叫武士，結果最怕的是被人家補時偷襲，這劇本也太不武士道。"
+      },
+      "ask": "日本隊的暱稱你知道幾個？留言打出來！",
+      "when": ["開場", "暫停"],
+      "status": "已查證"
+    },
+    {
+      "id": "jpn-mitoma-thesis",
+      "topic": "球員",
+      "player": "Kaoru Mitoma",
+      "title": "三笘薰：用論文練出來的盤帶",
+      "fact": "三笘薰 18 歲放棄川崎前鋒的職業合約，進入筑波大學主修體育，畢業論文研究「盤帶」，把攝影機綁在隊友頭上分析視線與判斷。2020 年才轉職業，後來加盟英超布萊頓。",
+      "sources": [
+        { "name": "AFP／theScore", "url": "https://www.thescore.com/news/2574060" },
+        { "name": "90min", "url": "https://www.90min.com/posts/how-kaoru-mitoma-got-his-university-thesis-in-dribbling" }
+      ],
+      "checked": "2026-11-13",
+      "say": "三笘薰的故事很特別。他 18 歲時其實可以直接當職業球員，但他覺得身體還沒準備好，選擇去讀大學。他的畢業論文主題就是盤帶，還把攝影機綁在隊友頭上研究。所以當他帶球過人的時候，你看到的其實是一篇論文在場上跑。",
+      "humor": {
+        "light": "別人寫論文是熬夜趕稿，三笘薰寫論文是把後衛晃倒。",
+        "spicy": "後衛被他過到懷疑人生，這不是被晃，是被學術霸凌。"
+      },
+      "ask": "如果可以寫一篇足球論文，你想研究什麼主題？",
+      "when": ["冷場", "暫停", "中場"],
+      "status": "需更新",
+      "note": "故事本身已查證；本次是否入選日本隊名單未確認，播報前請先看首發。"
+    },
+    {
+      "id": "jpn-sano-goal",
+      "topic": "球員",
+      "player": "Kaishu Sano",
+      "title": "佐野海舟：世界盃對巴西的首個國際賽進球",
+      "fact": "2026 世界盃 32 強對巴西，中場佐野海舟第 29 分鐘在中線附近斷球後推進，禁區外起腳破門，這也是他的國家隊首個進球。",
+      "sources": [
+        { "name": "Bernama／Anadolu", "url": "https://majujohor.bernama.com/news-en.php?id=2574741" },
+        { "name": "J.League 官方報導", "url": "https://www.jleague.co/news/fifa-world-cup-2026-round-of-32-recap-japan-suffer-dramatic-late-defeat-to-brazil/" }
+      ],
+      "checked": "2026-11-13",
+      "say": "佐野海舟是今年世界盃讓巴西冒冷汗的人。他在中場斷球、一路帶到禁區外直接起腳，打進他國家隊生涯的第一球，而且是對巴西、在世界盃淘汰賽。第一顆進球就這麼大場面，今天看他會不會再找巴西麻煩。",
+      "humor": {
+        "light": "國家隊第一球就送給巴西，這見面禮也太貴重。",
+        "spicy": "人家首球都是踢弱隊練手感，他首球直接打五星冠軍的臉。"
+      },
+      "ask": "你記得自己第一次進球是什麼場合嗎？留言分享！",
+      "when": ["開場", "中場"],
+      "status": "需更新",
+      "note": "本次是否入選未確認。"
+    },
+    {
+      "id": "jpn-suzuki-saves",
+      "topic": "球員",
+      "player": "Zion Suzuki",
+      "title": "鈴木彩艷：對巴西的四次撲救",
+      "fact": "2026 世界盃 32 強對巴西，門將鈴木彩艷全場 4 次撲救，包含擋下吉馬良斯的頭球；在 2025 年日本首勝巴西那場，他也是先發門將。",
+      "sources": [
+        { "name": "AP／theScore", "url": "https://www.thescore.com/news/3560018" },
+        { "name": "Reuters／The Star", "url": "https://www.thestar.com.my/sport/football/2025/10/14/soccer-japan-fight-back-to-earn-first-ever-win-over-brazil" }
+      ],
+      "checked": "2026-11-13",
+      "say": "日本門將鈴木彩艷，對巴西其實有不錯的經驗。去年日本第一次贏巴西，他是先發；今年世界盃又對巴西做出 4 次撲救。如果今天日本要守住，這個人會是關鍵。",
+      "humor": {
+        "light": "巴西前鋒看到他大概會想：怎麼又是你。",
+        "spicy": "鈴木的臉都替日本擋過球了，這守門員真的是用命在守。"
+      },
+      "ask": "你心中亞洲最強門將是誰？",
+      "when": ["暫停", "賽後"],
+      "status": "需更新",
+      "note": "本次是否先發未確認。"
+    }
+  ]
+}

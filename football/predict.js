@@ -1404,6 +1404,20 @@ function recapBlock(model) {
       card.append(h("p", { class: "faint" }, ui("這個瀏覽器沒有這場的賽前預測存檔（要在開賽前打開過這場），所以不做預測對照。")));
     }
     card.append(anchorBlocks(anchorFull(model, full)));
+    {
+      const hs = Number(model.home.score) || 0;
+      const as = Number(model.away.score) || 0;
+      const h1 = [Number(model.home.linescores?.[0]?.displayValue), Number(model.away.linescores?.[0]?.displayValue)];
+      const flip = Number.isFinite(h1[0]) && Number.isFinite(h1[1]) && h1[0] !== h1[1] && Math.sign(h1[0] - h1[1]) !== Math.sign(hs - as);
+      const allT = tallyOf(model.commentary || [], []);
+      allT.home.goals = hs; allT.away.goals = as;
+      card.append(banterBlock(banter(model, {
+        kind: "full", salt: "ft", t: allT, rich: commRich(model),
+        goals: [], cards: (model.events || []).filter((ev) => ev.kind === "red"),
+        subs: [], score: { home: hs, away: as }, late: false,
+        comeback: flip ? `半場 ${h1[0]}:${h1[1]}，終場 ${hs}:${as}。` : ""
+      })));
+    }
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-ft" }, ui("全場")));
   }
@@ -1414,6 +1428,14 @@ function recapBlock(model) {
     card.append(h("ul", { class: "bullets" }, r.lines.map((x) => h("li", null, ui(x)))));
     if (r.players.length) card.append(h("p", { class: "faint" }, ui("球員表現：")), h("ul", { class: "bullets" }, r.players.map((x) => h("li", null, ui(x)))));
     card.append(anchorBlocks(anchorHalf(model, p, status, r.tally)));
+    card.append(banterBlock(banter(model, {
+      kind: "half", salt: "h" + p, t: r.tally, rich: commRich(model),
+      goals: goalsIn(model, (ev) => (ev.period || 1) === p),
+      cards: (model.events || []).filter((ev) => (ev.kind === "yellow" || ev.kind === "red") && (ev.period || 1) === p),
+      subs: (model.events || []).filter((ev) => ev.kind === "sub" && ev.subOn && (ev.period || 1) === p),
+      score: p === 1 ? cumScore(model, 199999) : { home: Number(model.home.score) || 0, away: Number(model.away.score) || 0 },
+      late: p === 2
+    })));
     block.append(card);
     nav.append(h("a", { class: "chip", href: "#recap-h" + p }, ui(p === 1 ? "上半場" : "下半場")));
   }
@@ -1428,6 +1450,14 @@ function recapBlock(model) {
       if (hasComm) card.append(h("p", { class: "faint" }, ui(r.bits)));
       card.append(h("ul", { class: "bullets" }, r.lines.map((x) => h("li", null, ui(x)))));
       card.append(anchorBlocks(anchorSegment(model, seg, status, r)));
+      card.append(banterBlock(banter(model, {
+        kind: "seg", salt: seg.id, t: r.tally, rich: r.hasData,
+        goals: goalsIn(model, (ev) => inSeg(ev, seg)),
+        cards: (model.events || []).filter((ev) => (ev.kind === "yellow" || ev.kind === "red") && inSeg(ev, seg)),
+        subs: (model.events || []).filter((ev) => ev.kind === "sub" && ev.subOn && inSeg(ev, seg)),
+        score: cumScore(model, seg.p * 100000 + Math.min(seg.to, 200) * 100 + 99),
+        late: seg.id === "s5" || seg.id === "s6"
+      })));
       wrap.append(card);
     }
     block.append(wrap);
@@ -1659,5 +1689,117 @@ function anchorBlocks(script) {
   return h("div", { class: "anchor" },
     scriptBlock(script.short, "口播短版（約 30 秒）"),
     h("details", { class: "anchor-long", open: true }, h("summary", null, ui("口播長版（約 60–90 秒）")), scriptBlock(script.long, "完整稿"))
+  );
+}
+
+/* ---------- 口語補充：專業資訊／輕鬆幽默／嗆辣幹話（依實際數據挑句子） ---------- */
+
+function pickN(model, salt, list, n) {
+  const pool = list.filter(Boolean);
+  const out = [];
+  let k = 0;
+  for (const ch of String(model.id) + salt) k = (k * 33 + ch.charCodeAt(0)) >>> 0;
+  for (let i = 0; i < pool.length && out.length < n; i += 1) {
+    const line = pool[(k + i * 7) % pool.length];
+    if (!out.includes(line)) out.push(line);
+  }
+  return out;
+}
+
+function banter(model, ctx) {
+  const hn = model.home.name;
+  const an = model.away.name;
+  const t = ctx.t;
+  const rich = ctx.rich && t;
+  const goals = ctx.goals || [];
+  const cards = ctx.cards || [];
+  const subs = ctx.subs || [];
+  const s = ctx.score || { home: 0, away: 0 };
+  const diff = s.home - s.away;
+  const lead = diff > 0 ? hn : diff < 0 ? an : "";
+  const trail = diff > 0 ? an : diff < 0 ? hn : "";
+  const pro = [];
+  const fun = [];
+  const spicy = [];
+  if (rich) {
+    const ph = pressure(t.home);
+    const pa = pressure(t.away);
+    const top = ph >= pa ? { n: hn, s: t.home, o: t.away } : { n: an, s: t.away, o: t.home };
+    if (Math.abs(ph - pa) >= 3) pro.push(`${top.n}射門 ${top.s.shots} 比 ${top.o.shots}、角球 ${top.s.corners} 比 ${top.o.corners}，把比賽重心壓在對方半場，這段主動權很明確。`);
+    else pro.push(`兩隊射門 ${t.home.shots} 比 ${t.away.shots}，差距不大，中場拉鋸、陣型間距很緊，誰先出錯誰吃虧。`);
+    const bigXg = t.home.xg >= t.away.xg ? { n: hn, x: t.home.xg, g: t.home.goals } : { n: an, x: t.away.xg, g: t.away.goals };
+    if (bigXg.x >= 0.3) pro.push(`小科普：xG 是「預期進球」，衡量機會品質。${bigXg.n}這段累積 xG ${fx(bigXg.x)}，意思是同樣的機會平均能換到約 ${fx(bigXg.x)} 球${bigXg.g ? `，實際進了 ${bigXg.g} 球` : "，但還沒兌現"}。`);
+    if (t.home.corners + t.away.corners >= 4) pro.push(`角球已經 ${t.home.corners + t.away.corners} 次，定位球是打破僵局最常見的方式之一，接下來的角球值得留意。`);
+    if (t.home.offsides + t.away.offsides >= 3) pro.push(`越位 ${t.home.offsides + t.away.offsides} 次，代表有一方一直在打防線身後，後衛線壓得很高。`);
+    const misser = t.home.shots - t.home.goals >= 6 ? { n: hn, s: t.home } : t.away.shots - t.away.goals >= 6 ? { n: an, s: t.away } : null;
+    if (misser) {
+      fun.push(`${misser.n}已經射了 ${misser.s.shots} 腳，球門像是開了結界。`);
+      spicy.push(`${misser.n}射 ${misser.s.shots} 腳才進 ${misser.s.goals} 球，這準度靠北到連守門員都想幫他們進。`);
+    }
+    if (t.home.shots + t.away.shots <= 2 && !goals.length) {
+      fun.push("這段射門少到我差點以為在看圍棋直播。");
+      spicy.push("這 15 分鐘的節奏慢到我泡麵都泡爛了，雙方能不能有人先射一腳？");
+    }
+  }
+  for (const g of goals.slice(0, 2)) {
+    const conceded = g.side === "home" ? an : hn;
+    pro.push(`${g.minuteLabel} ${g.scorer || g.teamName}破門${g.assist ? `，${g.assist}助攻` : ""}${g.style ? `（${g.style}）` : ""}，${conceded}這次的防守站位值得賽後檢討。`);
+    fun.push(`${g.scorer || g.teamName}這球進得漂亮，今晚宵夜可以點大份的。`);
+    spicy.push(`${conceded}的後防剛剛在幹嘛？集體去排隊上廁所嗎？`);
+  }
+  for (const c of cards.slice(0, 1)) {
+    const who = c.playerNames?.[0] || c.teamName;
+    if (c.kind === "red") {
+      pro.push(`${who}被紅牌罰下，${c.teamName}接下來要以少打多，通常會先犧牲一名攻擊球員補防。`);
+      fun.push(`${who}提早下班，今晚可以在休息室吹冷氣看隊友加班。`);
+      spicy.push(`${who}這腳下去不吃紅牌才有鬼，鏟人鏟到像在田裡犁地。`);
+    } else {
+      pro.push(`${who}吃到黃牌，後面的防守動作會比較保守，對手會刻意往他那一側突破。`);
+      fun.push(`${who}收到裁判的黃色小卡片，不是生日卡。`);
+      spicy.push(`${who}這腳有點衝，再來一張就要直接去洗澡了。`);
+    }
+  }
+  if (subs.length) {
+    const sb = subs[0];
+    pro.push(`${sb.teamName}換上 ${sb.subOn || "替補"}、換下 ${sb.subOff || "球員"}，這種時間點的換人多半是為了體能或改變進攻節奏。`);
+    fun.push(`${sb.subOn || "替補"}熱身熱了半天終於上場，腿應該都熱到可以煎蛋了。`);
+  }
+  if (lead) {
+    if (Math.abs(diff) >= 3) {
+      fun.push(`${lead}領先 ${Math.abs(diff)} 球，${trail}的球迷可以先轉台看綜藝了。`);
+      spicy.push(`${trail}現在唯一的希望是比賽提早結束，或是球門突然變大。`);
+    } else {
+      fun.push(`${lead}暫時領先，支持他們的朋友可以先把飲料打開，但不要喝太快。`);
+      spicy.push(`${trail}再不醒過來，休息室的吹風機就要被教練拿來吹人了。`);
+    }
+    if (ctx.late) pro.push(`領先方在最後階段常見的做法是換上防守型球員、放慢節奏、多在角落控球消耗時間，${trail}要更早壓上。`);
+  } else if (ctx.kind !== "pre") {
+    fun.push("目前平手，兩隊都很有禮貌，誰也不好意思先進球。");
+    spicy.push("平手平到我都想下去踢，至少我會射門。");
+  }
+  if (ctx.comeback) {
+    pro.push(`這是一場逆轉，關鍵在下半場的調整：${ctx.comeback}`);
+    fun.push("被逆轉的心情，就像外送到門口才發現被別人簽收。");
+    spicy.push("前面領先有多爽，現在被翻盤就有多幹。");
+  }
+  return {
+    pro: pickN(model, (ctx.salt || "") + "p", pro, 3),
+    fun: pickN(model, (ctx.salt || "") + "f", fun, 3),
+    spicy: pickN(model, (ctx.salt || "") + "s", spicy, 2)
+  };
+}
+
+function banterBlock(b) {
+  if (!b || (!b.pro.length && !b.fun.length && !b.spicy.length)) return document.createDocumentFragment();
+  const sec = (title, list) => (list.length ? [h("h4", null, ui(title)), ...list.map((x) => h("p", null, ui(x)))] : []);
+  const all = [...b.pro, ...b.fun, ...b.spicy].map((x) => speak(x));
+  const btn = h("button", { class: "copy" }, ui("全部複製"));
+  btn.addEventListener("click", () => copyText(all.join("\n"), btn));
+  return h("details", { class: "banter", open: true },
+    h("summary", null, ui("口語補充：專業／輕鬆／嗆辣")),
+    ...sec("專業資訊（可當分析）", b.pro),
+    ...sec("輕鬆幽默", b.fun),
+    ...sec("嗆辣幹話（成人時段，自行斟酌）", b.spicy),
+    btn
   );
 }

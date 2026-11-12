@@ -876,3 +876,18 @@ footer.foot {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); animation: goalpop 0.6s ease-out 3;
 }
 @keyframes goalpop { 0% { transform: translateX(-50%) scale(0.9); } 50% { transform: translateX(-50%) scale(1.05); } 100% { transform: translateX(-50%) scale(1); } }
+.kc-progress { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.prog { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--muted); }
+.prog.ok { border-color: rgba(61, 220, 151, 0.6); color: var(--green); }
+.kcard h3 { margin: 6px 0 4px; }
+.kc-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.kc-fact { margin: 4px 0; }
+.kc-src a { color: var(--gold); }
+.kc-humor { margin: 6px 0; padding: 8px 10px; border-radius: 10px; background: var(--card-2); }
+.kc-humor p { margin: 2px 0; }
+.kc-when .pill { font-size: 12px; }
+.warn-card { border-color: rgba(255, 180, 80, 0.5); }
+.tag-bad { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; color: #ff8b98; border: 1px solid #ff4d67; background: rgba(255, 77, 103, 0.12); }
+.banter { margin-top: 8px; padding: 10px; border-radius: 12px; background: var(--card-2); }
+.banter h4 { margin: 6px 0 2px; font-size: 14px; color: var(--gold); }
+.banter p { margin: 3px 0; }

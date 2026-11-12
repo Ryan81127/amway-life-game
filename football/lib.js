@@ -196,6 +196,8 @@ const state = {
   pulseBusy: false,
   lastPulseSig: null,
   goalFlash: null,
+  cards: null,
+  cardFilter: null,
   token: 0,
   abort: null,
   timer: 0,

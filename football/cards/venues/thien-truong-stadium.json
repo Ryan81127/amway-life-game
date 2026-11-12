@@ -1,0 +1,44 @@
+{
+  "venue": "Thien Truong Stadium",
+  "city": "越南南定",
+  "cards": [
+    {
+      "id": "nd-crowd",
+      "topic": "城市",
+      "title": "南定天長體育場：越南最瘋的主場",
+      "fact": "越南南定的天長體育場（Thiên Trường）約 3 萬個座位，南定隊常開放球迷免費入場，2024 年封王戰滿場，還有沒票的球迷在場外慶祝；當地媒體形容南定球迷長年是聯賽觀眾數冠軍。",
+      "sources": [
+        { "name": "Viet Nam News", "url": "https://vietnamnews.vn/sports/1658166/nam-dinh-wins-v-league-after-39-years.html" },
+        { "name": "VSN", "url": "https://vsn.com.vn/?p=6773" }
+      ],
+      "checked": "2026-11-13",
+      "say": "今天比賽在越南南定的天長體育場，這裡大概 3 萬個座位，是越南出了名的瘋狂主場。南定隊常常開放免費入場，封王那場不只座無虛席，連場外都擠滿沒買到票的球迷。",
+      "humor": {
+        "light": "免費入場加上 3 萬人，這比夜市週末還熱鬧。",
+        "spicy": "免費進場還能看到冠軍，這種福利我們的職業聯賽什麼時候跟上？"
+      },
+      "ask": "如果台灣比賽也免費入場，你會去現場看嗎？",
+      "when": ["開場", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "nd-champions",
+      "topic": "城市",
+      "title": "南定隊：V 聯賽連霸",
+      "fact": "南定隊（Thép Xanh Nam Định）在 2023/24 球季睽違 39 年再奪越南頂級聯賽冠軍，2024/25 球季提前一輪衛冕，完成連霸。",
+      "sources": [
+        { "name": "Viet Nam News", "url": "https://vietnamnews.vn/sports/1658166/nam-dinh-wins-v-league-after-39-years.html" },
+        { "name": "Tuoi Tre News", "url": "https://news.tuoitre.vn/nam-dinh-fc-celebrate-back-to-back-vleague-1-titles-with-final-day-victory-103250623112919246.htm" }
+      ],
+      "checked": "2026-11-13",
+      "say": "天長體育場是南定隊的主場，南定隊是越南聯賽的連霸冠軍，2023/24 球季睽違 39 年封王，下一季又提前一輪衛冕。所以今天球員踩的，是越南最近最有冠軍氣息的草皮。",
+      "humor": {
+        "light": "等了 39 年才封王，結果一封就連兩屆，這叫憋太久一次爆發。",
+        "spicy": "39 年沒冠軍，南定球迷的耐心大概比我等公車還強。"
+      },
+      "ask": "你支持的球隊上一次拿冠軍是哪一年？",
+      "when": ["冷場", "中場"],
+      "status": "已查證"
+    }
+  ]
+}

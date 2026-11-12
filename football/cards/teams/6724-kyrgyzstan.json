@@ -1,0 +1,102 @@
+{
+  "teamId": "6724",
+  "name": "吉爾吉斯",
+  "cards": [
+    {
+      "id": "kgz-white-falcons",
+      "topic": "球隊",
+      "title": "白隼與 2019 亞洲盃 16 強",
+      "fact": "吉爾吉斯國家隊暱稱「白隼」（Ак шумкарлар）。2019 年首次參加亞洲盃就打進 16 強，與阿聯在延長賽中惜敗，是隊史最佳成績。",
+      "sources": [
+        { "name": "Wikipedia：Kyrgyzstan national football team", "url": "https://en.wikipedia.org/wiki/Kyrgyzstan_national_football_team" },
+        { "name": "Malay Mail／AFP", "url": "https://www.malaymail.com/amp/news/sports/2019/01/22/kyrgyz-vent-anger-at-ref-after-asian-cup-exit/1715379" }
+      ],
+      "checked": "2026-11-13",
+      "say": "吉爾吉斯的暱稱叫白隼。他們 2019 年第一次打亞洲盃，就一路打進 16 強，跟地主級的阿聯纏鬥到延長賽才輸。這支球隊體能好、身體對抗強，是中亞很難纏的對手。",
+      "humor": {
+        "light": "白隼的特色就是飛很高、衝很快，中華隊今天要記得抬頭看。",
+        "spicy": "第一次參加亞洲盃就進 16 強，這新手運比我買刮刮樂好太多了。"
+      },
+      "ask": "你知道吉爾吉斯的首都是哪裡嗎？答對的人留言！",
+      "when": ["開場", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "kgz-murzaev",
+      "topic": "球員",
+      "player": "Mirlan Murzaev",
+      "title": "穆爾扎耶夫：國家隊史上最佳射手",
+      "fact": "穆爾扎耶夫 2009 至 2023 年為吉爾吉斯出賽 60 場、進 16 球，是國家隊史射手王；2019 亞洲盃 16 強對阿聯，他從幾乎不可能的角度打進扳平球。",
+        "sources": [
+        { "name": "Surf Wiki 紀錄表", "url": "https://www.doc.surf/wiki/kyrgyzstan-national-football-team" },
+        { "name": "Malay Mail／AFP", "url": "https://www.malaymail.com/amp/news/sports/2019/01/22/kyrgyz-vent-anger-at-ref-after-asian-cup-exit/1715379" }
+      ],
+      "checked": "2026-11-13",
+      "say": "講到吉爾吉斯足球，一定要提穆爾扎耶夫。他是國家隊史上進球最多的人，60 場進 16 球。2019 年亞洲盃對阿聯，他從底線附近幾乎沒角度的位置把球塞進去，那一球到現在還是吉爾吉斯球迷的經典回憶。",
+      "humor": {
+        "light": "那個角度一般人連傳中都有困難，他直接射門得分。",
+        "spicy": "教練看到他從那個角度起腳，心裡一定先罵了一句，結果球進了只好改口叫好。"
+      },
+      "ask": "你看過最不可思議的零角度進球是哪一顆？",
+      "when": ["冷場", "暫停"],
+      "status": "已查證",
+      "note": "已於 2023 年結束國家隊生涯，是歷史故事，不是本場球員。"
+    },
+    {
+      "id": "kgz-kichin",
+      "topic": "球員",
+      "player": "Valery Kichin",
+      "title": "基欽：2019 亞洲盃隊長",
+      "fact": "後衛基欽是吉爾吉斯 2019 亞洲盃的隊長，維基百科目前仍列他為國家隊隊長。",
+      "sources": [
+        { "name": "Wikipedia：Kyrgyzstan national football team", "url": "https://en.wikipedia.org/wiki/Kyrgyzstan_national_football_team" }
+      ],
+      "checked": "2026-11-13",
+      "say": "吉爾吉斯的隊長基欽，是 2019 年亞洲盃帶隊打進 16 強的那位後衛。如果他今天在場上，就是對方後防的指揮官。",
+      "humor": {
+        "light": "隊長在後面喊，前面的人跑，這是每支球隊都一樣的劇本。",
+        "spicy": "當隊長最辛苦的就是輸球要第一個站出來挨罵。"
+      },
+      "ask": "你覺得隊長應該由最強的人還是最會帶人的人當？",
+      "when": ["暫停"],
+      "status": "需更新",
+      "note": "是否入選本次名單、是否仍為隊長未確認，不可直接當成事實播報。"
+    },
+    {
+      "id": "kgz-manas",
+      "topic": "文化",
+      "title": "瑪納斯史詩：世界最長的史詩之一",
+      "fact": "吉爾吉斯民族史詩《瑪納斯》靠吟唱藝人口耳相傳，其中一個版本約 50 萬行，被稱為最長的史詩之一；比斯凱克的瑪納斯國際機場與國家最高勳章都以它命名。",
+      "sources": [
+        { "name": "Wikipedia：Epic of Manas", "url": "https://en.wikipedia.org/wiki/Epic_of_Manas" }
+      ],
+      "checked": "2026-11-13",
+      "say": "跟大家分享一個吉爾吉斯冷知識。他們有一部民族史詩叫《瑪納斯》，講英雄瑪納斯統一部落的故事，其中一個版本大約有 50 萬行，是世界上最長的史詩之一。連首都的國際機場、國家最高勳章，都用瑪納斯命名。",
+      "humor": {
+        "light": "50 萬行史詩，背一次大概比踢完一整個賽季還累。",
+        "spicy": "我們背〈出師表〉就快崩潰，人家隨口唱就是 50 萬行。"
+      },
+      "ask": "你能背出最長的一首詩是哪一首？",
+      "when": ["冷場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "kgz-flag-40",
+      "topic": "國家",
+      "title": "國旗上的 40 道光芒",
+      "fact": "吉爾吉斯國旗中央的太陽有 40 道光芒，象徵史詩英雄瑪納斯所統一的 40 個部落。",
+      "sources": [
+        { "name": "Eurasia Travel", "url": "https://eurasia.travel/kyrgyzstan/legends/epic-of-manas/" }
+      ],
+      "checked": "2026-11-13",
+      "say": "大家注意看吉爾吉斯的國旗，紅底中間有一個太陽，太陽有 40 道光芒。這 40 道光代表傳說中瑪納斯統一的 40 個部落，所以他們的國旗本身就是一個故事。",
+      "humor": {
+        "light": "40 道光芒，數到一半我就先放棄了。",
+        "spicy": "統一 40 個部落都辦得到，今天要突破中華隊的防線應該不難吧，這句話我替中華隊收回。"
+      },
+      "ask": "你最喜歡哪一個國家的國旗設計？",
+      "when": ["冷場", "暫停"],
+      "status": "已查證"
+    }
+  ]
+}

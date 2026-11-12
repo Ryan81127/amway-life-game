@@ -1,0 +1,14 @@
+{
+  "updated": "2026-11-13",
+  "teams": {
+    "627": "teams/627-japan.json",
+    "205": "teams/205-brazil.json",
+    "14561": "teams/14561-chinese-taipei.json",
+    "6724": "teams/6724-kyrgyzstan.json"
+  },
+  "venues": {
+    "singapore national stadium": "venues/singapore-national-stadium.json",
+    "thien truong stadium": "venues/thien-truong-stadium.json"
+  },
+  "ttlDays": { "球員": 60, "球隊": 180, "趣聞": 365, "文化": 730, "城市": 730, "國家": 730 }
+}

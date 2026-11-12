@@ -1,0 +1,62 @@
+{
+  "venue": "Singapore National Stadium",
+  "city": "新加坡",
+  "cards": [
+    {
+      "id": "sg-dome",
+      "topic": "城市",
+      "title": "全世界最大的圓頂",
+      "fact": "新加坡國家體育場 2014 年啟用，可容納 55,000 人，鋼構圓頂跨距約 310–312 公尺，被金氏世界紀錄列為最大的自承重圓頂。",
+      "sources": [
+        { "name": "Guinness World Records", "url": "https://www.guinnessworldrecords.com/world-records/404496-largest-true-self-supporting-dome" },
+        { "name": "Wikipedia：National Stadium, Singapore", "url": "https://en.wikipedia.org/wiki/National_Stadium,_Singapore" }
+      ],
+      "checked": "2026-11-13",
+      "say": "今天的比賽在新加坡國家體育場，這座球場本身就是一個紀錄保持者。它的圓頂跨距超過 310 公尺，是金氏世界紀錄認證全世界最大的自承重圓頂，金氏的說法是寬度差不多可以並排停四架 A380。",
+      "humor": {
+        "light": "圓頂大到可以停四架 A380，球踢再高也飛不出去。",
+        "spicy": "球場比很多國家隊的實力還大，這場地本身就先贏一半。"
+      },
+      "ask": "你去過最壯觀的球場是哪一座？",
+      "when": ["開場", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "sg-roof",
+      "topic": "趣聞",
+      "title": "會開關的屋頂與 LED 巨幕",
+      "fact": "新加坡國家體育場的可開闔屋頂約 2 萬平方公尺，約 20 分鐘可完成開關，用來應付熱帶的大雨與烈日；屋頂內嵌 LED，晚上可當成巨型投影螢幕。",
+      "sources": [
+        { "name": "Arup", "url": "https://www.arup.com/news-and-events/news/worlds-largest-dome-roof-under-construction" },
+        { "name": "NextBigFuture", "url": "https://www.nextbigfuture.com/2016/07/worlds-largest-free-spanning-dome-is.html" }
+      ],
+      "checked": "2026-11-13",
+      "say": "新加坡天氣說變就變，所以國家體育場的屋頂可以開關，大概 20 分鐘就能闔上。更酷的是屋頂裡面裝了 LED，晚上整片屋頂可以變成超大螢幕。今天如果下雨，球員也不用擔心。",
+      "humor": {
+        "light": "這屋頂比我家的雨傘還靠譜。",
+        "spicy": "20 分鐘關好屋頂，比某些球隊組織一次進攻還快。"
+      },
+      "ask": "如果你家球場也能加一個功能，你想要什麼？",
+      "when": ["暫停", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "sg-first-brazil",
+      "topic": "國家",
+      "title": "新加坡與巴西的第一次",
+      "fact": "巴西本次在新加坡國家體育場連踢兩場友誼賽：11 月 14 日對日本、11 月 17 日對地主新加坡，後者是兩國成年國家隊史上第一次交手。",
+      "sources": [
+        { "name": "MyKhel", "url": "https://www.mykhel.com/football/brazil-announce-26-member-squad-for-japan-and-singapore-friendlies-vinicius-jr-endrick-included-457553.html" }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴西這次把新加坡當成主場，連踢兩場。今天對日本，下週二還要對地主新加坡，那會是兩國成年國家隊史上第一次碰面。新加坡球迷這週應該很忙。",
+      "humor": {
+        "light": "新加坡球迷這週可以免出國，連看兩場巴西。",
+        "spicy": "巴西來新加坡踢兩場，新加坡隊心情大概是又興奮又怕被灌爆。"
+      },
+      "ask": "如果巴西來台灣踢友誼賽，你願意花多少錢買票？",
+      "when": ["開場", "賽後"],
+      "status": "已查證"
+    }
+  ]
+}

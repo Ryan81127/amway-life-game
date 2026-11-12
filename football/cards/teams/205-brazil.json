@@ -1,0 +1,126 @@
+{
+  "teamId": "205",
+  "name": "巴西",
+  "cards": [
+    {
+      "id": "bra-ancelotti",
+      "topic": "球隊",
+      "title": "安切洛蒂：巴西史上第一位外籍總教練",
+      "fact": "前皇馬主帥安切洛蒂 2025 年接手巴西，成為巴西國家隊史上第一位外籍總教練；2026 年 5 月巴西足協宣布與他續約到 2030 年，這也是他執教的第一支國家隊。",
+      "sources": [
+        { "name": "GOAL", "url": "https://www.goal.com/en-au/lists/carlo-ancelotti-talks-future-brazil-2026-world-cup/blt746e23ac029b8e08" },
+        { "name": "AFP／ARY News", "url": "https://arynews.tv/brazil-renew-ancelotti-contract-until-2030" }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴西現在的總教練是安切洛蒂，他是巴西隊史上第一位外國籍主帥。巴西這麼驕傲的足球王國願意請外國人來帶，本身就是一件大事。而且今年 5 月已經續約到 2030 年，所以這次友誼賽，其實是他新一輪四年計畫的一部分。",
+      "humor": {
+        "light": "安切洛蒂那個招牌挑眉，大概是全世界最貴的表情包。",
+        "spicy": "足球王國請外國人來教踢球，這就像夜市請米其林主廚來炸雞排，貴是貴，但大家都想吃吃看。"
+      },
+      "ask": "你覺得巴西請外籍教練是對的決定嗎？",
+      "when": ["開場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "bra-wc2026-norway",
+      "topic": "球隊",
+      "title": "2026 世界盃 16 強出局，啟動重建",
+      "fact": "巴西在 2026 世界盃 16 強被挪威淘汰。賽後安切洛蒂透過巴西足協表示將開始組建新球隊、測試年輕球員；本次 11 月名單有 5 名球員首次入選成年國家隊。",
+      "sources": [
+        { "name": "beIN SPORTS", "url": "https://www.beinsports.com/en-us/soccer/fifa-world-cup-2026/articles/brazil-planning-to-stick-with-ancelotti-for-2030-world-cup-2026-07-06" },
+        { "name": "World Soccer Talk", "url": "https://worldsoccertalk.com/amp/world-cup/carlo-ancelotti-begins-brazil-rebuild-in-post-neymar-era-after-2026-world-cup-exit" },
+        { "name": "MyKhel（11 月名單）", "url": "https://www.mykhel.com/football/brazil-announce-26-member-squad-for-japan-and-singapore-friendlies-vinicius-jr-endrick-included-457553.html" }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴西今年世界盃在 16 強被挪威淘汰，結果不理想，所以現在進入重建期。這次 11 月的名單裡有 5 個人是第一次入選成年國家隊。今天大家可以留意那些陌生的名字，搞不好就是 2030 世界盃的主角。",
+      "humor": {
+        "light": "巴西重建期的陣容，換成別隊大概是全盛期。",
+        "spicy": "被挪威淘汰之後，巴西球迷的血壓應該比哈蘭德的射門還高。"
+      },
+      "ask": "巴西新人裡你最看好誰？留言點名！",
+      "when": ["開場", "冷場"],
+      "status": "已查證"
+    },
+    {
+      "id": "bra-five-stars",
+      "topic": "球隊",
+      "title": "五星巴西",
+      "fact": "巴西是五屆世界盃冠軍，第一座冠軍來自 1958 年瑞典世界盃，當時 17 歲的比利在決賽梅開二度。",
+      "sources": [
+        { "name": "AP／theScore", "url": "https://www.thescore.com/news/3560018" }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴西球衣上有五顆星，代表五座世界盃冠軍。第一座是 1958 年在瑞典，那年比利才 17 歲，決賽就進了兩球。所以今天場上不管是誰穿這件黃衫，背上都扛著很重的歷史。",
+      "humor": {
+        "light": "五顆星的球衣，洗的時候應該要用精品手洗模式。",
+        "spicy": "17 歲的比利在世界盃決賽進兩球，我 17 歲還在煩惱段考數學。"
+      },
+      "ask": "巴西歷代球星你最愛誰？比利、羅納度還是內馬爾？",
+      "when": ["開場", "冷場", "中場"],
+      "status": "已查證"
+    },
+    {
+      "id": "bra-martinelli",
+      "topic": "球員",
+      "player": "Gabriel Martinelli",
+      "title": "馬丁內利：補時絕殺日本的人",
+      "fact": "2026 世界盃 32 強，阿森納邊鋒馬丁內利下半場替補上陣，在補時第 95 分鐘打進致勝球，幫巴西 2:1 逆轉日本。他在 2025 年對日本的友誼賽也有進球。",
+      "sources": [
+        { "name": "Sky Sports", "url": "https://www.skysports.com/football/brazil-vs-japan/report/549839" },
+        { "name": "The 42（2025 友誼賽）", "url": "https://www.the42.ie/japan-brazil-tokyo-6844298-Oct2025/" }
+      ],
+      "checked": "2026-11-13",
+      "say": "馬丁內利對日本特別有感覺。去年友誼賽他有進球，今年世界盃他替補上場，補時第 95 分鐘直接絕殺日本。如果今天他又出現在場上，日本後防大概會特別緊張。",
+      "humor": {
+        "light": "日本球迷看到馬丁內利熱身，應該會默默把電視音量轉小。",
+        "spicy": "這個人根本是日本隊的專屬鬧鐘，每次響都是在最後一刻。"
+      },
+      "ask": "你覺得今天誰會是巴西的進球功臣？",
+      "when": ["暫停", "賽後"],
+      "status": "需更新",
+      "note": "本次是否入選未確認。"
+    },
+    {
+      "id": "bra-endrick",
+      "topic": "球員",
+      "player": "Endrick",
+      "title": "恩德里克：重建期的核心希望",
+      "fact": "巴西 11 月 26 人名單同時召入維尼修斯與恩德里克；美國媒體評論 2030 世界盃前，恩德里克被視為巴西最大的希望之一。",
+      "sources": [
+        { "name": "MyKhel（11 月名單）", "url": "https://www.mykhel.com/football/brazil-announce-26-member-squad-for-japan-and-singapore-friendlies-vinicius-jr-endrick-included-457553.html" },
+        { "name": "World Soccer Talk", "url": "https://worldsoccertalk.com/news/carlo-ancelotti-announces-new-brazil-era-after-2026-world-cup-disaster-well-start-putting-together-a-new-team/" }
+      ],
+      "checked": "2026-11-13",
+      "say": "這次巴西名單有維尼修斯，也有年輕的恩德里克。很多人把恩德里克當成巴西下一個世代的門面，2030 世界盃的希望。今天如果他有上場機會，可以看看他跟維尼修斯的連線。",
+      "humor": {
+        "light": "巴西每隔幾年就會冒出一個『下一個比利』，這次輪到恩德里克領號碼牌。",
+        "spicy": "被叫『巴西的希望』壓力超大，踢不好會被全國兩億人一起罵。"
+      },
+      "ask": "你覺得恩德里克能成為巴西新一代球王嗎？",
+      "when": ["中場", "冷場"],
+      "status": "已查證"
+    }
+  ],
+  "rivals": {
+    "627": [
+      {
+        "id": "bra-jpn-diaspora",
+        "topic": "國家",
+        "title": "巴西有 270 萬日裔",
+        "fact": "巴西擁有約 270 萬日裔人口，是日本以外最大的日裔社群；巴西球星濟科 1991 年加盟鹿島鹿角，協助建立日本職業足球，2002–06 年還擔任日本國家隊總教練。",
+        "sources": [
+          { "name": "AP／theScore", "url": "https://www.thescore.com/news/3560018" }
+        ],
+        "checked": "2026-11-13",
+        "say": "日本跟巴西的關係比你想像中更深。巴西有大約 270 萬日裔，是日本以外最大的日裔社群。足球上也一樣，巴西傳奇濟科 1991 年去鹿島踢球，後來還當過日本國家隊總教練。所以這場比賽，某種程度上是師父跟徒弟的對決。",
+        "humor": {
+          "light": "這場比賽在巴西的日裔家庭應該很難選邊，晚餐可能要分兩桌吃。",
+          "spicy": "濟科當年教日本踢球，現在日本回頭痛打巴西，這叫教會徒弟、餓死師父。"
+        },
+        "ask": "你家有沒有那種比賽時一家人支持不同隊的情況？",
+        "when": ["開場", "中場", "冷場"],
+        "status": "已查證"
+      }
+    ]
+  }
+}
