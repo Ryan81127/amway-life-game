@@ -195,7 +195,7 @@ function cardsBlock(model) {
     block.append(h("p", { class: "muted" }, ui("讀取知識卡中…")));
     return block;
   }
-  const cards = st.data.cards;
+  const cards = [...st.data.cards, ...(typeof teamInfoCards === "function" ? teamInfoCards(model) : [])];
   const g = { team: 0, player: 0, place: 0 };
   for (const c of cards) if (c.eff.status !== "不可當成事實播報") g[cardGroup(c.topic)] += 1;
   const asks = interactionLines(model, cards);
