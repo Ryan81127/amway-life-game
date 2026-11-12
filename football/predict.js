@@ -206,6 +206,40 @@ function slimFromSummary(data) {
   if (!hc || !ac) return null;
   const h = side(hc);
   const a = side(ac);
+  /* 每位球員本場出場分鐘（給「知名球員」與「傷停推測」用） */
+  const pm = {};
+  const minOf = (row) => {
+    const sub = (row.plays || []).find((pl) => pl.substitution);
+    const red = (row.plays || []).find((pl) => pl.redCard);
+    const n = (pl) => {
+      const v = parseInt(String(pl?.clock?.displayValue || ""), 10);
+      return Number.isFinite(v) ? Math.min(v, 90) : null;
+    };
+    if (row.starter) {
+      if (row.subbedOut && n(sub) != null) return n(sub);
+      if (red && n(red) != null) return n(red);
+      return 90;
+    }
+    if (row.subbedIn) return Math.max(1, 90 - (n(sub) ?? 75));
+    return 0;
+  };
+  for (const block of data.rosters || []) {
+    const tid = String(block.team?.id || "");
+    if (!tid) continue;
+    pm[tid] = (block.roster || []).map((row) => {
+      const st = readNumbers(row.stats, false);
+      return {
+        id: String(row.athlete?.id || ""),
+        en: row.athlete?.displayName || "",
+        st: row.starter ? 1 : 0,
+        m: minOf(row),
+        g: st.totalGoals || 0,
+        a: st.goalAssists || 0,
+        y: st.yellowCards || 0,
+        r: (row.plays || []).some((pl) => pl.redCard) || st.redCards ? 1 : 0
+      };
+    }).filter((x) => x.id);
+  }
   const comm = data.commentary || [];
   if (comm.length > 20) {
     const hn = String(hc.team?.displayName || "").toLowerCase();
@@ -220,12 +254,12 @@ function slimFromSummary(data) {
       else if (tn && tn === an) a.xg += x;
     }
   }
-  return { done, date: comp.date, h, a };
+  return { done, date: comp.date, h, a, pm };
 }
 
 async function fetchSlim(eventId, signal) {
   const cached = readSlim(eventId);
-  if (cached?.done) return cached;
+  if (cached?.done && cached.pm) return cached;
   const res = await fetch(`${ALL_API}/summary?event=${encodeURIComponent(eventId)}`, { signal, cache: "no-store" });
   if (!res.ok) throw new Error("HTTP " + res.status);
   const slim = slimFromSummary(await res.json());
