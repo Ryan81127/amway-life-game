@@ -386,7 +386,7 @@ function renderMatch(app, route) {
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const done = phase === "ft" || model.minute.state === "post";
-  const hasComm = (model.commentary || []).length > 0;
+  const hasComm = commRich(model);
   if (pre) {
     wrap.append(predSection(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model));
   } else if (done) {

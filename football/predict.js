@@ -850,6 +850,12 @@ function parseCommentary(raw, home, away) {
 
 /* ---------- 復盤 ---------- */
 
+/* 文字轉播要夠完整（射門、犯規、角球都有記錄）才拿來算數據；友誼賽常常只有幾筆 */
+function commRich(model) {
+  const c = model.commentary || [];
+  return c.length >= 25 && c.some((it) => it.foul) && c.some((it) => it.shot);
+}
+
 const SEGMENTS = [
   { id: "s1", p: 1, from: -1, to: 15, title: "開賽–15 分鐘" },
   { id: "s2", p: 1, from: 15, to: 30, title: "15–30 分鐘" },
@@ -1005,7 +1011,7 @@ function segmentRecap(model, seg, status) {
   const lines = [];
   if (goals.length) lines.push(`進球：${goals.map((g) => `${g.minuteLabel} ${g.teamName}${g.scorer ? " " + g.scorer : ""}${g.style ? `（${g.style}）` : ""}`).join("；")}。`);
   else lines.push("這段沒有進球。");
-  lines.push(`${dom.text}。`);
+  if (commRich(model)) lines.push(`${dom.text}。`);
   const keyEv = cards.filter((ev) => ev.kind !== "sub").map((ev) => `${ev.minuteLabel} ${ev.fact}`);
   const subs = cards.filter((ev) => ev.kind === "sub").map((ev) => `${ev.minuteLabel} ${ev.teamName} ${ev.subOn || ""}↔${ev.subOff || ""}`);
   if (keyEv.length) lines.push(`牌：${keyEv.join("；")}。`);
@@ -1021,7 +1027,7 @@ function segmentRecap(model, seg, status) {
   ];
   if (goals.length) spoken.push(`進球來自 ${goals.map((g) => g.scorer || g.teamName).join("、")}。`);
   else if (stars[0]) spoken.push(`值得注意的是 ${stars[0]}。`);
-  return { id: seg.id, title: seg.title, status, tally: t, scoreText, bits: tallyBits(t, hn, an), lines, spoken: spoken.slice(0, 3), hasData: items.length > 0 };
+  return { id: seg.id, title: seg.title, status, tally: t, scoreText, bits: tallyBits(t, hn, an), lines, spoken: spoken.slice(0, 3), hasData: items.length > 0 && commRich(model) };
 }
 
 function halfRecap(model, p, status) {
@@ -1042,9 +1048,10 @@ function halfRecap(model, p, status) {
   const title = p === 1 ? "上半場復盤" : "下半場復盤";
   const lines = [];
   lines.push(`本半場比分 ${hn} ${halfGoals.home} : ${halfGoals.away} ${an}${p === 2 ? `，累計 ${cum.home} : ${cum.away}` : ""}。`);
-  lines.push(`數據：${tallyBits(t, hn, an)}。`);
+  const rich = commRich(model);
+  if (rich) lines.push(`數據：${tallyBits(t, hn, an)}。`);
   const conv = (s) => (s.shots ? `${s.goals}/${s.shots}` : "0/0");
-  lines.push(`${dom.text}。射門轉換 ${hn} ${conv(t.home)}、${an} ${conv(t.away)}${t.home.sot + t.away.sot ? `；射正率 ${t.home.shots ? Math.round(t.home.sot / t.home.shots * 100) : 0}% vs ${t.away.shots ? Math.round(t.away.sot / t.away.shots * 100) : 0}%` : ""}。`);
+  if (rich) lines.push(`${dom.text}。射門轉換 ${hn} ${conv(t.home)}、${an} ${conv(t.away)}${t.home.sot + t.away.sot ? `；射正率 ${t.home.shots ? Math.round(t.home.sot / t.home.shots * 100) : 0}% vs ${t.away.shots ? Math.round(t.away.sot / t.away.shots * 100) : 0}%` : ""}。`);
   /* 兩隊表現 */
   const teamRead = (side, name) => {
     const s = t[side];
@@ -1060,11 +1067,16 @@ function halfRecap(model, p, status) {
     if (o.sot === 0 && o.shots > 0) bits.push("防守把對手射門都擋在門框外");
     return `${name}：${bits.join("；") || "表現平穩，沒有特別突出的數據"}。`;
   };
-  lines.push(teamRead("home", hn), teamRead("away", an));
-  const xr = [xgRead(hn, t.home), xgRead(an, t.away)].filter(Boolean);
+  if (rich) lines.push(teamRead("home", hn), teamRead("away", an));
+  const xr = rich ? [xgRead(hn, t.home), xgRead(an, t.away)].filter(Boolean) : [];
   if (xr.length) lines.push(`xG 解讀：${xr.join("；")}。`);
+  if (!rich) {
+    const gl = goalsIn(model, (ev) => (ev.period || 1) === p);
+    lines.push(gl.length ? `進球：${gl.map(goalLine).join("；")}。` : "這個半場沒有進球。");
+    lines.push("ESPN 這場沒有完整的射門、角球等細部數據，所以只整理比分與事件。");
+  }
   /* 和上半場比較 */
-  if (p === 2) {
+  if (p === 2 && rich) {
     const first = tallyOf((model.commentary || []).filter((it) => it.period === 1), goalsIn(model, (ev) => (ev.period || 1) === 1));
     const shift = (pressure(t.home) - pressure(t.away)) - (pressure(first.home) - pressure(first.away));
     const shots = `射門比 上半場 ${first.home.shots}:${first.away.shots} → 下半場${status === "live" ? "目前" : ""} ${t.home.shots}:${t.away.shots}`;
@@ -1213,7 +1225,7 @@ function fullRecap(model) {
   }
   const h1 = tallyOf((model.commentary || []).filter((it) => it.period === 1), []);
   const h2 = tallyOf((model.commentary || []).filter((it) => it.period === 2), []);
-  if ((model.commentary || []).length) {
+  if (commRich(model)) {
     const all = tallyOf(model.commentary || [], []);
     all.home.goals = Number.isFinite(hs) ? hs : 0;
     all.away.goals = Number.isFinite(as) ? as : 0;
@@ -1356,8 +1368,8 @@ function recapBlock(model) {
     block.append(h("p", null, ui("開賽後，每 15 分鐘、上半場、下半場與全場結束都會自動產生復盤（數據、兩隊表現、球員表現）。")));
     return block;
   }
-  const hasComm = (model.commentary || []).length > 0;
-  if (!hasComm) block.append(h("p", { class: "faint" }, ui("這場 ESPN 沒有文字轉播，分段數據只能用進球、牌與換人；全場數據等終場技術統計。")));
+  const hasComm = commRich(model);
+  if (!hasComm) block.append(h("p", { class: "faint" }, ui("這場 ESPN 沒有完整文字轉播，分段數據只能用進球、牌與換人；全場數據等終場技術統計。")));
   const nav = h("div", { class: "chips recap-nav" });
   block.append(nav);
   const ft = minute.phase === "ft" || minute.state === "post";
@@ -1542,7 +1554,7 @@ function anchorSegment(model, seg, status, r) {
 function anchorHalf(model, p, status, t) {
   const hn = model.home.name;
   const an = model.away.name;
-  const hasComm = (model.commentary || []).length > 0;
+  const hasComm = commRich(model);
   const ft = model.minute.phase === "ft" || model.minute.state === "post";
   const cum = p === 1
     ? { home: Number(model.home.linescores?.[0]?.displayValue ?? 0) || cumScore(model, 199999).home, away: Number(model.away.linescores?.[0]?.displayValue ?? 0) || cumScore(model, 199999).away }
@@ -1626,7 +1638,7 @@ function anchorFull(model, full) {
   if (st) {
     long.push(`全場控球 ${trimNum(st.home.possessionPct ?? 0)}% 對 ${trimNum(st.away.possessionPct ?? 0)}%，射門 ${trimNum(st.home.totalShots ?? 0)} 比 ${trimNum(st.away.totalShots ?? 0)}，射正 ${trimNum(st.home.shotsOnTarget ?? 0)} 比 ${trimNum(st.away.shotsOnTarget ?? 0)}，角球 ${trimNum(st.home.wonCorners ?? 0)} 比 ${trimNum(st.away.wonCorners ?? 0)}。`);
   }
-  if ((model.commentary || []).length) {
+  if (commRich(model)) {
     const all = tallyOf(model.commentary, []);
     long.push(`從預期進球看，xG ${fx(all.home.xg)} 比 ${fx(all.away.xg)}，${all.home.xg - all.away.xg >= 0.8 ? `${hn}的機會質量明顯較好` : all.away.xg - all.home.xg >= 0.8 ? `${an}的機會質量明顯較好` : "兩隊機會質量差不多"}${winner && ((winner === hn && all.away.xg > all.home.xg + 0.5) || (winner === an && all.home.xg > all.away.xg + 0.5)) ? `，${winner}贏在把握度` : ""}。`);
   }
