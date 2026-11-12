@@ -575,8 +575,15 @@ function playText(p) {
   if (p.score && /layup/i.test(p.type)) return `${who} 上籃得分${p.assist ? `（${p.assist} 助攻）` : ""}`;
   if (p.score) return `${who} 兩分球進${p.assist ? `（${p.assist} 助攻）` : ""}`;
   if (p.timeout) return "暫停";
-  if (p.blk) return `火鍋（${p.text}）`;
-  if (p.stl) return `抄截（${p.text}）`;
+  if (p.blk) {
+    const m = /^(.+?) blocks (.+?)\s?'s (\d+)-foot/.exec(p.text) || /^(.+?) blocks (.+?)\s?'s/.exec(p.text);
+    return m ? `${playerZh(m[1])} 送給 ${playerZh(m[2])} 一記火鍋${m[3] ? `（${m[3]} 呎出手）` : ""}` : `火鍋（${p.text}）`;
+  }
+  if (p.stl) {
+    const who = (/^([A-Z][\w.'-]*(?: [A-Z][\w.'-]*)*)/.exec(p.text) || [])[1];
+    const thief = (/\((.+?) steals\)/.exec(p.text) || [])[1];
+    return thief ? `${playerZh(thief)} 抄截${who ? " " + playerZh(who) : ""}` : `抄截（${p.text}）`;
+  }
   return p.text;
 }
 

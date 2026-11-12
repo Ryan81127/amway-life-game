@@ -426,7 +426,8 @@ function sliceRecap(model, periods, label) {
   if (!plays.length) return { label, rows, lines: [], s, f, win, empty: true };
   const W = win ? model[win].name : null;
   const L = win ? model[win === "home" ? "away" : "home"].name : null;
-  lines.push(win ? `${label} ${W} ${Math.max(s.home.pts, s.away.pts)}：${Math.min(s.home.pts, s.away.pts)} 贏下這段，淨勝 ${Math.abs(s.home.pts - s.away.pts)} 分。` : `${label}雙方 ${s.home.pts}：${s.away.pts} 打平。`);
+  if (label === "全場") lines.push(win ? `${W} ${Math.max(s.home.pts, s.away.pts)}：${Math.min(s.home.pts, s.away.pts)} 擊敗 ${L}，贏 ${Math.abs(s.home.pts - s.away.pts)} 分。` : "全場打平。");
+  else lines.push(win ? `${label} ${W} ${Math.max(s.home.pts, s.away.pts)}：${Math.min(s.home.pts, s.away.pts)} 贏下這段，淨勝 ${Math.abs(s.home.pts - s.away.pts)} 分。` : `${label}雙方 ${s.home.pts}：${s.away.pts} 打平。`);
   const keyDiff = [];
   const d3 = s.home.tpm - s.away.tpm;
   if (Math.abs(d3) >= 3) keyDiff.push(`三分球 ${d3 > 0 ? H : A} 多進 ${Math.abs(d3)} 顆（多 ${Math.abs(d3) * 3} 分）`);

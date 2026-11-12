@@ -15,6 +15,14 @@ const TEAM_CITY = {
 
 const POS_ZH = { PG: "控球後衛", SG: "得分後衛", SF: "小前鋒", PF: "大前鋒", C: "中鋒", G: "後衛", F: "前鋒", GF: "鋒衛", FC: "前鋒／中鋒" };
 
+const BODY_ZH = {
+  Ankle: "腳踝", Knee: "膝蓋", Foot: "腳掌", Heel: "腳跟", Achilles: "阿基里斯腱", Hamstring: "大腿後側", Hip: "髖部", Back: "背部",
+  "Lower Back": "下背", Calf: "小腿", "Lower Leg": "小腿", Groin: "鼠蹊", Quadriceps: "股四頭肌", Thigh: "大腿", Shoulder: "肩膀",
+  Wrist: "手腕", Hand: "手掌", Finger: "手指", Thumb: "拇指", Elbow: "手肘", Toe: "腳趾", Concussion: "腦震盪", Illness: "生病",
+  Oblique: "腹斜肌", Abdomen: "腹部", Chest: "胸部", Neck: "頸部", Face: "臉部", Eye: "眼睛", Nose: "鼻子", Rib: "肋骨", Shin: "脛骨",
+  Leg: "腿部", Arm: "手臂", Personal: "個人因素", Rest: "輪休", "Not Injury Related": "非傷病因素", Undisclosed: "未公開", Pelvis: "骨盆", Knee_: ""
+};
+
 const INJ_ZH = { Out: "確定缺陣", "Day-To-Day": "每日觀察", Questionable: "出賽成疑", Doubtful: "不太可能出賽", Probable: "可能出賽", Suspension: "禁賽" };
 
 const state = {
@@ -278,6 +286,8 @@ function readTeamBox(t) {
       const ma = splitMA(x.displayValue);
       out[x.name.split("-")[0]] = ma.m;
       out[x.name.split("-")[1]] = ma.a;
+    } else if (/^\d+-\d+$/.test(String(x.displayValue)) || /^[WL]\d+$/.test(String(x.displayValue))) {
+      out[x.name] = x.displayValue;
     } else {
       const n = parseFloat(String(x.displayValue).replace("%", ""));
       out[x.name] = Number.isFinite(n) ? n : x.displayValue;
@@ -299,7 +309,7 @@ function readInjuries(data, home, away) {
         en: i.athlete?.displayName || "",
         status: i.status || "",
         statusZh: INJ_ZH[i.status] || i.status || "",
-        part: [d.side && d.side !== "Not Specified" ? (d.side === "Left" ? "左" : d.side === "Right" ? "右" : "") : "", d.type || ""].join(""),
+        part: [d.side === "Left" ? "左" : d.side === "Right" ? "右" : "", BODY_ZH[d.type] || d.type || ""].join(""),
         detail: d.detail || "",
         ret: d.returnDate || "",
         date: i.date || ""

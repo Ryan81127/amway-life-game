@@ -118,7 +118,7 @@ function autoCards(model) {
   }
   const ser = model.series;
   if (ser?.summary) out.push({ id: `ser-${model.id}`, topic: "team", title: "本季對戰", fact: `本季交手：${ser.summary.replace(/leads series/i, "系列賽領先").replace(/series tied/i, "系列賽打平")}（本季共 ${ser.total} 次交手）。`, sources: src, checked: today, say: `兩隊本季已經交手過，${ser.summary.replace(/leads series/i, "目前系列賽領先").replace(/series tied/i, "系列賽打平")}，今晚是復仇戰還是續寫劇本？`, humor: { light: "老朋友見面，分外眼紅。", spicy: "上一場輸的那隊，今晚應該連熱身都在生氣。" }, ask: "今晚誰會贏下這次交手？", when: ["open"], status: "verified" });
-  for (const a of model.news.slice(0, 3)) out.push({ id: `news-${a.url || a.title}`, topic: "trivia", title: "賽前新聞（英文原文）", fact: a.title, sources: [{ name: "ESPN 新聞", url: a.url }], checked: (a.at || "").slice(0, 10), say: `賽前消息：${a.title}`, humor: { light: "賽前新聞看一下，賽後才知道誰說中了。", spicy: "新聞寫得很熱鬧，球場上見真章。" }, ask: "這則消息你怎麼看？", when: ["open"], status: "update", note: "英文標題，請先確認翻譯再播" });
+  for (const a of model.news.slice(0, 2)) out.push({ id: `news-${a.url || a.title}`, topic: "trivia", title: "賽前新聞（英文原文）", fact: a.title, sources: [{ name: "ESPN 新聞", url: a.url }], checked: (a.at || "").slice(0, 10), say: `賽前消息：${a.title}`, humor: { light: "賽前新聞看一下，賽後才知道誰說中了。", spicy: "新聞寫得很熱鬧，球場上見真章。" }, ask: "這則消息你怎麼看？", when: ["open"], status: "update", note: "英文標題，請先確認翻譯再播" });
   return out;
 }
 
