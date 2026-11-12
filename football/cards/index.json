@@ -4,11 +4,20 @@
     "627": "teams/627-japan.json",
     "205": "teams/205-brazil.json",
     "14561": "teams/14561-chinese-taipei.json",
-    "6724": "teams/6724-kyrgyzstan.json"
+    "6724": "teams/6724-kyrgyzstan.json",
+    "210": "teams/210-paraguay.json",
+    "4384": "teams/4384-singapore.json"
   },
   "venues": {
     "singapore national stadium": "venues/singapore-national-stadium.json",
     "thien truong stadium": "venues/thien-truong-stadium.json"
   },
-  "ttlDays": { "球員": 60, "球隊": 180, "趣聞": 365, "文化": 730, "城市": 730, "國家": 730 }
+  "ttlDays": {
+    "球員": 60,
+    "球隊": 180,
+    "趣聞": 365,
+    "文化": 730,
+    "城市": 730,
+    "國家": 730
+  }
 }

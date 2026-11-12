@@ -1,0 +1,110 @@
+{
+  "teamId": "4384",
+  "name": "新加坡",
+  "cards": [
+    {
+      "id": "sgp-kallang-series",
+      "topic": "球隊",
+      "title": "主辦「Mizuho Blue Challenge」四場友誼賽",
+      "fact": "11 月 13 至 17 日新加坡國家體育場連辦四場：新加坡對巴拉圭開幕、隔天日本對巴西（世界盃重演），17 日雙重賽是新加坡對五屆冠軍巴西、日本對巴拉圭。",
+      "sources": [
+        {
+          "name": "SCMP",
+          "url": "https://www.scmp.com/sport/football/article/3366171/singapore-host-brazil-japan-paraguay-star-studded-football-festival"
+        },
+        {
+          "name": "AFP（Express Tribune 轉載）",
+          "url": "https://tribune.com.pk/story/2627238/brazil-japan-to-play-world-cup-rematch"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "今天是新加坡主辦的 Mizuho Blue Challenge 開幕戰，五天內國家體育場連打四場：今天新加坡對巴拉圭，明天日本對巴西，17 號新加坡還要直接碰五屆世界冠軍巴西。對新加坡來說，這週等於連考兩場世界盃等級的大考。",
+      "humor": {
+        "light": "一個禮拜碰巴拉圭又碰巴西，新加坡這週的行事曆比我老闆還硬。",
+        "spicy": "先被巴拉圭練防守、再被巴西練心臟，這叫付費參加世界級特訓營。"
+      },
+      "ask": "17 號新加坡對巴西你會看嗎？會的扣 1！",
+      "when": [
+        "開場",
+        "冷場"
+      ],
+      "status": "已查證"
+    },
+    {
+      "id": "sgp-asian-cup",
+      "topic": "球隊",
+      "title": "史上第一次靠資格賽打進亞洲盃",
+      "fact": "新加坡在 2027 亞洲盃資格賽力壓香港、孟加拉、印度拿下小組第一，史上首次從資格賽晉級亞洲盃；上一次（也是唯一一次）參賽是 1984 年以主辦國身分。",
+      "sources": [
+        {
+          "name": "維基百科：新加坡國家足球隊",
+          "url": "https://zh.wikipedia.org/zh-tw/%E6%96%B0%E5%8A%A0%E5%9D%A1%E5%9C%8B%E5%AE%B6%E8%B6%B3%E7%90%83%E9%9A%8A"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "新加坡這兩年有故事：2027 亞洲盃資格賽壓過香港、孟加拉、印度拿小組第一，史上第一次靠資格賽打進亞洲盃。上一次參賽要回到 1984 年，而且那次是因為自己當主辦國。",
+      "humor": {
+        "light": "等了 40 幾年終於靠實力進亞洲盃，這比等公車還久。",
+        "spicy": "以前要當主辦國才能進場，現在終於可以自己買票進去了。"
+      },
+      "ask": "你覺得新加坡在亞洲盃能走多遠？",
+      "when": [
+        "開場",
+        "中場"
+      ],
+      "status": "需更新"
+    },
+    {
+      "id": "sgp-lions",
+      "topic": "文化",
+      "title": "綽號「雄獅」、亞洲最老的足協",
+      "fact": "新加坡隊綽號「雄獅」（The Lions），呼應國名「獅城」；新加坡業餘足球協會 1892 年成立，維基百科稱是亞洲歷史最悠久的足球協會。",
+      "sources": [
+        {
+          "name": "維基百科：新加坡國家足球隊",
+          "url": "https://zh.wikipedia.org/zh-tw/%E6%96%B0%E5%8A%A0%E5%9D%A1%E5%9C%8B%E5%AE%B6%E8%B6%B3%E7%90%83%E9%9A%8A"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "新加坡隊的綽號是「雄獅」，跟國名獅城一樣。冷知識：新加坡的足協 1892 年就成立了，是亞洲最老的足球協會，比很多歐洲豪門的歷史還久。",
+      "humor": {
+        "light": "獅城派雄獅出戰，品牌形象一致，行銷部門給滿分。",
+        "spicy": "足協比利物浦還老，成績卻……我們今天先不比這個。"
+      },
+      "ask": "你知道新加坡為什麼叫獅城嗎？知道的留言！",
+      "when": [
+        "冷場",
+        "暫停"
+      ],
+      "status": "需更新"
+    },
+    {
+      "id": "sgp-aff-2026",
+      "topic": "球隊",
+      "title": "東南亞錦標賽剛逼和印尼",
+      "fact": "新加坡在 2026 年東南亞錦標賽（AFF）逼和印尼；近 5 場另有兩戰泰國一勝一負、和越南 0:0、勝東帝汶 2:0。",
+      "sources": [
+        {
+          "name": "iNews.id（引述 CNA）",
+          "url": "https://www.rctiplus.com/news/detail/inews/5465212/usai-tahan-timnas-indonesia--singapura-tantang-brasil-dan-paraguay"
+        },
+        {
+          "name": "ESPN 近 5 場",
+          "url": "https://www.espn.com/soccer/match/_/gameId/401916338"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "新加坡最近在東南亞錦標賽表現不差：逼和印尼、跟越南 0 比 0，兩戰泰國一勝一負。在東南亞算是能跟強隊硬碰的球隊，但今天面對的是剛從世界盃 16 強回來的南美球隊，強度完全不同等級。",
+      "humor": {
+        "light": "在東南亞是雄獅，碰到南美球隊可能要先變回小貓熱身。",
+        "spicy": "東南亞的考卷剛考完，今天直接發一份世界盃考卷，誰受得了。"
+      },
+      "ask": "東南亞最強你覺得是誰？泰國、越南、印尼還是新加坡？",
+      "when": [
+        "中場",
+        "冷場"
+      ],
+      "status": "已查證"
+    }
+  ]
+}

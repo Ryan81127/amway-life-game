@@ -1,0 +1,149 @@
+{
+  "teamId": "210",
+  "name": "巴拉圭",
+  "cards": [
+    {
+      "id": "par-germany-upset",
+      "topic": "球隊",
+      "title": "世界盃 32 強 PK 淘汰德國",
+      "fact": "2026 年 6 月 29 日世界盃 32 強，巴拉圭延長賽後 1:1 逼和四屆冠軍德國，PK 大戰 4:3 晉級；門將希爾（Orlando Gill）撲出兩球。這是德國第一次在世界盃 PK 大戰輸球。",
+      "sources": [
+        {
+          "name": "AP（News Channel 9 轉載）",
+          "url": "https://newschannel9.com/sports/soccer/paraguay-upsets-germany-on-penalty-kicks-at-world-cup-after-a-1-1-draw-through-extra-time"
+        },
+        {
+          "name": "Reuters（The Citizen 轉載）",
+          "url": "https://www.thecitizen.co.tz/tanzania/sports/football/paraguay-pull-off-world-cup-penalty-gamble-at-last-in-historic-germany-win-5513604"
+        },
+        {
+          "name": "11v11",
+          "url": "https://www.11v11.com/matches/germany-v-paraguay-29-june-2026-393754/"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "今天來的巴拉圭可不是陪練。今年夏天世界盃 32 強，他們延長賽後 1 比 1 逼和德國，PK 大戰 4 比 3 把四屆冠軍送回家，門將希爾撲出兩球。德國在世界盃 PK 大戰從來沒輸過，就是輸給了巴拉圭。",
+      "humor": {
+        "light": "德國 PK 不敗神話，被南美來的守門員一手終結。",
+        "spicy": "德國踢了 120 分鐘控球 75%，最後輸給一個整場只射門 7 次的球隊，這叫做有錢沒命花。"
+      },
+      "ask": "你覺得 PK 大戰是實力還是運氣？留言說！",
+      "when": [
+        "開場",
+        "冷場"
+      ],
+      "status": "已查證"
+    },
+    {
+      "id": "par-revenge-2002",
+      "topic": "球隊",
+      "title": "等了 24 年的復仇",
+      "fact": "巴拉圭與德國上一次在世界盃碰頭是 2002 年 16 強，德國 1:0 勝出。24 年後巴拉圭在 2026 年 32 強用 PK 報了一箭之仇。",
+      "sources": [
+        {
+          "name": "AP（News Channel 9 轉載）",
+          "url": "https://newschannel9.com/sports/soccer/paraguay-upsets-germany-on-penalty-kicks-at-world-cup-after-a-1-1-draw-through-extra-time"
+        },
+        {
+          "name": "11v11",
+          "url": "https://www.11v11.com/matches/germany-v-paraguay-29-june-2026-393754/"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "這場勝利還有一層恩怨：2002 年世界盃 16 強，德國 1 比 0 淘汰巴拉圭。等了 24 年，巴拉圭終於在世界盃把德國踢回家，這叫君子報仇，二十四年不晚。",
+      "humor": {
+        "light": "君子報仇十年不晚，巴拉圭說：我們等二十四年也行。",
+        "spicy": "德國大概沒想到，巴拉圭的記仇本可以保存四分之一個世紀。"
+      },
+      "ask": "你心中最經典的世界盃復仇是哪一場？",
+      "when": [
+        "冷場",
+        "中場"
+      ],
+      "status": "已查證"
+    },
+    {
+      "id": "par-wall",
+      "topic": "球隊",
+      "title": "以防守出名的「瓜拉尼人」",
+      "fact": "對德國那場，德國控球約 75%、射門 21 次，巴拉圭只有 7 次射門卻守住；小組賽對土耳其少一人作戰、被射 32 腳仍 1:0 贏球。",
+      "sources": [
+        {
+          "name": "Reuters（The Citizen 轉載）",
+          "url": "https://www.thecitizen.co.tz/tanzania/sports/football/paraguay-pull-off-world-cup-penalty-gamble-at-last-in-historic-germany-win-5513604"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴拉圭的招牌就是防守。打德國，對手控球四分之三、射門 21 次，他們只射 7 腳照樣晉級；小組賽對土耳其少一個人，被射了 32 腳，還是 1 比 0 贏下來。今天新加坡要破門，得先學會拆牆。",
+      "humor": {
+        "light": "巴拉圭的禁區像台北捷運尖峰時段，擠到你連轉身都難。",
+        "spicy": "對手射門 32 次還進不去，這不是防守，是在球門前蓋了一道萬里長城。"
+      },
+      "ask": "你覺得今天新加坡能不能攻破巴拉圭的鐵桶陣？能扣 1、不能扣 2！",
+      "when": [
+        "開場",
+        "暫停"
+      ],
+      "status": "已查證"
+    },
+    {
+      "id": "par-wc-run",
+      "topic": "球隊",
+      "title": "2026 世界盃一路走到 16 強",
+      "fact": "巴拉圭 2026 世界盃小組賽 1:4 輸美國、1:0 勝土耳其、0:0 和澳洲，以小組第三晉級；32 強淘汰德國，16 強 0:1 不敵法國。",
+      "sources": [
+        {
+          "name": "The Public",
+          "url": "https://thepublic.info/en/news/paraguay-caused-a-sensation-by-knocking-germany-out-of-the-2026-world-cup-in-a-penalty-shoot-out"
+        },
+        {
+          "name": "Sky Sports 賽程",
+          "url": "https://www.skysports.com/football/singapore-vs-paraguay/578211"
+        }
+      ],
+      "checked": "2026-11-13",
+      "say": "巴拉圭今年世界盃的劇本很有起伏：開幕戰 1 比 4 被美國打爆，後面靠贏土耳其、和澳洲擠進淘汰賽，再爆冷淘汰德國，最後 16 強才 0 比 1 輸給法國。",
+      "humor": {
+        "light": "開局被打爆，結局打進 16 強，這劇本比韓劇還會反轉。",
+        "spicy": "第一場輸 4 球還能晉級，說明世界盃擴軍 48 隊真的是巴拉圭的好朋友。"
+      },
+      "ask": "你覺得巴拉圭今年世界盃算成功嗎？",
+      "when": [
+        "中場",
+        "賽後"
+      ],
+      "status": "已查證"
+    }
+  ],
+  "rivals": {
+    "4384": [
+      {
+        "id": "par-sgp-gap",
+        "topic": "球隊",
+        "title": "FIFA 排名差了 100 多名",
+        "fact": "依維基百科引用的 2026 年 10 月 FIFA 排名，巴拉圭第 33、新加坡第 149；巴拉圭參加過 9 屆世界盃、最佳八強，新加坡從未打進世界盃，2027 亞洲盃是首次靠資格賽晉級。",
+        "sources": [
+          {
+            "name": "維基百科：新加坡國家足球隊",
+            "url": "https://zh.wikipedia.org/zh-tw/%E6%96%B0%E5%8A%A0%E5%9D%A1%E5%9C%8B%E5%AE%B6%E8%B6%B3%E7%90%83%E9%9A%8A"
+          },
+          {
+            "name": "維基百科：巴拉圭國家足球隊",
+            "url": "https://zh.wikipedia.org/zh-tw/%E5%B7%B4%E6%8B%89%E5%9C%AD%E5%9C%8B%E5%AE%B6%E8%B6%B3%E7%90%83%E9%9A%8A"
+          }
+        ],
+        "checked": "2026-11-13",
+        "say": "今天這場是標準的大衛對歌利亞：巴拉圭世界排名 33、去過 9 次世界盃；新加坡排名 149、還沒去過世界盃，但剛剛歷史性第一次靠資格賽打進亞洲盃。新加坡要的不一定是贏，是證明自己能跟世界盃球隊踢得有來有回。",
+        "humor": {
+          "light": "排名差 116 名，大概就是我跟梅西之間的差距再乘以十。",
+          "spicy": "新加坡今天如果能不輸，獅城的獅子可以吼一整個月。"
+        },
+        "ask": "你覺得新加坡今天能進球嗎？會進扣 1、掛零扣 2！",
+        "when": [
+          "開場"
+        ],
+        "status": "需更新"
+      }
+    ]
+  }
+}

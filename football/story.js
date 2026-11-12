@@ -1,6 +1,6 @@
 /* 兩隊故事與看點：從維基百科（繁體）整理出有梗的歷史、特色、紀錄、戰績，以及兩隊之間的交集與恩怨。 */
 
-const STORY_PREFIX = "fb-story-v1:";
+const STORY_PREFIX = "fb-story-v2:";
 const storyStore = new Map();
 
 const STORY_SECTIONS = /歷史|簡史|發展|沿革|榮譽|成就|戰績|成績|特色|球迷|文化|德比|宿敵|對手|恩怨|綽號|名稱|傳統|紀錄|經典|風格|爭議|事件/;
@@ -62,8 +62,9 @@ function storyInfobox(doc) {
       continue;
     }
     if (cells.length < 2) continue;
+    cells[1].querySelectorAll("br").forEach((br) => br.replaceWith("、"));
     const k = txt(cells[0]);
-    const v = txt(cells[1]);
+    const v = txt(cells[1]).replace(/、\s*$/, "").replace(/、{2,}/g, "、");
     if (!k || !v || v.length > 70) continue;
     facts.push({ k: group && /參賽次數|最佳成績|當前排名|最高排名|最低排名/.test(k) ? `${group}${k}` : k, v });
   }
@@ -231,17 +232,56 @@ function h2hLines(model) {
   return out;
 }
 
+function numFrom(lines, re) {
+  const l = (lines || []).find((x) => re.test(x));
+  const m = l && /第\s*(\d+)|：\s*(\d+)/.exec(l);
+  return m ? Number(m[1] || m[2]) : null;
+}
+
+function contrastLines(model, st) {
+  const out = [];
+  const H = model.home.name;
+  const A = model.away.name;
+  const hi = st.home?.info || [];
+  const ai = st.away?.info || [];
+  const hr = numFrom(hi, /目前 FIFA 排名/);
+  const ar = numFrom(ai, /目前 FIFA 排名/);
+  if (hr && ar && Math.abs(hr - ar) >= 20) {
+    const [up, down] = hr < ar ? [H, A] : [A, H];
+    out.push(`FIFA 排名：${H} 第 ${hr}、${A} 第 ${ar}，差了 ${Math.abs(hr - ar)} 名——${down}挑戰${up}，標準的以小搏大。`);
+  } else if (hr && ar) out.push(`FIFA 排名：${H} 第 ${hr}、${A} 第 ${ar}，實力接近，細節決定勝負。`);
+  const hw = numFrom(hi, /世界盃參賽次數/);
+  const aw = numFrom(ai, /世界盃參賽次數/);
+  if (hw != null && aw != null && hw !== aw) out.push(`世界盃經驗：${H} ${hw} 次、${A} ${aw} 次${Math.min(hw, aw) === 0 ? `，${hw === 0 ? H : A}還在等第一次` : ""}。`);
+  const nick = (info) => ((info || []).find((x) => /綽號/.test(x)) || "").replace(/綽號叫「|」/g, "").split("、")[0];
+  const hn = nick(hi);
+  const an = nick(ai);
+  if (hn && an) out.push(`綽號對決：「${hn}」對上「${an}」。`);
+  return out;
+}
+
+function curatedCards(model) {
+  const cards = state.cards && state.cards.id === model.id && state.cards.data ? state.cards.data.cards : [];
+  return cards.filter((c) => !c.auto && c.eff?.status !== "不可當成事實播報");
+}
+
 function historyBlock(model) {
   const block = h("section", { class: "block", id: "history" }, h("h2", null, ui("兩隊故事與看點")));
   const st = storyOf(model);
   if (!st) { block.append(h("p", { class: "muted" }, ui("整理兩隊的歷史、紀錄與恩怨中…"))); return block; }
   const say = [];
   /* 兩隊交集放最前面：觀眾最愛聽 */
-  const cross = [...(st.rivalry ? [`${st.rivalry.title}：${String(st.rivalry.text).split(/(?<=[。.])/).slice(0, 2).join("")}`] : []), ...st.cross, ...h2hLines(model)];
+  const cur = curatedCards(model);
+  const rivalCards = cur.filter((c) => String(c.owner || "").includes(" vs "));
+  const cross = [
+    ...rivalCards.map((c) => `${c.title}：${c.fact}`),
+    ...(st.rivalry ? [`${st.rivalry.title}：${String(st.rivalry.text).split(/(?<=[。.])/).slice(0, 2).join("")}`] : []),
+    ...st.cross, ...h2hLines(model), ...contrastLines(model, st)
+  ];
   block.append(h("h3", null, ui("⚔️ 兩隊之間")));
   if (cross.length) {
     block.append(h("ul", { class: "reasons" }, cross.map((x) => h("li", null, ui(x)))));
-    say.push(`說到這兩隊之間的故事：${cross.slice(0, 2).join("")}`);
+    say.push(rivalCards[0]?.say || `說到這兩隊之間：${cross.slice(0, 2).join("")}`);
   } else {
     block.append(h("p", { class: "faint" }, ui("維基百科和 ESPN 都沒有兩隊直接交手的故事，這種「初次見面」反而好聊：誰先適應對方，誰就拿下主動權。")));
   }
@@ -250,13 +290,15 @@ function historyBlock(model) {
     const name = model[side].name;
     block.append(h("h3", null, ui(`${side === "home" ? "🏠" : "✈️"} ${name}`)));
     if (!s) { block.append(h("p", { class: "muted" }, ui("維基百科沒有找到這支球隊。"))); continue; }
+    const picks = cur.filter((c) => c.owner === name && c.topic !== "球員");
+    if (picks.length) block.append(h("ul", { class: "reasons" }, picks.map((c) => h("li", null, h("b", null, ui(c.title + "：")), ui(c.fact)))));
     if (s.info.length) block.append(h("div", { class: "chips" }, s.info.map((x) => h("span", { class: "pill" }, ui(x)))));
     if (s.stories.length) block.append(h("ul", { class: "reasons" }, s.stories.map((x) => h("li", null, ui(x)))));
     if (s.honors.length) block.append(h("p", { class: "faint" }, ui("🏆 榮譽：" + s.honors.join("；"))));
     if (!s.info.length && !s.stories.length) block.append(h("p", { class: "faint" }, ui("條目內容太少，整理不出亮點。")));
     block.append(h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${s.title}」 · `), h("a", { href: s.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
     const hook = s.info.find((x) => /綽號/.test(x));
-    const hit = s.stories.find((x) => x.length <= 95) || "";
+    const hit = picks[0]?.say || s.stories.find((x) => x.length <= 95) || "";
     const worst = s.info.find((x) => /最慘一敗/.test(x));
     const best = s.info.find((x) => /最大勝仗/.test(x));
     const line = [hook ? `${name}${hook}` : "", hit || "", worst ? `${worst}，那一場大概是隊史不能提的傷疤` : best || ""].filter(Boolean).join("；");
