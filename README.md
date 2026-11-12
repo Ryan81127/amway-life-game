@@ -4,6 +4,14 @@
 
 線上版本：<https://ryan81127.github.io/amway-life-game/>
 
+## 城市任務版（升級城）
+
+`city/index.html` 是開放城市風格的版本：俯視角城市地圖，可以走路、上車開車、甩尾，接 6 個任務（對應六章內容），開過「答題閘門」作答，答錯會增加謠言值、被謠言車追。
+
+線上網址：<https://ryan81127.github.io/amway-life-game/city/>
+
+題目與知識卡直接讀取 `src/data.js`，改那裡兩個版本會一起更新。進度存在瀏覽器（`amway-city-v1`），手機 📱 → 設定可以重置。
+
 ## 怎麼改文字與聯絡方式
 
 遊戲內容的來源是 `src/`，不要只改 `index.html`。`index.html` 是建置產物，下次執行 `build.sh` 會被蓋掉。
