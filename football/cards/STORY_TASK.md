@@ -1,6 +1,6 @@
-# 查證故事卡排程說明（給 Claude 定時任務）
+# 查證故事卡製作說明（給 Claude）
 
-每次執行：
+使用者在對話中貼上「幫 A 對 B 做故事卡（event…）」時照此製作（不使用定時任務）：
 1. 讀 GitHub issues（label `story-request`，狀態 open），每個 issue 內有 event、league、home/away 的 ESPN 隊伍 id 與名稱、開賽時間。
 2. 若請求不足 5 場，再從 ESPN 賽程（未來 30 小時內開賽）主動挑：國際賽（fifa.friendly、fifa.worldq.*、uefa.nations）與五大聯賽、歐冠的焦點戰，總數最多 6 場。已在 `queue.json` 的 `done` 裡、且兩隊檔案 30 天內更新過的跳過。
 3. 每場查證後寫入 `cards/teams/{teamId}-{slug}.json`（格式同既有檔案），兩隊之間的故事寫在其中一隊檔案的 `rivals.{對手id}`。

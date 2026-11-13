@@ -335,35 +335,31 @@ async function refreshStory(model) {
   maybeRender({ soft: true });
 }
 
+function storyRequestText(model) {
+  return [
+    `幫 ${model.home.name} 對 ${model.away.name} 做故事卡`,
+    `（event ${model.id}｜${model.leagueSlug}｜主 ${model.home.id} ${model.home.rawName}｜客 ${model.away.id} ${model.away.rawName}｜開賽 ${hm(new Date(model.kickoff))} 台北）`
+  ].join("\n");
+}
+
 function storyQueueBlock(model) {
   loadStoryQueue(false);
-  const q = storyQueue || { runs: STORY_RUNS_DEFAULT, done: {}, queued: {} };
+  const q = storyQueue || { done: {}, teams: {} };
   const done = q.done?.[model.id];
-  const queued = q.queued?.[model.id];
   const teamsDone = [model.home.id, model.away.id].filter((id) => q.teams?.[id]);
-  const next = nextStoryRun(q.runs);
-  const box = h("div", { class: "story-queue" });
-  let msg;
-  let cls = "";
+  const box = h("div", { class: done ? "story-queue ok" : "story-queue" });
   if (done) {
-    msg = `✅ 查證故事卡已產生（${done.at ? hm(new Date(done.at)) : ""}，${done.count || "數"} 張），已放進下方「兩隊之間」與知識卡。`;
-    cls = "ok";
-  } else if (queued) {
-    msg = `⏳ 已排入，預計 ${next ? hm(next.ready) : "下一輪"} 前完成（Claude 每天 ${q.runs.join("、")} 開始查證，約 ${STORY_RUN_MINUTES} 分鐘）。時間到按「重新整理故事」。`;
-    cls = "wait";
+    box.append(h("p", null, ui(`✅ 查證故事卡已產生（${done.at ? hm(new Date(done.at)) : ""}，${done.count || "數"} 張），已放進下方「兩隊之間」與知識卡。`)));
   } else {
-    msg = `尚未排入。${teamsDone.length ? `（${teamsDone.map((id) => (id === model.home.id ? model.home.name : model.away.name)).join("、")}已有舊故事卡，可重複使用）` : ""}按「排入故事卡」送出請求，下一輪 ${next ? hm(next.start) : ""} 開始查證，預計 ${next ? hm(next.ready) : ""} 前可用。`;
+    box.append(h("p", null, ui(`這場還沒有查證故事卡。${teamsDone.length ? `（${teamsDone.map((id) => (id === model.home.id ? model.home.name : model.away.name)).join("、")}已有舊卡，會直接沿用）` : ""}`)));
+    box.append(h("p", { class: "faint" }, ui("要播這場：按「📋 複製故事卡請求」→ 到 Claude 對話貼上送出 → Claude 做完後回來按「🔄 重新整理故事」。一場大約 10–20 分鐘。")));
   }
-  box.className = `story-queue ${cls}`;
-  box.append(h("p", null, ui(msg)));
-  const kick = new Date(model.kickoff);
-  if (!done && next && next.ready > kick && model.minute?.phase === "pre") box.append(h("p", { class: "warn" }, ui(`⚠️ 開賽時間 ${hm(kick)} 早於預計完成時間，這場可能來不及，先用下方自動整理的內容。`)));
-  const actions = h("div", { class: "chips" },
+  const copyBtn = h("button", { class: "chip" }, ui(done ? "📋 複製更新請求" : "📋 複製故事卡請求"));
+  copyBtn.addEventListener("click", () => copyText(storyRequestText(model), copyBtn));
+  box.append(h("div", { class: "chips" },
+    done ? null : copyBtn,
     h("button", { class: "chip", onclick: () => refreshStory(model) }, ui("🔄 重新整理故事")),
-    done ? null : h("a", { class: "chip", href: storyRequestUrl(model), target: "_blank", rel: "noopener" }, ui(queued ? "補充需求" : "📝 排入故事卡")));
-  box.append(actions);
-  if (!done && !queued) box.append(h("p", { class: "faint" }, ui("按「排入故事卡」會開啟 GitHub 已填好的請求，按 Submit 送出即可。另外，國際賽與五大聯賽的焦點戰，Claude 每輪也會主動挑幾場先做。")));
-  if (q.updated) box.append(h("p", { class: "faint" }, ui(`排程最後更新：${hm(new Date(q.updated))}`)));
+    done ? copyBtn : null));
   return box;
 }
 
