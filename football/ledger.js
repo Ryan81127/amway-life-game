@@ -175,7 +175,14 @@ function ledgerCapture(model) {
       const st = inplayState(model);
       if (st) {
         const mk = inplayMarkets(st);
-        bag.live.push({ at: Date.now(), minute, hs: st.hs, as: st.as, items: liveItemsFrom(model, st, mk) });
+        bag.live.push({
+          at: Date.now(),
+          minute,
+          hs: st.hs,
+          as: st.as,
+          seenGoals: (model.events || []).filter((ev) => ev.kind === "goal").map((ev) => String(ev.id)),
+          items: liveItemsFrom(model, st, mk)
+        });
         dirty = true;
       }
     }
@@ -255,13 +262,14 @@ function ledgerActual(model) {
   return { hs, as, scoresOk, corners, yellow, reds, htH, htA, htOk: pastHt, final: ledgerFinal(model) };
 }
 
-function nextGoalSide(model, minuteKey) {
-  const lim = minuteKey === "ht"
-    ? 1 * 100000 + 45 * 100 + 99
-    : ((Number(minuteKey) > 45 ? 2 : 1) * 100000 + (Number(minuteKey) || 0) * 100 + 99);
-  const goals = (model.events || []).filter((ev) => ev.kind === "goal" && eventSort(ev) > lim);
-  if (!goals.length) return "";
-  return goalSide(goals[0], model);
+function nextGoalSide(model, snap) {
+  if (!snap || !Array.isArray(snap.seenGoals)) return { side: "", known: false };
+  const seen = new Set(snap.seenGoals.map(String));
+  const goals = (model.events || []).filter((ev) => ev.kind === "goal");
+  goals.sort((a, b) => eventSort(a) - eventSort(b) || String(a.id).localeCompare(String(b.id)));
+  const next = goals.find((ev) => !seen.has(String(ev.id)));
+  if (!next) return { side: "", known: true };
+  return { side: goalSide(next, model), known: true };
 }
 
 function gradeOne(item, model, snap) {
@@ -288,7 +296,7 @@ function gradeOne(item, model, snap) {
     return { ...base, actual: `${total} 球`, gap: `預測${word} ${trimNum(item.line)}，實際 ${total}，差 ${signedGap(total - item.line)}`, hit: settled.hit };
   }
   if (item.kind === "ah" || item.kind === "ah-rest") {
-    if (item.kind === "ah-rest" && !A.final) return { ...base, actual: `目前 ${cur}`, hit: "pend", gap: "完賽後才對讓球" };
+    if (!A.final) return { ...base, actual: `目前 ${cur}`, hit: "pend", gap: "完賽後才對讓球" };
     const hs = item.kind === "ah-rest" ? A.hs - (snap?.hs || 0) : A.hs;
     const as = item.kind === "ah-rest" ? A.as - (snap?.as || 0) : A.as;
     const margin = item.side === "home" ? hs - as : as - hs;
@@ -310,9 +318,10 @@ function gradeOne(item, model, snap) {
     return { ...base, actual: actualText, gap: `比分預測 ${item.text}，實際 ${actualText}`, hit: item.score === `${A.hs}-${A.as}` };
   }
   if (item.kind === "next") {
-    const side = nextGoalSide(model, snap?.minute);
-    if (!side && !A.final) return { ...base, actual: "還沒有下一球", hit: "pend", gap: "這之後還沒進球" };
-    const got = side || "none";
+    const found = nextGoalSide(model, snap);
+    if (!found.known) return { ...base, actual: "這筆快照沒有進球邊界", hit: "na", gap: "無法對下一球" };
+    if (!found.side && !A.final) return { ...base, actual: "還沒有下一球", hit: "pend", gap: "這之後還沒進球" };
+    const got = found.side || "none";
     const actual = got === "home" ? `${model.home.name}先進` : got === "away" ? `${model.away.name}先進` : "沒有再進球";
     return { ...base, actual, gap: `預測${item.text}，實際${actual}`, hit: item.pick === got };
   }
