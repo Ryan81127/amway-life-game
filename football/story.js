@@ -301,7 +301,7 @@ function historyBlock(model) {
     const hit = picks[0]?.say || s.stories.find((x) => x.length <= 95) || "";
     const worst = s.info.find((x) => /最慘一敗/.test(x));
     const best = s.info.find((x) => /最大勝仗/.test(x));
-    const line = [hook ? `${name}${hook}` : "", hit || "", worst ? `${worst}，那一場大概是隊史不能提的傷疤` : best || ""].filter(Boolean).join("；");
+    const line = [hook ? `${name}${hook.split("、")[0]}${hook.includes("、") ? "」" : ""}` : "", hit || "", worst ? `${worst}，那一場大概是隊史不能提的傷疤` : best || ""].filter(Boolean).join("；");
     if (line) say.push(`${name}有什麼故事？${line}。`);
   }
   if (say.length) block.append(scriptBlock([...say, "這兩隊你比較想看誰寫下新故事？主隊扣 1、客隊扣 2！"], "口播：兩隊故事"));
