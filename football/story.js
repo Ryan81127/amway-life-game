@@ -268,7 +268,7 @@ function curatedCards(model) {
 /* ---------- 查證故事卡排程：Claude 定時查證、寫進 cards/，網頁按「重新整理故事」就讀到 ---------- */
 
 const STORY_REPO = "Ryan81127/amway-life-game";
-const STORY_RUNS_DEFAULT = ["08:40", "13:40", "17:40", "21:10"];
+const STORY_RUNS_DEFAULT = ["08:40", "13:40", "17:40", "21:40"];
 const STORY_RUN_MINUTES = 45;
 let storyQueue = null;
 let storyQueueAt = 0;
