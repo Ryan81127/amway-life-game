@@ -221,7 +221,7 @@ function coachSay(model, side, c, cur, prof) {
   if (cur?.hook) lines.push(`${team}的教練${name}，${cur.hook}`);
   else if (name) lines.push(`${team}的教練是${name}${c?.playing?.caps ? `，球員時期也是國腳` : ""}。`);
   const ach = cur?.achievements?.[0] || (c?.honours?.length ? `執教生涯拿過 ${c.honours.length} 項榮譽` : "");
-  if (ach) lines.push(`他最亮眼的成績：${ach}`);
+  if (ach) lines.push(`他最亮眼的成績：${ach}。`);
   const sty = cur?.style?.[0] || prof?.tags?.[0];
   if (sty) lines.push(`戰術特色：${sty}。`);
   if (c?.tenure) lines.push(`上任以來 ${c.tenure.n} 場 ${c.tenure.w} 勝 ${c.tenure.d} 和 ${c.tenure.l} 負。`);
