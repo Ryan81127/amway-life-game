@@ -99,7 +99,7 @@ const FN = {
   under: (i, j, L) => L - (i + j)
 };
 
-function nbPmf(mu, max, ratio) {
+function predNbPmf(mu, max, ratio) {
   /* 負二項：var = mu * (1 + ratio)，ratio=0 退回 Poisson */
   if (ratio <= 0.01) return pmfList(mu, max);
   const r = mu / ratio;
@@ -683,7 +683,7 @@ function buildPrediction(model, gamesH, gamesA) {
     const muH = (profH.cfpg + profA.capg) / 2 * (neutral ? 1 : 1.05);
     const muA = (profA.cfpg + profH.capg) / 2 * (neutral ? 1 : 0.95);
     const mu = muH + muA;
-    const pmf = nbPmf(mu, 30, 0.3);
+    const pmf = predNbPmf(mu, 30, 0.3);
     const base = Math.floor(mu) + 0.5;
     const rows = [base - 1, base, base + 1].map((L) => {
       const ov = countOver(pmf, L);
@@ -703,7 +703,7 @@ function buildPrediction(model, gamesH, gamesA) {
     const muH = (profH.ypg + profA.oypg) / 2;
     const muA = (profA.ypg + profH.oypg) / 2;
     const mu = muH + muA;
-    const pmf = nbPmf(mu, 20, 0.35);
+    const pmf = predNbPmf(mu, 20, 0.35);
     const base = Math.floor(mu) + 0.5;
     const rows = [base - 1, base, base + 1].filter((L) => L > 0).map((L) => {
       const ov = countOver(pmf, L);

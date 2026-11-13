@@ -2,7 +2,7 @@
 
 const NAV_ICON = {
   prediction: "🎯", injuries: "🩹", stars: "⭐", history: "📖", cards: "🗂️", movement: "📈", form: "📊", lineups: "👥", links: "🔗",
-  recap: "📝", stats: "📊", timeline: "⏱️", "live-analysis": "⚡", corners: "⛳", mood: "💬", board: "🏟️", inplay: "🎲", coaches: "👔"
+  recap: "📝", stats: "📊", timeline: "⏱️", "live-analysis": "⚡", corners: "⛳", mood: "💬", board: "🏟️", inplay: "🎲", coaches: "👔", settle: "📒"
 };
 
 function navLabel(text) {
