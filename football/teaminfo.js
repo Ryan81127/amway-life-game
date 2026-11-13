@@ -478,7 +478,8 @@ function trendPack(s, info) {
   const u = s.u;
   const games = info?.recent?.games || 0;
   if (!u || !games) return { tags, lines: [] };
-  const played = (u.log || []).filter((g) => g.min > 0);
+  const log = u.log || [];
+  const played = log.filter((g) => g.min > 0);
   const prod = (u.g || u.a) ? `${u.g} 球 ${u.a} 助攻` : "";
   let summary;
   if (!u.apps) summary = `近 ${games} 場都沒有上場。`;
@@ -505,32 +506,39 @@ function trendPack(s, info) {
     const mins = played.reduce((n, g) => n + g.min, 0);
     const goals = played.reduce((n, g) => n + g.g, 0);
     if (mins >= 120 && goals > 0) extra.push(`這段每 90 分鐘 ${trimNum(goals * 90 / mins)} 球。`);
-    if (played.length >= 3) {
+    if (played.length >= 4) {
       const mid = Math.ceil(played.length / 2);
       const older = played.slice(mid);
       const recent = played.slice(0, mid);
       if (older.length) {
         const avg = (arr, pick) => arr.reduce((n, g) => n + pick(g), 0) / arr.length;
-        const rMin = avg(recent, (g) => g.min);
-        const oMin = avg(older, (g) => g.min);
-        if (rMin - oMin >= 12) {
-          tags.push("上場變多");
-          extra.push(`上場時間在往上走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
-        } else if (oMin - rMin >= 12) {
-          tags.push("上場變少");
-          extra.push(`上場時間在往下走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
+        const rP = avg(recent, (g) => g.g + g.a);
+        const oP = avg(older, (g) => g.g + g.a);
+        if (rP - oP >= 0.5) {
+          tags.push("進攻上升");
+          extra.push("進球加助攻的頻率在往上走。");
+        } else if (oP - rP >= 0.5) {
+          tags.push("進攻下滑");
+          extra.push("進球加助攻的頻率在往下走。");
         }
-        if (played.length >= 4) {
-          const rP = avg(recent, (g) => g.g + g.a);
-          const oP = avg(older, (g) => g.g + g.a);
-          if (rP - oP >= 0.5) {
-            tags.push("進攻上升");
-            extra.push("進球加助攻的頻率在往上走。");
-          } else if (oP - rP >= 0.5) {
-            tags.push("進攻下滑");
-            extra.push("進球加助攻的頻率在往下走。");
-          }
-        }
+      }
+    }
+  }
+  /* 上場時間要把 0 分鐘的替補算進去。只看有上場的場次，會把最近兩場坐板凳的人說成時間變多。 */
+  if (log.length >= 3) {
+    const mid = Math.ceil(log.length / 2);
+    const recent = log.slice(0, mid);
+    const older = log.slice(mid);
+    if (older.length) {
+      const avgMin = (arr) => arr.reduce((n, g) => n + g.min, 0) / arr.length;
+      const rMin = avgMin(recent);
+      const oMin = avgMin(older);
+      if (rMin - oMin >= 12) {
+        tags.push("上場變多");
+        extra.push(`上場時間在往上走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
+      } else if (oMin - rMin >= 12) {
+        tags.push("上場變少");
+        extra.push(`上場時間在往下走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
       }
     }
   }
