@@ -408,7 +408,10 @@ function matchNav(model) {
   const items = pre
     ? [["prediction", "盤口預測"], ["inplay", "滾球"], ["corners", "角球"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
     : [...(phase === "ft" ? [] : [["mood", "此刻可以說"], ["inplay", "滾球"]]), ["recap", "復盤"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
-  sideRail(items);
+  /* 側欄按鈕順序跟頁面區塊分開。進行中：話術、預測、滾球、角球，再接復盤。 */
+  const railRank = { mood: 10, prediction: 20, inplay: 30, corners: 40, recap: 50, stats: 60, timeline: 70, "live-analysis": 80, stars: 90, cards: 100, injuries: 110, history: 120, coaches: 130, movement: 140, links: 150 };
+  const railItems = pre ? items : items.slice().sort((a, b) => (railRank[a[0]] ?? 500) - (railRank[b[0]] ?? 500));
+  sideRail(railItems);
   return h("nav", { class: "chips match-nav", "aria-label": "本頁區塊" }, items.map(([id, label]) => h("a", { class: "chip", href: "#" + id, onclick: (event) => {
     const target = document.getElementById(id);
     if (!target) return;
