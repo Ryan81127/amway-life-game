@@ -265,8 +265,111 @@ function curatedCards(model) {
   return cards.filter((c) => !c.auto && c.eff?.status !== "不可當成事實播報");
 }
 
+/* ---------- 查證故事卡排程：Claude 定時查證、寫進 cards/，網頁按「重新整理故事」就讀到 ---------- */
+
+const STORY_REPO = "Ryan81127/amway-life-game";
+const STORY_RUNS_DEFAULT = ["08:40", "13:40", "17:40", "21:10"];
+const STORY_RUN_MINUTES = 45;
+let storyQueue = null;
+let storyQueueAt = 0;
+let storyQueueBusy = false;
+
+async function loadStoryQueue(force) {
+  if (storyQueueBusy) return;
+  if (!force && storyQueue && Date.now() - storyQueueAt < 5 * 60000) return;
+  storyQueueBusy = true;
+  try {
+    const res = await fetch(`cards/queue.json?t=${Date.now()}`, { cache: "no-store" });
+    storyQueue = res.ok ? await res.json() : { runs: STORY_RUNS_DEFAULT, done: {}, queued: {} };
+  } catch {
+    storyQueue = storyQueue || { runs: STORY_RUNS_DEFAULT, done: {}, queued: {} };
+  }
+  storyQueueAt = Date.now();
+  storyQueueBusy = false;
+  if (state.model) maybeRender({ soft: true });
+}
+
+/* 下一次 Claude 排程執行（台北時間）與預計完成時間 */
+function nextStoryRun(runs) {
+  const now = new Date();
+  const ymd = taipeiYmd(now);
+  const list = (runs && runs.length ? runs : STORY_RUNS_DEFAULT).slice().sort();
+  for (let add = 0; add < 2; add += 1) {
+    const day = add ? addDays(ymd, 1) : ymd;
+    for (const hm of list) {
+      const at = new Date(`${day}T${hm}:00+08:00`);
+      if (at > now) return { start: at, ready: new Date(at.getTime() + STORY_RUN_MINUTES * 60000) };
+    }
+  }
+  return null;
+}
+
+function hm(d) {
+  return new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
+}
+
+function storyRequestUrl(model) {
+  const title = `故事卡：${model.home.rawName} vs ${model.away.rawName}（${model.home.name} 對 ${model.away.name}）`;
+  const body = [
+    "請幫這場比賽做查證過的故事卡。",
+    "",
+    `- event: ${model.id}`,
+    `- league: ${model.leagueSlug}`,
+    `- home: ${model.home.id} ${model.home.rawName}（${model.home.name}）`,
+    `- away: ${model.away.id} ${model.away.rawName}（${model.away.name}）`,
+    `- kickoff: ${model.kickoff}`,
+    `- page: ${location.href.split("#")[0]}`
+  ].join("\n");
+  return `https://github.com/${STORY_REPO}/issues/new?labels=story-request&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+}
+
+async function refreshStory(model) {
+  cardStore.files.clear();
+  cardStore.index = null;
+  state.cards = null;
+  const key = `${model.home.id}-${model.away.id}`;
+  storyStore.delete(key);
+  try { localStorage.removeItem(STORY_PREFIX + key); } catch { /* 略過 */ }
+  await loadStoryQueue(true);
+  if (typeof ensureCards === "function") ensureCards(model);
+  maybeRender({ soft: true });
+}
+
+function storyQueueBlock(model) {
+  loadStoryQueue(false);
+  const q = storyQueue || { runs: STORY_RUNS_DEFAULT, done: {}, queued: {} };
+  const done = q.done?.[model.id];
+  const queued = q.queued?.[model.id];
+  const teamsDone = [model.home.id, model.away.id].filter((id) => q.teams?.[id]);
+  const next = nextStoryRun(q.runs);
+  const box = h("div", { class: "story-queue" });
+  let msg;
+  let cls = "";
+  if (done) {
+    msg = `✅ 查證故事卡已產生（${done.at ? hm(new Date(done.at)) : ""}，${done.count || "數"} 張），已放進下方「兩隊之間」與知識卡。`;
+    cls = "ok";
+  } else if (queued) {
+    msg = `⏳ 已排入，預計 ${next ? hm(next.ready) : "下一輪"} 前完成（Claude 每天 ${q.runs.join("、")} 開始查證，約 ${STORY_RUN_MINUTES} 分鐘）。時間到按「重新整理故事」。`;
+    cls = "wait";
+  } else {
+    msg = `尚未排入。${teamsDone.length ? `（${teamsDone.map((id) => (id === model.home.id ? model.home.name : model.away.name)).join("、")}已有舊故事卡，可重複使用）` : ""}按「排入故事卡」送出請求，下一輪 ${next ? hm(next.start) : ""} 開始查證，預計 ${next ? hm(next.ready) : ""} 前可用。`;
+  }
+  box.className = `story-queue ${cls}`;
+  box.append(h("p", null, ui(msg)));
+  const kick = new Date(model.kickoff);
+  if (!done && next && next.ready > kick && model.minute?.phase === "pre") box.append(h("p", { class: "warn" }, ui(`⚠️ 開賽時間 ${hm(kick)} 早於預計完成時間，這場可能來不及，先用下方自動整理的內容。`)));
+  const actions = h("div", { class: "chips" },
+    h("button", { class: "chip", onclick: () => refreshStory(model) }, ui("🔄 重新整理故事")),
+    done ? null : h("a", { class: "chip", href: storyRequestUrl(model), target: "_blank", rel: "noopener" }, ui(queued ? "補充需求" : "📝 排入故事卡")));
+  box.append(actions);
+  if (!done && !queued) box.append(h("p", { class: "faint" }, ui("按「排入故事卡」會開啟 GitHub 已填好的請求，按 Submit 送出即可。另外，國際賽與五大聯賽的焦點戰，Claude 每輪也會主動挑幾場先做。")));
+  if (q.updated) box.append(h("p", { class: "faint" }, ui(`排程最後更新：${hm(new Date(q.updated))}`)));
+  return box;
+}
+
 function historyBlock(model) {
   const block = h("section", { class: "block", id: "history" }, h("h2", null, ui("兩隊故事與看點")));
+  block.append(storyQueueBlock(model));
   const st = storyOf(model);
   if (!st) { block.append(h("p", { class: "muted" }, ui("整理兩隊的歷史、紀錄與恩怨中…"))); return block; }
   const say = [];
