@@ -887,6 +887,9 @@ footer.foot {
 .prog.ok { border-color: rgba(61, 220, 151, 0.6); color: var(--green); }
 .kcard h3 { margin: 6px 0 4px; }
 .kc-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.settle-sum { margin: 8px 0 4px; font-size: 18px; font-weight: 800; }
+.settle-hit { color: var(--green); font-weight: 800; }
+.settle-miss { color: #ff8b98; font-weight: 800; }
 .star-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .star-card.has-photo { grid-template-columns: 84px minmax(0, 1fr); }
 .star-photo { width: 84px; height: 84px; border-radius: 16px; object-fit: cover; object-position: top center; background: #d7dde6; border: 1px solid var(--line); }
