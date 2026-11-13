@@ -401,6 +401,11 @@ function renderMatch(app, route) {
   app.append(wrap, footer());
   app.dataset.ready = "1";
   app.dataset.view = "match";
+  if (typeof warmNames === "function") {
+    const ens = [];
+    for (const side of ["home", "away"]) for (const p of model.roster?.[side]?.players || []) if (p.en) ens.push(p.en);
+    warmNames(ens);
+  }
 }
 
 function matchNav(model) {
@@ -893,7 +898,7 @@ function pitchCard(model, side) {
       style: `left:${spot.x}%;top:${spot.y}%`,
       onclick: () => spot.player.id && openPlayer(spot.player.id)
     },
-      h("span", { class: "num" }, spot.player.jersey || "–"),
+      h("span", { class: "num" }, String(spot.player.jersey || "").trim()),
       h("span", { class: "pname" }, shortZh(spot.player)),
       last ? h("span", { class: "came" }, `↓${shortZh(spot.starter)} ${last.minute || ""}`.trim()) : null,
       spot.sent ? h("span", { class: "redtag" }, ui("紅牌")) : null
@@ -911,7 +916,7 @@ function pitchCard(model, side) {
 }
 
 function shortZh(player) {
-  const name = player?.name || "";
+  const name = (typeof shownZh === "function" && player?.en ? shownZh(player.en) : player?.name) || "";
   if (/[\u4e00-\u9fff]/.test(name)) {
     const part = name.split("·");
     return part[part.length - 1];
@@ -992,7 +997,8 @@ function allPlayers(model) {
 }
 
 function playerHit(player, q) {
-  return [player.name, player.en, player.shortName, player.lastName, player.jersey].some((value) => String(value || "").toLowerCase().includes(q));
+  const zh = typeof shownZh === "function" ? shownZh(player.en) : "";
+  return [player.name, player.en, player.shortName, player.lastName, player.jersey, zh].some((value) => String(value || "").toLowerCase().includes(q));
 }
 
 function squad(block, team) {
@@ -1020,11 +1026,12 @@ function playerRow(player) {
   if ((player.stats.redCards || 0) > 0 || player.redMins.length) bits.push("紅牌");
   if (player.subOn) bits.push(`${player.subOn} 上`);
   if (player.subOff) bits.push(`${player.subOff} 下`);
+  const shirt = String(player.jersey || "").trim();
   return h("button", { class: "xi", onclick: () => openPlayer(player.id) },
-    h("span", { class: "no" }, player.jersey || "–"),
+    shirt ? h("span", { class: "no" }, shirt) : null,
     h("span", { class: "who" },
-      h("span", { class: "nm" }, player.name),
-      h("span", { class: "pos" }, [player.posZh, bits.join(" · ")].filter(Boolean).join(" · "))
+      typeof nameHead === "function" ? nameHead(player.en, shirt) : h("span", { class: "nm" }, player.name),
+      h("span", { class: "pos" }, ui([player.posZh, bits.join(" · ")].filter(Boolean).join(" · ")))
     )
   );
 }
