@@ -881,6 +881,24 @@ footer.foot {
 .prog.ok { border-color: rgba(61, 220, 151, 0.6); color: var(--green); }
 .kcard h3 { margin: 6px 0 4px; }
 .kc-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.star-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.star-card.has-photo { grid-template-columns: 84px minmax(0, 1fr); }
+.star-photo { width: 84px; height: 84px; border-radius: 16px; object-fit: cover; object-position: top center; background: #d7dde6; border: 1px solid var(--line); }
+.star-body { min-width: 0; }
+.star-links { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 4px; }
+.star-links a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-2); color: var(--text); text-decoration: none; font-size: 13px; font-weight: 800; }
+.star-links a:hover { border-color: var(--gold); color: var(--gold); }
+.star-k { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 2px; }
+.star-fact { margin: 3px 0; }
+.star-src a { color: var(--gold); }
+.tag-src { font-size: 11px; font-weight: 800; letter-spacing: 0.02em; padding: 1px 6px; border-radius: 999px; color: var(--blue); border: 1px solid rgba(142, 194, 255, 0.55); }
+.tag-src.cur { color: var(--gold); border-color: rgba(240, 195, 106, 0.6); }
+.min-bars { display: flex; align-items: flex-end; gap: 6px; height: 58px; margin: 6px 0 2px; }
+.min-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 28px; height: 100%; }
+.min-bar i { display: block; width: 12px; border-radius: 4px 4px 0 0; background: var(--blue); }
+.min-bar.goal i { background: var(--gold); }
+.min-bar.ast i { background: var(--green); }
+.min-bar b { margin-top: 2px; font-size: 10px; line-height: 1; color: var(--faint); font-weight: 700; }
 .kc-fact { margin: 4px 0; }
 .kc-src a { color: var(--gold); }
 .kc-humor { margin: 6px 0; padding: 8px 10px; border-radius: 10px; background: var(--card-2); }

@@ -80,6 +80,8 @@ const PLAYER_ZH_RAW = {
   "Kang-In Lee": "李康仁", "Mason Greenwood": "格林伍德", "Pierre-Emerick Aubameyang": "奧巴梅揚", "Takumi Minamino": "南野拓實",
   "Jonathan David ": "喬納森·大衛", "Alexandre Lacazette": "拉卡澤特", "Hamed Traore": "特拉奧雷",
   /* 國家隊／其他 */
+  "Hassan Al-Haydos": "哈桑·海多斯", "Akram Afif": "阿克拉姆·阿菲夫",
+  "Alessandro Circati": "亞歷山德羅·奇爾卡蒂", "Aziz Behich": "阿齊茲·貝希奇",
   "Cristiano Ronaldo": "C羅", "Lionel Messi": "梅西", "Neymar": "內馬爾", "Son Heung-Min": "孫興慜", "Heung-Min Son": "孫興慜",
   "Hwang Hee-Chan": "黃喜燦", "Lee Jae-Sung": "李在城", "Hidemasa Morita": "守田英正", "Ayase Ueda": "上田綺世",
   "Zion Suzuki": "鈴木彩艷", "Junya Ito": "伊東純也", "Takumi Minamino ": "南野拓實", "Ko Itakura": "板倉滉",

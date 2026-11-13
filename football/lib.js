@@ -797,6 +797,7 @@ function readRoster(block) {
         shortName: known ? zh : athlete.shortName || "",
         lastName: known ? zh : athlete.lastName || "",
         jersey: row.jersey || athlete.jersey || "",
+        headshot: athlete.headshot?.href || "",
         posAbbr: abbr,
         posZh: posZh(abbr),
         starter: !!row.starter,

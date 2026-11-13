@@ -64,6 +64,11 @@ async function fetchRoster(league, teamId, national) {
             pos: a.position?.abbreviation || "",
             posName: a.position?.displayName || "",
             age: a.age || null,
+            cm: heightCm(a.displayHeight, a.height),
+            born: birthYear(a),
+            slug: a.slug || "",
+            headshot: a.headshot?.href || "",
+            espn: playerCardUrl(a),
             nat: COUNTRY_ZH[a.citizenship] || a.citizenship || "",
             active: !a.status || a.status.type === "active",
             statusText: a.status?.name || "",
@@ -108,7 +113,7 @@ async function recentUsage(model, side, signal) {
   let games = 0;
   let lastSquad = null;
   let lastReds = new Set();
-  slims.forEach(({ slim }, i) => {
+  slims.forEach(({ ev, slim }, i) => {
     const rows = slim?.pm?.[teamId];
     if (!rows || !rows.length) return;
     games += 1;
@@ -117,8 +122,9 @@ async function recentUsage(model, side, signal) {
       lastReds = new Set(rows.filter((r) => r.r).map((r) => r.id));
     }
     for (const r of rows) {
-      const u = usage.get(r.id) || { id: r.id, en: r.en, apps: 0, starts: 0, min: 0, g: 0, a: 0, y: 0, squads: 0, idx: [] };
+      const u = usage.get(r.id) || { id: r.id, en: r.en, apps: 0, starts: 0, min: 0, g: 0, a: 0, y: 0, squads: 0, idx: [], log: [] };
       u.squads += 1;
+      u.log.push({ date: String(ev?.date || "").slice(0, 10), min: r.m || 0, g: r.g || 0, a: r.a || 0, st: r.st ? 1 : 0 });
       if (r.m > 0) { u.apps += 1; u.min += r.m; u.idx.push(i); }
       if (r.st) u.starts += 1;
       u.g += r.g; u.a += r.a; u.y += r.y;
@@ -214,10 +220,21 @@ async function ensureTeamInfo(model) {
       ]);
       return [side, { roster, recent, manual, squad }];
     }));
-    tiStore.set(key, { status: "ok", at: Date.now(), national, ...Object.fromEntries(sides) });
+    const pack = { status: "ok", at: Date.now(), national, bios: {}, biosStatus: "loading", ...Object.fromEntries(sides) };
+    tiStore.set(key, pack);
+    if (state.model?.id === model.id) maybeRender({ soft: true });
+    const bios = await loadStarBios(model, pack);
+    if (tiStore.get(key) !== pack) return;
+    pack.bios = bios;
+    pack.biosStatus = "ok";
   } catch (err) {
+    if (err?.name === "AbortError") {
+      if (tiStore.get(key)?.status === "loading") tiStore.delete(key);
+      return;
+    }
     console.error(err);
-    tiStore.set(key, { status: "error" });
+    const cur = tiStore.get(key);
+    if (!cur || cur.status === "loading") tiStore.set(key, { status: "error" });
   }
   if (state.model?.id === model.id) maybeRender({ soft: true });
 }
@@ -272,7 +289,396 @@ function starLine(model, side, s, ti) {
     if (p.yc || p.rc) bits.push(`黃牌 ${p.yc}${p.rc ? `、紅牌 ${p.rc}` : ""}`);
   }
   if (u && g) bits.push(`近 ${g} 場上場 ${u.apps} 場（先發 ${u.starts}）共 ${u.min} 分鐘${u.g || u.a ? `、${u.g} 球 ${u.a} 助` : ""}`);
+  const trend = trendPack(s, ti[side]).lines[1];
+  if (trend) bits.push(trend.replace(/。$/, ""));
   return bits.join("；");
+}
+
+const CLUB_ZH = {
+  "Al Sadd": "薩德", "Benfica": "本菲卡", "SL Benfica": "本菲卡",
+  "Sporting CP": "葡萄牙體育", "Sporting": "葡萄牙體育",
+  "Melbourne City": "墨爾本城", "Melbourne City FC": "墨爾本城",
+  "Leicester City": "萊斯特城", "Parma": "帕爾馬"
+};
+
+const ROLE_LINE = {
+  G: "門將。先聽出球，再看禁區裡的第一下反應。",
+  GK: "門將。先聽出球，再看禁區裡的第一下反應。",
+  D: "後衛。先看他穩不穩，球到了中線再看他敢不敢跟上。",
+  M: "中場。節奏在他腳上，進球或助攻都會從這裡起算。",
+  F: "前鋒。對方的中衛，今晚第一個要對上的就是他。"
+};
+
+function heightCm(display, inches) {
+  const m = String(display || "").match(/(\d+)\s*'\s*(\d+)/);
+  if (m) return Math.round(Number(m[1]) * 30.48 + Number(m[2]) * 2.54);
+  const n = Number(inches);
+  return Number.isFinite(n) && n > 40 && n < 90 ? Math.round(n * 2.54) : 0;
+}
+
+function birthYear(a) {
+  const iso = String(a?.dateOfBirth || "");
+  if (/^\d{4}/.test(iso)) return iso.slice(0, 4);
+  const m = String(a?.displayDOB || "").match(/(\d{4})/);
+  return m ? m[1] : "";
+}
+
+function playerCardUrl(a) {
+  const link = (a?.links || []).find((l) => (l.rel || []).includes("playercard") && String(l.href || "").startsWith("http"));
+  return link?.href || "";
+}
+
+function clubZh(name) {
+  return CLUB_ZH[name] || name || "";
+}
+
+function clubPhrase(name) {
+  const zh = clubZh(name);
+  if (!zh) return "";
+  return /^[\u3400-\u9fff]/.test(zh) ? `效力${zh}` : `效力 ${zh}`;
+}
+
+function espnPlayerUrl(id, slug, en) {
+  const s = slug || plainKey(en).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `https://www.espn.com/soccer/player/_/id/${encodeURIComponent(id)}${s ? "/" + s : ""}`;
+}
+
+function tmSearchUrl(en) {
+  return `https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=${encodeURIComponent(en || "")}`;
+}
+
+function zhWikiSearch(en) {
+  return `https://zh.wikipedia.org/w/index.php?search=${encodeURIComponent(en || "")}`;
+}
+
+const WIKI_MEMO = new Map();
+const WIKI_QUEUE = [];
+let wikiRunning = 0;
+let starPaintTimer = 0;
+
+function queueWiki(task) {
+  if (task) WIKI_QUEUE.push(task);
+  while (wikiRunning < 2 && WIKI_QUEUE.length) {
+    const next = WIKI_QUEUE.shift();
+    wikiRunning += 1;
+    next().finally(() => {
+      wikiRunning -= 1;
+      queueWiki(null);
+    });
+  }
+}
+
+function scheduleStarPaint() {
+  if (starPaintTimer) return;
+  starPaintTimer = setTimeout(() => {
+    starPaintTimer = 0;
+    if (state.model) maybeRender({ soft: true });
+  }, 80);
+}
+
+function wikiNameClose(en, title) {
+  const words = starNameKey(en).split(" ").filter((w) => w.length > 2);
+  const page = starNameKey(title);
+  if (!words.length || !page) return false;
+  const hits = words.filter((w) => page.includes(w));
+  return hits.length >= Math.min(2, words.length);
+}
+
+function wikiLink(en) {
+  const key = plainKey(en);
+  if (!key) return { href: zhWikiSearch(en), kind: "search" };
+  let hit = WIKI_MEMO.get(key);
+  if (!hit) {
+    hit = { href: zhWikiSearch(en), kind: "search", status: "loading" };
+    WIKI_MEMO.set(key, hit);
+    queueWiki(() => resolveWiki(en, key));
+  }
+  return hit;
+}
+
+async function resolveWiki(en, key) {
+  try {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&generator=search&gsrsearch=${encodeURIComponent(en + " footballer")}&gsrlimit=1&prop=info|langlinks&inprop=url&lllang=zh`;
+    let res = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      res = await fetch(url);
+      if (res.status !== 429 && res.status !== 503) break;
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+    if (!res || !res.ok) throw new Error("wiki");
+    const data = await res.json();
+    const page = data?.query?.pages ? Object.values(data.query.pages)[0] : null;
+    const hit = WIKI_MEMO.get(key);
+    if (!hit) return;
+    if (!page || page.missing || !wikiNameClose(en, page.title)) {
+      hit.status = "done";
+      return;
+    }
+    const zh = page.langlinks?.[0]?.["*"];
+    const href = zh
+      ? `https://zh.wikipedia.org/wiki/${encodeURIComponent(String(zh).replace(/ /g, "_"))}`
+      : (page.fullurl || hit.href);
+    const kind = zh ? "zh" : (page.fullurl ? "en" : "search");
+    hit.status = "done";
+    if (href !== hit.href || kind !== hit.kind) {
+      hit.href = href;
+      hit.kind = kind;
+      scheduleStarPaint();
+    }
+  } catch {
+    const hit = WIKI_MEMO.get(key);
+    if (hit) hit.status = "done";
+  }
+}
+
+async function fetchAthleteCard(id, league) {
+  const urls = [
+    `${ATHLETE}/${league}/athletes/${id}`,
+    `https://site.web.api.espn.com/apis/common/v3/sports/soccer/athletes/${id}`
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const a = data?.athlete;
+      if (!a || (!a.displayName && !a.id)) continue;
+      return {
+        club: a.team?.displayName || "",
+        headshot: a.headshot?.href || "",
+        espn: playerCardUrl(a),
+        pos: a.position?.abbreviation || "",
+        age: a.age || null,
+        cm: heightCm(a.displayHeight, a.height),
+        born: birthYear(a)
+      };
+    } catch { /* 換下一個位址 */ }
+  }
+  return null;
+}
+
+async function loadStarBios(model, ti) {
+  const ids = [];
+  for (const side of ["home", "away"]) {
+    if (!ti[side]) continue;
+    for (const s of starList(model, side, ti)) {
+      if (s.id && !ids.includes(s.id)) ids.push(s.id);
+    }
+  }
+  const lim = pLimit(4);
+  const pairs = await Promise.all(ids.map((id) => lim(async () => [id, await fetchAthleteCard(id, model.leagueSlug)])));
+  const bios = {};
+  for (const [id, bio] of pairs) if (bio) bios[id] = bio;
+  return bios;
+}
+
+function trendPack(s, info) {
+  const tags = [];
+  const extra = [];
+  const u = s.u;
+  const games = info?.recent?.games || 0;
+  if (!u || !games) return { tags, lines: [] };
+  const played = (u.log || []).filter((g) => g.min > 0);
+  const prod = (u.g || u.a) ? `${u.g} 球 ${u.a} 助攻` : "";
+  let summary;
+  if (!u.apps) summary = `近 ${games} 場都沒有上場。`;
+  else if (games === 1) summary = `近 1 場踢了 ${u.min} 分鐘${prod ? "，" + prod : ""}。`;
+  else if (u.apps === games && u.starts === games) summary = `近 ${games} 場全部先發，合計 ${u.min} 分鐘${prod ? "，" + prod : ""}。`;
+  else summary = `近 ${games} 場上場 ${u.apps} 場、先發 ${u.starts} 場，合計 ${u.min} 分鐘${prod ? "，" + prod : ""}。`;
+  if (played.length >= 2) {
+    const streak = (pred) => {
+      let n = 0;
+      for (const g of played) {
+        if (pred(g)) n += 1;
+        else break;
+      }
+      return n;
+    };
+    const gs = streak((g) => g.g > 0);
+    const as = streak((g) => g.a > 0);
+    const both = streak((g) => g.g + g.a > 0);
+    const blank = streak((g) => g.g + g.a === 0);
+    if (gs >= 2) extra.push(`連續 ${gs} 場上場都有進球。`);
+    else if (as >= 2) extra.push(`連續 ${as} 場上場都有助攻。`);
+    else if (both >= 3) extra.push(`近 ${both} 場上場都有進球或助攻。`);
+    else if (blank >= 3 && (s.p?.pos === "F" || s.p?.pos === "M")) extra.push(`近 ${blank} 場上場沒有進球，也沒有助攻。`);
+    const mins = played.reduce((n, g) => n + g.min, 0);
+    const goals = played.reduce((n, g) => n + g.g, 0);
+    if (mins >= 120 && goals > 0) extra.push(`這段每 90 分鐘 ${trimNum(goals * 90 / mins)} 球。`);
+    if (played.length >= 3) {
+      const mid = Math.ceil(played.length / 2);
+      const older = played.slice(mid);
+      const recent = played.slice(0, mid);
+      if (older.length) {
+        const avg = (arr, pick) => arr.reduce((n, g) => n + pick(g), 0) / arr.length;
+        const rMin = avg(recent, (g) => g.min);
+        const oMin = avg(older, (g) => g.min);
+        if (rMin - oMin >= 12) {
+          tags.push("上場變多");
+          extra.push(`上場時間在往上走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
+        } else if (oMin - rMin >= 12) {
+          tags.push("上場變少");
+          extra.push(`上場時間在往下走，近段場均 ${Math.round(rMin)} 分鐘，再之前 ${Math.round(oMin)} 分鐘。`);
+        }
+        if (played.length >= 4) {
+          const rP = avg(recent, (g) => g.g + g.a);
+          const oP = avg(older, (g) => g.g + g.a);
+          if (rP - oP >= 0.5) {
+            tags.push("進攻上升");
+            extra.push("進球加助攻的頻率在往上走。");
+          } else if (oP - rP >= 0.5) {
+            tags.push("進攻下滑");
+            extra.push("進球加助攻的頻率在往下走。");
+          }
+        }
+      }
+    }
+  }
+  return { tags, lines: [summary, ...extra].slice(0, 3) };
+}
+
+function starBio(s, ti) {
+  return (ti.bios || {})[s.id] || {};
+}
+
+function identityBits(s, bio) {
+  const p = s.p || {};
+  const bits = [];
+  const age = p.age || bio.age;
+  const year = p.born || bio.born;
+  if (age) bits.push(`${age} 歲`);
+  else if (year) bits.push(`${year} 年生`);
+  const pos = p.pos || bio.pos;
+  if (pos && posZh(pos)) bits.push(posZh(pos));
+  const cm = p.cm || bio.cm;
+  if (cm) bits.push(`${cm} 公分`);
+  if (bio.club) bits.push(clubPhrase(bio.club));
+  return bits;
+}
+
+function askLine(name, pos) {
+  if (pos === "G" || pos === "GK") return `你覺得 ${name} 今天守得住零封嗎？守得住的扣 1！`;
+  if (pos === "D") return `你覺得 ${name} 今天會不會送出關鍵解圍或助攻？會的扣 1！`;
+  if (pos === "M") return `你覺得 ${name} 今天是先送助攻，還是自己破門？留言選一個！`;
+  if (pos === "F") return `你覺得 ${name} 今天碰得進球門嗎？會的扣 1！`;
+  return `今天的鏡頭，你會給 ${name} 嗎？會的扣 1！`;
+}
+
+function anchorLines(model, side, s, ti) {
+  const p = s.p;
+  const bio = starBio(s, ti);
+  const prof = typeof starProfile === "function" ? starProfile(s.id, s.en) : null;
+  const lines = [];
+  const season = [];
+  if (p?.hasStats) {
+    let apps = `本季出場 ${trimNum(p.apps)} 次、${trimNum(p.goals)} 球 ${trimNum(p.assists)} 助攻`;
+    if (p.subIns && p.apps && Number(p.subIns) === Number(p.apps)) apps += `，這 ${trimNum(p.apps)} 次都是替補`;
+    else if (p.subIns) apps += `，替補 ${trimNum(p.subIns)} 次`;
+    season.push(apps);
+    if (p.shots >= 4) season.push(`射門 ${trimNum(p.shots)}、射正 ${trimNum(p.sot)}`);
+    if ((p.pos === "G" || p.pos === "GK") && (p.saves || p.conceded)) season.push(`撲救 ${trimNum(p.saves)}、失球 ${trimNum(p.conceded)}`);
+  }
+  const today = todayStatus(model, side, s.id);
+  const head = [s.name, today].filter(Boolean).join("，");
+  if (season.length) lines.push(`${head}。${season.join("，")}。`);
+  else lines.push(`${head}。`);
+  const trend = trendPack(s, ti[side]);
+  lines.push(...trend.lines);
+  const who = identityBits(s, bio);
+  if (who.length) lines.push(who.join("，") + "。");
+  if (prof?.say) lines.push(prof.say.endsWith("。") ? prof.say : `${prof.say}。`);
+  else if (ROLE_LINE[p?.pos || bio.pos || ""]) lines.push(ROLE_LINE[p?.pos || bio.pos]);
+  if (!p?.hasStats && !trend.lines.length) lines.push("ESPN 目前沒有足夠的出場數字。");
+  lines.push(askLine(s.name, p?.pos || bio.pos));
+  return { lines, trend, prof };
+}
+
+function minuteBars(log) {
+  const rows = (log || []).slice().reverse();
+  if (!rows.length) return null;
+  return h("div", { class: "min-bars", title: ui("上場分鐘，由舊到新") }, rows.map((g) => {
+    const cls = g.g > 0 ? "goal" : g.a > 0 ? "ast" : "";
+    const pct = Math.max(8, Math.min(100, Math.round((g.min || 0) / 90 * 100)));
+    const tip = `${g.date || ""} ${g.min} 分鐘${g.g ? ` ${g.g} 球` : ""}${g.a ? ` ${g.a} 助` : ""}`.trim();
+    return h("span", { class: `min-bar ${cls}`, title: ui(tip) },
+      h("i", { style: `height:${pct}%` }),
+      h("b", null, String(g.min || 0)));
+  }));
+}
+
+function starShot(model, side, s, ti) {
+  const match = (model.roster?.[side]?.players || []).find((p) => p.id === s.id);
+  return s.p?.headshot || match?.headshot || starBio(s, ti).headshot || "";
+}
+
+function starCard(model, side, s, ti, index) {
+  const p = s.p || {};
+  const bio = starBio(s, ti);
+  const shot = starShot(model, side, s, ti);
+  const espn = p.espn || bio.espn || (s.id ? espnPlayerUrl(s.id, p.slug, s.en) : "");
+  const wiki = s.en ? wikiLink(s.en) : { href: zhWikiSearch(""), kind: "search" };
+  const pack = anchorLines(model, side, s, ti);
+  const card = h("article", { class: "star-card" + (shot ? " has-photo" : "") });
+  if (shot) {
+    const img = h("img", { class: "star-photo", src: shot, alt: s.name, loading: "lazy" });
+    img.addEventListener("error", () => {
+      img.remove();
+      card.classList.remove("has-photo");
+    });
+    card.append(img);
+  }
+  const today = todayStatus(model, side, s.id);
+  const meta = [
+    p.pos ? posZh(p.pos) || p.pos : (bio.pos ? posZh(bio.pos) || bio.pos : ""),
+    p.age || bio.age ? `${p.age || bio.age} 歲` : "",
+    p.cm || bio.cm ? `${p.cm || bio.cm} 公分` : "",
+    p.nat || "",
+    p.jersey ? `#${p.jersey}` : "",
+    bio.club ? clubPhrase(bio.club) : ""
+  ].filter(Boolean).join(" · ");
+  const body = h("div", { class: "star-body" },
+    h("div", { class: "kc-head" },
+      h("strong", null, s.name),
+      s.name !== s.en ? h("span", { class: "faint" }, s.en) : null,
+      today ? h("span", { class: today.includes("未進") ? "tag-bad" : "tag-val" }, ui(today)) : null,
+      ...pack.trend.tags.map((tag) => h("span", { class: tag.includes("少") || tag.includes("下滑") ? "tag-bad" : "tag-val" }, ui(tag)))
+    ),
+    meta ? h("p", { class: "faint" }, ui(meta)) : null,
+    h("div", { class: "star-links" },
+      h("a", {
+        href: wiki.href, target: "_blank", rel: "noopener noreferrer",
+        title: ui(wiki.kind === "zh" ? "中文維基" : wiki.kind === "en" ? "英文維基" : "用名字搜尋維基")
+      }, ui(wiki.kind === "search" ? "維基搜尋" : "維基")),
+      espn ? h("a", { href: espn, target: "_blank", rel: "noopener noreferrer" }, "ESPN") : null,
+      s.en ? h("a", { href: tmSearchUrl(s.en), target: "_blank", rel: "noopener noreferrer" }, "Transfermarkt") : null
+    ),
+    h("p", { class: "star-k" }, h("span", { class: "tag-src" }, "ESPN"), ti[side]?.roster?.season ? h("span", { class: "faint" }, " " + ti[side].roster.season) : null),
+    minuteBars(s.u?.log),
+    s.u?.log?.length ? h("p", { class: "faint" }, ui("上場分鐘，由舊到新。金色是有進球，綠色是有助攻。")) : null
+  );
+  const espnText = [p.hasStats ? starLine(model, side, s, ti).split("；").slice(0, 2).join("，") : "", pack.trend.lines[0] || ""].filter(Boolean);
+  if (espnText.length) espnText.forEach((line) => body.append(h("p", { class: "star-fact" }, ui(line.endsWith("。") || line.endsWith("；") ? line : line + "。"))));
+  else body.append(h("p", { class: "star-fact" }, ui("ESPN 只有名單，沒有這位球員的出場數字。")));
+  if (pack.trend.lines.length > 1) pack.trend.lines.slice(1).forEach((line) => body.append(h("p", { class: "star-fact" }, ui(line))));
+  if (pack.prof) {
+    body.append(h("p", { class: "star-k" },
+      h("span", { class: "tag-src cur" }, ui("資料庫")),
+      h("span", { class: "faint" }, ` ${ui("查證")} ${pack.prof.checked || ""}`)));
+    const posLabel = posZh(p.pos || bio.pos || "");
+    const styleBits = (pack.prof.style || []).filter((item) => item && item !== posLabel);
+    if (styleBits.length) body.append(h("p", { class: "star-fact" }, ui(styleBits.join("，") + "。")));
+    if (pack.prof.honours?.length) body.append(h("ul", { class: "bullets" }, pack.prof.honours.map((item) => h("li", null, ui(item)))));
+    if (pack.prof.story) body.append(h("p", { class: "star-fact" }, ui(pack.prof.story)));
+    if (pack.prof.sources?.length) {
+      body.append(h("p", { class: "faint star-src" }, ui("來源："), ...pack.prof.sources.flatMap((src, i) => [
+        i ? " · " : null,
+        h("a", { href: src.url, target: "_blank", rel: "noopener noreferrer" }, ui(src.name))
+      ])));
+    }
+  } else body.append(h("p", { class: "faint" }, ui("這位還沒進資料庫，只念 ESPN 的數字跟近況，不另編故事。")));
+  body.append(scriptBlock(pack.lines, index === 0 ? "口播：這位先念" : "口播"));
+  card.append(body);
+  return card;
 }
 
 function starsBlock(model) {
@@ -280,33 +686,20 @@ function starsBlock(model) {
   const ti = teamInfo(model);
   if (!ti || ti.status === "loading") { block.append(h("p", { class: "muted" }, ui("讀取球員名單與近 5 場出場紀錄中…"))); return block; }
   if (ti.status !== "ok") { block.append(h("p", { class: "muted" }, ui("球員資料暫時無法取得。"))); return block; }
-  const lines = [];
+  block.append(h("p", { class: "faint" }, ui("每位旁邊都有維基、ESPN、Transfermarkt。標 ESPN 的是自動算的，標資料庫的是事先查證的生涯事實。這一段只談球員，不談盤口。")));
+  const tops = [];
   for (const side of ["home", "away"]) {
     const stars = starList(model, side, ti);
     block.append(h("h3", null, ui(model[side].name)));
     if (!stars.length) { block.append(h("p", { class: "muted" }, ui("ESPN 沒有這隊的名單與出場資料。"))); continue; }
-    const rows = stars.map((s) => {
-      const p = s.p;
-      const meta = [p?.pos ? posZh(p.pos) || p.pos : "", p?.age ? `${p.age} 歲` : "", p?.nat || "", p?.jersey ? `#${p.jersey}` : ""].filter(Boolean).join(" · ");
-      const today = todayStatus(model, side, s.id);
-      return h("div", { class: "cp" },
-        h("div", { class: "kc-head" }, h("strong", null, s.name), s.name !== s.en ? h("span", { class: "faint" }, s.en) : null, today ? h("span", { class: today.includes("未進") ? "tag-bad" : "tag-val" }, ui(today)) : null),
-        meta ? h("p", { class: "faint" }, ui(meta)) : null,
-        h("p", null, ui(starLine(model, side, s, ti) || "ESPN 只有名單，沒有這位球員的出場數據。")));
-    });
-    block.append(...rows);
+    stars.forEach((s, index) => block.append(starCard(model, side, s, ti, index)));
     const sq = ti[side].squad;
     if (sq) block.append(squadValueBlock(model, side, sq));
     else block.append(h("p", { class: "faint" }, ui(`💰 ${model[side].name}的球員身價還沒建檔：按「兩隊故事」區的「📋 複製故事卡請求」，Claude 製作故事卡時會一併查 Transfermarkt 身價。`)));
-    const top = stars[0];
-    if (top) {
-      const p = top.p;
-      const u = top.u;
-      lines.push(`${model[side].name}最值得注意的是 ${top.name}${p?.hasStats ? `，本季出場 ${p.apps} 次、${p.goals} 球 ${p.assists} 助攻` : ""}${u ? `，近 ${ti[side].recent.games} 場踢了 ${u.min} 分鐘` : ""}。`);
-    }
+    if (stars[0]) tops.push(`${model[side].name}先看 ${stars[0].name}`);
   }
-  if (lines.length) block.append(scriptBlock([...lines, "你覺得今天誰會是場上最亮的那個人？留言說名字！"], "口播：球星介紹"));
-  block.append(h("p", { class: "faint" }, ui("本季數據來自 ESPN 球隊名單（ESPN 不提供本季出場分鐘）；分鐘數是看板從近 5 場賽後名單逐場加總（先發算到被換下、替補從上場算起，傷停補時不計）。")));
+  if (tops.length) block.append(scriptBlock([`${tops.join("，")}。`, "你覺得今天誰會是場上最亮的那個人？留言說名字！"], "口播：點名"));
+  block.append(h("p", { class: "faint" }, ui("本季出場、進球、助攻、年齡、身高、頭像與俱樂部來自 ESPN。分鐘與趨勢是看板把近 5 場賽後名單加總（先發算到被換下、替補從上場算起，傷停補時不計）。資料庫只收附了來源的句子，沒有收錄的人不另編故事。")));
   return block;
 }
 
@@ -389,11 +782,17 @@ function teamInfoCards(model) {
     for (const s of starList(model, side, ti).filter((x) => !x.rosterOnly).slice(0, 3)) {
       const line = starLine(model, side, s, ti);
       if (!line) continue;
+      const prof = typeof starProfile === "function" ? starProfile(s.id, s.en) : null;
       cards.push({
         id: `star-${s.id}`, topic: "球員", owner: team.name, auto: true,
         title: `${s.name}：${team.name}關鍵人物`, fact: `${s.name}（${s.en}）${line}。`,
-        sources: [{ name: "ESPN 球隊名單", url: `https://www.espn.com/soccer/team/squad/_/id/${team.id}` }], checked: today,
-        say: `${team.name}這邊要盯緊 ${s.name}。${line}。他狀態好不好，直接決定${team.name}的上限。`,
+        sources: [
+          { name: "ESPN 球隊名單", url: `https://www.espn.com/soccer/team/squad/_/id/${team.id}` },
+          ...(prof?.sources || [])
+        ], checked: prof?.checked || today,
+        say: prof?.say
+          ? `${team.name}這邊，${s.name}。${line}。${prof.say}`
+          : `${team.name}這邊要盯緊 ${s.name}。${line}。他狀態好不好，直接決定${team.name}的上限。`,
         humor: { light: `${s.name}在隊上的地位，大概跟我家的 Wi-Fi 一樣：沒有他什麼都不順。`, spicy: `對手今天的防守計畫，第一頁應該只寫了 ${s.name} 三個字。` },
         ask: `${s.name}今天會進球嗎？會的扣 1！`,
         when: ["開場", "暫停", "中場"],
