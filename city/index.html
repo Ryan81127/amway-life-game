@@ -33,6 +33,23 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0d0d10;color:#fff;fon
 #muteBtn{position:fixed;top:calc(150px + env(safe-area-inset-top));left:64px;z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 body.cut #obj,body.cut #prompt,body.cut #toast,body.cut #quiz,body.cut #radio,body.cut #big,body.cut #timer{visibility:hidden}
 #viewBtn{position:fixed;top:calc(150px + env(safe-area-inset-top));left:116px;z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#clock{font-size:13px;font-weight:900;margin-top:4px}
+#teamH{font-size:12px;font-weight:700;color:#bfffd2;margin-top:1px}
+#feed{position:fixed;right:10px;top:calc(206px + env(safe-area-inset-top));width:min(250px,60vw);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:5px}
+#quiz:not(.hide)~#feed{display:none}
+#feed .fi{background:#101318e6;border-left:4px solid var(--green);border-radius:8px;padding:5px 8px;font-size:12px;line-height:1.45;transition:opacity .5s,transform .5s}
+#feed .fi.out{opacity:0;transform:translateX(30px)}
+#feed .fi b{color:var(--gold)}
+#bTalk{right:104px;bottom:calc(30px + env(safe-area-inset-bottom));width:70px;height:70px;background:radial-gradient(#57d1ff,#1f6fb8)}
+.tb.hide{display:none}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.stat div{background:#1b1e24;border-radius:10px;padding:8px 10px}
+.stat small{display:block;color:#aaa;font-size:12px}
+.stat b{font-size:20px;font-family:Anton,"Noto Sans TC",sans-serif;letter-spacing:.5px}
+.hb{display:flex;align-items:center;gap:8px;font-size:14px;margin:5px 0}
+.hb span{width:100px;flex:none;white-space:nowrap}.hb i{display:block;height:12px;border-radius:6px}.hb em{font-style:normal;color:#aaa;font-size:12px;flex:none}
+.dots::after{content:"";animation:dots 1s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"．"}50%{content:"．．"}75%{content:"．．．"}}
 #quiz{position:fixed;top:calc(206px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 20px));background:#000c;border:2px solid var(--gold);border-radius:12px;padding:8px 12px;z-index:11;pointer-events:none}
 #quiz h4{margin:0 0 4px;font-size:16px;color:var(--gold);line-height:1.35}
 #quiz .o{display:flex;gap:8px;align-items:flex-start;font-size:15px;font-weight:700;margin:3px 0;line-height:1.35}
@@ -144,10 +161,10 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 <body class="touch-off">
 <canvas id="cv"></canvas>
 <canvas id="mm" width="272" height="272"></canvas>
-<div id="hud"><div id="exp" class="num out">EXP 000000</div><div id="lvl" class="out">Lv.1</div><div id="stars" class="out"></div><div id="credit"><i></i></div><div id="credLbl" class="out">信用值</div><div id="evo"></div></div>
+<div id="hud"><div id="exp" class="num out">EXP 000000</div><div id="lvl" class="out">Lv.1</div><div id="stars" class="out"></div><div id="credit"><i></i></div><div id="credLbl" class="out">信用值</div><div id="evo"></div><div id="clock" class="out"></div><div id="teamH" class="out"></div></div>
 <button id="phoneBtn" title="手機">📱</button><button id="muteBtn" title="音效">🔊</button><button id="viewBtn" title="切換視角（V）">👁</button>
 <div id="timer" class="num out hide"></div>
-<div id="quiz" class="hide"></div>
+<div id="quiz" class="hide"></div><div id="feed"></div>
 <div id="obj" class="out"></div>
 <div id="prompt" class="hide"></div>
 <div id="toast"><b></b><span></span></div>
@@ -157,6 +174,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 <div class="tb" id="bAct">🚗<small>上車</small></div>
 <div class="tb" id="bHb">⚡<small>甩尾</small></div>
 <div class="tb" id="bHorn">📯</div>
+<div class="tb hide" id="bTalk">💬<small>分享</small></div>
 <div id="foot">直銷商個人製作，非安麗官方網站｜內容依安麗台灣公開資訊整理，以官網公告為準｜收入數字皆為示範試算，非保證、因人而異</div>
 
 <div id="title" class="ov">
@@ -170,6 +188,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
   <p style="text-align:center;font-size:15px;line-height:1.7;margin:12px 0">開放城市任務版：在城裡開車、接 6 個任務，<br>把《安麗新人手冊》與《卓越新星計劃》一路玩懂。</p>
   <div style="text-align:center"><button class="btn w100" id="bStart" style="max-width:340px">▶ 開始遊戲</button><br><button class="btn dk" id="bReset" style="font-size:14px;padding:8px 14px">重新開始</button></div>
   <div class="how">
+   <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 分享 OPP（新功能）</b><br>走路靠近路人，按 T（手機按 💬），開口分享安麗。對方可能加入直銷商、生活會員、安麗之友，或婉拒。每次開口都有「勇氣 EXP」，被拒絕也算數！加入的夥伴會隨機購買產品，累積團隊營業額與 BV（遊戲模擬）。</div>
    <div><b>移動／開車</b><br>電腦：WASD 或方向鍵<br>手機：左下搖桿（推哪邊就往哪開）</div>
    <div><b>上車／下車</b><br>電腦：E 或 F<br>手機：綠色 🚗 按鈕</div>
    <div><b>甩尾</b><br>電腦：空白鍵<br>手機：紅色 ⚡ 按鈕</div>
@@ -184,7 +203,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 <div id="cut" class="ov hide"><div class="bar top"></div><div class="bar bot"></div><div class="ttl"></div><div class="sub"><div class="who out"></div><div class="say out"></div></div><div class="nx">點一下 / Enter 繼續 ▶</div></div>
 <div id="pass" class="ov hide"><div class="panel"></div></div>
 <div id="wasted" class="ov hide"><div class="t out">被謠言淹沒了</div><p class="out" style="font-size:16px;font-weight:700">別擔心，到小安客服站重新出發。<br>正確資訊永遠以官網公告為準。</p><button class="btn" id="bRespawn">重新出發</button></div>
-<div id="phone" class="ov hide"><div class="panel"><div class="tabs"><button data-t="m" class="on">任務</button><button data-t="k">知識圖鑑</button><button data-t="s">設定</button></div><div id="phBody"></div><button class="btn w100" id="phClose" style="margin-top:12px">關閉手機</button></div></div>
+<div id="phone" class="ov hide"><div class="panel"><div class="tabs"><button data-t="m" class="on">任務</button><button data-t="t">團隊</button><button data-t="k">知識圖鑑</button><button data-t="s">設定</button></div><div id="phBody"></div><button class="btn w100" id="phClose" style="margin-top:12px">關閉手機</button></div></div>
 <div id="info" class="ov hide"><div class="panel"></div></div>
 
 <script src="../src/data.js"></script>
@@ -193,7 +212,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 const CFG=window.AMWAY_GAME_CONFIG;
 const KEY="amway-city-v1";
 let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
-S=Object.assign({done:{},cards:[],gems:[],exp:0,branches:[],found:[],mute:false},S||{});
+S=Object.assign({done:{},cards:[],gems:[],exp:0,branches:[],found:[],mute:false,team:[],opp:{talks:0,dist:0,mem:0,fri:0,rej:0,streak:0},day:1,clock:480,sales:0,bv:0,today:{sales:0,bv:0,join:0}},S||{});
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=s=>document.querySelector(s);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -218,7 +237,7 @@ const LAYOUT=[
 const LOTS={lotA:"A",lotB:"B",lotC:"C",lotD:"D"};
 const NAMES={ware:"物流園區",res:"住宅區",shop:"商店街",office:"商辦區",park:"公園",tech:"科技園區",space:"安麗空間",tower:"星耀塔",xiaoan:"小安客服站",uni:"大學城",lotA:"空地",lotB:"空地",lotC:"空地",lotD:"空地"};
 const GROUND={ware:"#8a877e",res:"#78a457",shop:"#a7a296",office:"#99958b",park:"#5c9a44",tech:"#8fa0a6",space:"#d9cfbd",tower:"#c7c0b2",xiaoan:"#a9c1d3",uni:"#7fae64",lot:"#a8895c",branch:"#c9bfae"};
-let BLOCKS=[],BLD=[],TREES=[];
+let BLOCKS=[],BLD=[],TREES=[],LAMPS=[];
 const bandIdx=v=>{const k=Math.floor(v/PT);return(k>=0&&k<NR&&v-k*PT<RWP)?k:-1};
 const isRoad=(x,y)=>x>=0&&y>=0&&x<W&&y<W&&(bandIdx(x)>=0||bandIdx(y)>=0);
 function sw(bx,by,side,f){const x0=(bx*P+RW)*T,y0=(by*P+RW)*T,L=(P-RW)*T,a=T*.5,b=L-T*.5,m=a+(b-a)*f;
@@ -232,15 +251,15 @@ for(let c=0;c<NR;c++)for(let k=0;k<NB;k++)SEGS.push({h:false,k,c,...vMid(c,k)});
 
 const ROOFS=["#c65b4a","#4a78c6","#6aa35a","#d1a24a","#8a5ac6","#4ab0b0","#c64a8a","#7a7a7a"];
 function genWorld(){
- BLOCKS=[];BLD=[];TREES=[];const R=rng(20261112);
+ BLOCKS=[];BLD=[];TREES=[];LAMPS=[];if(typeof CHUNKS!="undefined")CHUNKS.clear();const R=rng(20261112);
  for(let by=0;by<NB;by++)for(let bx=0;bx<NB;bx++){
   let type=LAYOUT[by][bx];const x=(bx*P+RW)*T,y=(by*P+RW)*T,ix=x+T,iy=y+T,L=7*T;
   const lot=LOTS[type],built=lot&&S.branches.includes(lot);
   const B={bx,by,type,x,y,ground:GROUND[lot?(built?"branch":"lot"):type],lot,built};BLOCKS.push(B);
   const add=(dx,dy,w,h,ht,o={})=>BLD.push(Object.assign({x:ix+dx*T,y:iy+dy*T,w:w*T,h:h*T,ht,roof:pick2(R,ROOFS)},o));
   const tree=(dx,dy,r=20)=>TREES.push({x:ix+dx*T,y:iy+dy*T,r:r+R()*8});
-  if(type=="res"){for(const[a,b]of[[.3,.3],[4,.3],[.3,4],[4,4]])add(a,b,2.7,2.7,30+R()*30);tree(3.5,3.5,26);tree(3.5,1,16);tree(1,3.6,16)}
-  else if(type=="shop"){add(.2,.2,6.6,2.8,60+R()*30,{awn:1});add(.2,4,3,2.8,50+R()*30,{awn:1});add(3.8,4,3,2.8,70+R()*30,{awn:1})}
+  if(type=="res"){for(const[a,b]of[[.3,.3],[4,.3],[.3,4],[4,4]])add(a,b,2.7,2.7,32+R()*26,{res:1,roof:pick2(R,["#b5523f","#8a4b3a","#4a6aa0","#5f7f4a","#a0643a","#6d5a8a"]),wall:pick2(R,["#efe6d6","#e6d7bf","#d9e2e8","#f3e3e3"])});tree(3.5,3.5,26);tree(3.5,1,16);tree(1,3.6,16)}
+  else if(type=="shop"){const AW=["#e04848","#2d8a5a","#2d6bd8","#e08a2d","#8a3ad6"];add(.2,.2,6.6,2.8,60+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#e8dccb"});add(.2,4,3,2.8,50+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#dfe6ea"});add(3.8,4,3,2.8,70+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#efe0d0"})}
   else if(type=="office"){add(.3,.3,3,6.4,140+R()*90,{roof:"#5d6b7a",glass:1});add(3.9,.3,2.8,3,120+R()*80,{roof:"#6d7884",glass:1});add(3.9,4,2.8,2.7,90+R()*60,{roof:"#56636f",glass:1})}
   else if(type=="ware"){add(.2,.3,6.6,3.2,55,{roof:"#8f9aa3",ware:1});add(.2,4.3,4,2.4,45,{roof:"#a09378",ware:1});tree(5.6,5.4,18)}
   else if(type=="tech"){add(.5,.5,6,2.6,110,{roof:"#2d6f8f",glass:1,label:"科技園區"});add(.5,4.2,2.6,2.4,70,{roof:"#3b7f6f"});add(4,4.2,2.6,2.4,80,{roof:"#3b5f8f"})}
@@ -251,7 +270,7 @@ function genWorld(){
   else if(type=="uni"){add(.6,.6,5.8,3.4,90,{roof:"#e9e1cf",label:"大學城・賦能殿",sign:"#8a5a2b",temple:1});for(let i=0;i<6;i++)tree(.6+i*1.15,5.6,16)}
   else if(lot){if(built)add(1,1,5,3.6,85,{roof:"#ff9a3d",label:"分店 "+lot,sign:"#e0246a",awn:1});else B.fence=1}
  }
- BLOCKS.forEach(B=>B.g3=hex2(B.ground));BLD.forEach((b,i)=>{b.id=i;b.c3=hex2(b.roof)});buildMini();
+ BLOCKS.forEach(B=>{B.g3=hex2(B.ground);for(const f of[.04,.5,.96]){LAMPS.push({x:B.x+10,y:B.y+T*.5+f*8*T},{x:B.x+9*T-10,y:B.y+T*.5+f*8*T})}for(const f of[.5]){LAMPS.push({x:B.x+T*.5+f*8*T,y:B.y+10},{x:B.x+T*.5+f*8*T,y:B.y+9*T-10})}});BLD.forEach((b,i)=>{b.id=i;b.c3=hex2(b.roof)});buildMini();
 }
 function pick2(R,a){return a[Math.floor(R()*a.length)]}
 
@@ -286,10 +305,13 @@ function spawnNPC(){
 }
 function nextIx(n){const h=n.dir==0||n.dir==2,pos=h?n.x:n.y;
  if(n.dir==0||n.dir==1)return Math.ceil(pos/PT);return Math.floor((pos-RWP)/PT)}
+const PNAMES=["小美","阿明","志豪","雅婷","淑芬","建宏","怡君","家豪","佩君","俊傑","美玲","宗翰","欣怡","冠宇","惠如","承恩","秀英","文雄","詩涵","子軒","佳蓉","振興","麗華","柏翰"];
+const JOBS=[["上班族","👩‍💼"],["大學生","🧑‍🎓"],["家庭主婦","👩"],["退休老師","👴"],["健身教練","🏋️"],["小吃店老闆","🧑‍🍳"],["工程師","👨‍💻"],["護理師","👩‍⚕️"],["業務員","🧑‍💼"],["新手爸媽","👨‍👩‍👧"],["美髮師","💇"],["外送員","🛵"]];
+const MOODS=["看起來很忙","正在散步","剛下班","心情不錯","在等朋友","滑著手機"];
 function spawnPeds(){
  PEDS=[];const R=rng(99);const SK=["#f1c9a0","#d9a877","#a8754f","#f6dcc0"],SH=["#ff5577","#3d7dff","#ffd23d","#57ff8a","#fff","#a65aff","#ff9a3d","#333"];
  for(let i=0;i<70;i++){const b=BLOCKS[Math.floor(R()*BLOCKS.length)];
-  PEDS.push({b,s:R()*4*8*T,dir:R()<.5?1:-1,v:28+R()*30,sk:pick2(R,SK),sh:pick2(R,SH),jump:0,say:"",sayT:0,off:0,x:0,y:0})}
+  const job=pick2(R,JOBS);PEDS.push({b,s:R()*4*8*T,dir:R()<.5?1:-1,v:28+R()*30,sk:pick2(R,SK),sh:pick2(R,SH),hair:pick2(R,["#2a1d14","#4a3020","#111","#7a5a3a","#c9a26a"]),jump:0,say:"",sayT:0,off:0,x:0,y:0,name:pick2(R,PNAMES),job:job[0],av:job[1],mood:pick2(R,MOODS),ang:0})}
 }
 function pedPos(p){const L=8*T,x0=p.b.x+T*.5,y0=p.b.y+T*.5;let s=((p.s%(4*L))+4*L)%(4*L);
  if(s<L)return[x0+s,y0,0,1];if(s<2*L)return[x0+L,y0+s-L,-1,0];if(s<3*L)return[x0+L-(s-2*L),y0+L,0,-1];return[x0,y0+L-(s-3*L),1,0]}
@@ -297,9 +319,9 @@ const COLLECT=[ // hidden 積點包
  sw(2,3,"n",.5),sw(4,0,"w",.5),sw(0,0,"s",.8),sw(4,1,"n",.9),sw(0,3,"s",.5),sw(3,4,"e",.2),sw(1,0,"e",.9),sw(2,1,"w",.1)];
 
 /* ================= INPUT ================= */
-const K={};let JOY={x:0,y:0,m:0,id:null,ox:0,oy:0};let HB=false,ACT=false;
+const K={};let JOY={x:0,y:0,m:0,id:null,ox:0,oy:0};let HB=false,ACT=false,TALK=false;
 addEventListener("keydown",e=>{const k=e.key.toLowerCase();K[k]=1;
- if(k=="e"||k=="f")ACT=true;if(k=="v")toggleView();if(k=="h")horn();
+ if(k=="e"||k=="f")ACT=true;if(k=="t"||k=="q")TALK=true;if(k=="v")toggleView();if(k=="h")horn();
  if((k=="enter"||k==" ")&&!$("#cut").classList.contains("hide")){cutNext();e.preventDefault()}
  if(k==" "||k.startsWith("arrow"))e.preventDefault();
  if(k=="escape")togglePhone()});
@@ -315,7 +337,7 @@ joy.addEventListener("pointerup",endJoy);joy.addEventListener("pointercancel",en
 function moveJoy(e){let dx=e.clientX-JOY.ox,dy=e.clientY-JOY.oy;const d=Math.hypot(dx,dy),m=Math.min(d,56);if(d>0){dx=dx/d*m;dy=dy/d*m}
  JOY.x=dx/56;JOY.y=dy/56;JOY.m=m/56;jk.style.transform=`translate(${dx}px,${dy}px)`}
 const hold=(el,on,off)=>{el.addEventListener("pointerdown",e=>{e.preventDefault();audioInit();on()});el.addEventListener("pointerup",off);el.addEventListener("pointercancel",off);el.addEventListener("pointerleave",off)};
-hold($("#bAct"),()=>ACT=true,()=>{});hold($("#bHb"),()=>HB=true,()=>HB=false);hold($("#bHorn"),horn,()=>{});
+hold($("#bAct"),()=>ACT=true,()=>{});hold($("#bTalk"),()=>TALK=true,()=>{});hold($("#bHb"),()=>HB=true,()=>HB=false);hold($("#bHorn"),horn,()=>{});
 $("#phoneBtn").onclick=()=>togglePhone();
 $("#viewBtn").onclick=()=>toggleView();
 function toggleView(){S.view=S.view=="fp"?"top":"fp";save();$("#viewBtn").textContent=S.view=="fp"?"🗺":"👁";if(STARTED)toast(S.view=="fp"?"👁 第一人稱視角":"🗺 俯瞰視角",S.view=="fp"?"搖桿往上＝前進、左右＝轉向。上方黃色箭頭指向目標。再按一次切回俯瞰。":"搖桿推哪個方向，車就往那個方向開。","#38e1ff")}
@@ -560,7 +582,7 @@ function carHits(c){ // player car vs npc/parked/rumor
 /* ================= UPDATE ================= */
 let shake=0,radioT=0,lastNear=null;
 function update(dt){
- TIME+=dt;PL.hitCD-=dt;
+ TIME+=dt;PL.hitCD-=dt;tickClock(dt);
  PL.px=(PL.car||PL).x;PL.py=(PL.car||PL).y;
  // controls
  let thr=0,st=0,hb=HB||K[" "];
@@ -589,7 +611,10 @@ function update(dt){
  const pr=$("#prompt");
  if(ACT){ACT=false;if(PL.car){if(PL.car.speed<120)exitCar()}else if(near)enterCar(near)}
  const isTouch=!document.body.classList.contains("touch-off");
- if(!PL.car&&near){pr.textContent=isTouch?"按 🚗 上車":"按 E 上車";pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
+ const tp=nearPed();if(TALK){TALK=false;if(tp&&!PAUSE){talk(tp);return}}
+ $("#bTalk").classList.toggle("hide",!tp);$("#bHb").classList.toggle("hide",!PL.car);
+ if(tp){pr.textContent=(isTouch?"按 💬 ":"按 T ")+`和 ${tp.name} 分享 OPP`+(near?(isTouch?"｜🚗 上車":"｜E 上車"):"");pr.classList.remove("hide")}
+ else if(!PL.car&&near){pr.textContent=isTouch?"按 🚗 上車":"按 E 上車";pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
  $("#bAct").innerHTML=PL.car?"🚶<small>下車</small>":"🚗<small>上車</small>";
  // world
  for(const n of NPC)npcStep(n,dt);
@@ -637,11 +662,11 @@ function npcStep(n,dt){
  const ta=n.dir*Math.PI/2;n.a+=angDiff(ta,n.a)*Math.min(1,dt*8);
  n.honk=Math.max(0,n.honk-dt);
 }
-function pedStep(p,dt){p.s+=p.dir*p.v*dt*(p.jump>0?3:1);if(Math.random()<dt*.05)p.dir*=-1;
+function pedStep(p,dt){const hold=p.talking||(!PL.car&&Math.hypot(PL.x-p.x,PL.y-p.y)<46);if(!hold){p.s+=p.dir*p.v*dt*(p.jump>0?3:1);if(Math.random()<dt*.05)p.dir*=-1}
  const[x,y,ix,iy]=pedPos(p);p.ix=ix;p.iy=iy;
  const c=PL.car;if(c&&c.speed>80&&Math.hypot(c.x-p.x,c.y-p.y)<95&&p.jump<=0){p.jump=.7;p.say=pick(["哇！","小心開！","嚇死我了","慢一點～"]);p.sayT=1.6}
  if(p.jump>0){p.jump-=dt;p.off=Math.min(28,p.off+dt*140)}else p.off=Math.max(0,p.off-dt*30);
- p.x=x+ix*p.off;p.y=y+iy*p.off;p.sayT-=dt}
+ const nx=x+ix*p.off,ny=y+iy*p.off;if(Math.abs(nx-p.x)+Math.abs(ny-p.y)>.05)p.ang=Math.atan2(ny-p.y,nx-p.x);if(hold)p.ang=Math.atan2(PL.y-ny,PL.x-nx);p.moving=!hold;p.x=nx;p.y=ny;p.sayT-=dt}
 function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=60+Math.random()*240;PARTS.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.6+Math.random()*.5,max:1.1,col,r:2+Math.random()*3})}}
 function confetti(){const p=PL.car||PL;for(let i=0;i<120;i++){const a=Math.random()*6.28,s=100+Math.random()*400;PARTS.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-200,g:300,life:1.5+Math.random(),max:2.5,col:pick(["#ffd23d","#ff3d7f","#38e1ff","#57ff8a","#fff"]),r:3+Math.random()*3,sq:1})}}
 
@@ -659,32 +684,15 @@ function render(){
  ctx.setTransform(DPR*z,0,0,DPR*z,DPR*(W2/2-CAM.x*z+sx),DPR*(H2/2-CAM.y*z+sy));
  const vx0=CAM.x-W2/2/z-40,vy0=CAM.y-H2/2/z-40,vx1=CAM.x+W2/2/z+40,vy1=CAM.y+H2/2/z+40;
  const inView=(x,y,m=0)=>x>vx0-m&&x<vx1+m&&y>vy0-m&&y<vy1+m;
- // ground
- const t0x=Math.max(0,Math.floor(vx0/T)),t1x=Math.min(NB*P+RW-1,Math.floor(vx1/T)),t0y=Math.max(0,Math.floor(vy0/T)),t1y=Math.min(NB*P+RW-1,Math.floor(vy1/T));
- for(let ty2=t0y;ty2<=t1y;ty2++)for(let tx2=t0x;tx2<=t1x;tx2++){const lx=tx2%P,ly=ty2%P,X=tx2*T,Y=ty2*T;
-  if(lx<RW||ly<RW){ctx.fillStyle="#3a3c42";ctx.fillRect(X,Y,T+1,T+1);continue}
-  const bl=lx-RW,bm=ly-RW;const B=BLOCKS[Math.floor(ty2/P)*NB+Math.floor(tx2/P)];
-  if(bl==0||bl==8||bm==0||bm==8){ctx.fillStyle=((tx2+ty2)&1)?"#bdb8ac":"#b3aea2";ctx.fillRect(X,Y,T+1,T+1)}
-  else{ctx.fillStyle=B?B.ground:"#5c9a44";ctx.fillRect(X,Y,T+1,T+1)}}
- // curbs + lot details
- for(const B of BLOCKS){if(!inView(B.x+4.5*T,B.y+4.5*T,600))continue;
-  ctx.strokeStyle="#8d887c";ctx.lineWidth=3;ctx.strokeRect(B.x+1.5,B.y+1.5,9*T-3,9*T-3);
-  if(B.pond){ctx.fillStyle="#3f8fc9";ctx.beginPath();ctx.ellipse(B.pond.x,B.pond.y,B.pond.r*1.2,B.pond.r*.8,0,0,7);ctx.fill();ctx.strokeStyle="#bfe5ff";ctx.lineWidth=4;ctx.stroke();
-   ctx.strokeStyle="#d8cfa8";ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(B.x+T,B.y+7.5*T);ctx.quadraticCurveTo(B.x+5*T,B.y+6*T,B.x+8*T,B.y+T*1.2);ctx.stroke()}
-  if(B.fence){ctx.setLineDash([10,8]);ctx.strokeStyle="#5a4630";ctx.lineWidth=4;ctx.strokeRect(B.x+T*1.2,B.y+T*1.2,6.6*T,6.6*T);ctx.setLineDash([]);
-   ctx.fillStyle="#fff";ctx.font="900 54px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("空地 "+B.lot,B.x+4.5*T,B.y+4.5*T);
-   ctx.font="700 22px 'Noto Sans TC',sans-serif";ctx.fillText(S.done[5]||MS&&MS.m.id==6?"分店預定地":"出租中",B.x+4.5*T,B.y+4.5*T+44)}
-  if(B.type=="xiaoan"){const q=XIAOAN;ctx.fillStyle="#3d7dff55";ctx.beginPath();ctx.arc(q.x-40,q.y,70,0,7);ctx.fill();ctx.strokeStyle="#3d7dff";ctx.lineWidth=4;ctx.stroke()}}
- // road markings
- ctx.lineWidth=3;
- for(let k=0;k<NR;k++){const yc=k*PT+1.5*T;if(yc<vy0-200||yc>vy1+200)continue;
-  for(let c=0;c<NB;c++){const xa=c*PT+RWP,xb=(c+1)*PT;if(xb<vx0||xa>vx1)continue;
-   ctx.strokeStyle="#f2c200";ctx.beginPath();ctx.moveTo(xa+30,yc-3);ctx.lineTo(xb-30,yc-3);ctx.moveTo(xa+30,yc+3);ctx.lineTo(xb-30,yc+3);ctx.stroke();
-   ctx.fillStyle="#e8e8e8";for(let i=0;i<7;i++){ctx.fillRect(xa+4,k*PT+10+i*25,18,14);ctx.fillRect(xb-22,k*PT+10+i*25,18,14)}}}
- for(let c=0;c<NR;c++){const xc=c*PT+1.5*T;if(xc<vx0-200||xc>vx1+200)continue;
-  for(let k=0;k<NB;k++){const ya=k*PT+RWP,yb=(k+1)*PT;if(yb<vy0||ya>vy1)continue;
-   ctx.strokeStyle="#f2c200";ctx.beginPath();ctx.moveTo(xc-3,ya+30);ctx.lineTo(xc-3,yb-30);ctx.moveTo(xc+3,ya+30);ctx.lineTo(xc+3,yb-30);ctx.stroke();
-   ctx.fillStyle="#e8e8e8";for(let i=0;i<7;i++){ctx.fillRect(c*PT+10+i*25,ya+4,14,18);ctx.fillRect(c*PT+10+i*25,yb-22,14,18)}}}
+ // ground (cached detailed chunks)
+ const DI=dayInfo();
+ for(let j=Math.max(0,Math.floor(vy0/CH));j<=Math.min(Math.floor((W-1)/CH),Math.floor(vy1/CH));j++)for(let i=Math.max(0,Math.floor(vx0/CH));i<=Math.min(Math.floor((W-1)/CH),Math.floor(vx1/CH));i++)ctx.drawImage(chunk(i,j),i*CH,j*CH,CH+.6,CH+.6);
+ // sun shadows (move with the clock)
+ const SV=sunVec(DI);if(SV.a>0){ctx.fillStyle=`rgba(10,20,40,${SV.a})`;ctx.beginPath();
+  for(const b of BLD){if(!inView(b.x+b.w/2,b.y+b.h/2,b.ht*1.6+b.w))continue;const dx=SV.x*b.ht,dy=SV.y*b.ht,x0=b.x,y0=b.y,x1=b.x+b.w,y1=b.y+b.h;
+   const hl=hull([[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0+dx,y0+dy],[x1+dx,y0+dy],[x1+dx,y1+dy],[x0+dx,y1+dy]]);ctx.moveTo(hl[0][0],hl[0][1]);for(let k=1;k<hl.length;k++)ctx.lineTo(hl[k][0],hl[k][1]);ctx.closePath()}
+  ctx.fill("nonzero");
+  for(const t of TREES){if(!inView(t.x,t.y,80))continue;ctx.moveTo(t.x+SV.x*40+t.r,t.y+SV.y*40);ctx.arc(t.x+SV.x*40,t.y+SV.y*40,t.r,0,7)}ctx.fill()}
  // markers
  const pulse=(Math.sin(TIME*4)+1)/2;
  const marker=(x,y,col,label,r=70)=>{if(!inView(x,y,200))return;ctx.globalAlpha=.25+pulse*.2;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=col;ctx.lineWidth=5;ctx.beginPath();ctx.arc(x,y,r*.75+pulse*r*.25,0,7);ctx.stroke();
@@ -707,8 +715,17 @@ function render(){
    ctx.fillStyle="#000";ctx.beginPath();ctx.arc(pd.x,pd.y,36,0,7);ctx.fill();ctx.fillStyle=col;ctx.font="60px Anton,sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(GL[pd.i],pd.x,pd.y+3);
    const t=QZ.q[1][QZ.order[pd.i]],tt=t.length>11?t.slice(0,10)+"…":t;ctx.font="900 22px 'Noto Sans TC',sans-serif";ctx.lineWidth=6;ctx.strokeStyle="#000";ctx.strokeText(tt,pd.x,pd.y-62);ctx.fillStyle="#fff";ctx.fillText(tt,pd.x,pd.y-62)}}
  // peds
- for(const q of PEDS){if(!inView(q.x,q.y))continue;const bob=Math.sin(TIME*8+q.s)*1.5;ctx.fillStyle="#0003";ctx.beginPath();ctx.arc(q.x+3,q.y+3,8,0,7);ctx.fill();ctx.fillStyle=q.sh;ctx.beginPath();ctx.ellipse(q.x,q.y+bob,8,6,0,0,7);ctx.fill();ctx.fillStyle="#2a1d14";ctx.beginPath();ctx.arc(q.x,q.y+bob,4.5,0,7);ctx.fill();
-  if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.x,q.y-18);ctx.fillText(q.say,q.x,q.y-18)}}
+ const tpNear=nearPed();
+ for(const q of PEDS){if(!inView(q.x,q.y))continue;const sw3=q.moving?Math.sin(TIME*9+q.s*.1)*4:0;
+  ctx.fillStyle="#0003";ctx.beginPath();ctx.ellipse(q.x+3,q.y+4,9,7,0,0,7);ctx.fill();
+  ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.ang);
+  ctx.fillStyle="#2b2b33";ctx.fillRect(sw3-3,-5,6,4);ctx.fillRect(-sw3-3,1,6,4);
+  ctx.fillStyle=q.sk;ctx.beginPath();ctx.arc(-sw3*.6,-8.5,2.6,0,7);ctx.arc(sw3*.6,8.5,2.6,0,7);ctx.fill();
+  ctx.fillStyle=q.sh;ctx.beginPath();ctx.ellipse(0,0,6,8.5,0,0,7);ctx.fill();ctx.strokeStyle="#0003";ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle=q.sk;ctx.beginPath();ctx.arc(.5,0,4.6,0,7);ctx.fill();ctx.fillStyle=q.hair;ctx.beginPath();ctx.arc(-.6,0,4.8,Math.PI*.55,Math.PI*1.45);ctx.fill();ctx.restore();
+  if(q===tpNear){ctx.strokeStyle="#57d1ff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(q.x,q.y,16+Math.sin(TIME*6)*2,0,7);ctx.stroke();ctx.font="20px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("💬",q.x,q.y-26)}
+  else if(q.result){ctx.font="16px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(RES_ICON[q.result],q.x,q.y-20)}
+  if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.x,q.y-30);ctx.fillText(q.say,q.x,q.y-30)}}
  // cars
  const drawCar=(c,o={})=>{if(!inView(c.x,c.y,60))return;ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L||54,Wd=c.Wd||28;
   ctx.fillStyle="#0005";rr(-L/2+4,-Wd/2+5,L,Wd,7);ctx.fill();
@@ -733,27 +750,44 @@ function render(){
  // particles (ground)
  for(const q of PARTS){ctx.globalAlpha=clamp(q.life/q.max,0,1)*(q.smoke?.4:1);ctx.fillStyle=q.col;if(q.sq)ctx.fillRect(q.x,q.y,q.r*2,q.r);else{ctx.beginPath();ctx.arc(q.x,q.y,q.smoke?q.r*(2-q.life):q.r,0,7);ctx.fill()}}ctx.globalAlpha=1;
  // trees
- for(const t of TREES){if(!inView(t.x,t.y,60))continue;ctx.fillStyle="#0004";ctx.beginPath();ctx.arc(t.x+8,t.y+8,t.r,0,7);ctx.fill();ctx.fillStyle="#2f7a2c";ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,7);ctx.fill();ctx.fillStyle="#4c9a3a";ctx.beginPath();ctx.arc(t.x-t.r*.25,t.y-t.r*.25,t.r*.6,0,7);ctx.fill()}
- // buildings (pseudo 3D)
- const HC=1700;const vis=BLD.filter(b=>inView(b.x+b.w/2,b.y+b.h/2,Math.max(b.w,b.h)+200));
+ for(const t of TREES){if(!inView(t.x,t.y,60))continue;const r=t.r;
+  ctx.fillStyle="#2c6b28";ctx.beginPath();ctx.arc(t.x,t.y,r,0,7);ctx.fill();
+  ctx.fillStyle="#3b8a33";ctx.beginPath();ctx.arc(t.x-r*.18,t.y-r*.18,r*.78,0,7);ctx.fill();
+  ctx.fillStyle="#52a344";ctx.beginPath();ctx.arc(t.x-r*.32,t.y-r*.34,r*.5,0,7);ctx.arc(t.x+r*.25,t.y-r*.05,r*.32,0,7);ctx.fill();
+  ctx.fillStyle="#7cc463";ctx.beginPath();ctx.arc(t.x-r*.42,t.y-r*.45,r*.18,0,7);ctx.fill()}
+ // buildings (pseudo 3D, windows + roof details)
+ const HC=1700;const vis=BLD.filter(b=>inView(b.x+b.w/2,b.y+b.h/2,Math.max(b.w,b.h)+200));const night=DI.dark>.45;
  vis.sort((a,b)=>Math.hypot(b.x+b.w/2-CAM.x,b.y+b.h/2-CAM.y)-Math.hypot(a.x+a.w/2-CAM.x,a.y+a.h/2-CAM.y));
  for(const b of vis){const F=HC/(HC-b.ht);const pr=(x,y)=>[CAM.x+(x-CAM.x)*F,CAM.y+(y-CAM.y)*F];
   const c=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]],r=c.map(q=>pr(q[0],q[1]));
-  ctx.fillStyle="#0004";ctx.fillRect(b.x+10,b.y+10,b.w,b.h);
-  const shades=[.62,.8,.7,.88];
-  for(let i=0;i<4;i++){const j=(i+1)%4;ctx.fillStyle=shade(b.roof,shades[i]*.8);ctx.beginPath();ctx.moveTo(c[i][0],c[i][1]);ctx.lineTo(c[j][0],c[j][1]);ctx.lineTo(r[j][0],r[j][1]);ctx.lineTo(r[i][0],r[i][1]);ctx.closePath();ctx.fill();
-   if(b.glass||b.tower){ctx.strokeStyle="#9fd3ff55";ctx.lineWidth=2;ctx.beginPath();for(let f=1;f<6;f++){const t=f/6;ctx.moveTo(lerp(c[i][0],r[i][0],t),lerp(c[i][1],r[i][1],t));ctx.lineTo(lerp(c[j][0],r[j][0],t),lerp(c[j][1],r[j][1],t))}ctx.stroke()}}
+  const wallC=b.wall||shade(b.roof,.82),shades=[.7,.92,.8,1];
+  for(let i=0;i<4;i++){const j=(i+1)%4;ctx.fillStyle=shade(wallC.startsWith("#")?wallC:"#888888",shades[i]);ctx.beginPath();ctx.moveTo(c[i][0],c[i][1]);ctx.lineTo(c[j][0],c[j][1]);ctx.lineTo(r[j][0],r[j][1]);ctx.lineTo(r[i][0],r[i][1]);ctx.closePath();ctx.fill();
+   const lw=Math.hypot(r[i][0]-c[i][0],r[i][1]-c[i][1])+Math.hypot(r[j][0]-c[j][0],r[j][1]-c[j][1]);if(lw<10||b.ware)continue;
+   const edge=Math.hypot(c[j][0]-c[i][0],c[j][1]-c[i][1]),fl=Math.max(1,Math.floor(b.ht/34)),cols=Math.max(1,Math.floor(edge/(b.glass?34:46)));
+   const P=(u,v)=>{const ax=lerp(c[i][0],c[j][0],u),ay=lerp(c[i][1],c[j][1],u),bx=lerp(r[i][0],r[j][0],u),by=lerp(r[i][1],r[j][1],u);return[lerp(ax,bx,v),lerp(ay,by,v)]};
+   for(const lit of[0,1]){ctx.beginPath();let any=false;
+    for(let f=0;f<fl;f++)for(let k=0;k<cols;k++){const on=((b.id*7+i*3+f*5+k*11)%(night?3:9))==0;if(on!=!!lit)continue;any=true;
+     const v0=(f*34+10)/b.ht,v1=Math.min(.97,(f*34+26)/b.ht),u0=(k+.22)/cols,u1=(k+.78)/cols;const a1=P(u0,v0),a2=P(u1,v0),a3=P(u1,v1),a4=P(u0,v1);ctx.moveTo(a1[0],a1[1]);ctx.lineTo(a2[0],a2[1]);ctx.lineTo(a3[0],a3[1]);ctx.lineTo(a4[0],a4[1]);ctx.closePath()}
+    if(any){ctx.fillStyle=lit?(night?"#ffd98a":"#cfe6f7"):(night?"#1c2638":"#3d5670");ctx.fill()}}
+   if(b.awn||b.res){const a1=P(.4,0),a2=P(.6,0),a3=P(.6,Math.min(.9,22/b.ht)),a4=P(.4,Math.min(.9,22/b.ht));ctx.fillStyle="#5a3a22";ctx.beginPath();ctx.moveTo(...a1);ctx.lineTo(...a2);ctx.lineTo(...a3);ctx.lineTo(...a4);ctx.fill()}}
   const rx=r[0][0],ry=r[0][1],rw=r[2][0]-r[0][0],rh=r[2][1]-r[0][1];
-  ctx.fillStyle=b.roof;ctx.fillRect(rx,ry,rw,rh);ctx.strokeStyle=shade(b.roof,1.25);ctx.lineWidth=5;ctx.strokeRect(rx+3,ry+3,rw-6,rh-6);
-  if(b.glass&&!b.label){ctx.fillStyle="#ffffff22";ctx.fillRect(rx+rw*.15,ry+rh*.15,rw*.25,rh*.2);ctx.fillStyle="#3a444f";ctx.fillRect(rx+rw*.55,ry+rh*.55,rw*.25,rh*.25)}
-  if(b.ware){ctx.strokeStyle="#0002";ctx.lineWidth=3;ctx.beginPath();for(let i=1;i<8;i++){ctx.moveTo(rx+rw*i/8,ry+6);ctx.lineTo(rx+rw*i/8,ry+rh-6)}ctx.stroke()}
-  if(b.awn){ctx.fillStyle="#fff";for(let i=0;i<6;i++){if(i%2)continue;ctx.fillRect(rx+rw*i/6,ry+rh-12,rw/6,12)}}
-  if(b.tower){ctx.fillStyle="#d4a017";ctx.beginPath();ctx.arc(rx+rw/2,ry+rh/2,rw*.18,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font=`${rw*.22}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🌟",rx+rw/2,ry+rh/2)}
-  if(b.temple){ctx.fillStyle="#c9b48a";for(let i=0;i<7;i++)ctx.fillRect(rx+8+i*(rw-16)/7,ry+rh-22,10,16)}
+  if(b.res){const hz=rw>=rh;ctx.fillStyle=shade(b.roof,1.12);if(hz)ctx.fillRect(rx,ry,rw,rh/2);else ctx.fillRect(rx,ry,rw/2,rh);ctx.fillStyle=shade(b.roof,.82);if(hz)ctx.fillRect(rx,ry+rh/2,rw,rh/2);else ctx.fillRect(rx+rw/2,ry,rw/2,rh);
+   ctx.strokeStyle="#0002";ctx.lineWidth=1.5;ctx.beginPath();for(let k=1;k<6;k++){if(hz){ctx.moveTo(rx,ry+rh*k/6);ctx.lineTo(rx+rw,ry+rh*k/6)}else{ctx.moveTo(rx+rw*k/6,ry);ctx.lineTo(rx+rw*k/6,ry+rh)}}ctx.stroke();
+   ctx.strokeStyle=shade(b.roof,1.35);ctx.lineWidth=3;ctx.beginPath();if(hz){ctx.moveTo(rx+4,ry+rh/2);ctx.lineTo(rx+rw-4,ry+rh/2)}else{ctx.moveTo(rx+rw/2,ry+4);ctx.lineTo(rx+rw/2,ry+rh-4)}ctx.stroke();
+   ctx.fillStyle="#8a4a3a";ctx.fillRect(rx+rw*.7,ry+rh*.18,rw*.12,rh*.14);ctx.fillStyle="#3a2a22";ctx.fillRect(rx+rw*.72,ry+rh*.2,rw*.08,rh*.06)}
+  else{ctx.fillStyle=b.roof;ctx.fillRect(rx,ry,rw,rh);ctx.fillStyle=shade(b.roof,.88);ctx.fillRect(rx+7,ry+7,rw-14,rh-14);ctx.strokeStyle=shade(b.roof,1.25);ctx.lineWidth=3;ctx.strokeRect(rx+3,ry+3,rw-6,rh-6)}
+  if(b.glass&&!b.label){const R2=rng(b.id+3);for(let k=0;k<3;k++){const ax=rx+rw*(.15+R2()*.6),ay=ry+rh*(.15+R2()*.6),aw=Math.min(rw,rh)*.16;ctx.fillStyle="#c9ccd1";ctx.fillRect(ax,ay,aw,aw*.8);ctx.fillStyle="#7d828a";ctx.beginPath();ctx.arc(ax+aw/2,ay+aw*.4,aw*.28,0,7);ctx.fill()}
+   ctx.fillStyle="#9aa3ad";ctx.beginPath();ctx.arc(rx+rw*.8,ry+rh*.22,Math.min(rw,rh)*.08,0,7);ctx.fill()}
+  if(b.ware){ctx.strokeStyle="#0002";ctx.lineWidth=3;ctx.beginPath();for(let i=1;i<10;i++){ctx.moveTo(rx+rw*i/10,ry+6);ctx.lineTo(rx+rw*i/10,ry+rh-6)}ctx.stroke();ctx.fillStyle="#cfe6f777";for(let i=1;i<5;i++)ctx.fillRect(rx+rw*i/5-8,ry+rh*.3,16,rh*.4)}
+  if(b.awn){for(let i=0;i<8;i++){ctx.fillStyle=i%2?"#fff":(b.awnC||"#e04848");ctx.fillRect(rx+rw*i/8,ry+rh-14,rw/8+.5,14)}ctx.fillStyle="#b9bec5";ctx.fillRect(rx+rw*.2,ry+rh*.25,rw*.12,rh*.2);ctx.fillRect(rx+rw*.6,ry+rh*.25,rw*.12,rh*.2)}
+  if(b.tower){ctx.fillStyle="#d4a017";ctx.beginPath();ctx.arc(rx+rw/2,ry+rh*.42,rw*.2,0,7);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();ctx.fillStyle="#fff";ctx.font=`900 ${rw*.2}px Anton,sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("H",rx+rw/2,ry+rh*.42)}
+  if(b.temple){ctx.fillStyle="#c9b48a";for(let i=0;i<7;i++)ctx.fillRect(rx+8+i*(rw-16)/7,ry+rh-22,10,16);ctx.strokeStyle="#0002";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(rx,ry+rh*.5);ctx.lineTo(rx+rw,ry+rh*.5);ctx.stroke()}
   if(b.label){const fs=Math.min(rw/(b.label.length+.5),58);ctx.font=`900 ${fs}px 'Noto Sans TC',sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";const ly=b.tower?ry+rh*.82:ry+rh*.42;
    ctx.fillStyle=b.sign||"#000";const tw=ctx.measureText(b.label).width;ctx.fillRect(rx+rw/2-tw/2-10,ly-fs*.65,tw+20,fs*1.3);ctx.fillStyle="#fff";ctx.fillText(b.label,rx+rw/2,ly+2)}}
  // floats
  for(const f of FLOATS){ctx.globalAlpha=clamp(f.life,0,1);ctx.font="900 24px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText(f.t,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.t,f.x,f.y)}ctx.globalAlpha=1;
+ // day / night
+ lighting(DI,z,sx,sy);
  // offscreen arrow
  ctx.setTransform(DPR,0,0,DPR,0,0);
  const tg=objTarget();if(tg){const sx2=(tg.x-CAM.x)*z+W2/2,sy2=(tg.y-CAM.y)*z+H2/2;const m=46;
@@ -793,10 +827,10 @@ function drawMini(){const s=272,R=s/2,sc=2*MS_*1.0;mx.setTransform(1,0,0,1,0,0);
  mx.restore();mx.fillStyle="#fff";mx.font="900 18px sans-serif";mx.textAlign="center";mx.strokeStyle="#000";mx.lineWidth=4;mx.strokeText("N",R,20);mx.fillText("N",R,20)}
 /* HUD */
 let hudCache="";
-function drawHUD(){const s=`${S.exp}|${lvl()}|${PL.stars}|${Math.round(PL.credit)}|${evoIdx()}|${MS?Math.ceil(MS.left):""}|${MS?MS.limit:0}`;if(s==hudCache)return;hudCache=s;
+function drawHUD(){const s=`${S.exp}|${lvl()}|${PL.stars}|${Math.round(PL.credit)}|${evoIdx()}|${MS?Math.ceil(MS.left):""}|${MS?MS.limit:0}|${Math.floor(S.clock/5)}|${S.today.bv}|${S.team.length}`;if(s==hudCache)return;hudCache=s;
  $("#exp").textContent="EXP "+String(S.exp).padStart(6,"0");$("#lvl").textContent=`Lv.${lvl()}　知識卡 ${S.cards.length}/${AREAS.reduce((a,x)=>a+x.cards.length,0)}`;
  $("#stars").innerHTML=`<b>${"★".repeat(PL.stars)}</b><i>${"★".repeat(5-PL.stars)}</i>`;$("#credit i").style.width=clamp(PL.credit,0,100)+"%";
- const e=EVO[evoIdx()];$("#evo").textContent=`${e[0]} ${e[1]}`;
+ const e=EVO[evoIdx()];$("#evo").textContent=`${e[0]} ${e[1]}`;const DI2=dayInfo();$("#clock").textContent=`${DI2.dark>.5?"🌙":DI2.warm>.3?"🌇":"☀️"} 第 ${S.day} 天 ${clockStr()}`;$("#teamH").textContent=`👥 ${S.opp.dist+S.opp.mem+S.opp.fri} 人｜今日 BV ${fmt(S.today.bv)}`;
  const tm=$("#timer");if(MS&&MS.limit){const v=Math.max(0,Math.ceil(MS.left));tm.textContent=`${Math.floor(v/60)}:${String(v%60).padStart(2,"0")}`;tm.classList.remove("hide");tm.classList.toggle("low",v<=15)}else tm.classList.add("hide")}
 
 /* ================= PHONE / ENDING ================= */
@@ -808,6 +842,7 @@ function renderPhone(){const el=$("#phBody");const nm=nextMission();
  if(phTab=="m"){el.innerHTML=`<div class="gems">${["自由","家庭","希望","獎勵"].map(g=>`<span class="${S.gems.includes(g)?"on":""}">💎 ${g}</span>`).join("")}</div>`+MDEF.map(m=>{const a=A(m.id),d=S.done[m.id],open=d||m===nm;
    return`<div class="ml ${open?"":"lock"}"><div class="ic">${open?a.comp.e:"🔒"}</div><div class="tx"><b>${m.id}. ${open?m.title:"？？？"}</b><br><small>${open?a.ch:a.mystery}</small></div><div style="color:var(--gold);font-size:18px">${d?"★".repeat(d.stars)+"☆".repeat(3-d.stars):m===nm?"NEXT":""}</div></div>`}).join("")+
    `<p style="font-size:13px;color:#aaa">🪙 隱藏積點包：${S.found.length}/${COLLECT.length}　｜　Lv.${lvl()}　EXP ${S.exp}</p>${S.done[6]?`<button class="btn pk w100" onclick="closeOv('phone');ending()">🎬 再看一次結局</button>`:""}`}
+ if(phTab=="t"){el.innerHTML=teamTab()}
  if(phTab=="k"){el.innerHTML=AREAS.map(a=>`<h3 style="margin:10px 0 4px">${a.ic} ${a.ch}</h3>`+a.cards.map(c=>S.cards.includes(c[0])?`<div class="kc"><b>${c[0]}</b><br>${c[1]}</div>`:`<div class="kc lock">🔒 ${c[0]}</div>`).join("")).join("")+`<p class="disc">${DISC}</p>`}
  if(phTab=="s"){el.innerHTML=`<p>音效：<button class="btn dk" id="sMute">${S.mute?"🔇 已關閉":"🔊 已開啟"}</button></p><p>傳送回起點：<button class="btn dk" id="sHome">回初始村</button></p><p>清除全部進度：<button class="btn pk" id="sReset">重置</button></p><p style="font-size:13px;color:#aaa">原版闖關遊戲：<a href="../" style="color:var(--cyan)">人生升級：安麗闖關</a></p>`;
   $("#sMute").onclick=()=>{$("#muteBtn").click();renderPhone()};$("#sHome").onclick=()=>{if(MS)endMission();if(PL.car)exitCar();PL.x=START.x;PL.y=START.y;closeOv("phone")};$("#sReset").onclick=()=>{if(confirm("確定清除全部進度？")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}}}}
@@ -822,6 +857,140 @@ function ending(){
  <p class="disc">直銷商個人製作，非安麗官方網站。所有收入數字皆為示範試算，非保證收入、因人而異。</p>
  <button class="btn w100" id="enOk">繼續在城裡逛逛</button>`);$("#enOk").onclick=()=>{closeOv("info");updObj()}}
 
+
+/* ================= DETAILED GROUND (cached chunks) ================= */
+const CH=512,CHS=1.25,CHUNKS=new Map();
+function chunk(i,j){const k=i+","+j;let c=CHUNKS.get(k);if(c){CHUNKS.delete(k);CHUNKS.set(k,c);return c}
+ c=document.createElement("canvas");c.width=c.height=Math.ceil(CH*CHS);const g=c.getContext("2d");g.scale(CHS,CHS);g.translate(-i*CH,-j*CH);paintGround(g,i*CH,j*CH,CH);
+ CHUNKS.set(k,c);if(CHUNKS.size>24)CHUNKS.delete(CHUNKS.keys().next().value);return c}
+function paintGround(g,x0,y0,s){const R=rng(((x0*7+y0*13)|0)+1);
+ g.fillStyle="#5f9c48";g.fillRect(x0,y0,s,s);for(let i=0;i<700;i++){g.fillStyle=R()<.5?"#568f41":"#6dab54";g.fillRect(x0+R()*s,y0+R()*s,3,2)}
+ g.save();g.beginPath();g.rect(0,0,W,W);g.clip();
+ for(const B of BLOCKS){if(B.x>x0+s||B.x+9*T<x0||B.y>y0+s||B.y+9*T<y0)continue;paintBlock(g,B)}
+ g.fillStyle="#3c3e44";for(let k=0;k<NR;k++){g.fillRect(x0,k*PT,s,RWP);g.fillRect(k*PT,y0,RWP,s)}
+ for(let i=0;i<1600;i++){const x=x0+R()*s,y=y0+R()*s;if(!isRoad(x,y))continue;g.fillStyle=R()<.5?"#46484f":"#323439";g.fillRect(x,y,2,2)}
+ for(let i=0;i<5;i++){const x=x0+R()*s,y=y0+R()*s;if(!isRoad(x,y))continue;g.fillStyle="#2c2e33";g.beginPath();g.ellipse(x,y,14+R()*14,8+R()*6,R()*3,0,7);g.fill()}
+ // markings
+ for(let k=0;k<NR;k++)for(let c=0;c<NB;c++){const xa=c*PT+RWP,xb=(c+1)*PT,yc=k*PT+1.5*T;if(xb<x0||xa>x0+s||yc<y0-120||yc>y0+s+120)continue;
+  g.strokeStyle="#f2c200";g.lineWidth=3;g.beginPath();g.moveTo(xa+34,yc-4);g.lineTo(xb-34,yc-4);g.moveTo(xa+34,yc+4);g.lineTo(xb-34,yc+4);g.stroke();
+  g.strokeStyle="#e8e8e8aa";g.lineWidth=3;g.beginPath();g.moveTo(xa+30,k*PT+8);g.lineTo(xb-30,k*PT+8);g.moveTo(xa+30,k*PT+RWP-8);g.lineTo(xb-30,k*PT+RWP-8);g.stroke();
+  g.fillStyle="#ececec";for(let i=0;i<7;i++){g.fillRect(xa+5,k*PT+12+i*25,20,15);g.fillRect(xb-25,k*PT+12+i*25,20,15)}
+  g.fillRect(xa+30,k*PT+4,5,RWP/2-6);g.fillRect(xb-35,k*PT+RWP/2+2,5,RWP/2-6);
+  g.fillStyle="#555a61";g.beginPath();g.arc((xa+xb)/2+60,k*PT+50,7,0,7);g.fill()}
+ for(let c=0;c<NR;c++)for(let k=0;k<NB;k++){const ya=k*PT+RWP,yb=(k+1)*PT,xc=c*PT+1.5*T;if(yb<y0||ya>y0+s||xc<x0-120||xc>x0+s+120)continue;
+  g.strokeStyle="#f2c200";g.lineWidth=3;g.beginPath();g.moveTo(xc-4,ya+34);g.lineTo(xc-4,yb-34);g.moveTo(xc+4,ya+34);g.lineTo(xc+4,yb-34);g.stroke();
+  g.strokeStyle="#e8e8e8aa";g.beginPath();g.moveTo(c*PT+8,ya+30);g.lineTo(c*PT+8,yb-30);g.moveTo(c*PT+RWP-8,ya+30);g.lineTo(c*PT+RWP-8,yb-30);g.stroke();
+  g.fillStyle="#ececec";for(let i=0;i<7;i++){g.fillRect(c*PT+12+i*25,ya+5,15,20);g.fillRect(c*PT+12+i*25,yb-25,15,20)}
+  g.fillRect(c*PT+RWP/2+2,ya+30,RWP/2-6,5);g.fillRect(c*PT+4,yb-35,RWP/2-6,5)}
+ // street lamps
+ for(const L of LAMPS){if(L.x<x0-20||L.x>x0+s+20||L.y<y0-20||L.y>y0+s+20)continue;g.fillStyle="#0003";g.beginPath();g.arc(L.x+4,L.y+4,6,0,7);g.fill();g.fillStyle="#3a3f47";g.beginPath();g.arc(L.x,L.y,5,0,7);g.fill();g.fillStyle="#fff2c4";g.beginPath();g.arc(L.x,L.y,2.5,0,7);g.fill()}
+ g.restore()}
+function paintBlock(g,B){const x=B.x,y=B.y,S9=9*T,ix=x+T,iy=y+T,L=7*T,R=rng(B.bx*31+B.by*17+5);
+ g.fillStyle="#cbc6ba";g.fillRect(x,y,S9,S9);g.strokeStyle="#b7b2a6";g.lineWidth=1.5;g.beginPath();for(let k=0;k<=S9;k+=32){g.moveTo(x+k,y);g.lineTo(x+k,y+S9);g.moveTo(x,y+k);g.lineTo(x+S9,y+k)}g.stroke();
+ g.strokeStyle="#ece8df";g.lineWidth=5;g.strokeRect(x+2.5,y+2.5,S9-5,S9-5);g.strokeStyle="#2a2c30";g.lineWidth=2;g.strokeRect(x-1,y-1,S9+2,S9+2);
+ const lot=c=>{g.fillStyle=c;g.fillRect(ix,iy,L,L)};
+ const stripes=(c1,c2,w,vert)=>{lot(c1);g.fillStyle=c2;for(let k=0;k<L;k+=w*2)vert?g.fillRect(ix+k,iy,w,L):g.fillRect(ix,iy+k,L,w)};
+ const tiles=(c1,c2,w)=>{lot(c1);g.fillStyle=c2;for(let a=0;a<L;a+=w)for(let b=0;b<L;b+=w)if(((a+b)/w)&1)g.fillRect(ix+a,iy+b,w,w)};
+ const speck=(n,cols,sz=3)=>{for(let i=0;i<n;i++){g.fillStyle=cols[i%cols.length];g.fillRect(ix+R()*L,iy+R()*L,sz,sz)}};
+ const flowers=(fx,fy,fw,fh)=>{g.fillStyle="#6b4a2b";g.fillRect(fx,fy,fw,fh);g.fillStyle="#3f7d33";for(let i=0;i<fw*fh/40;i++){g.beginPath();g.arc(fx+R()*fw,fy+R()*fh,2.5,0,7);g.fill()}for(let i=0;i<fw*fh/70;i++){g.fillStyle=pick2(R,["#ff6fa5","#ffd23d","#fff","#c77dff","#ff7a2d"]);g.beginPath();g.arc(fx+R()*fw,fy+R()*fh,2.4,0,7);g.fill()}};
+ const planter=(px,py,w,h)=>{g.fillStyle="#8a8478";g.fillRect(px-3,py-3,w+6,h+6);flowers(px,py,w,h)};
+ const bench=(bx,by,v)=>{g.fillStyle="#0002";g.fillRect(bx+3,by+3,v?10:34,v?34:10);g.fillStyle="#8a5a2b";g.fillRect(bx,by,v?10:34,v?34:10);g.fillStyle="#6b4420";v?g.fillRect(bx,by,3,34):g.fillRect(bx,by,34,3)};
+ const mine=BLD.filter(b=>b.x>=x&&b.x<x+S9&&b.y>=y&&b.y<y+S9);
+ const t=B.type;
+ if(t=="res"){stripes("#7fb65d","#77ad55",22);g.strokeStyle="#3f7d33";g.lineWidth=9;g.strokeRect(ix+5,iy+5,L-10,L-10);
+  for(const h of mine){const top=h.y+h.h/2<iy+L/2;g.fillStyle="#d8d2c6";if(top)g.fillRect(h.x+h.w*.38,iy,h.w*.24,h.y-iy);else g.fillRect(h.x+h.w*.38,h.y+h.h,h.w*.24,iy+L-h.y-h.h);
+   g.fillStyle="#e6dfd2";g.fillRect(h.x-8,h.y-8,h.w+16,h.h+16);flowers(h.x-6,top?h.y+h.h+10:h.y-20,h.w*.34,10);flowers(h.x+h.w*.68,top?h.y+h.h+10:h.y-20,h.w*.34,10)}
+  g.fillStyle="#7fc4e8";g.beginPath();g.ellipse(ix+L*.5,iy+L*.5,26,18,0,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=4;g.stroke()}
+ else if(t=="shop"){tiles("#d9d2c2","#cfc7b5",32);g.strokeStyle="#fff";g.lineWidth=3;for(let k=0;k<6;k++){g.beginPath();g.moveTo(ix+20+k*70,iy+3*T+6);g.lineTo(ix+20+k*70,iy+4*T-6);g.stroke()}planter(ix+8,iy+3*T+8,20,40);planter(ix+L-28,iy+3*T+8,20,40)}
+ else if(t=="office"||t=="tech"){tiles(t=="tech"?"#aebcc1":"#c2bdb2",t=="tech"?"#a3b3b8":"#b6b1a6",64);for(const[a,b2]of[[.05,.93],[.5,.93],[.93,.5],[.93,.05]])planter(ix+a*L-12,iy+b2*L-12,24,24)}
+ else if(t=="ware"){lot("#9e9b92");speck(260,["#8f8c83","#aaa79e","#94918a"],4);g.fillStyle="#2c2a26aa";for(let k=0;k<6;k++){g.beginPath();g.ellipse(ix+R()*L,iy+R()*L,10+R()*14,6+R()*8,R()*3,0,7);g.fill()}
+  g.strokeStyle="#fff";g.lineWidth=3;for(let k=0;k<8;k++){g.beginPath();g.moveTo(ix+10+k*50,iy+3.6*T);g.lineTo(ix+10+k*50,iy+4.2*T);g.stroke()}g.fillStyle="#f2c200";g.fillRect(ix,iy+3.55*T,L,4)}
+ else if(t=="park"||t=="uni"){stripes("#68ab50","#60a249",40,true);if(B.pond){g.fillStyle="#d8cfa8";g.lineWidth=16;g.strokeStyle="#d8cfa8";g.beginPath();g.moveTo(B.x+T,B.y+7.5*T);g.quadraticCurveTo(B.x+5*T,B.y+6*T,B.x+8*T,B.y+T*1.2);g.stroke();
+   g.fillStyle="#9bd0ee";g.beginPath();g.ellipse(B.pond.x,B.pond.y,B.pond.r*1.25,B.pond.r*.85,0,0,7);g.fill();g.fillStyle="#3f8fc9";g.beginPath();g.ellipse(B.pond.x,B.pond.y,B.pond.r*1.15,B.pond.r*.75,0,0,7);g.fill();
+   g.fillStyle="#cfeaff55";g.beginPath();g.ellipse(B.pond.x-20,B.pond.y-12,B.pond.r*.6,B.pond.r*.25,-.3,0,7);g.fill();g.fillStyle="#4c9a3a";for(let k=0;k<5;k++){g.beginPath();g.arc(B.pond.x+(R()-.5)*B.pond.r*1.6,B.pond.y+(R()-.5)*B.pond.r,7,0,7);g.fill()}
+   bench(ix+L*.62,iy+L*.6,0);bench(ix+L*.2,iy+L*.86,0)}
+  if(t=="uni"){g.fillStyle="#d8cfb8";g.fillRect(ix+L/2-28,iy+4*T,56,3*T)}flowers(ix+12,iy+12,60,22);flowers(ix+L-72,iy+L-34,60,22)}
+ else if(t=="space"){lot("#e4dbc8");g.strokeStyle="#d2c7b0";g.lineWidth=3;for(let r2=20;r2<200;r2+=24){g.beginPath();g.arc(ix+L/2,iy+5.4*T,r2,0,7);g.stroke()}g.fillStyle="#9bd0ee";g.beginPath();g.arc(ix+L/2,iy+5.4*T,34,0,7);g.fill();g.fillStyle="#fff";g.beginPath();g.arc(ix+L/2,iy+5.4*T,8,0,7);g.fill();planter(ix+10,iy+L-40,60,24);planter(ix+L-70,iy+L-40,60,24)}
+ else if(t=="tower"){lot("#d0c9bb");g.strokeStyle="#c2baa9";g.lineWidth=2;for(let k=-L;k<L;k+=24){g.beginPath();g.moveTo(ix+k,iy);g.lineTo(ix+k+L,iy+L);g.stroke()}}
+ else if(t=="xiaoan"){lot("#bccfe2");const q=XIAOAN;g.fillStyle="#3d7dff44";g.beginPath();g.arc(q.x-40,q.y,70,0,7);g.fill();g.strokeStyle="#3d7dff";g.lineWidth=5;g.stroke()}
+ else if(B.lot){if(B.built){tiles("#d6ccb9","#ccc1ac",32);planter(ix+20,iy+L-50,80,26)}else{lot("#a8895c");speck(500,["#957a50","#b89a6a","#8a6f48","#c2a777"],3);g.fillStyle="#6f8fae66";g.beginPath();g.ellipse(ix+L*.3,iy+L*.7,40,18,0,0,7);g.fill();
+  g.setLineDash([10,8]);g.strokeStyle="#5a4630";g.lineWidth=4;g.strokeRect(B.x+T*1.2,B.y+T*1.2,6.6*T,6.6*T);g.setLineDash([]);g.fillStyle="#fff";g.font="900 54px 'Noto Sans TC',sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("空地 "+B.lot,B.x+4.5*T,B.y+4.5*T);g.font="700 22px 'Noto Sans TC',sans-serif";g.fillText("分店預定地",B.x+4.5*T,B.y+4.5*T+44)}}
+ // hydrant
+ g.fillStyle="#d63a3a";g.beginPath();g.arc(x+T*.8,y+T*.25,5,0,7);g.fill()}
+
+/* ================= TIME / LIGHTING ================= */
+function hull(P){P.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];for(const p of P){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}for(let i=P.length-1;i>=0;i--){const p=P[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}up.pop();lo.pop();return lo.concat(up)}
+function dayInfo(){const h=S.clock/60;let dark=0;if(h<5)dark=1;else if(h<6.5)dark=1-(h-5)/1.5;else if(h<18)dark=0;else if(h<20)dark=(h-18)/2;else dark=1;return{h,dark,warm:(h>16&&h<19.5)?1-Math.abs(h-17.8)/1.7:0}}
+function sunVec(d){if(d.h<6||d.h>18.5)return{x:0,y:0,a:0};const t=(d.h-6)/12,len=.35+Math.abs(2*t-1)*.9;return{x:(2*t-1)*len,y:.35*len,a:.22*(1-d.dark)}}
+let VIG=null,VIGk="";
+function lighting(d,z,sx,sy){ctx.setTransform(DPR,0,0,DPR,0,0);
+ if(d.warm>0){ctx.fillStyle=`rgba(255,130,40,${(.13*d.warm).toFixed(3)})`;ctx.fillRect(0,0,VW,VH)}
+ if(d.dark>0){ctx.fillStyle=`rgba(8,14,48,${(.45*d.dark).toFixed(3)})`;ctx.fillRect(0,0,VW,VH);
+  if(z){ctx.setTransform(DPR*z,0,0,DPR*z,DPR*(VW/2-CAM.x*z+sx),DPR*(VH/2-CAM.y*z+sy));ctx.globalCompositeOperation="lighter";const vx0=CAM.x-VW/2/z-120,vx1=CAM.x+VW/2/z+120,vy0=CAM.y-VH/2/z-120,vy1=CAM.y+VH/2/z+120;
+   for(const L of LAMPS){if(L.x<vx0||L.x>vx1||L.y<vy0||L.y>vy1)continue;const gr=ctx.createRadialGradient(L.x,L.y,2,L.x,L.y,90);gr.addColorStop(0,`rgba(255,210,130,${.55*d.dark})`);gr.addColorStop(1,"rgba(255,210,130,0)");ctx.fillStyle=gr;ctx.fillRect(L.x-90,L.y-90,180,180)}
+   const hl=c=>{if(c.x<vx0||c.x>vx1||c.y<vy0||c.y>vy1)return;ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const gr=ctx.createLinearGradient(20,0,170,0);gr.addColorStop(0,`rgba(255,245,200,${.5*d.dark})`);gr.addColorStop(1,"rgba(255,245,200,0)");ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(24,-10);ctx.lineTo(170,-60);ctx.lineTo(170,60);ctx.lineTo(24,10);ctx.fill();ctx.restore()};
+   NPC.forEach(hl);RU.forEach(hl);if(PL.car)hl(PL.car);ctx.globalCompositeOperation="source-over";ctx.setTransform(DPR,0,0,DPR,0,0)}}
+ const k=VW+"x"+VH;if(VIGk!=k){VIGk=k;VIG=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.35,VW/2,VH/2,Math.max(VW,VH)*.75);VIG.addColorStop(0,"rgba(0,0,0,0)");VIG.addColorStop(1,"rgba(0,0,0,.28)")}
+ ctx.fillStyle=VIG;ctx.fillRect(0,0,VW,VH)}
+const clockStr=()=>{const m=Math.floor(S.clock);return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`};
+const fmt=n=>Math.round(n).toLocaleString("en-US");
+
+/* ================= OPP / TEAM ================= */
+const RES_ICON={dist:"🌳",mem:"🌿",fri:"🌱",rej:"💭"};
+const JOIN=[{k:"dist",p:27.5,n:"直銷商",e:"🌳",say:["聽起來不錯，我想加入直銷商試試看！","好啊，我們一起做！"]},
+ {k:"mem",p:22.5,n:"生活會員",e:"🌿",say:["我先當生活會員，買東西比較划算","生活會員就好，我想訂長客計畫"]},
+ {k:"fri",p:22.5,n:"安麗之友",e:"🌱",say:["先加安麗之友看看","我先從安麗之友開始了解"]},
+ {k:"rej",p:27.5,n:"婉拒",e:"🙅",say:["謝謝，我現在沒興趣","我再想想，改天吧","目前不需要，謝謝你"]}];
+const OPENERS=[["🧴","分享自己用產品的真實體驗"],["🏡","聊聊能兼顧家庭的副業機會"],["🎟","邀請一起參加產品體驗會"]];
+const CHEER=["被拒絕不是失敗，是離下一個「好」更近一步！","每一次開口都是練習，你已經比昨天更勇敢了。","對方說「不」，是對這件事，不是對你這個人。","頂尖的直銷商，也是一次次開口練出來的。","換個人、換個時間，結果可能就不一樣。","今天的拒絕，是明天成功故事的開場白。"];
+const BUY_P={直銷商:.75,生活會員:.6,安麗之友:.35};
+const BADGES=[1,5,10,20,30,50,100,200];
+let SCHED=[];
+function nearPed(){if(PL.car||PAUSE)return null;let b=null,bd=50;for(const p of PEDS){if(p.result&&!(p.result=="rej"&&p.rejDay<S.day))continue;const d=Math.hypot(p.x-PL.x,p.y-PL.y);if(d<bd){bd=d;b=p}}return b}
+function rollJoin(){let r=Math.random()*100;for(const j of JOIN){if(r<j.p)return j;r-=j.p}return JOIN[3]}
+function talk(p){PAUSE=true;p.talking=true;SFX.door();
+ panel("info",`<div style="text-align:center"><div style="font-size:60px;line-height:1.1">${p.av}</div><h2 style="margin:4px 0">${p.name}</h2><p style="color:#aaa;margin:0">${p.job}｜${p.mood}</p></div>
+ <p style="margin-top:12px;font-weight:900">你想怎麼開口？</p>${OPENERS.map((x,i)=>`<button class="btn dk w100 op" data-i="${i}" style="justify-content:flex-start;text-align:left">${x[0]} ${x[1]}</button>`).join("")}
+ <button class="btn w100" id="tkCancel" style="margin-top:10px;background:#333;color:#fff">先不要，下次再聊</button>
+ <p style="font-size:12px;color:#aaa;margin-top:8px">已開口 ${S.opp.talks} 次｜加入 ${S.opp.dist+S.opp.mem+S.opp.fri} 人</p>`);
+ document.querySelectorAll(".op").forEach(b=>b.onclick=()=>talkRoll(p,+b.dataset.i));$("#tkCancel").onclick=()=>{p.talking=false;closeOv("info")}}
+function talkRoll(p,i){$("#info .panel").innerHTML=`<div style="text-align:center;padding:26px 0"><div style="font-size:60px">${p.av}</div><p style="font-size:17px">${OPENERS[i][0]} 你：「${OPENERS[i][1]}……」</p><p style="font-size:26px;font-weight:900" class="dots">🤔 ${p.name} 考慮中</p></div>`;tone(520,.1,"triangle",.05);setTimeout(()=>talkResult(p),1200)}
+function talkResult(p){const j=rollJoin(),o=S.opp;o.talks++;o[j.k]++;let exp=15;p.result=j.k;p.talking=false;const say=pick(j.say);
+ let html;
+ if(j.k=="rej"){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();
+  const joined=o.dist+o.mem+o.fri,rate=Math.round(joined/o.talks*100);
+  html=`<div style="text-align:center"><div style="font-size:56px">${p.av}💭</div><h2>${p.name}：「${say}」</h2>
+  <p style="font-size:17px;color:var(--gold);font-weight:900">${pick(CHEER)}</p>
+  ${o.streak>=2?`<p>連續 ${o.streak} 次婉拒也沒關係——你目前的加入率是 <b style="color:var(--green)">${rate}%</b>，平均每開口 ${joined?(o.talks/joined).toFixed(1):"—"} 次就有 1 人加入。下一位很可能就是 YES！</p>`:`<p>${p.name} 明天可以再聊一次。</p>`}
+  <p style="font-size:20px;font-weight:900;color:var(--green)">💪 勇氣 +${exp} EXP</p></div>`}
+ else{o.streak=0;exp+=25;S.today.join++;const m={n:p.name,t:j.n,av:p.av,d:S.day,sales:0,bv:0};S.team.push(m);scheduleMember(m,S.clock);SFX.pass();
+  html=`<div style="text-align:center"><div style="font-size:56px">${p.av}${j.e}</div><h2 style="color:var(--gold)">🎉 ${p.name} 加入了${j.n}！</h2><p style="font-size:17px">「${say}」</p>
+  <p style="font-size:20px;font-weight:900;color:var(--green)">勇氣 +15｜加入 +25 EXP</p><p style="font-size:13px;color:#aaa">${j.n}夥伴之後會隨機購買產品，累積團隊營業額與 BV。可在 📱 手機 →「團隊」查看。</p></div>`}
+ S.exp+=exp;save();
+ const nb=BADGES.find(b=>b==o.talks);
+ html+=`<div class="stat"><div><small>累計開口</small><b>${o.talks}</b></div><div><small>加入人數</small><b style="color:var(--green)">${o.dist+o.mem+o.fri}</b></div></div>`+(nb?`<p style="text-align:center;font-weight:900;color:var(--gold)">🏅 解鎖勇氣徽章：開口 ${nb} 次！</p>`:"")+`<button class="btn w100" id="tkOk">💬 繼續找下一位聊</button>`;
+ $("#info .panel").innerHTML=html;$("#tkOk").onclick=()=>{closeOv("info");if(!MS)updObj()};
+ p.say=j.k=="rej"?"改天再聊～":"一起加油！";p.sayT=2.5}
+function scheduleMember(m,from){const pr=BUY_P[m.t]||.4;if(Math.random()>=pr)return;const lo=Math.max(from+20,9*60),hi=21*60;if(lo>=hi)return;
+ const amt=Math.round((2000+Math.random()*3000)/10)*10;const big=m.t=="直銷商"&&Math.random()<.04;SCHED.push({m,at:lo+Math.random()*(hi-lo),amt:big?40000:amt,bv:big?40000:amt,big})}
+function scheduleDay(from){SCHED=[];for(const m of S.team)scheduleMember(m,from)}
+let clockSave=0;
+function tickClock(dt){S.clock+=dt*6;
+ for(const e of SCHED){if(e.done||S.clock<e.at)continue;e.done=1;e.m.sales+=e.amt;e.m.bv+=e.bv;S.sales+=e.amt;S.bv+=e.bv;S.today.sales+=e.amt;S.today.bv+=e.bv;save();tone(1046,.08,"triangle",.04);
+  feed(e.big?`🎉 <b>大訂單！</b>${e.m.av} ${e.m.n}（${e.m.t}）團購 BV <b>${fmt(e.bv)}</b>`:`🛒 ${e.m.av} ${e.m.n}（${e.m.t}）購買產品 NT$<b>${fmt(e.amt)}</b>｜BV ${fmt(e.bv)}`)}
+ if(S.clock>=1440){const t=S.today;S.clock-=1440;S.day++;toast(`📊 第 ${S.day-1} 天結算`,`營業額 NT$${fmt(t.sales)}｜BV ${fmt(t.bv)}｜新加入 ${t.join} 人。新的一天，繼續開口吧！`,"#57ff8a");S.today={sales:0,bv:0,join:0};scheduleDay(0);save()}
+ clockSave+=dt;if(clockSave>6){clockSave=0;save()}}
+function feed(html){const el=document.createElement("div");el.className="fi";el.innerHTML=html;const f=$("#feed");f.prepend(el);while(f.children.length>4)f.lastChild.remove();setTimeout(()=>el.classList.add("out"),5500);setTimeout(()=>el.remove(),6100)}
+function teamTab(){const o=S.opp,joined=o.dist+o.mem+o.fri,rate=o.talks?Math.round(joined/o.talks*100):0;
+ const tier=[...TIERS].reverse().find(t=>S.bv>=t[0]);const bar=(n,c,lab)=>`<div class="hb"><span>${lab}</span><i style="width:${o.talks?Math.max(2,n/o.talks*100):2}%;background:${c}"></i><em>${n} 人（${o.talks?Math.round(n/o.talks*100):0}%）</em></div>`;
+ return`<h3 style="margin:0 0 6px">👥 我的團隊・第 ${S.day} 天 ${clockStr()}</h3>
+ <div class="stat"><div><small>累計開口</small><b>${o.talks}</b></div><div><small>加入率</small><b style="color:var(--green)">${rate}%</b></div>
+ <div><small>今日營業額</small><b>NT$${fmt(S.today.sales)}</b></div><div><small>今日 BV</small><b>${fmt(S.today.bv)}</b></div>
+ <div><small>累計營業額</small><b>NT$${fmt(S.sales)}</b></div><div><small>累計 BV</small><b>${fmt(S.bv)}</b></div></div>
+ ${bar(o.dist,"#57ff8a","🌳 直銷商")}${bar(o.mem,"#38e1ff","🌿 生活會員")}${bar(o.fri,"#ffd23d","🌱 安麗之友")}${bar(o.rej,"#888","💭 婉拒")}
+ <div class="kc"><b>業績獎金級距對照（示範）</b><br>累計 BV ${fmt(S.bv)} → ${tier?`達 ${fmt(tier[0])} 級距：${tier[1]}%`:"尚未達 10,000（3%）級距"}。實際以每月業績計算。</div>
+ <h4 style="margin:10px 0 4px">夥伴名單（${S.team.length}）</h4>${S.team.length?S.team.slice().reverse().slice(0,30).map(m=>`<div class="ml"><div class="ic">${m.av}</div><div class="tx"><b>${m.n}</b>｜${m.t}<br><small>第 ${m.d} 天加入｜營業額 NT$${fmt(m.sales)}｜BV ${fmt(m.bv)}</small></div></div>`).join(""):`<p style="color:#aaa">還沒有夥伴。走到路人旁邊按 💬／T 開口分享吧！</p>`}
+ <p class="disc">遊戲模擬：加入機率、購買金額與 BV 皆為隨機設定（為簡化，1 元≈1 BV），非真實數據、非保證收入、因人而異。直銷商的收入來自產品銷售與用心服務顧客，不是招募人數。</p>`}
 
 /* ================= FIRST-PERSON VIEW ================= */
 function hex2(h){const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]}
@@ -907,7 +1076,7 @@ function lbl(t,x,y,col,sc){const fs=clamp(18*sc,10,26);ctx.font=`900 ${fs}px 'No
 /* ================= LOOP / BOOT ================= */
 let last=performance.now();
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(STARTED&&!PAUSE)update(dt);else if(ENG)ENG.g.gain.value=0;if(S.view=="fp"&&STARTED)renderFP();else render();if(MINI)drawMini();drawHUD();requestAnimationFrame(loop)}
-function boot(){genWorld();spawnParked();spawnNPC();spawnPeds();$("#muteBtn").textContent=S.mute?"🔇":"🔊";$("#viewBtn").textContent=S.view=="fp"?"🗺":"👁";
+function boot(){genWorld();scheduleDay(S.clock);spawnParked();spawnNPC();spawnPeds();$("#muteBtn").textContent=S.mute?"🔇":"🔊";$("#viewBtn").textContent=S.view=="fp"?"🗺":"👁";
  const c0=CARS[0];c0.x=START.x+70;c0.y=START.y;requestAnimationFrame(loop)}
 $("#bStart").onclick=()=>{audioInit();$("#title").classList.add("hide");STARTED=true;PAUSE=false;updObj();
  if(!S.done[1]&&!S.seen){S.seen=1;save();cutscene([["📻 升級城廣播","歡迎來到升級城！在這座城裡，每個任務都是一章安麗知識。"],["📻 升級城廣播","小地圖上的彩色數字是任務標記，紫色線是導航路線。"],["📻 升級城廣播","先走到前面的「1 號」光圈，啾啾在等你！"]],["人生升級","升級城 LEVEL-UP CITY"])}};
@@ -917,6 +1086,7 @@ boot();
 // debug hooks for testing
 window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=x;o.y=y;if(PL.car){PL.car.vx=PL.car.vy=0}},
  answer:(right=true)=>{if(!QZ)return false;const o=PL.car||PL;if(!QZ.pads){o.x=QZ.ic.x;o.y=QZ.ic.y+300;quizCross()}const i=QZ.order.indexOf(QZ.q[2]),j=right?i:(i+1)%QZ.n,pd=QZ.pads[j];o.x=pd.x;o.y=pd.y;quizCross();return true},
+ talkTo:()=>{const p=PEDS[0];PL.x=p.x+20;PL.y=p.y;talk(p);return p},res:()=>talkResult(PEDS[0]),roll:n=>{const c={};for(let i=0;i<n;i++){const k=rollJoin().k;c[k]=(c[k]||0)+1}return c},clock:v=>{S.clock=v},PEDS:()=>PEDS,
  next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF[id-1]),pass:()=>passMission(),missions:MDEF};
 </script>
 </body>
