@@ -31,7 +31,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0d0d10;color:#fff;fon
 #mm{position:fixed;top:calc(8px + env(safe-area-inset-top));left:10px;width:136px;height:136px;border-radius:50%;border:4px solid #111;box-shadow:0 0 0 2px #fff4,0 4px 12px #0008;z-index:10;pointer-events:none;background:#233}
 #phoneBtn{position:fixed;top:calc(150px + env(safe-area-inset-top));left:12px;z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #muteBtn{position:fixed;top:calc(150px + env(safe-area-inset-top));left:64px;z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-body.cut #obj,body.cut #prompt,body.cut #toast,body.cut #quiz,body.cut #radio,body.cut #big,body.cut #timer{visibility:hidden}
+body.cut #hud,body.cut #mm,body.cut #phoneBtn,body.cut #muteBtn,body.cut #viewBtn,body.cut .tb,body.cut #joyBase,body.cut #feed,body.cut #obj,body.cut #prompt,body.cut #toast,body.cut #quiz,body.cut #radio,body.cut #big,body.cut #timer{visibility:hidden}
 #viewBtn{position:fixed;top:calc(150px + env(safe-area-inset-top));left:116px;z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #clock{font-size:13px;font-weight:900;margin-top:4px}
 #teamH{font-size:12px;font-weight:700;color:#bfffd2;margin-top:1px}
@@ -50,7 +50,12 @@ body.cut #obj,body.cut #prompt,body.cut #toast,body.cut #quiz,body.cut #radio,bo
 .hb span{width:100px;flex:none;white-space:nowrap}.hb i{display:block;height:12px;border-radius:6px}.hb em{font-style:normal;color:#aaa;font-size:12px;flex:none}
 .dots::after{content:"";animation:dots 1s steps(4) infinite}
 @keyframes dots{0%{content:""}25%{content:"．"}50%{content:"．．"}75%{content:"．．．"}}
-#quiz{position:fixed;top:calc(206px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 20px));background:#000c;border:2px solid var(--gold);border-radius:12px;padding:8px 12px;z-index:11;pointer-events:none}
+#quiz.mini{opacity:.55;padding:4px 10px;pointer-events:auto;cursor:pointer}
+#quiz.mini h4{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+#quiz.mini .o{display:inline-flex;margin:2px 8px 0 0;font-size:12px}#quiz.mini .o b{width:18px;height:18px;font-size:12px}
+#quiz.mini .ot,#quiz.mini small{display:none}
+.tav{position:relative;display:inline-block;font-size:58px;line-height:1.1}.tav b{position:absolute;right:-22px;bottom:-4px;font-size:34px;background:#fff;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #000}
+#quiz{transition:opacity .4s;position:fixed;top:calc(206px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 20px));background:#000c;border:2px solid var(--gold);border-radius:12px;padding:8px 12px;z-index:11;pointer-events:none}
 #quiz h4{margin:0 0 4px;font-size:16px;color:var(--gold);line-height:1.35}
 #quiz .o{display:flex;gap:8px;align-items:flex-start;font-size:15px;font-weight:700;margin:3px 0;line-height:1.35}
 #quiz .o b{flex:none;width:24px;height:24px;border-radius:6px;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:15px}
@@ -121,9 +126,12 @@ body.cut #obj,body.cut #prompt,body.cut #toast,body.cut #quiz,body.cut #radio,bo
 #cut{z-index:25;display:block;padding:0;cursor:pointer}
 #cut .bar{position:absolute;left:0;right:0;height:13%;background:#000}
 #cut .top{top:0}#cut .bot{bottom:0}
-#cut .sub{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(13% + 16px);width:min(680px,calc(100% - 24px));text-align:center}
-#cut .who{font-size:15px;font-weight:900;color:var(--gold);margin-bottom:4px}
-#cut .say{font-size:19px;font-weight:700;line-height:1.55}
+#cut .sub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 28px));display:flex;gap:14px;align-items:flex-start;background:linear-gradient(160deg,rgba(28,30,40,.94),rgba(12,13,18,.94));border:2px solid var(--gold);border-radius:18px;padding:16px 18px;box-shadow:0 10px 40px #000a;animation:pop .25s ease}
+@keyframes pop{from{transform:translate(-50%,-46%) scale(.96);opacity:0}}
+#cut .cav{flex:none;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffd23d 45%,#d18a00);display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 0 0 3px #000,0 0 0 5px #ffd23d55}
+#cut .ctx{flex:1;min-width:0}
+#cut .who{display:inline-block;font-size:14px;font-weight:900;color:#000;background:var(--gold);border-radius:20px;padding:2px 12px;margin-bottom:8px}
+#cut .say{font-size:18px;font-weight:700;line-height:1.65;color:#fff}
 #cut .nx{position:absolute;right:16px;bottom:calc(4% + 4px);font-size:13px;color:#ddd}
 #cut .ttl{position:absolute;left:0;right:0;top:calc(13% + 18px);text-align:center}
 #cut .ttl .a{font-size:14px;font-weight:900;color:#fff;letter-spacing:4px}
@@ -189,6 +197,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
   <div style="text-align:center"><button class="btn w100" id="bStart" style="max-width:340px">▶ 開始遊戲</button><br><button class="btn dk" id="bReset" style="font-size:14px;padding:8px 14px">重新開始</button></div>
   <div class="how">
    <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 分享 OPP（新功能）</b><br>走路靠近路人，按 T（手機按 💬），開口分享安麗。對方可能加入直銷商、生活會員、安麗之友，或婉拒。每次開口都有「勇氣 EXP」，被拒絕也算數！加入的夥伴會隨機購買產品，累積團隊營業額與 BV（遊戲模擬）。</div>
+   <div style="grid-column:span 2"><b>🚲 共享單車／🛵 共享電動機車</b><br>路邊停有單車（比走路快一點）和電動機車（比單車再快），靠近按 E／🚗 就能騎。汽車開太快撞到路人，他會被撞飛到外太空（過一會兒會走回來）；單車、機車或慢速只會把人撞開。</div>
    <div><b>移動／開車</b><br>電腦：WASD 或方向鍵<br>手機：左下搖桿（推哪邊就往哪開）</div>
    <div><b>上車／下車</b><br>電腦：E 或 F<br>手機：綠色 🚗 按鈕</div>
    <div><b>甩尾</b><br>電腦：空白鍵<br>手機：紅色 ⚡ 按鈕</div>
@@ -200,7 +209,7 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
   <p class="fine">直銷商個人製作，非安麗官方網站。內容依安麗台灣公開資訊整理，以官網公告為準。<br>遊戲中所有收入數字皆為示範試算，非保證收入、因人而異。本遊戲為原創作品，與任何既有遊戲品牌無關。</p>
  </div>
 </div>
-<div id="cut" class="ov hide"><div class="bar top"></div><div class="bar bot"></div><div class="ttl"></div><div class="sub"><div class="who out"></div><div class="say out"></div></div><div class="nx">點一下 / Enter 繼續 ▶</div></div>
+<div id="cut" class="ov hide"><div class="bar top"></div><div class="bar bot"></div><div class="ttl"></div><div class="sub"><div class="cav"></div><div class="ctx"><div class="who"></div><div class="say"></div></div></div><div class="nx">點一下 / Enter 繼續 ▶</div></div>
 <div id="pass" class="ov hide"><div class="panel"></div></div>
 <div id="wasted" class="ov hide"><div class="t out">被謠言淹沒了</div><p class="out" style="font-size:16px;font-weight:700">別擔心，到小安客服站重新出發。<br>正確資訊永遠以官網公告為準。</p><button class="btn" id="bRespawn">重新出發</button></div>
 <div id="phone" class="ov hide"><div class="panel"><div class="tabs"><button data-t="m" class="on">任務</button><button data-t="t">團隊</button><button data-t="k">知識圖鑑</button><button data-t="s">設定</button></div><div id="phBody"></div><button class="btn w100" id="phClose" style="margin-top:12px">關閉手機</button></div></div>
@@ -258,8 +267,8 @@ function genWorld(){
   const B={bx,by,type,x,y,ground:GROUND[lot?(built?"branch":"lot"):type],lot,built};BLOCKS.push(B);
   const add=(dx,dy,w,h,ht,o={})=>BLD.push(Object.assign({x:ix+dx*T,y:iy+dy*T,w:w*T,h:h*T,ht,roof:pick2(R,ROOFS)},o));
   const tree=(dx,dy,r=20)=>TREES.push({x:ix+dx*T,y:iy+dy*T,r:r+R()*8});
-  if(type=="res"){for(const[a,b]of[[.3,.3],[4,.3],[.3,4],[4,4]])add(a,b,2.7,2.7,32+R()*26,{res:1,roof:pick2(R,["#b5523f","#8a4b3a","#4a6aa0","#5f7f4a","#a0643a","#6d5a8a"]),wall:pick2(R,["#efe6d6","#e6d7bf","#d9e2e8","#f3e3e3"])});tree(3.5,3.5,26);tree(3.5,1,16);tree(1,3.6,16)}
-  else if(type=="shop"){const AW=["#e04848","#2d8a5a","#2d6bd8","#e08a2d","#8a3ad6"];add(.2,.2,6.6,2.8,60+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#e8dccb"});add(.2,4,3,2.8,50+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#dfe6ea"});add(3.8,4,3,2.8,70+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#efe0d0"})}
+  if(type=="res"){for(const[a,b]of[[.3,.3],[4,.3],[.3,4],[4,4]]){const gab=R()<.35;add(a,b,2.7,2.7,32+R()*30,{res:gab?1:0,flat:gab?0:1,tank:gab?0:(R()<.8?1:0),tin:gab?0:(R()<.6?1:0),roof:pick2(R,["#b5523f","#8a4b3a","#4a6aa0","#5f7f4a","#a0643a","#6d5a8a"]),wall:pick2(R,["#efe6d6","#e6d7bf","#d9e2e8","#f3e3e3"])})}tree(3.5,3.5,26);tree(3.5,1,16);tree(1,3.6,16)}
+  else if(type=="shop"){const AW=["#e04848","#2d8a5a","#2d6bd8","#e08a2d","#8a3ad6"];add(.2,.2,6.6,2.8,60+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#e8dccb",tank:1,signs:3,face:-1});add(.2,4,3,2.8,50+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#dfe6ea",tin:1,signs:2,face:1});add(3.8,4,3,2.8,70+R()*30,{awn:1,awnC:pick2(R,AW),wall:"#efe0d0",tank:1,signs:2,face:1})}
   else if(type=="office"){add(.3,.3,3,6.4,140+R()*90,{roof:"#5d6b7a",glass:1});add(3.9,.3,2.8,3,120+R()*80,{roof:"#6d7884",glass:1});add(3.9,4,2.8,2.7,90+R()*60,{roof:"#56636f",glass:1})}
   else if(type=="ware"){add(.2,.3,6.6,3.2,55,{roof:"#8f9aa3",ware:1});add(.2,4.3,4,2.4,45,{roof:"#a09378",ware:1});tree(5.6,5.4,18)}
   else if(type=="tech"){add(.5,.5,6,2.6,110,{roof:"#2d6f8f",glass:1,label:"科技園區"});add(.5,4.2,2.6,2.4,70,{roof:"#3b7f6f"});add(4,4.2,2.6,2.4,80,{roof:"#3b5f8f"})}
@@ -267,10 +276,11 @@ function genWorld(){
   else if(type=="space"){add(.8,.4,5.4,3.6,95,{roof:"#e8e2d6",label:"安麗空間",sign:"#2d6bd8"});tree(.6,5.6);tree(6.4,5.6)}
   else if(type=="tower"){add(1.6,1,3.8,3.8,330,{roof:"#2b2f3a",glass:1,label:"星耀塔",sign:"#d4a017",tower:1});tree(.5,6.3);tree(6.5,6.3)}
   else if(type=="xiaoan"){add(.5,.5,4,3,60,{roof:"#3d7dff",label:"小安客服",sign:"#3d7dff"});tree(5.6,1);tree(5.6,2.6)}
-  else if(type=="uni"){add(.6,.6,5.8,3.4,90,{roof:"#e9e1cf",label:"大學城・賦能殿",sign:"#8a5a2b",temple:1});for(let i=0;i<6;i++)tree(.6+i*1.15,5.6,16)}
+  else if(type=="uni"){add(.6,.6,5.8,3.4,90,{roof:"#c8402a",wall:"#e9d8b8",label:"賦能殿",sign:"#8a1a1a",temple:1});for(let i=0;i<6;i++)tree(.6+i*1.15,5.6,16)}
   else if(lot){if(built)add(1,1,5,3.6,85,{roof:"#ff9a3d",label:"分店 "+lot,sign:"#e0246a",awn:1});else B.fence=1}
  }
- BLOCKS.forEach(B=>{B.g3=hex2(B.ground);for(const f of[.04,.5,.96]){LAMPS.push({x:B.x+10,y:B.y+T*.5+f*8*T},{x:B.x+9*T-10,y:B.y+T*.5+f*8*T})}for(const f of[.5]){LAMPS.push({x:B.x+T*.5+f*8*T,y:B.y+10},{x:B.x+T*.5+f*8*T,y:B.y+9*T-10})}});BLD.forEach((b,i)=>{b.id=i;b.c3=hex2(b.roof)});buildMini();
+ BLOCKS.forEach(B=>{B.g3=hex2(B.ground);for(const f of[.04,.5,.96]){LAMPS.push({x:B.x+10,y:B.y+T*.5+f*8*T},{x:B.x+9*T-10,y:B.y+T*.5+f*8*T})}for(const f of[.5]){LAMPS.push({x:B.x+T*.5+f*8*T,y:B.y+10},{x:B.x+T*.5+f*8*T,y:B.y+9*T-10})}});const SHOPN=["便利商店","早餐","手搖飲","麵店","藥局","牙醫","眼鏡","小吃","火鍋","滷味","豆花","雞排","通訊行","美髮","文具","水果"],SC2=["#e0246a","#2d6bd8","#1fa85a","#f2b300","#e04848","#7a3ad6","#ff7a2d"];
+ BLD.forEach((b,i)=>{b.id=i;b.c3=hex2(b.roof);if(b.signs){const R3=rng(i*13+7);b.sg=[];for(let k=0;k<b.signs;k++)b.sg.push({t:pick2(R3,SHOPN),c:pick2(R3,SC2),f:(k+.5)/b.signs})}});buildMini();
 }
 function pick2(R,a){return a[Math.floor(R()*a.length)]}
 
@@ -288,19 +298,26 @@ let MS=null;          // active mission state
 let QZ=null;          // active quiz gates
 let OBJ=null;         // current objective {p, text}
 const XIAOAN=sw(1,1,"e",.5);
-function mkCar(x,y,a,color,o={}){return Object.assign({x,y,a,vx:0,vy:0,speed:0,color,acc:480,max:470,L:54,Wd:28,brake:false,stuck:0,rev:0},o)}
+const KINDS={car:{L:54,Wd:28,max:400,acc:420,cr:15,co:15,R:19,nm:"汽車",ic:"🚗"},bike:{L:30,Wd:10,max:280,acc:360,cr:8,co:7,R:10,nm:"共享單車",ic:"🚲"},scooter:{L:34,Wd:13,max:330,acc:420,cr:9,co:8,R:11,nm:"共享電動機車",ic:"🛵"}};
+function mkCar(x,y,a,color,o={}){const k=KINDS[o.kind||"car"];return Object.assign({x,y,a,vx:0,vy:0,speed:0,color,kind:"car",acc:k.acc,max:k.max,L:k.L,Wd:k.Wd,cr:k.cr,co:k.co,R:k.R,brake:false,stuck:0,rev:0},o)}
+const BIKE_ST=[[1,3,"n",.62],[2,2,"w",.3],[3,3,"n",.18],[0,2,"e",.72],[2,4,"n",.32],[4,1,"s",.62],[1,1,"s",.42],[3,0,"s",.2],[0,0,"e",.5],[4,3,"w",.7]];
+const SCOOT=[[1,3,"n",.82],[2,3,"s",.2],[3,2,"n",.62],[0,1,"s",.3],[4,4,"w",.3],[2,1,"e",.7],[1,4,"e",.4],[3,4,"n",.8],[4,2,"n",.2],[0,3,"n",.3],[2,0,"w",.6],[1,2,"s",.7],[3,1,"w",.2],[4,0,"w",.8]];
 const CARCOL=["#e8e8e8","#d63a3a","#2d6bd8","#f2b300","#1fa85a","#7a3ad6","#ff7a2d","#20262e","#3ad6c8"];
 function spawnParked(){
  CARS=[];const spots=[[1,3,"n",.24],[2,2,"s",.25],[3,3,"w",.3],[0,1,"n",.4],[3,1,"s",.3],[4,4,"n",.3],[2,0,"s",.3],[1,1,"e",.25],[0,3,"e",.5],[4,2,"s",.5],[2,4,"n",.7],[1,2,"w",.5],[3,0,"w",.6],[4,0,"s",.5],[0,4,"e",.3]];
  spots.forEach(([bx,by,s,f],i)=>{const p=sw(bx,by,s,f);const a=(s=="n"||s=="s")?0:Math.PI/2;CARS.push(mkCar(p.x,p.y,a,CARCOL[i%CARCOL.length],{share:1}))});
+ BIKE_ST.forEach(([bx,by,s,f])=>{const p=sw(bx,by,s,f),h=(s=="n"||s=="s");for(let k=0;k<4;k++)CARS.push(mkCar(p.x+(h?(k-1.5)*16:0),p.y+(h?0:(k-1.5)*16),h?Math.PI/2:0,"#f2a900",{kind:"bike",share:1}))});
+ SCOOT.forEach(([bx,by,s,f],i)=>{const p=sw(bx,by,s,f),h=(s=="n"||s=="s");CARS.push(mkCar(p.x,p.y,h?Math.PI/2:0,i%2?"#f4f6f8":"#7fd6e0",{kind:"scooter",share:1}))});
 }
 function spawnNPC(){
  NPC=[];const R=rng(77);
- for(let i=0;i<26;i++){const s=SEGS[Math.floor(R()*SEGS.length)];let d,x,y;
+ for(let i=0;i<40;i++){const s=SEGS[Math.floor(R()*SEGS.length)];let d,x,y;
   if(s.h){d=R()<.5?0:2;y=laneY(s.k,d);x=s.x+(R()-.5)*300}else{d=R()<.5?1:3;x=laneX(s.c,d);y=s.y+(R()-.5)*300}
   if(Math.hypot(x-PL.x,y-PL.y)<300)continue;
   const n={x,y,dir:d,a:d*Math.PI/2,v:0,vmax:130+R()*70,color:CARCOL[Math.floor(R()*CARCOL.length)],plan:null,L:52,Wd:27,honk:0,truck:R()<.15};
   if(n.truck){n.L=74;n.Wd=30}
+  if(!n.truck&&R()<.18){n.taxi=1;n.color="#f5c400"}
+  if(i>=26){n.kind="scooter";n.L=34;n.Wd=13;n.truck=false;n.taxi=0;n.vmax=150+R()*50;n.color=pick2(R,["#e8e8e8","#d63a3a","#20262e","#7fd6e0","#f2b300"]);n.R=11}
   n.ix=nextIx(n);NPC.push(n)}
 }
 function nextIx(n){const h=n.dir==0||n.dir==2,pos=h?n.x:n.y;
@@ -339,6 +356,7 @@ function moveJoy(e){let dx=e.clientX-JOY.ox,dy=e.clientY-JOY.oy;const d=Math.hyp
 const hold=(el,on,off)=>{el.addEventListener("pointerdown",e=>{e.preventDefault();audioInit();on()});el.addEventListener("pointerup",off);el.addEventListener("pointercancel",off);el.addEventListener("pointerleave",off)};
 hold($("#bAct"),()=>ACT=true,()=>{});hold($("#bTalk"),()=>TALK=true,()=>{});hold($("#bHb"),()=>HB=true,()=>HB=false);hold($("#bHorn"),horn,()=>{});
 $("#phoneBtn").onclick=()=>togglePhone();
+$("#quiz").onclick=()=>{if(QZ){QZ.t0=TIME;$("#quiz").classList.remove("mini")}};
 $("#viewBtn").onclick=()=>toggleView();
 function toggleView(){S.view=S.view=="fp"?"top":"fp";save();$("#viewBtn").textContent=S.view=="fp"?"🗺":"👁";if(STARTED)toast(S.view=="fp"?"👁 第一人稱視角":"🗺 俯瞰視角",S.view=="fp"?"搖桿往上＝前進、左右＝轉向。上方黃色箭頭指向目標。再按一次切回俯瞰。":"搖桿推哪個方向，車就往那個方向開。","#38e1ff")}
 $("#muteBtn").onclick=()=>{S.mute=!S.mute;save();$("#muteBtn").textContent=S.mute?"🔇":"🔊";if(S.mute&&ENG)ENG.g.gain.value=0};
@@ -361,7 +379,7 @@ function float(x,y,t,col="#57ff8a"){FLOATS.push({x,y,t,col,life:1.4})}
 let cutQ=null;
 function cutscene(lines,title){return new Promise(res=>{PAUSE=true;cutQ={lines,i:0,res};const c=$("#cut");c.classList.remove("hide");document.body.classList.add("cut");
  c.querySelector(".ttl").innerHTML=title?`<div class="a out">${title[0]}</div><div class="b out">${title[1]}</div>`:"";showCut()})}
-function showCut(){const[w,s]=cutQ.lines[cutQ.i];const c=$("#cut");c.querySelector(".who").textContent=w;c.querySelector(".say").textContent=s}
+function showCut(){const[w,s]=cutQ.lines[cutQ.i];const c=$("#cut");const sp=w.indexOf(" "),head=sp>0?w.slice(0,sp):"",emo=head&&!/[\u4e00-\u9fff]/.test(head);c.querySelector(".cav").textContent=emo?head:"💬";c.querySelector(".who").textContent=emo?w.slice(sp+1):w;c.querySelector(".say").textContent=s;const sb=c.querySelector(".sub");sb.style.animation="none";void sb.offsetWidth;sb.style.animation=""}
 function cutNext(){if(!cutQ)return;cutQ.i++;SFX.door();if(cutQ.i>=cutQ.lines.length){const r=cutQ.res;cutQ=null;$("#cut").classList.add("hide");document.body.classList.remove("cut");PAUSE=false;r()}else showCut()}
 $("#cut").addEventListener("pointerdown",e=>{e.preventDefault();audioInit();cutNext()});
 function panel(id,html){const o=$("#"+id);o.querySelector(".panel")?o.querySelector(".panel").innerHTML=html:o.innerHTML=html;o.classList.remove("hide");PAUSE=true}
@@ -448,8 +466,8 @@ function armQuiz(){const p=PL.car||PL,ic=QZ.ic;let e=0,bd=-1e9;BRD.forEach((b,i)
  QZ.pads=br.map(([b,t],i)=>({x:ic.x+BRD[b][0]*360,y:ic.y+BRD[b][1]*360,i,turn:TURN[t]}));
  OBJ.p=null;OBJ.text=QZ.st.txt+"：開進<em>正確答案</em>那條路";renderQuiz();updObj();SFX.pick()}
 const GC=["#ff4d6d","#3fa9ff","#ffd23d"],GL=["A","B","C"];
-function renderQuiz(){const q=QZ.q,el=$("#quiz");el.classList.remove("hide");$("#radio").classList.remove("on");radioT=0;
- el.innerHTML=`<h4>❓ ${q[0]}</h4>`+QZ.order.map((oi,i)=>`<div class="o"><b style="background:${GC[i]}">${GL[i]}</b><span>${QZ.pads?`<span style="color:${GC[i]}">【${QZ.pads[i].turn}】</span>`:""}${q[1][oi]}</span></div>`).join("")+`<small>${QZ.pads?"三條路已亮起：往正確答案的方向開":"先開到地圖上的 ❓ 答題路口，答案路線就會亮起"}</small>`}
+function renderQuiz(){const q=QZ.q,el=$("#quiz");el.classList.remove("hide");el.classList.remove("mini");QZ.t0=TIME;$("#radio").classList.remove("on");radioT=0;
+ el.innerHTML=`<h4>❓ ${q[0]}</h4>`+QZ.order.map((oi,i)=>`<div class="o"><b style="background:${GC[i]}">${GL[i]}</b><span>${QZ.pads?`<span style="color:${GC[i]}">【${QZ.pads[i].turn}】</span>`:""}<span class="ot">${q[1][oi]}</span></span></div>`).join("")+`<small>${QZ.pads?"三條路已亮起：往正確答案的方向開":"先開到地圖上的 ❓ 答題路口，答案路線就會亮起"}</small>`}
 function quizCross(){
  if(!QZ)return;const p=PL.car||PL;
  if(!QZ.pads){if(dist(p,QZ.ic)<440)armQuiz();return}
@@ -574,15 +592,15 @@ function stepCar(c,thr,st,hb,dt){
  c.vx=fx*fs+lx;c.vy=fy*fs+ly;c.x+=c.vx*dt;c.y+=c.vy*dt;
  c.drift=Math.hypot(lx,ly)>90;c.brake=(thr<0&&fs>20)||hb;
  // two collision circles
- let imp=0;for(const off of[15,-15]){const o={x:c.x+fx*off,y:c.y+fy*off};const n=pushOut(o,15);if(n){c.x+=o.x-(c.x+fx*off);c.y+=o.y-(c.y+fy*off);const vn=c.vx*n[0]+c.vy*n[1];if(vn<0){imp=Math.max(imp,-vn);c.vx-=n[0]*vn*1.35;c.vy-=n[1]*vn*1.35}}}
+ let imp=0;const CO=c.co||15,CR=c.cr||15;for(const off of[CO,-CO]){const o={x:c.x+fx*off,y:c.y+fy*off};const n=pushOut(o,CR);if(n){c.x+=o.x-(c.x+fx*off);c.y+=o.y-(c.y+fy*off);const vn=c.vx*n[0]+c.vy*n[1];if(vn<0){imp=Math.max(imp,-vn);c.vx-=n[0]*vn*1.35;c.vy-=n[1]*vn*1.35}}}
  c.speed=Math.hypot(c.vx,c.vy);return imp}
 function carHits(c){ // player car vs npc/parked/rumor
- const list=[...NPC,...CARS];for(const o of list){if(o===c)continue;const d=dist(c,o),R=o.truck?44:38;if(d<R&&d>0){const nx=(c.x-o.x)/d,ny=(c.y-o.y)/d;c.x+=nx*(R-d);c.y+=ny*(R-d);const vn=c.vx*nx+c.vy*ny;if(vn<0){c.vx-=nx*vn*1.4;c.vy-=ny*vn*1.4;if(-vn>140){SFX.crash();burst((c.x+o.x)/2,(c.y+o.y)/2,"#ffd23d",10);if(o.dir!==undefined)o.honk=1.2;shake=.25}}}}}
+ const list=[...NPC,...CARS];for(const o of list){if(o===c)continue;const d=dist(c,o),R=(o.truck?25:(o.R||19))+(c.R||19);if(d<R&&d>0){const nx=(c.x-o.x)/d,ny=(c.y-o.y)/d;c.x+=nx*(R-d);c.y+=ny*(R-d);const vn=c.vx*nx+c.vy*ny;if(vn<0){c.vx-=nx*vn*1.4;c.vy-=ny*vn*1.4;if(-vn>140){SFX.crash();burst((c.x+o.x)/2,(c.y+o.y)/2,"#ffd23d",10);if(o.dir!==undefined)o.honk=1.2;shake=.25}}}}}
 
 /* ================= UPDATE ================= */
 let shake=0,radioT=0,lastNear=null;
 function update(dt){
- TIME+=dt;PL.hitCD-=dt;tickClock(dt);
+ TIME+=dt;PL.hitCD-=dt;if(QZ&&TIME-QZ.t0>10)$("#quiz").classList.add("mini");tickClock(dt);
  PL.px=(PL.car||PL).x;PL.py=(PL.car||PL).y;
  // controls
  let thr=0,st=0,hb=HB||K[" "];
@@ -595,6 +613,7 @@ function update(dt){
   PL.steer=lerp(PL.steer||0,st,Math.min(1,dt*(Math.abs(st)>Math.abs(PL.steer||0)?9:14)));st=PL.steer;
   const imp=stepCar(c,thr,st,hb,dt);if(imp>170){SFX.crash();shake=.3;burst(c.x,c.y,"#ffd23d",8)}
   carHits(c);
+  for(const q of PEDS){if(q.fly||q.gone)continue;const d=Math.hypot(q.x-c.x,q.y-c.y);if(d<(c.kind=="car"?24:15)&&c.speed>40){if(c.kind=="car"&&c.speed>250)launchPed(q,c);else if(!q.kx)shovePed(q,c)}}
   if(c.drift&&c.speed>220&&Math.random()<.6)PARTS.push({x:c.x-Math.cos(c.a)*24,y:c.y-Math.sin(c.a)*24,vx:0,vy:0,life:.8,max:.8,col:"#cfcfcf",r:6,smoke:1});
   PL.x=c.x;PL.y=c.y;PL.a=c.a;
   if(ENG&&!S.mute){ENG.o.frequency.value=40+c.speed*.16+(thr>0?10:0);ENG.g.gain.value=.035}
@@ -614,8 +633,8 @@ function update(dt){
  const tp=nearPed();if(TALK){TALK=false;if(tp&&!PAUSE){talk(tp);return}}
  $("#bTalk").classList.toggle("hide",!tp);$("#bHb").classList.toggle("hide",!PL.car);
  if(tp){pr.textContent=(isTouch?"按 💬 ":"按 T ")+`和 ${tp.name} 分享 OPP`+(near?(isTouch?"｜🚗 上車":"｜E 上車"):"");pr.classList.remove("hide")}
- else if(!PL.car&&near){pr.textContent=isTouch?"按 🚗 上車":"按 E 上車";pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
- $("#bAct").innerHTML=PL.car?"🚶<small>下車</small>":"🚗<small>上車</small>";
+ else if(!PL.car&&near){const K2=KINDS[near.kind];pr.textContent=(isTouch?"按 🚗 ":"按 E ")+(near.kind=="car"?"上車":"騎上"+K2.nm);pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
+ $("#bAct").innerHTML=PL.car?"🚶<small>下車</small>":(near&&near.kind!="car"?KINDS[near.kind].ic+"<small>騎乘</small>":"🚗<small>上車</small>");
  // world
  for(const n of NPC)npcStep(n,dt);
  for(const p of PEDS)pedStep(p,dt);
@@ -639,14 +658,17 @@ function update(dt){
 }
 function enterCar(c){PL.car=c;CARS.splice(CARS.indexOf(c),1);PL.enterT=TIME;SFX.door();
  const tips=S.cards.length?AREAS.flatMap(a=>a.cards).filter(k=>S.cards.includes(k[0])):[["小提示","找不到路？小地圖上的黃色路線就是導航。"],["小提示","被謠言車追？開到小安客服站可以一次清除。"]];
+ if(c.kind!="car"){toast(KINDS[c.kind].ic+" "+KINDS[c.kind].nm,c.kind=="bike"?"比走路快一點，可以騎上人行道。":"比單車快、比汽車靈活。","#ffd23d");return}
  const k=pick(tips);$("#radio b").textContent="📻 知識 FM 88.8";$("#radio span").textContent=k[0]+"："+k[1];if(QZ)return;$("#radio").classList.add("on");radioT=5}
 function exitCar(){const c=PL.car;const sx=-Math.sin(c.a),sy=Math.cos(c.a);let ok=false;
- for(const s of[-1,1]){const o={x:c.x+sx*s*34,y:c.y+sy*s*34};if(!pushOut({...o},10)){PL.x=o.x;PL.y=o.y;ok=true;break}}
+ for(const s of[-1,1]){const o={x:c.x+sx*s*(c.Wd/2+20),y:c.y+sy*s*(c.Wd/2+20)};if(!pushOut({...o},10)){PL.x=o.x;PL.y=o.y;ok=true;break}}
  if(!ok){PL.x=c.x;PL.y=c.y+30;pushOut(PL,11)}c.vx=c.vy=0;c.speed=0;CARS.push(c);PL.car=null;SFX.door()}
+function sig(){const t=TIME%22;return t<8?["g","r"]:t<10?["y","r"]:t<11?["r","r"]:t<19?["r","g"]:t<21?["r","y"]:["r","r"]}
 function npcStep(n,dt){
  const dx=DX[n.dir],dy=DY[n.dir];let sp=n.vmax;
  const obs=[...NPC,...RU,...CARS];if(PL.car)obs.push(PL.car);else if(isRoad(PL.x,PL.y))obs.push(PL);
  for(const o of obs){if(o===n)continue;const rx=o.x-n.x,ry=o.y-n.y,al=rx*dx+ry*dy;if(al<=0||al>130)continue;const lat=Math.abs(rx*dy-ry*dx);if(lat<30){sp=al<70?0:Math.min(sp,n.vmax*.4)}}
+ if(!n.plan){const hz=n.dir==0||n.dir==2,inc2=n.dir==0||n.dir==1,pos2=hz?n.x:n.y,ent=inc2?n.ix*PT:n.ix*PT+RWP,dd=inc2?ent-pos2:pos2-ent,st2=sig()[hz?0:1];if(dd>0&&dd<50&&st2!="g"&&n.ix>=0&&n.ix<=5)sp=0}
  n.v+=(sp-n.v)*Math.min(1,dt*(sp<n.v?6:2));const mv=n.v*dt;n.x+=dx*mv;n.y+=dy*mv;
  const h=n.dir==0||n.dir==2,pos=h?n.x:n.y,inc=n.dir==0||n.dir==1;
  if(!n.plan){const entry=inc?n.ix*PT:n.ix*PT+RWP;if(inc?pos>=entry:pos<=entry){
@@ -662,11 +684,17 @@ function npcStep(n,dt){
  const ta=n.dir*Math.PI/2;n.a+=angDiff(ta,n.a)*Math.min(1,dt*8);
  n.honk=Math.max(0,n.honk-dt);
 }
-function pedStep(p,dt){const hold=p.talking||(!PL.car&&Math.hypot(PL.x-p.x,PL.y-p.y)<46);if(!hold){p.s+=p.dir*p.v*dt*(p.jump>0?3:1);if(Math.random()<dt*.05)p.dir*=-1}
+function launchPed(p,c){p.fly=.001;p.flyX=p.x;p.flyY=p.y;p.say=pick(["哇啊啊啊～","飛走啦～","我會回來的～"]);p.sayT=1.6;tone(300,.9,"triangle",.06,1400);shake=.2;S.launched=(S.launched||0)+1;if(S.launched==1)toast("🚀 路人被撞飛到外太空了！","開慢一點啦～他過一會兒會走回來。車速太快才會撞飛，單車、機車或慢速只會把人撞開。","#ff9a3d")}
+function shovePed(p,c){const d=Math.hypot(p.x-c.x,p.y-c.y)||1,f=60+c.speed*.8;p.kx=(p.x-c.x)/d*f;p.ky=(p.y-c.y)/d*f;p.say=pick(["哎唷！","看路啦！","好險～","撞到我了啦"]);p.sayT=1.6;p.face="😠";p.faceT=2.5;tone(200,.12,"square",.05)}
+function pedStep(p,dt){if(p.gone>0){p.gone-=dt;if(p.gone<=0){p.fly=0;p.say="我回來了～";p.sayT=2.5;p.face="😤";p.faceT=4}return}
+ if(p.fly>0){p.fly+=dt;if(p.fly>1.9)p.gone=18;return}
+ if(p.kx||p.ky){p.ox=(p.ox||0)+p.kx*dt;p.oy=(p.oy||0)+p.ky*dt;const k=Math.pow(.02,dt);p.kx*=k;p.ky*=k;if(Math.abs(p.kx)+Math.abs(p.ky)<2){p.kx=p.ky=0}}else if(p.ox||p.oy){const k=Math.pow(.4,dt);p.ox*=k;p.oy*=k;if(Math.abs(p.ox)+Math.abs(p.oy)<.5)p.ox=p.oy=0}
+ if(p.faceT>0)p.faceT-=dt;
+ const hold=p.talking||(!PL.car&&Math.hypot(PL.x-p.x,PL.y-p.y)<46);if(!hold){p.s+=p.dir*p.v*dt*(p.jump>0?3:1);if(Math.random()<dt*.05)p.dir*=-1}
  const[x,y,ix,iy]=pedPos(p);p.ix=ix;p.iy=iy;
- const c=PL.car;if(c&&c.speed>80&&Math.hypot(c.x-p.x,c.y-p.y)<95&&p.jump<=0){p.jump=.7;p.say=pick(["哇！","小心開！","嚇死我了","慢一點～"]);p.sayT=1.6}
+ const c=PL.car;if(c&&c.speed>80&&!(c.kind=="car"&&c.speed>250)&&Math.hypot(c.x-p.x,c.y-p.y)<95&&p.jump<=0&&Math.random()<.6){p.jump=.7;p.say=pick(["哇！","小心開！","嚇死我了","慢一點～"]);p.sayT=1.6}
  if(p.jump>0){p.jump-=dt;p.off=Math.min(28,p.off+dt*140)}else p.off=Math.max(0,p.off-dt*30);
- const nx=x+ix*p.off,ny=y+iy*p.off;if(Math.abs(nx-p.x)+Math.abs(ny-p.y)>.05)p.ang=Math.atan2(ny-p.y,nx-p.x);if(hold)p.ang=Math.atan2(PL.y-ny,PL.x-nx);p.moving=!hold;p.x=nx;p.y=ny;p.sayT-=dt}
+ const nx=x+ix*p.off+(p.ox||0),ny=y+iy*p.off+(p.oy||0);if(Math.abs(nx-p.x)+Math.abs(ny-p.y)>.05)p.ang=Math.atan2(ny-p.y,nx-p.x);if(hold)p.ang=Math.atan2(PL.y-ny,PL.x-nx);p.moving=!hold;p.x=nx;p.y=ny;p.sayT-=dt}
 function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=60+Math.random()*240;PARTS.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.6+Math.random()*.5,max:1.1,col,r:2+Math.random()*3})}}
 function confetti(){const p=PL.car||PL;for(let i=0;i<120;i++){const a=Math.random()*6.28,s=100+Math.random()*400;PARTS.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-200,g:300,life:1.5+Math.random(),max:2.5,col:pick(["#ffd23d","#ff3d7f","#38e1ff","#57ff8a","#fff"]),r:3+Math.random()*3,sq:1})}}
 
@@ -709,6 +737,9 @@ function render(){
  // cones
  for(const c of CONES){if(!inView(c.x,c.y))continue;ctx.fillStyle=c.hit?"#7a3a2a":"#ff5a1f";ctx.beginPath();ctx.moveTo(c.x,c.y-16);ctx.lineTo(c.x+13,c.y+12);ctx.lineTo(c.x-13,c.y+12);ctx.closePath();ctx.fill();ctx.fillStyle="#fff";ctx.fillRect(c.x-8,c.y-2,16,4);
   if(!c.hit){ctx.font="700 15px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=4;ctx.strokeStyle="#000";ctx.strokeText(c.t,c.x,c.y-26);ctx.fillStyle="#ff9a8a";ctx.fillText(c.t,c.x,c.y-26)}}
+ // traffic lights
+ {const sg=sig(),col={g:"#38e07a",y:"#ffd23d",r:"#ff3d3d"};for(let c=0;c<NR;c++)for(let r=0;r<NR;r++){const x0=c*PT,y0=r*PT;if(!inView(x0+96,y0+96,120))continue;
+  for(const[px,py,ax]of[[x0-14,y0+RWP+14,1],[x0+RWP+14,y0-14,1],[x0-14,y0-14,0],[x0+RWP+14,y0+RWP+14,0]]){ctx.fillStyle="#0004";ctx.beginPath();ctx.arc(px+3,py+3,6,0,7);ctx.fill();ctx.fillStyle="#2b2f36";ctx.beginPath();ctx.arc(px,py,6,0,7);ctx.fill();ctx.fillStyle="#1a1c20";ctx.fillRect(px-7,py-7,14,14);ctx.fillStyle=col[sg[ax]];ctx.beginPath();ctx.arc(px,py,4.5,0,7);ctx.fill()}}}
  // quiz crossroads
  if(QZ){if(!QZ.pads)marker(QZ.ic.x,QZ.ic.y,"#ffd23d","❓ 答題路口",110);
   else for(const pd of QZ.pads){const col=GC[pd.i];ctx.globalAlpha=.3+pulse*.2;ctx.fillStyle=col;ctx.beginPath();ctx.arc(pd.x,pd.y,95,0,7);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=col;ctx.lineWidth=8;ctx.beginPath();ctx.arc(pd.x,pd.y,95,0,7);ctx.stroke();
@@ -716,7 +747,12 @@ function render(){
    const t=QZ.q[1][QZ.order[pd.i]],tt=t.length>11?t.slice(0,10)+"…":t;ctx.font="900 22px 'Noto Sans TC',sans-serif";ctx.lineWidth=6;ctx.strokeStyle="#000";ctx.strokeText(tt,pd.x,pd.y-62);ctx.fillStyle="#fff";ctx.fillText(tt,pd.x,pd.y-62)}}
  // peds
  const tpNear=nearPed();
- for(const q of PEDS){if(!inView(q.x,q.y))continue;const sw3=q.moving?Math.sin(TIME*9+q.s*.1)*4:0;
+ for(const q of PEDS){if(q.gone>0||!inView(q.x,q.y,300))continue;
+  if(q.fly>0){const t=q.fly,k=Math.min(t/1.7,1),sc=(1+Math.sin(k*Math.PI)*2.4)*(1-k*.85),X=q.flyX,Y=q.flyY-t*240;
+   if(t<1.6){ctx.save();ctx.translate(X,Y);ctx.rotate(t*14);ctx.scale(sc,sc);ctx.fillStyle=q.sh;ctx.beginPath();ctx.ellipse(0,0,6,8.5,0,0,7);ctx.fill();ctx.fillStyle=q.sk;ctx.beginPath();ctx.arc(.5,0,4.6,0,7);ctx.fill();ctx.fillStyle="#2b2b33";ctx.fillRect(-9,-2,4,4);ctx.fillRect(5,-2,4,4);ctx.restore()}
+   else{ctx.font=`${20+(t-1.6)*90}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✨",X,Y)}
+   if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.flyX,q.flyY-30);ctx.fillText(q.say,q.flyX,q.flyY-30)}continue}
+  if(!inView(q.x,q.y))continue;const sw3=q.moving?Math.sin(TIME*9+q.s*.1)*4:0;
   ctx.fillStyle="#0003";ctx.beginPath();ctx.ellipse(q.x+3,q.y+4,9,7,0,0,7);ctx.fill();
   ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.ang);
   ctx.fillStyle="#2b2b33";ctx.fillRect(sw3-3,-5,6,4);ctx.fillRect(-sw3-3,1,6,4);
@@ -724,16 +760,19 @@ function render(){
   ctx.fillStyle=q.sh;ctx.beginPath();ctx.ellipse(0,0,6,8.5,0,0,7);ctx.fill();ctx.strokeStyle="#0003";ctx.lineWidth=1;ctx.stroke();
   ctx.fillStyle=q.sk;ctx.beginPath();ctx.arc(.5,0,4.6,0,7);ctx.fill();ctx.fillStyle=q.hair;ctx.beginPath();ctx.arc(-.6,0,4.8,Math.PI*.55,Math.PI*1.45);ctx.fill();ctx.restore();
   if(q===tpNear){ctx.strokeStyle="#57d1ff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(q.x,q.y,16+Math.sin(TIME*6)*2,0,7);ctx.stroke();ctx.font="20px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("💬",q.x,q.y-26)}
+  else if(q.faceT>0&&q.face){ctx.font="22px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(q.face,q.x,q.y-24)}
   else if(q.result){ctx.font="16px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(RES_ICON[q.result],q.x,q.y-20)}
   if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.x,q.y-30);ctx.fillText(q.say,q.x,q.y-30)}}
  // cars
- const drawCar=(c,o={})=>{if(!inView(c.x,c.y,60))return;ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L||54,Wd=c.Wd||28;
+ const drawCar=(c,o={})=>{if(!inView(c.x,c.y,60))return;if(c.kind=="bike"||c.kind=="scooter"){drawTwo(c,c===PL.car||c.dir!==undefined);return}ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L||54,Wd=c.Wd||28;
   ctx.fillStyle="#0005";rr(-L/2+4,-Wd/2+5,L,Wd,7);ctx.fill();
   ctx.fillStyle=c.color;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();ctx.strokeStyle="#0008";ctx.lineWidth=2;ctx.stroke();
   if(c.truck){ctx.fillStyle="#ddd";ctx.fillRect(-L/2+2,-Wd/2+2,L*.62,Wd-4);ctx.fillStyle="#1d2a38";ctx.fillRect(L*.2,-Wd/2+4,7,Wd-8)}
   else{ctx.fillStyle="#1d2a38";rr(L*.08,-Wd/2+4,L*.2,Wd-8,3);ctx.fill();rr(-L*.36,-Wd/2+5,L*.14,Wd-10,3);ctx.fill();ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",1.18);rr(-L*.2,-Wd/2+4,L*.27,Wd-8,3);ctx.fill()}
   ctx.fillStyle="#fff7b0";ctx.fillRect(L/2-4,-Wd/2+3,4,6);ctx.fillRect(L/2-4,Wd/2-9,4,6);
   ctx.fillStyle=c.brake?"#ff2d2d":"#8a1a1a";ctx.fillRect(-L/2,-Wd/2+3,3,6);ctx.fillRect(-L/2,Wd/2-9,3,6);
+  {const gl=ctx.createLinearGradient(0,-Wd/2,0,Wd/2);gl.addColorStop(0,"rgba(255,255,255,.35)");gl.addColorStop(.45,"rgba(255,255,255,0)");gl.addColorStop(1,"rgba(0,0,0,.18)");ctx.fillStyle=gl;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",.7);ctx.fillRect(L*.12,-Wd/2-3,5,3);ctx.fillRect(L*.12,Wd/2,5,3)}
+  if(c.taxi){ctx.fillStyle="#fff";ctx.fillRect(-6,-6,10,12);ctx.fillStyle="#111";ctx.fillRect(-4,-4,6,8)}
   if(c.share){ctx.fillStyle="#57ff8a";ctx.fillRect(-4,-Wd/2,8,Wd)}
   if(c.ai){ctx.fillStyle=Math.sin(TIME*12)>0?"#ff2d55":"#3d7dff";ctx.fillRect(-6,-8,12,16)}
   ctx.restore();
@@ -744,7 +783,7 @@ function render(){
  else{ctx.save();ctx.translate(PL.x,PL.y);ctx.fillStyle="#0005";ctx.beginPath();ctx.arc(3,4,12,0,7);ctx.fill();ctx.rotate(PL.a);const sw2=Math.sin(PL.walk||0)*5;
   ctx.fillStyle="#222";ctx.fillRect(-4+sw2,-9,8,5);ctx.fillRect(-4-sw2,4,8,5);ctx.fillStyle="#ff3d7f";ctx.beginPath();ctx.ellipse(0,0,8,12,0,0,7);ctx.fill();ctx.fillStyle="#2a1d14";ctx.beginPath();ctx.arc(1,0,6.5,0,7);ctx.fill();ctx.restore();
   ctx.font="22px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(EVO[evoIdx()][0],PL.x,PL.y-26)}
- if(PL.car){ctx.font="18px serif";ctx.textAlign="center";ctx.fillText(EVO[evoIdx()][0],PL.car.x,PL.car.y-30)}
+ if(PL.car&&PL.car.kind=="car"){ctx.font="18px serif";ctx.textAlign="center";ctx.fillText(EVO[evoIdx()][0],PL.car.x,PL.car.y-30)}
  // contact NPC figures
  for(const m of MDEF){if(!inView(m.at.x,m.at.y))continue;if(MS&&MS.m===m)continue;if(!(S.done[m.id]||m===nextMission()))continue;ctx.font="34px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(A(m.id).comp.e,m.at.x+40,m.at.y+Math.sin(TIME*5)*3)}
  // particles (ground)
@@ -781,7 +820,14 @@ function render(){
   if(b.ware){ctx.strokeStyle="#0002";ctx.lineWidth=3;ctx.beginPath();for(let i=1;i<10;i++){ctx.moveTo(rx+rw*i/10,ry+6);ctx.lineTo(rx+rw*i/10,ry+rh-6)}ctx.stroke();ctx.fillStyle="#cfe6f777";for(let i=1;i<5;i++)ctx.fillRect(rx+rw*i/5-8,ry+rh*.3,16,rh*.4)}
   if(b.awn){for(let i=0;i<8;i++){ctx.fillStyle=i%2?"#fff":(b.awnC||"#e04848");ctx.fillRect(rx+rw*i/8,ry+rh-14,rw/8+.5,14)}ctx.fillStyle="#b9bec5";ctx.fillRect(rx+rw*.2,ry+rh*.25,rw*.12,rh*.2);ctx.fillRect(rx+rw*.6,ry+rh*.25,rw*.12,rh*.2)}
   if(b.tower){ctx.fillStyle="#d4a017";ctx.beginPath();ctx.arc(rx+rw/2,ry+rh*.42,rw*.2,0,7);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();ctx.fillStyle="#fff";ctx.font=`900 ${rw*.2}px Anton,sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("H",rx+rw/2,ry+rh*.42)}
-  if(b.temple){ctx.fillStyle="#c9b48a";for(let i=0;i<7;i++)ctx.fillRect(rx+8+i*(rw-16)/7,ry+rh-22,10,16);ctx.strokeStyle="#0002";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(rx,ry+rh*.5);ctx.lineTo(rx+rw,ry+rh*.5);ctx.stroke()}
+  if(b.temple){ctx.fillStyle="#d9542f";ctx.fillRect(rx+6,ry+6,rw-12,rh-12);ctx.strokeStyle="#a8321f";ctx.lineWidth=2;ctx.beginPath();for(let k=1;k<14;k++){ctx.moveTo(rx+rw*k/14,ry+6);ctx.lineTo(rx+rw*k/14,ry+rh-6)}ctx.stroke();
+   ctx.fillStyle="#e2a72e";ctx.fillRect(rx+rw*.12,ry+rh/2-5,rw*.76,10);for(const sx3 of[rx+rw*.12,rx+rw*.88]){ctx.beginPath();ctx.arc(sx3,ry+rh/2-10,12,Math.PI*.5,Math.PI*1.5,sx3>rx+rw/2);ctx.lineWidth=6;ctx.strokeStyle="#e2a72e";ctx.stroke()}
+   ctx.fillStyle="#2f9a5a";ctx.beginPath();ctx.arc(rx+rw/2,ry+rh/2,9,0,7);ctx.fill();ctx.fillStyle="#e2a72e";ctx.beginPath();ctx.arc(rx+rw/2,ry+rh/2,5,0,7);ctx.fill()}
+  if(b.flat){ctx.fillStyle="#cfc8bb";ctx.fillRect(rx,ry,rw,rh);ctx.fillStyle="#bdb6a8";ctx.fillRect(rx+5,ry+5,rw-10,rh-10);ctx.strokeStyle="#a9a294";ctx.lineWidth=1;ctx.beginPath();for(let k=1;k<6;k++){ctx.moveTo(rx+5,ry+rh*k/6);ctx.lineTo(rx+rw-5,ry+rh*k/6)}ctx.stroke()}
+  if(b.tin){const tw=rw*.55,th=rh*.5;ctx.fillStyle="#8fb3c9";ctx.fillRect(rx+rw*.08,ry+rh*.42,tw,th);ctx.strokeStyle="#6f93a9";ctx.lineWidth=2;ctx.beginPath();for(let k=1;k<8;k++){ctx.moveTo(rx+rw*.08+tw*k/8,ry+rh*.42);ctx.lineTo(rx+rw*.08+tw*k/8,ry+rh*.42+th)}ctx.stroke()}
+  if(b.tank){const tr=Math.max(6,Math.min(rw,rh)*.11),tx3=rx+rw*.78,ty3=ry+rh*.25;ctx.fillStyle="#0003";ctx.beginPath();ctx.arc(tx3+3,ty3+3,tr,0,7);ctx.fill();const tg=ctx.createRadialGradient(tx3-tr*.4,ty3-tr*.4,1,tx3,ty3,tr);tg.addColorStop(0,"#ffffff");tg.addColorStop(1,b.id%3?"#9aa3ad":"#3d7dff");ctx.fillStyle=tg;ctx.beginPath();ctx.arc(tx3,ty3,tr,0,7);ctx.fill();ctx.strokeStyle="#0004";ctx.lineWidth=1.5;ctx.stroke()}
+  if(b.sg){for(const g2 of b.sg){const sx4=rx+rw*g2.f,len=g2.t.length*16+8,sy4=b.face<0?ry-len+6:ry+rh-6;ctx.fillStyle="#0006";ctx.fillRect(sx4-9,sy4+4,22,len);ctx.fillStyle=g2.c;ctx.fillRect(sx4-11,sy4,22,len);ctx.strokeStyle="#fff";ctx.lineWidth=1.5;ctx.strokeRect(sx4-11,sy4,22,len);
+    if(night){ctx.fillStyle=g2.c+"55";ctx.fillRect(sx4-17,sy4-6,34,len+12)}ctx.fillStyle="#fff";ctx.font="900 14px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";for(let k=0;k<g2.t.length;k++)ctx.fillText(g2.t[k],sx4,sy4+12+k*16)}}
   if(b.label){const fs=Math.min(rw/(b.label.length+.5),58);ctx.font=`900 ${fs}px 'Noto Sans TC',sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";const ly=b.tower?ry+rh*.82:ry+rh*.42;
    ctx.fillStyle=b.sign||"#000";const tw=ctx.measureText(b.label).width;ctx.fillRect(rx+rw/2-tw/2-10,ly-fs*.65,tw+20,fs*1.3);ctx.fillStyle="#fff";ctx.fillText(b.label,rx+rw/2,ly+2)}}
  // floats
@@ -791,7 +837,7 @@ function render(){
  // offscreen arrow
  ctx.setTransform(DPR,0,0,DPR,0,0);
  const tg=objTarget();if(tg){const sx2=(tg.x-CAM.x)*z+W2/2,sy2=(tg.y-CAM.y)*z+H2/2;const m=46;
-  if(sx2<m||sx2>W2-m||sy2<m+140||sy2>H2-m-160){const a=Math.atan2(sy2-H2/2,sx2-W2/2);const ex=clamp(W2/2+Math.cos(a)*W2,m,W2-m),ey=clamp(H2/2+Math.sin(a)*H2,m+150,H2-m-170);
+  if(sx2<m||sx2>W2-m||sy2<m+140||sy2>H2-m-230){const a=Math.atan2(sy2-H2/2,sx2-W2/2);const ex=clamp(W2/2+Math.cos(a)*W2,m,W2-m),ey=clamp(H2/2+Math.sin(a)*H2,m+150,H2-m-240);
    ctx.save();ctx.translate(ex,ey);ctx.rotate(a);ctx.fillStyle="#ffd23d";ctx.strokeStyle="#000";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(-12,-13);ctx.lineTo(-6,0);ctx.lineTo(-12,13);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
    const dm=Math.round(dist(tg,p)/4);ctx.font="900 14px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=4;ctx.strokeStyle="#000";ctx.strokeText(dm+" m",ex,ey+30);ctx.fillStyle="#fff";ctx.fillText(dm+" m",ex,ey+30)}}
 }
@@ -858,6 +904,15 @@ function ending(){
  <button class="btn w100" id="enOk">繼續在城裡逛逛</button>`);$("#enOk").onclick=()=>{closeOv("info");updObj()}}
 
 
+/* ================= TWO-WHEELERS ================= */
+function drawTwo(c,rider){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L,Wd=c.Wd;
+ ctx.fillStyle="#0004";ctx.beginPath();ctx.ellipse(3,4,L/2,Wd/2+2,0,0,7);ctx.fill();
+ ctx.fillStyle="#1b1b1f";ctx.beginPath();ctx.ellipse(L/2-5,0,6,2.6,0,0,7);ctx.ellipse(-L/2+5,0,6,2.6,0,0,7);ctx.fill();
+ if(c.kind=="bike"){ctx.strokeStyle=c.color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-L/2+5,0);ctx.lineTo(L/2-5,0);ctx.stroke();ctx.strokeStyle="#333";ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(L/2-8,-7);ctx.lineTo(L/2-8,7);ctx.stroke();ctx.fillStyle="#555";ctx.fillRect(L/2-6,-4,6,8);ctx.fillStyle="#222";ctx.fillRect(-4,-2.5,8,5)}
+ else{ctx.fillStyle=c.color;rr(-L/2+3,-Wd/2,L-6,Wd,5);ctx.fill();ctx.strokeStyle="#0006";ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle="#222";rr(-L*.32,-Wd/2+2.5,L*.42,Wd-5,3);ctx.fill();ctx.strokeStyle="#333";ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(L/2-9,-Wd/2-2);ctx.lineTo(L/2-9,Wd/2+2);ctx.stroke();ctx.fillStyle="#fff7b0";ctx.fillRect(L/2-3,-2,3,4)}
+ if(rider){ctx.fillStyle=c===PL.car?"#ff3d7f":"#3d7dff";ctx.beginPath();ctx.ellipse(-2,0,6,8,0,0,7);ctx.fill();ctx.fillStyle=c===PL.car?"#2a1d14":(c.kind=="scooter"?"#e33":"#2a1d14");ctx.beginPath();ctx.arc(-1,0,5,0,7);ctx.fill();if(c.kind=="scooter"){ctx.fillStyle="#fff8";ctx.beginPath();ctx.arc(-2,-1.5,2,0,7);ctx.fill()}}
+ ctx.restore();if(c===PL.car){ctx.font="16px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(EVO[evoIdx()][0],c.x,c.y-20)}}
+
 /* ================= DETAILED GROUND (cached chunks) ================= */
 const CH=512,CHS=1.25,CHUNKS=new Map();
 function chunk(i,j){const k=i+","+j;let c=CHUNKS.get(k);if(c){CHUNKS.delete(k);CHUNKS.set(k,c);return c}
@@ -876,6 +931,7 @@ function paintGround(g,x0,y0,s){const R=rng(((x0*7+y0*13)|0)+1);
   g.strokeStyle="#e8e8e8aa";g.lineWidth=3;g.beginPath();g.moveTo(xa+30,k*PT+8);g.lineTo(xb-30,k*PT+8);g.moveTo(xa+30,k*PT+RWP-8);g.lineTo(xb-30,k*PT+RWP-8);g.stroke();
   g.fillStyle="#ececec";for(let i=0;i<7;i++){g.fillRect(xa+5,k*PT+12+i*25,20,15);g.fillRect(xb-25,k*PT+12+i*25,20,15)}
   g.fillRect(xa+30,k*PT+4,5,RWP/2-6);g.fillRect(xb-35,k*PT+RWP/2+2,5,RWP/2-6);
+  g.strokeStyle="#fff";g.lineWidth=2.5;g.strokeRect(xb-90,k*PT+RWP-44,44,36);g.strokeRect(xa+46,k*PT+8,44,36);
   g.fillStyle="#555a61";g.beginPath();g.arc((xa+xb)/2+60,k*PT+50,7,0,7);g.fill()}
  for(let c=0;c<NR;c++)for(let k=0;k<NB;k++){const ya=k*PT+RWP,yb=(k+1)*PT,xc=c*PT+1.5*T;if(yb<y0||ya>y0+s||xc<x0-120||xc>x0+s+120)continue;
   g.strokeStyle="#f2c200";g.lineWidth=3;g.beginPath();g.moveTo(xc-4,ya+34);g.lineTo(xc-4,yb-34);g.moveTo(xc+4,ya+34);g.lineTo(xc+4,yb-34);g.stroke();
@@ -909,12 +965,16 @@ function paintBlock(g,B){const x=B.x,y=B.y,S9=9*T,ix=x+T,iy=y+T,L=7*T,R=rng(B.bx
    g.fillStyle="#9bd0ee";g.beginPath();g.ellipse(B.pond.x,B.pond.y,B.pond.r*1.25,B.pond.r*.85,0,0,7);g.fill();g.fillStyle="#3f8fc9";g.beginPath();g.ellipse(B.pond.x,B.pond.y,B.pond.r*1.15,B.pond.r*.75,0,0,7);g.fill();
    g.fillStyle="#cfeaff55";g.beginPath();g.ellipse(B.pond.x-20,B.pond.y-12,B.pond.r*.6,B.pond.r*.25,-.3,0,7);g.fill();g.fillStyle="#4c9a3a";for(let k=0;k<5;k++){g.beginPath();g.arc(B.pond.x+(R()-.5)*B.pond.r*1.6,B.pond.y+(R()-.5)*B.pond.r,7,0,7);g.fill()}
    bench(ix+L*.62,iy+L*.6,0);bench(ix+L*.2,iy+L*.86,0)}
-  if(t=="uni"){g.fillStyle="#d8cfb8";g.fillRect(ix+L/2-28,iy+4*T,56,3*T)}flowers(ix+12,iy+12,60,22);flowers(ix+L-72,iy+L-34,60,22)}
+  if(t=="uni"){g.fillStyle="#d8cfb8";g.fillRect(ix+L/2-60,iy+4*T,120,3*T);g.fillStyle="#8a1a1a";g.beginPath();g.arc(ix+L/2,iy+5*T,16,0,7);g.fill();g.fillStyle="#e2a72e";g.beginPath();g.arc(ix+L/2,iy+5*T,9,0,7);g.fill();g.fillStyle="#9a9a9a";for(const dx of[-48,48]){g.fillRect(ix+L/2+dx-6,iy+4.4*T,12,12);g.fillRect(ix+L/2+dx-6,iy+6*T,12,12)}}flowers(ix+12,iy+12,60,22);flowers(ix+L-72,iy+L-34,60,22)}
  else if(t=="space"){lot("#e4dbc8");g.strokeStyle="#d2c7b0";g.lineWidth=3;for(let r2=20;r2<200;r2+=24){g.beginPath();g.arc(ix+L/2,iy+5.4*T,r2,0,7);g.stroke()}g.fillStyle="#9bd0ee";g.beginPath();g.arc(ix+L/2,iy+5.4*T,34,0,7);g.fill();g.fillStyle="#fff";g.beginPath();g.arc(ix+L/2,iy+5.4*T,8,0,7);g.fill();planter(ix+10,iy+L-40,60,24);planter(ix+L-70,iy+L-40,60,24)}
  else if(t=="tower"){lot("#d0c9bb");g.strokeStyle="#c2baa9";g.lineWidth=2;for(let k=-L;k<L;k+=24){g.beginPath();g.moveTo(ix+k,iy);g.lineTo(ix+k+L,iy+L);g.stroke()}}
  else if(t=="xiaoan"){lot("#bccfe2");const q=XIAOAN;g.fillStyle="#3d7dff44";g.beginPath();g.arc(q.x-40,q.y,70,0,7);g.fill();g.strokeStyle="#3d7dff";g.lineWidth=5;g.stroke()}
  else if(B.lot){if(B.built){tiles("#d6ccb9","#ccc1ac",32);planter(ix+20,iy+L-50,80,26)}else{lot("#a8895c");speck(500,["#957a50","#b89a6a","#8a6f48","#c2a777"],3);g.fillStyle="#6f8fae66";g.beginPath();g.ellipse(ix+L*.3,iy+L*.7,40,18,0,0,7);g.fill();
   g.setLineDash([10,8]);g.strokeStyle="#5a4630";g.lineWidth=4;g.strokeRect(B.x+T*1.2,B.y+T*1.2,6.6*T,6.6*T);g.setLineDash([]);g.fillStyle="#fff";g.font="900 54px 'Noto Sans TC',sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("空地 "+B.lot,B.x+4.5*T,B.y+4.5*T);g.font="700 22px 'Noto Sans TC',sans-serif";g.fillText("分店預定地",B.x+4.5*T,B.y+4.5*T+44)}}
+ // red no-parking curb paint near corners (Taiwan style)
+ g.strokeStyle="#d63a3a";g.lineWidth=4;g.beginPath();for(const[ax,ay,bx2,by2]of[[x,y,x+80,y],[x+S9-80,y,x+S9,y],[x,y+S9,x+80,y+S9],[x+S9-80,y+S9,x+S9,y+S9],[x,y,x,y+80],[x,y+S9-80,x,y+S9],[x+S9,y,x+S9,y+80],[x+S9,y+S9-80,x+S9,y+S9]]){g.moveTo(ax,ay);g.lineTo(bx2,by2)}g.stroke();
+ g.strokeStyle="#f2c200";g.lineWidth=3;g.beginPath();g.moveTo(x+120,y+S9);g.lineTo(x+S9-120,y+S9);g.stroke();
+ for(const[bx3,by3,sd,f]of BIKE_ST){if(bx3!=B.bx||by3!=B.by)continue;const q=sw(bx3,by3,sd,f),h=(sd=="n"||sd=="s");g.fillStyle="#7a7f86";h?g.fillRect(q.x-36,q.y-2,72,4):g.fillRect(q.x-2,q.y-36,4,72);g.fillStyle="#f2a900";g.fillRect(h?q.x+40:q.x-8,h?q.y-8:q.y+40,16,16);g.fillStyle="#fff";g.font="900 11px sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("🚲",h?q.x+48:q.x,h?q.y:q.y+48)}
  // hydrant
  g.fillStyle="#d63a3a";g.beginPath();g.arc(x+T*.8,y+T*.25,5,0,7);g.fill()}
 
@@ -948,23 +1008,25 @@ const BADGES=[1,5,10,20,30,50,100,200];
 let SCHED=[];
 function nearPed(){if(PL.car||PAUSE)return null;let b=null,bd=50;for(const p of PEDS){if(p.result&&!(p.result=="rej"&&p.rejDay<S.day))continue;const d=Math.hypot(p.x-PL.x,p.y-PL.y);if(d<bd){bd=d;b=p}}return b}
 function rollJoin(){let r=Math.random()*100;for(const j of JOIN){if(r<j.p)return j;r-=j.p}return JOIN[3]}
-function talk(p){PAUSE=true;p.talking=true;SFX.door();
- panel("info",`<div style="text-align:center"><div style="font-size:60px;line-height:1.1">${p.av}</div><h2 style="margin:4px 0">${p.name}</h2><p style="color:#aaa;margin:0">${p.job}｜${p.mood}</p></div>
+function faceType(o){const f=o.faceT>0?o.face:"";if(["😄","😊","🙂","😤"].includes(f)&&f!="😤")return"happy";if(["🤔","😅","🙅","😑","😠"].includes(f))return"sad";if(!f&&o.result&&o.result!="rej")return"happy";return"neutral"}
+function talk(p){PAUSE=true;p.talking=true;SFX.door();p.face="😐";p.faceT=99;
+ panel("info",`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>😐</b></div><h2 style="margin:4px 0">${p.name}</h2><p style="margin:0;font-size:13px;color:#aaa">表情：面無表情</p><p style="color:#aaa;margin:0">${p.job}｜${p.mood}</p></div>
  <p style="margin-top:12px;font-weight:900">你想怎麼開口？</p>${OPENERS.map((x,i)=>`<button class="btn dk w100 op" data-i="${i}" style="justify-content:flex-start;text-align:left">${x[0]} ${x[1]}</button>`).join("")}
  <button class="btn w100" id="tkCancel" style="margin-top:10px;background:#333;color:#fff">先不要，下次再聊</button>
  <p style="font-size:12px;color:#aaa;margin-top:8px">已開口 ${S.opp.talks} 次｜加入 ${S.opp.dist+S.opp.mem+S.opp.fri} 人</p>`);
- document.querySelectorAll(".op").forEach(b=>b.onclick=()=>talkRoll(p,+b.dataset.i));$("#tkCancel").onclick=()=>{p.talking=false;closeOv("info")}}
-function talkRoll(p,i){$("#info .panel").innerHTML=`<div style="text-align:center;padding:26px 0"><div style="font-size:60px">${p.av}</div><p style="font-size:17px">${OPENERS[i][0]} 你：「${OPENERS[i][1]}……」</p><p style="font-size:26px;font-weight:900" class="dots">🤔 ${p.name} 考慮中</p></div>`;tone(520,.1,"triangle",.05);setTimeout(()=>talkResult(p),1200)}
-function talkResult(p){const j=rollJoin(),o=S.opp;o.talks++;o[j.k]++;let exp=15;p.result=j.k;p.talking=false;const say=pick(j.say);
+ document.querySelectorAll(".op").forEach(b=>b.onclick=()=>talkRoll(p,+b.dataset.i));$("#tkCancel").onclick=()=>{p.talking=false;p.faceT=0;closeOv("info")}}
+function talkRoll(p,i){$("#info .panel").innerHTML=`<div style="text-align:center;padding:26px 0"><div class="tav"><span>${p.av}</span><b>🤨</b></div><p style="font-size:17px">${OPENERS[i][0]} 你：「${OPENERS[i][1]}……」</p><p style="font-size:26px;font-weight:900" class="dots">🤔 ${p.name} 考慮中</p></div>`;tone(520,.1,"triangle",.05);setTimeout(()=>talkResult(p),1200)}
+const FACES={dist:["😄","🤩"],mem:["😊","😄"],fri:["🙂","😊"],rej:["🤔","😅","🙅","😑"]},FACE_TXT={"😄":"開心","🤩":"超興奮","😊":"微笑","🙂":"點頭","🤔":"疑惑","😅":"尷尬","🙅":"拒絕","😑":"冷淡"};
+function talkResult(p){const j=rollJoin(),o=S.opp;const fc=pick(FACES[j.k]);p.face=fc;p.faceT=8;o.talks++;o[j.k]++;let exp=15;p.result=j.k;p.talking=false;const say=pick(j.say);
  let html;
  if(j.k=="rej"){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();
   const joined=o.dist+o.mem+o.fri,rate=Math.round(joined/o.talks*100);
-  html=`<div style="text-align:center"><div style="font-size:56px">${p.av}💭</div><h2>${p.name}：「${say}」</h2>
+  html=`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>${fc}</b></div><p style="margin:0;font-size:13px;color:#aaa">表情：${FACE_TXT[fc]}</p><h2>${p.name}：「${say}」</h2>
   <p style="font-size:17px;color:var(--gold);font-weight:900">${pick(CHEER)}</p>
   ${o.streak>=2?`<p>連續 ${o.streak} 次婉拒也沒關係——你目前的加入率是 <b style="color:var(--green)">${rate}%</b>，平均每開口 ${joined?(o.talks/joined).toFixed(1):"—"} 次就有 1 人加入。下一位很可能就是 YES！</p>`:`<p>${p.name} 明天可以再聊一次。</p>`}
   <p style="font-size:20px;font-weight:900;color:var(--green)">💪 勇氣 +${exp} EXP</p></div>`}
  else{o.streak=0;exp+=25;S.today.join++;const m={n:p.name,t:j.n,av:p.av,d:S.day,sales:0,bv:0};S.team.push(m);scheduleMember(m,S.clock);SFX.pass();
-  html=`<div style="text-align:center"><div style="font-size:56px">${p.av}${j.e}</div><h2 style="color:var(--gold)">🎉 ${p.name} 加入了${j.n}！</h2><p style="font-size:17px">「${say}」</p>
+  html=`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>${fc}</b></div><p style="margin:0;font-size:13px;color:#aaa">表情：${FACE_TXT[fc]}｜${j.e} ${j.n}</p><h2 style="color:var(--gold)">🎉 ${p.name} 加入了${j.n}！</h2><p style="font-size:17px">「${say}」</p>
   <p style="font-size:20px;font-weight:900;color:var(--green)">勇氣 +15｜加入 +25 EXP</p><p style="font-size:13px;color:#aaa">${j.n}夥伴之後會隨機購買產品，累積團隊營業額與 BV。可在 📱 手機 →「團隊」查看。</p></div>`}
  S.exp+=exp;save();
  const nb=BADGES.find(b=>b==o.talks);
@@ -1050,12 +1112,16 @@ function renderFP(){
   let any=false;ctx.save();ctx.beginPath();let run=-1;for(let c=c0;c<=c1+1;c++){const vis=c<=c1&&ZB[c]>sp.d;if(vis&&run<0)run=c;if(!vis&&run>=0){ctx.rect(run*SC,0,(c-run)*SC+.5,VH);run=-1;any=true}}
   if(sp.kind=="sign"||sp.kind=="beam"||sp.kind=="pad"){ctx.restore();ctx.save();any=true}else ctx.clip();
   if(!any){ctx.restore();continue}const o=sp.o;
-  if(sp.kind=="car"){const rel=angDiff(o.a,a),L=o.L||54,Wd=o.Wd||28,w=(Wd*Math.abs(Math.cos(rel))+L*Math.abs(Math.sin(rel)))*sc,h=(o.truck?40:22)*sc;
+  if(sp.kind=="car"&&(o.kind=="bike"||o.kind=="scooter")){const rel=angDiff(o.a,a),w=(o.Wd*Math.abs(Math.cos(rel))+o.L*Math.abs(Math.sin(rel)))*sc,h=24*sc;ctx.fillStyle="#0005";ctx.fillRect(X-w/2,G-3*sc,w,4*sc);ctx.fillStyle="#222";ctx.fillRect(X-w/2,G-8*sc,w,5*sc);ctx.fillStyle=o.color;rr(X-w*.4,G-h*.75,w*.8,h*.45,3*sc);ctx.fill();if(o.dir!==undefined){ctx.fillStyle="#3d7dff";rr(X-5*sc,G-h*1.5,10*sc,h*.8,3*sc);ctx.fill();ctx.fillStyle="#f1c9a0";ctx.beginPath();ctx.arc(X,G-h*1.6,4.5*sc,0,7);ctx.fill();ctx.fillStyle="#e33";ctx.beginPath();ctx.arc(X,G-h*1.68,4.8*sc,Math.PI,0);ctx.fill()}}
+  else if(sp.kind=="car"){const rel=angDiff(o.a,a),L=o.L||54,Wd=o.Wd||28,w=(Wd*Math.abs(Math.cos(rel))+L*Math.abs(Math.sin(rel)))*sc,h=(o.truck?40:22)*sc;
    ctx.fillStyle="#0006";ctx.fillRect(X-w/2,G-3*sc,w,4*sc);ctx.fillStyle=o.truck?"#ddd":o.color;rr(X-w/2,G-h,w,h*.62,4*sc);ctx.fill();ctx.fillStyle=shade(o.color.length==7?o.color:"#888888",.8);rr(X-w*.36,G-h,w*.72,h*.42,3*sc);ctx.fill();ctx.fillStyle="#1d2a38";rr(X-w*.3,G-h*.95,w*.6,h*.3,2*sc);ctx.fill();
    ctx.fillStyle="#111";ctx.fillRect(X-w/2+2*sc,G-6*sc,6*sc,6*sc);ctx.fillRect(X+w/2-8*sc,G-6*sc,6*sc,6*sc);
    const back=Math.cos(rel)>0;ctx.fillStyle=back?(o.brake?"#ff2d2d":"#a01818"):"#fff7b0";ctx.fillRect(X-w*.42,G-h*.5,w*.14,h*.12);ctx.fillRect(X+w*.28,G-h*.5,w*.14,h*.12);
    if(o.ai){ctx.fillStyle=Math.sin(TIME*12)>0?"#ff2d55":"#3d7dff";ctx.fillRect(X-6*sc,G-h-5*sc,12*sc,5*sc);lbl("謠言："+o.myth,X,G-h-10*sc,"#d9a8ff",sc)}}
-  else if(sp.kind=="ped"){ctx.fillStyle="#222";ctx.fillRect(X-3*sc,G-10*sc,6*sc,10*sc);ctx.fillStyle=o.sh;rr(X-5*sc,G-22*sc,10*sc,13*sc,3*sc);ctx.fill();ctx.fillStyle=o.sk;ctx.beginPath();ctx.arc(X,G-26*sc,4.5*sc,0,7);ctx.fill();if(o.sayT>0)lbl(o.say,X,G-34*sc,"#fff",sc)}
+  else if(sp.kind=="ped"){if(o.gone>0){ctx.restore();continue}const Z=o.fly?o.fly*o.fly*320*sc:0,Gp=G-Z;if(o.fly>1.6){lbl("✨",X,Gp,"#fff",sc*2);ctx.restore();continue}
+   ctx.fillStyle="#222";ctx.fillRect(X-3*sc,Gp-10*sc,6*sc,10*sc);ctx.fillStyle=o.sh;rr(X-5*sc,Gp-22*sc,10*sc,13*sc,3*sc);ctx.fill();ctx.fillStyle=o.sk;ctx.beginPath();ctx.arc(X,Gp-26*sc,4.5*sc,0,7);ctx.fill();ctx.fillStyle=o.hair||"#2a1d14";ctx.beginPath();ctx.arc(X,Gp-27*sc,4.7*sc,Math.PI,0);ctx.fill();
+   if(sc>.5){const ex=faceType(o);ctx.fillStyle="#222";ctx.fillRect(X-2.2*sc,Gp-27*sc,1.1*sc,1.1*sc);ctx.fillRect(X+1.1*sc,Gp-27*sc,1.1*sc,1.1*sc);ctx.strokeStyle="#5a2a2a";ctx.lineWidth=Math.max(1,.7*sc);ctx.beginPath();if(ex=="happy")ctx.arc(X,Gp-25*sc,1.8*sc,.2,Math.PI-.2);else if(ex=="sad")ctx.arc(X,Gp-23*sc,1.6*sc,Math.PI+.3,-.3);else{ctx.moveTo(X-1.5*sc,Gp-24.3*sc);ctx.lineTo(X+1.5*sc,Gp-24.3*sc)}ctx.stroke()}
+   if(o.faceT>0&&o.face)lbl(o.face,X,Gp-38*sc,"#fff",sc*1.2);if(o.sayT>0)lbl(o.say,X,Gp-46*sc,"#fff",sc)}
   else if(sp.kind=="tree"){ctx.fillStyle="#6b4a2b";ctx.fillRect(X-3*sc,G-22*sc,6*sc,22*sc);ctx.fillStyle="#2f7a2c";ctx.beginPath();ctx.arc(X,G-22*sc-o.r*sc*.8,o.r*sc,0,7);ctx.fill();ctx.fillStyle="#4c9a3a";ctx.beginPath();ctx.arc(X-o.r*sc*.3,G-22*sc-o.r*sc,o.r*sc*.5,0,7);ctx.fill()}
   else if(sp.kind=="cone"){ctx.fillStyle=o.hit?"#7a3a2a":"#ff5a1f";ctx.beginPath();ctx.moveTo(X,G-26*sc);ctx.lineTo(X+11*sc,G);ctx.lineTo(X-11*sc,G);ctx.closePath();ctx.fill();ctx.fillStyle="#fff";ctx.fillRect(X-6*sc,G-14*sc,12*sc,4*sc);if(!o.hit)lbl(o.t,X,G-34*sc,"#ff9a8a",sc)}
   else if(sp.kind=="emoji"){ctx.font=`${Math.max(8,30*sc)}px serif`;ctx.textAlign="center";ctx.textBaseline="bottom";ctx.fillText(sp.e,X,G-sp.h*sc-Math.abs(Math.sin(TIME*3))*6*sc)}
@@ -1065,7 +1131,8 @@ function renderFP(){
    else lbl(sp.t,X,G-h*.75,"#fff",Math.max(sc,.45))}
   ctx.restore()}
  // hood + speed
- if(car){ctx.fillStyle=car.color;ctx.beginPath();ctx.moveTo(0,VH);ctx.lineTo(0,VH*.93);ctx.quadraticCurveTo(VW/2,VH*.84,VW,VH*.93);ctx.lineTo(VW,VH);ctx.fill();ctx.fillStyle="#0003";ctx.beginPath();ctx.moveTo(VW*.3,VH);ctx.quadraticCurveTo(VW/2,VH*.88,VW*.7,VH);ctx.fill()}
+ if(car&&car.kind!="car"){ctx.strokeStyle="#222";ctx.lineWidth=10;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(VW*.18,VH*.86);ctx.quadraticCurveTo(VW/2,VH*.8,VW*.82,VH*.86);ctx.stroke();ctx.lineCap="butt";ctx.fillStyle=car.color;ctx.beginPath();ctx.arc(VW/2,VH*1.02,VW*.16,Math.PI,0);ctx.fill();if(car.kind=="scooter"){ctx.fillStyle="#111";rr(VW/2-40,VH*.88,80,30,8);ctx.fill();ctx.fillStyle="#57ff8a";ctx.font="900 16px Anton";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(Math.round(car.speed/4*3.6/2)+" km/h",VW/2,VH*.88+15)}}
+ else if(car){ctx.fillStyle=car.color;ctx.beginPath();ctx.moveTo(0,VH);ctx.lineTo(0,VH*.93);ctx.quadraticCurveTo(VW/2,VH*.84,VW,VH*.93);ctx.lineTo(VW,VH);ctx.fill();ctx.fillStyle="#0003";ctx.beginPath();ctx.moveTo(VW*.3,VH);ctx.quadraticCurveTo(VW/2,VH*.88,VW*.7,VH);ctx.fill()}
  // compass arrow to objective
  const tg=objTarget();if(tg){const d=angDiff(Math.atan2(tg.y-cy,tg.x-cx),a),X=VW/2,Y=VW<760?Math.min(VH*.3,186):70;ctx.save();ctx.translate(X,Y);ctx.rotate(d-Math.PI/2);ctx.fillStyle="#ffd23d";ctx.strokeStyle="#000";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-24);ctx.lineTo(16,12);ctx.lineTo(0,4);ctx.lineTo(-16,12);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
   const dm=Math.round(dist(tg,{x:cx,y:cy})/4)+" m";ctx.font="900 14px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=4;ctx.strokeStyle="#000";ctx.strokeText(dm,X,Y+34);ctx.fillStyle="#fff";ctx.fillText(dm,X,Y+34)}
@@ -1087,6 +1154,7 @@ boot();
 window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=x;o.y=y;if(PL.car){PL.car.vx=PL.car.vy=0}},
  answer:(right=true)=>{if(!QZ)return false;const o=PL.car||PL;if(!QZ.pads){o.x=QZ.ic.x;o.y=QZ.ic.y+300;quizCross()}const i=QZ.order.indexOf(QZ.q[2]),j=right?i:(i+1)%QZ.n,pd=QZ.pads[j];o.x=pd.x;o.y=pd.y;quizCross();return true},
  talkTo:()=>{const p=PEDS[0];PL.x=p.x+20;PL.y=p.y;talk(p);return p},res:()=>talkResult(PEDS[0]),roll:n=>{const c={};for(let i=0;i<n;i++){const k=rollJoin().k;c[k]=(c[k]||0)+1}return c},clock:v=>{S.clock=v},PEDS:()=>PEDS,
+ CARS:()=>CARS,KINDS,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
  next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF[id-1]),pass:()=>passMission(),missions:MDEF};
 </script>
 </body>
