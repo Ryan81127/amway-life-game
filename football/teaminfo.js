@@ -259,7 +259,7 @@ function starList(model, side, ti) {
     const en = p?.en || u?.en || "";
     if (!en) continue;
     const score = (p ? p.goals * 3 + p.assists * 2 + p.apps * 0.5 : 0) + (u ? u.min / 90 * 1.4 + (u.g * 2 + u.a) : 0);
-    list.push({ id, en, name: playerZh(en), p, u, score });
+    list.push({ id, en, name: typeof shownZh === "function" ? shownZh(en) : playerZh(en), p, u, score });
   }
   const scored = list.filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
   if (scored.length) return scored;
@@ -641,13 +641,12 @@ function starCard(model, side, s, ti, index) {
     p.age || bio.age ? `${p.age || bio.age} 歲` : "",
     p.cm || bio.cm ? `${p.cm || bio.cm} 公分` : "",
     p.nat || "",
-    p.jersey ? `#${p.jersey}` : "",
     bio.club ? clubPhrase(bio.club) : ""
   ].filter(Boolean).join(" · ");
+  const shirt = String((model.roster?.[side]?.players || []).find((x) => x.id === s.id)?.jersey || p.jersey || "").trim();
   const body = h("div", { class: "star-body" },
     h("div", { class: "kc-head" },
-      h("strong", null, s.name),
-      s.name !== s.en ? h("span", { class: "faint" }, s.en) : null,
+      typeof nameHead === "function" ? nameHead(s.en, shirt) : h("strong", null, s.name),
       today ? h("span", { class: today.includes("未進") ? "tag-bad" : "tag-val" }, ui(today)) : null,
       ...pack.trend.tags.map((tag) => h("span", { class: tag.includes("少") || tag.includes("下滑") ? "tag-bad" : "tag-val" }, ui(tag)))
     ),
@@ -698,6 +697,7 @@ function starsBlock(model) {
   const tops = [];
   for (const side of ["home", "away"]) {
     const stars = starList(model, side, ti);
+    if (typeof warmNames === "function") warmNames(stars.map((s) => s.en));
     block.append(h("h3", null, ui(model[side].name)));
     if (!stars.length) { block.append(h("p", { class: "muted" }, ui("ESPN 沒有這隊的名單與出場資料。"))); continue; }
     stars.forEach((s, index) => block.append(starCard(model, side, s, ti, index)));

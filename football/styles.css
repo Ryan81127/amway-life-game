@@ -475,6 +475,12 @@ img { display: block; }
 }
 
 .xi .nm { display: block; font-weight: 800; }
+.pname { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; max-width: 100%; }
+.pname-zh { font-weight: 800; }
+.pname-en { flex-basis: 100%; font-size: 12px; font-weight: 500; color: var(--faint); }
+.ntag { font-size: 11px; font-weight: 800; padding: 0 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--gold); cursor: pointer; }
+.ntag-phon { color: #ffb020; border-color: rgba(255, 176, 32, 0.7); }
+.xi .pname-en { font-size: 11px; }
 
 .xi .pos { display: block; color: var(--muted); font-size: 13px; font-weight: 500; }
 
