@@ -337,7 +337,7 @@ async function refreshStory(model) {
 
 function storyRequestText(model) {
   return [
-    `幫 ${model.home.name} 對 ${model.away.name} 做故事卡`,
+    `幫 ${model.home.name} 對 ${model.away.name} 做故事卡（含兩隊球員身價）`,
     `（event ${model.id}｜${model.leagueSlug}｜主 ${model.home.id} ${model.home.rawName}｜客 ${model.away.id} ${model.away.rawName}｜開賽 ${hm(new Date(model.kickoff))} 台北）`
   ].join("\n");
 }

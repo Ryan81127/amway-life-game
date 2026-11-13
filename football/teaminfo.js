@@ -162,16 +162,40 @@ async function wikiHistory(team, national) {
   return out;
 }
 
-async function manualInjuries(model, side) {
+async function teamFile(model, side) {
   try {
     const idx = await cardIndex();
     const file = idx.teams?.[model[side].id];
-    if (!file) return [];
-    const data = await cardJson(file);
-    return data?.injuries || [];
+    return file ? await cardJson(file) : null;
   } catch {
-    return [];
+    return null;
   }
+}
+
+async function manualInjuries(model, side) {
+  return (await teamFile(model, side))?.injuries || [];
+}
+
+async function squadValues(model, side) {
+  return (await teamFile(model, side))?.squad || null;
+}
+
+function fmtEuro(v) {
+  if (!Number.isFinite(v)) return "–";
+  if (v >= 1e8) return `€${trimNum(v / 1e8)} 億`;
+  if (v >= 1e4) return `€${trimNum(Math.round(v / 1e4))} 萬`;
+  return `€${v}`;
+}
+
+function squadValueBlock(model, side, sq) {
+  const players = (sq.players || []).filter((p) => Number.isFinite(p.value)).sort((a, b) => b.value - a.value);
+  if (!players.length) return null;
+  const total = sq.total || players.reduce((a, p) => a + p.value, 0);
+  const avg = total / (sq.count || players.length);
+  return h("details", { class: "fold", "data-k": "sq-" + side, open: true },
+    h("summary", null, ui(`💰 ${model[side].name} 身價：總值 ${fmtEuro(total)}、平均 ${fmtEuro(avg)}（${sq.count || players.length} 人）`)),
+    predTable(["球員", "位置", "身價"], players.map((p) => ({ cells: [playerZh(p.name) + (playerZh(p.name) !== p.name ? ` ${p.name}` : ""), p.pos ? posZh(p.pos) || p.pos : "", fmtEuro(p.value)] }))),
+    h("p", { class: "faint" }, ui(`來源：${sq.source?.name || "Transfermarkt"}（查證 ${sq.checked || "–"}）`), sq.source?.url ? [" · ", h("a", { href: sq.source.url, target: "_blank", rel: "noopener" }, ui("原始頁面"))] : null));
 }
 
 async function ensureTeamInfo(model) {
@@ -182,12 +206,13 @@ async function ensureTeamInfo(model) {
   const ctl = new AbortController();
   try {
     const sides = await Promise.all(["home", "away"].map(async (side) => {
-      const [roster, recent, manual] = await Promise.all([
+      const [roster, recent, manual, squad] = await Promise.all([
         fetchRoster(model.leagueSlug, model[side].id, national),
         recentUsage(model, side, ctl.signal),
-        manualInjuries(model, side)
+        manualInjuries(model, side),
+        squadValues(model, side)
       ]);
-      return [side, { roster, recent, manual }];
+      return [side, { roster, recent, manual, squad }];
     }));
     tiStore.set(key, { status: "ok", at: Date.now(), national, ...Object.fromEntries(sides) });
   } catch (err) {
@@ -270,6 +295,9 @@ function starsBlock(model) {
         h("p", null, ui(starLine(model, side, s, ti) || "ESPN 只有名單，沒有這位球員的出場數據。")));
     });
     block.append(...rows);
+    const sq = ti[side].squad;
+    if (sq) block.append(squadValueBlock(model, side, sq));
+    else block.append(h("p", { class: "faint" }, ui(`💰 ${model[side].name}的球員身價還沒建檔：按「兩隊故事」區的「📋 複製故事卡請求」，Claude 製作故事卡時會一併查 Transfermarkt 身價。`)));
     const top = stars[0];
     if (top) {
       const p = top.p;
