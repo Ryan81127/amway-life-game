@@ -769,7 +769,7 @@ function savePrediction(model, pred) {
     ou: mkOu ? { L: mkOu.L, side: pickSide(mkOu.over, mkOu.under) ? "over" : "under" } : null,
     btts: bt ? bt.btts : null,
     score: bt?.scores?.[0]?.s || null,
-    corners: co ? { mu: co.mu } : null,
+    corners: (typeof chStore !== "undefined" && chStore.get(model.id)?.cm) ? { mu: chStore.get(model.id).cm.mu, h1: chStore.get(model.id).cm.h1, h2: chStore.get(model.id).cm.h2 } : co ? { mu: co.mu } : null,
     cards: ca ? { mu: ca.mu } : null,
     best: pred.best.map((p) => ({ market: p.market, label: p.label, p: p.p, dec: p.dec ?? null, key: p.key || null }))
   };
@@ -1380,7 +1380,14 @@ function predictionBlock(model, pred, opts = {}) {
   if (pred.noValue) bestBox.append(h("p", { class: "faint" }, ui("ESPN 三個主盤（獨贏、讓球、大小）以模型計算都沒有正期望值，代表盤口定得很準；上方列出的是機率高、但要自己比對平台賠率的項目。")));
   block.append(bestBox);
   block.append(h("details", { class: "basis", open: true }, h("summary", null, ui("模型依據")), h("ul", { class: "bullets" }, pred.basis.map((x) => h("li", null, ui(x))))));
-  for (const mk of pred.markets) block.append(marketCard(mk, model));
+  for (const mk of pred.markets) {
+    if (mk.id === "corners" && typeof cornerBlock === "function") {
+      block.append(h("article", { class: "cp pmk" }, h("h3", null, ui("角球大小")), h("p", null, ui("角球改用兩隊歷史每場紀錄預估上半場、下半場、全場與兩隊各自角球，請看「⛳ 角球預測」區。")),
+        h("button", { class: "chip", onclick: () => document.getElementById("corners")?.scrollIntoView({ behavior: "smooth", block: "start" }) }, ui("前往角球預測"))));
+      continue;
+    }
+    block.append(marketCard(mk, model));
+  }
   const top = pred.top;
   block.append(scriptBlock([
     `賽前數據模型看，${model.home.name}勝 ${pct(top.home)}、和局 ${pct(top.draw)}、${model.away.name}勝 ${pct(top.away)}。`,

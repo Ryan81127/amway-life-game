@@ -391,7 +391,7 @@ function renderMatch(app, route) {
   const done = phase === "ft" || model.minute.state === "post";
   const hasComm = commRich(model);
   if (pre) {
-    wrap.append(...[predSection(model), injuryBlock(model), starsBlock(model), historyBlock(model), cardsBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
+    wrap.append(...[predSection(model), cornerBlock(model), injuryBlock(model), starsBlock(model), historyBlock(model), cardsBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else if (done) {
     wrap.append(...[recapBlock(model), cornerBlock(model), starsBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), historyBlock(model), injuryBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else {
@@ -406,7 +406,7 @@ function matchNav(model) {
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const items = pre
-    ? [["prediction", "盤口預測"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
+    ? [["prediction", "盤口預測"], ["corners", "角球"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
     : [...(phase === "ft" ? [] : [["mood", "此刻可以說"]]), ["recap", "復盤"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
   sideRail(items);
   return h("nav", { class: "chips match-nav", "aria-label": "本頁區塊" }, items.map(([id, label]) => h("a", { class: "chip", href: "#" + id, onclick: (event) => {

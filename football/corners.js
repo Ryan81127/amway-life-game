@@ -67,7 +67,9 @@ function poisCdfAbove(lambda, k) {
 
 function cornerBlock(model) {
   const m = model.minute || {};
-  if (m.phase === "pre") return null;
+  if (m.phase === "pre") {
+    return h("section", { class: "block", id: "corners" }, h("h2", null, ui("角球預測")), cornerHistSection(model));
+  }
   const d = cornerData(model);
   const H = model.home.name;
   const A = model.away.name;
@@ -92,23 +94,30 @@ function cornerBlock(model) {
     } else if (d.source === "espn") {
       block.append(h("p", { class: "faint" }, ui("ESPN 只給總數，沒有逐筆時間，所以分不出時段。")));
     }
-    /* 節奏推估 */
+    /* 節奏推估：歷史模型預估剩餘時間 + 本場實際節奏 */
     const played = m.phase === "ft" || m.state === "post" ? 90 : Math.min(90, (m.period === 2 ? Math.max(45, m.base || 45) : Math.min(45, m.base || 0)));
-    const saved = loadPrediction(model.id);
-    if (live && played >= 10) {
-      const rate = tot / played;
-      const preMu = saved?.corners?.mu;
-      const blend = preMu ? (rate * played + (preMu / 90) * 30) / (played + 30) : rate;
-      const rest = Math.max(0, 90 - played) * blend;
+    const lp = cornerLiveProjection(model, tot);
+    if (live && lp) {
+      const remainMin = Math.max(0, 90 - played);
+      const rate = played >= 10 ? tot / played : null;
+      const rest = rate != null ? lp.rest * 0.7 + rate * remainMin * 0.3 : lp.rest;
       const proj = tot + rest;
-      const lines = [7.5, 8.5, 9.5, 10.5, 11.5].filter((L) => L > tot);
-      block.append(h("p", null, ui(`照目前節奏（每 90 分鐘約 ${trimNum(rate * 90)} 角${preMu ? `，混合賽前預估 ${trimNum(preMu)} 角` : ""}），全場預估約 ${trimNum(proj)} 角。`)));
-      if (lines.length) block.append(predTable(["角球大小線", "大", "小"], lines.slice(0, 4).map((L) => {
-        const p = poisCdfAbove(rest, Math.floor(L - tot));
+      block.append(h("p", null, ui(`賽前歷史模型：上半場 ${trimNum(lp.cm.h1)}、下半場 ${trimNum(lp.cm.h2)}、全場 ${trimNum(lp.cm.mu)} 角。${rate != null ? `本場目前節奏每 90 分鐘 ${trimNum(rate * 90)} 角，` : ""}綜合預估剩下還有約 ${trimNum(rest)} 角，全場約 ${trimNum(proj)} 角。`)));
+      const lines = [];
+      for (let L = Math.floor(tot) + 0.5; lines.length < 4 && L < tot + 9; L += 1) lines.push(L);
+      block.append(predTable(["全場角球大小線", "大", "小"], lines.map((L) => {
+        const p = nbOver(rest, L - tot, 1.4);
         return { cells: [`${trimNum(L)}`, pct(p), pct(1 - p)] };
       })));
-    } else if (saved?.corners?.mu && (m.phase === "ft" || m.state === "post")) {
-      block.append(h("p", null, ui(`賽前預估 ${trimNum(saved.corners.mu)} 角，實際 ${tot} 角（${Math.abs(tot - saved.corners.mu) <= 2 ? "誤差 2 角內，算準" : "差距較大"}）。`)));
+      if ((m.period || 1) === 1 && m.phase !== "ht" && d.log) {
+        const h1now = d.log.filter((x) => x.period === 1).length;
+        const restH1 = lp.cm.h1 * Math.max(0, 45 - (m.base || 0)) / 45;
+        block.append(h("p", { class: "faint" }, ui(`上半場目前 ${h1now} 角，預估上半場結束約 ${trimNum(h1now + restH1)} 角。`)));
+      }
+    } else if ((m.phase === "ft" || m.state === "post") && chStore.get(model.id)?.cm) {
+      const cm = chStore.get(model.id).cm;
+      const h1 = d.log ? d.log.filter((x) => x.period === 1).length : null;
+      block.append(h("p", null, ui(`賽前歷史模型預估：上半場 ${trimNum(cm.h1)}、下半場 ${trimNum(cm.h2)}、全場 ${trimNum(cm.mu)} 角；實際${h1 != null ? `上半場 ${h1}、下半場 ${tot - h1}、` : ""}全場 ${tot} 角（${Math.abs(tot - cm.mu) <= 2 ? "誤差 2 角內，算準" : "差距較大"}）。`)));
     }
     const lead = d.totals.home === d.totals.away ? null : d.totals.home > d.totals.away ? H : A;
     const gap = Math.abs(d.totals.home - d.totals.away);
@@ -120,8 +129,11 @@ function cornerBlock(model) {
     ].filter(Boolean);
     block.append(scriptBlock(say, "口播：角球"));
   } else {
+    const lp = cornerLiveProjection(model, 0);
+    if (lp) block.append(h("p", null, ui(`賽前歷史模型：上半場 ${trimNum(lp.cm.h1)}、下半場 ${trimNum(lp.cm.h2)}、全場 ${trimNum(lp.cm.mu)} 角。`)));
     block.append(h("p", { class: "muted" }, ui(live ? "這場 ESPN 沒有提供角球資料（友誼賽與部分聯賽常見）。看直播時用下面按鈕手動記錄，看板會自動算時段、半場與節奏。" : "這場沒有角球資料。")));
   }
+  block.append(h("details", { class: "fold", "data-k": "ch-wrap" }, h("summary", null, ui("📚 賽前角球預測（兩隊歷史資料）")), cornerHistSection(model)));
   if (live || d.manual.length) {
     const controls = h("div", { class: "corner-btns" },
       h("button", { class: "chip", onclick: () => cornerAdd(model, "home") }, ui(`＋1 ${H}`)),
