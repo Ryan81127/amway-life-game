@@ -1,7 +1,7 @@
 /* 角球歷史模型：抓兩隊近兩年（國家隊）或近兩季（俱樂部）每一場的角球（得／失、上下半場），
    用近期加權、主客場、對手失角，預估本場上半場、下半場、全場與兩隊各自的角球數。 */
 
-const CH_PREFIX = "fb-cor-v1:";
+const CH_PREFIX = "fb-cor-v2:";
 const CH_MAX_GAMES = 20;
 const chStore = new Map();
 
@@ -23,10 +23,27 @@ function cornerSlim(data) {
     const st = Object.fromEntries((t.statistics || []).map((x) => [x.name, Number(x.displayValue)]));
     out.teams[id] = { c: Number.isFinite(st.wonCorners) ? st.wonCorners : null, shots: st.totalShots || 0, poss: st.possessionPct || 0, name: t.team?.displayName || "" };
   }
+  for (const c of cs) {
+    const id = String(c.id);
+    if (!out.teams[id]) out.teams[id] = { c: null, shots: 0, poss: 0, name: c.team?.displayName || "" };
+  }
   const ids = Object.keys(out.teams);
   const real = ids.length === 2 && ids.some((id) => out.teams[id].c || out.teams[id].shots || out.teams[id].poss);
-  if (!real) return { ...out, none: true };
-  for (const c of cs) if (out.teams[String(c.id)]) out.teams[String(c.id)].home = c.homeAway === "home";
+  if (!real) {
+    for (const c of cs) if (out.teams[String(c.id)]) { out.teams[String(c.id)].home = c.homeAway === "home"; out.teams[String(c.id)].g = Number(c.score?.value ?? c.score); }
+    for (const r of data.rosters || []) { const t = out.teams[String(r.team?.id || "")]; if (t && r.formation) t.form = r.formation; }
+    return { ...out, none: true };
+  }
+  for (const c of cs) {
+    const t = out.teams[String(c.id)];
+    if (!t) continue;
+    t.home = c.homeAway === "home";
+    t.g = Number(c.score?.value ?? c.score);
+  }
+  for (const r of data.rosters || []) {
+    const t = out.teams[String(r.team?.id || "")];
+    if (t && r.formation) t.form = r.formation;
+  }
   /* 文字轉播的角球：「Corner, France. Conceded by …」 */
   const halves = {};
   for (const id of ids) halves[id] = [0, 0];
@@ -81,19 +98,23 @@ async function teamCornerHistory(teamId, kickoff, national) {
   const list = (await chSchedule(teamId, kickoff, national)).slice(0, 34);
   const lim = pLimit(4);
   const games = [];
+  const allGames = [];
   await Promise.all(list.map((ev) => lim(async () => {
     try {
       const s = await chSummary(ev.id);
-      if (!s || s.none || !s.teams[teamId]) return;
+      if (!s || !s.teams[teamId]) return;
       const me = s.teams[teamId];
       const oppId = Object.keys(s.teams).find((x) => x !== teamId);
-      const op = s.teams[oppId];
-      if (me.c == null || op?.c == null) return;
-      games.push({ id: ev.id, date: s.date, comp: s.comp, home: !!me.home, opp: op.name, cf: me.c, ca: op.c, h1f: me.h?.[0], h1a: op.h?.[0], h2f: me.h?.[1], h2a: op.h?.[1] });
+      const op = s.teams[oppId] || {};
+      const base = { id: ev.id, date: s.date, comp: s.comp, home: !!me.home, opp: op.name || "", gf: me.g, ga: op.g, form: me.form || "", poss: s.none ? null : me.poss || null, shots: s.none ? null : me.shots, shotsA: s.none ? null : op.shots };
+      allGames.push(base);
+      if (s.none || me.c == null || op.c == null) return;
+      games.push({ ...base, cf: me.c, ca: op.c, h1f: me.h?.[0], h1a: op.h?.[0], h2f: me.h?.[1], h2a: op.h?.[1] });
     } catch { /* 單場失敗不影響 */ }
   })));
   games.sort((a, b) => new Date(b.date) - new Date(a.date));
-  return { games: games.slice(0, CH_MAX_GAMES), scanned: list.length };
+  allGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return { games: games.slice(0, CH_MAX_GAMES), all: allGames, scanned: list.length };
 }
 
 /* 近期加權平均：越近的比賽權重越高（每往前一場 ×0.92） */
@@ -187,7 +208,7 @@ async function ensureCornerHist(model) {
     ]);
     const H = teamCornerProfile(hh, true);
     const A = teamCornerProfile(ah, false);
-    chStore.set(model.id, { status: "ok", H, A, scanned: { home: hh.scanned, away: ah.scanned }, cm: cornerModel(model, H, A) });
+    chStore.set(model.id, { status: "ok", H, A, all: { home: hh.all, away: ah.all }, scanned: { home: hh.scanned, away: ah.scanned }, cm: cornerModel(model, H, A) });
   } catch (err) {
     console.error(err);
     chStore.set(model.id, { status: "error" });

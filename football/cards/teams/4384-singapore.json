@@ -106,5 +106,48 @@
       ],
       "status": "已查證"
     }
-  ]
+  ],
+  "coach": {
+    "name": "李斯平（Gavin Lee）",
+    "hook": "1990 年出生、才 36 歲的新加坡本土少帥，比對面的阿法洛整整小 28 歲；從教 4 歲小朋友踢球起家，曾是新加坡職業聯賽史上最年輕的總教練。",
+    "achievements": [
+      "以代理主帥身分 3 場正式比賽 2 勝 1 和，帶新加坡史上第一次從資格賽打進亞洲盃（2027）",
+      "2025 年 11 月 18 日亞洲盃資格賽對香港，落後情況下 2:1 逆轉，一週後轉正",
+      "2025 年 11 月 29 日正式接任國家隊總教練，合約到 2027 亞洲盃",
+      "執教淡濱尼流浪（Tampines Rovers）時兩度拿下新加坡職業聯賽亞軍"
+    ],
+    "style": [
+      "本土教練、熟悉國內球員：國家隊大量徵召獅城水手、淡濱尼流浪的主力",
+      "被評為「在創紀錄的短時間內，給了雄獅一個清楚的球隊身分」",
+      "強調團隊至上，球隊精神勝過個人"
+    ],
+    "quote": "國家隊比任何個人都重要。這個里程碑屬於每一個人，屬於新加坡。",
+    "watch": [
+      "36 歲少帥對上 64 歲老狐狸：他敢不敢跟世界盃 16 強球隊正面對攻？",
+      "落後時的調度：對香港那場他就是靠換人逆轉"
+    ],
+    "sources": [
+      {
+        "name": "英文維基百科：Gavin Lee",
+        "url": "https://en.wikipedia.org/wiki/Gavin_Lee_(football_coach)"
+      },
+      {
+        "name": "ESPN",
+        "url": "https://global.espn.com/football/story/_/id/47124852/singapore-appoint-gavin-lee-permanent-head-coach"
+      },
+      {
+        "name": "ASEAN Football",
+        "url": "https://www.aseanfootball.org/v3/gavin-lee-appointed-singapore-head-coach/"
+      },
+      {
+        "name": "The Straits Times（Magzter）",
+        "url": "https://www.magzter.com/en/stories/newspaper/The-Straits-Times/SHOULD-LEE-BE-THE-NEXT-LIONS-COACH"
+      },
+      {
+        "name": "Tabla!",
+        "url": "https://www.tabla.com.sg/lifestyle/sports-fitness/why-gavin-lee-should-be-permanent-coach-singapores-national-football"
+      }
+    ],
+    "checked": "2026-11-13"
+  }
 }

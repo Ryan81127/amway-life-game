@@ -4,7 +4,7 @@
 const CARD_GOAL = { team: 5, player: 5, place: 5, ask: 10 };
 const CARD_WHEN = ["開場", "暫停", "中場", "冷場", "賽後"];
 const CARD_TOPICS = ["球隊", "球員", "城市", "國家", "文化", "趣聞"];
-const CARD_VER = "20261113b";
+const CARD_VER = "20261113c";
 
 const cardStore = { index: null, indexAt: 0, files: new Map() };
 

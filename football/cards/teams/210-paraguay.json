@@ -145,5 +145,50 @@
         "status": "需更新"
       }
     ]
+  },
+  "coach": {
+    "name": "古斯塔沃·阿法洛（Gustavo Alfaro）",
+    "hook": "64 歲的阿根廷老帥，外號「防守科學家」：先把厄瓜多帶進 2022 世界盃，再把巴拉圭帶回睽違 16 年的世界盃，還在 32 強用 PK 淘汰德國。",
+    "achievements": [
+      "2007 年帶阿根廷小球會 Arsenal de Sarandí 拿下南美洲國家盃（Copa Sudamericana）",
+      "Arsenal 時期再拿阿甲 2012 閉幕賽、2012–13 阿根廷盃、超級盃",
+      "2019 年執教豪門博卡青年：50 場 27 勝 16 和 7 負，勝率 54%，再添一座超級盃",
+      "連續帶兩個國家打進世界盃：厄瓜多（2022）、巴拉圭（2026）",
+      "2026 世界盃 32 強延長賽後 1:1 逼和德國，PK 4:3 爆冷晉級"
+    ],
+    "style": [
+      "防守紀律至上：擅長把一支球隊練成「打不破的整體」，陣型緊湊、先求不失球",
+      "面對強隊願意讓出球權，吸收壓力後找反擊機會，所以特別擅長爆冷",
+      "帶兵像「大家長」：以冷靜、心理建設出名，博卡時期的 De Rossi 等球員都稱讚他",
+      "落後需要搶分時，他通常不會輕易拆掉防守結構，換人偏保守"
+    ],
+    "quote": "我們的成功與失敗，都沒有自己想的那麼多。（他常引用的阿根廷作家波赫士名言）",
+    "watch": [
+      "面對排名差 100 多名的新加坡，他會不會放棄一貫的保守、主動壓上？",
+      "看他第幾分鐘開始換人：他的球隊通常是先守穩、下半場再收割"
+    ],
+    "sources": [
+      {
+        "name": "英文維基百科：Gustavo Alfaro",
+        "url": "https://en.wikipedia.org/wiki/Gustavo_Alfaro"
+      },
+      {
+        "name": "FotMob 教練頁",
+        "url": "https://www.fotmob.com/players/306380/gustavo-alfaro"
+      },
+      {
+        "name": "Bolavip",
+        "url": "https://bolavip.com/en/world-cup/gustavo-alfaros-profile-age-contract-and-more-about-paraguays-2026-world-cup-coach"
+      },
+      {
+        "name": "Reuters（The Star）",
+        "url": "https://www.thestar.com.my/sport/football/2026/06/01/soccer-paraguay-bank-on-alfaro039s-psychology-driven-approach-at-world-cup"
+      },
+      {
+        "name": "Flashscore",
+        "url": "https://www.flashscore.com/news/soccer-world-championship-gustavo-alfaro-the-mastermind-behind-a-fearless-paraguay-ready-to-challenge-france/rJxPndKH/"
+      }
+    ],
+    "checked": "2026-11-13"
   }
 }

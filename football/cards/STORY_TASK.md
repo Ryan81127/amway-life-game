@@ -23,3 +23,7 @@
 }
 ```
 `value` 與 `total` 用歐元整數；`pos` 用 G/D/M/F。
+
+## 教練（每次製作故事卡時一併做）
+
+在球隊檔案最外層加 `coach`：`name`、`hook`（一句讓人想聽下去的介紹）、`achievements`（豐功偉業：冠軍、成名戰、紀錄）、`style`（戰術招牌、帶兵風格、換人習慣）、`quote`（名言）、`watch`（今晚看他什麼）、`sources`、`checked`。
