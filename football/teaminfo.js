@@ -182,13 +182,12 @@ async function ensureTeamInfo(model) {
   const ctl = new AbortController();
   try {
     const sides = await Promise.all(["home", "away"].map(async (side) => {
-      const [roster, recent, wiki, manual] = await Promise.all([
+      const [roster, recent, manual] = await Promise.all([
         fetchRoster(model.leagueSlug, model[side].id, national),
         recentUsage(model, side, ctl.signal),
-        wikiHistory(model[side], national),
         manualInjuries(model, side)
       ]);
-      return [side, { roster, recent, wiki, manual }];
+      return [side, { roster, recent, manual }];
     }));
     tiStore.set(key, { status: "ok", at: Date.now(), national, ...Object.fromEntries(sides) });
   } catch (err) {
@@ -350,27 +349,6 @@ function injuryBlock(model) {
   return block;
 }
 
-/* ---------- 球隊歷史 ---------- */
-
-function historyBlock(model) {
-  const block = h("section", { class: "block", id: "history" }, h("h2", null, ui("兩隊歷史介紹")));
-  const ti = teamInfo(model);
-  if (!ti || ti.status === "loading") { block.append(h("p", { class: "muted" }, ui("讀取維基百科中…"))); return block; }
-  const say = [];
-  for (const side of ["home", "away"]) {
-    const w = ti.status === "ok" ? ti[side].wiki : null;
-    block.append(h("h3", null, ui(model[side].name)));
-    if (!w) { block.append(h("p", { class: "muted" }, ui("維基百科沒有找到這支球隊的條目。"))); continue; }
-    block.append(h("p", null, ui(w.text)),
-      h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${w.title}」${w.lang === "en" ? "（英文版，中文版沒有條目）" : ""} · `), h("a", { href: w.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
-    const first = w.lang === "zh" ? String(w.text).split(/(?<=。)/).slice(0, 2).join("") : "";
-    if (first) say.push(`來認識一下${model[side].name}：${first}`);
-  }
-  if (say.length) block.append(scriptBlock([...say, "你是從哪一場比賽開始認識這兩隊的？留言分享！"], "口播：球隊歷史"));
-  block.append(h("p", { class: "faint" }, ui("維基百科是公開編輯的，數字（成立年份、冠軍次數）正式播報前請點連結確認。")));
-  return block;
-}
-
 /* ---------- 轉成知識卡 ---------- */
 
 function teamInfoCards(model) {
@@ -380,19 +358,6 @@ function teamInfoCards(model) {
   const cards = [];
   for (const side of ["home", "away"]) {
     const team = model[side];
-    const w = ti[side].wiki;
-    if (w?.lang === "zh") {
-      const fact = String(w.text).split(/(?<=。)/).slice(0, 2).join("").slice(0, 120);
-      cards.push({
-        id: `wiki-${team.id}`, topic: "球隊", owner: team.name, auto: true,
-        title: `${team.name}的來歷`, fact, sources: [{ name: `維基百科：${w.title}`, url: w.url }], checked: today,
-        say: `介紹一下${team.name}：${fact}今天他們要寫下新的一頁。`,
-        humor: { light: `${team.name}的歷史比我家的族譜還完整。`, spicy: `歷史再光榮，今天輸球一樣會被罵。` },
-        ask: `你最早是因為誰開始關注${team.name}？`,
-        when: ["開場", "冷場"],
-        eff: { status: "需更新", why: "維基百科摘要，數字播前請確認" }
-      });
-    }
     for (const s of starList(model, side, ti).filter((x) => !x.rosterOnly).slice(0, 3)) {
       const line = starLine(model, side, s, ti);
       if (!line) continue;

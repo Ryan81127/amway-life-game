@@ -4,7 +4,7 @@
 const CARD_GOAL = { team: 5, player: 5, place: 5, ask: 10 };
 const CARD_WHEN = ["開場", "暫停", "中場", "冷場", "賽後"];
 const CARD_TOPICS = ["球隊", "球員", "城市", "國家", "文化", "趣聞"];
-const CARD_VER = "20261113";
+const CARD_VER = "20261113b";
 
 const cardStore = { index: null, indexAt: 0, files: new Map() };
 
@@ -195,7 +195,7 @@ function cardsBlock(model) {
     block.append(h("p", { class: "muted" }, ui("讀取知識卡中…")));
     return block;
   }
-  const cards = [...st.data.cards, ...(typeof teamInfoCards === "function" ? teamInfoCards(model) : [])];
+  const cards = [...st.data.cards, ...(typeof storyCards === "function" ? storyCards(model) : []), ...(typeof teamInfoCards === "function" ? teamInfoCards(model) : [])];
   const g = { team: 0, player: 0, place: 0 };
   for (const c of cards) if (c.eff.status !== "不可當成事實播報") g[cardGroup(c.topic)] += 1;
   const asks = interactionLines(model, cards);
