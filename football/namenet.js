@@ -1,6 +1,6 @@
 /* 中文名：辭典 → 維基／維基數據（本機快取）→ 音譯。音譯一定標成未查證。查詢不擋住畫面。 */
 
-const NAME_CACHE = "fb-pname-v1:";
+const NAME_CACHE = "fb-pname-v2:";
 const NAME_TTL = 21 * 86400000;
 const NAME_MISS_TTL = 12 * 3600000;
 const nameMemo = new Map();
@@ -152,8 +152,22 @@ function wikiClose(en, title) {
   return page.includes(last) && words.filter((w) => page.includes(w)).length >= Math.min(2, words.length);
 }
 
+function namePair(twRaw, cnRaw) {
+  const twBase = twRaw || cnRaw || "";
+  const cnBase = cnRaw || twRaw || "";
+  if (!twBase && !cnBase) return null;
+  const tw = typeof toTw === "function" ? toTw(twBase) : twBase;
+  const cn = typeof han === "function" ? han(cnBase) : cnBase;
+  return { tw, cn };
+}
+
 async function lookupName(en) {
-  const wiki = await wikiLabel(en);
+  let wiki = null;
+  try {
+    wiki = await wikiLabel(en);
+  } catch {
+    wiki = null;
+  }
   if (wiki) return wiki;
   return wikidataLabel(en);
 }
@@ -166,8 +180,7 @@ async function wikiLabel(en) {
   const page = data?.query?.pages ? Object.values(data.query.pages)[0] : null;
   const zh = page?.langlinks?.[0]?.["*"];
   if (!page || !zh || !wikiClose(en, page.title)) return null;
-  const cn = typeof han === "function" ? han(zh) : zh;
-  return { tw: zh, cn };
+  return namePair(zh, zh);
 }
 
 async function wikidataLabel(en) {
@@ -186,8 +199,7 @@ async function wikidataLabel(en) {
   const labels = ent?.entities?.[id]?.labels || {};
   const cn = labels["zh-cn"]?.value || labels["zh-hans"]?.value || labels.zh?.value || "";
   const tw = labels["zh-tw"]?.value || labels.zh?.value || cn;
-  if (!cn && !tw) return null;
-  return { tw: tw || cn, cn: cn || (typeof han === "function" ? han(tw) : tw) };
+  return namePair(tw, cn);
 }
 
 function copyPlayerName(text) {
