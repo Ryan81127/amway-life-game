@@ -413,7 +413,8 @@ function settleBlock(model) {
     pushes ? `走水 ${pushes} 項` : ""
   ].filter(Boolean).join("，");
   block.append(h("p", { class: "settle-sum" }, ui(head + (tail ? tail + "。" : ""))));
-  block.append(h("p", null, ui(`賽前 ${by.pre.h}/${by.pre.n}，滾球 ${by.live.h}/${by.live.n}，角球 ${by.corner.h}/${by.corner.n}。`)));
+  if (typeof settleVisual === "function") block.append(settleVisual(model, rows, by, bag));
+  else block.append(h("p", null, ui(`賽前 ${by.pre.h}/${by.pre.n}，滾球 ${by.live.h}/${by.live.n}，角球 ${by.corner.h}/${by.corner.n}。`)));
   if (!bag?.pre) block.append(h("p", { class: "muted" }, ui("沒有賽前快照，無法對帳。")));
   if (!bag?.live?.length) block.append(h("p", { class: "muted" }, ui("沒有滾球快照，無法對帳。")));
   if (!bag?.corners && !(bag?.cornerLive || []).length && !bag?.pre?.items?.some((x) => x.kind === "corners-ou" || x.kind === "cards-ou")) {
@@ -421,7 +422,9 @@ function settleBlock(model) {
   }
   if (rows.length) {
     const catName = { pre: "賽前", live: "滾球", corner: "角球" };
-    block.append(predTable(["分類", "項目", "預測值", "實際結果", "對帳", "差距"], rows.map((r) => ({
+    const detail = h("details", { class: "fold", "data-k": "settle-table" }, h("summary", null, ui(`📋 完整明細表（${rows.length} 項）`)));
+    block.append(detail);
+    detail.append(predTable(["分類", "項目", "預測值", "實際結果", "對帳", "差距"], rows.map((r) => ({
       cells: [
         catName[ledgerGroup(r.cat)] || "賽前",
         r.label,
