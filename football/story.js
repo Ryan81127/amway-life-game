@@ -253,7 +253,7 @@ function contrastLines(model, st) {
   const hw = numFrom(hi, /世界盃參賽次數/);
   const aw = numFrom(ai, /世界盃參賽次數/);
   if (hw != null && aw != null && hw !== aw) out.push(`世界盃經驗：${H} ${hw} 次、${A} ${aw} 次${Math.min(hw, aw) === 0 ? `，${hw === 0 ? H : A}還在等第一次` : ""}。`);
-  const nick = (info) => ((info || []).find((x) => /綽號/.test(x)) || "").replace(/綽號叫「|」/g, "").split("、")[0];
+  const nick = (info) => (factMap(info).nick?.v || "").split("、")[0];
   const hn = nick(hi);
   const an = nick(ai);
   if (hn && an) out.push(`綽號對決：「${hn}」對上「${an}」。`);
@@ -485,15 +485,15 @@ function historyBlock(model) {
       if (rest.length) col.append(h("details", { class: "fold", "data-k": "st-more-" + side }, h("summary", null, ui(`再看 ${rest.length} 則`)), h("ul", { class: "st-bullets" }, rest.map((x) => h("li", null, ui(x))))));
     }
     if (s.honors.length) col.append(h("details", { class: "fold", "data-k": "st-hon-" + side }, h("summary", null, ui(`🏆 榮譽（${s.honors.length}）`)), h("ul", { class: "st-bullets" }, s.honors.map((x) => h("li", null, ui(x))))));
-    if (!s.info.length && !s.stories.length && !picks.length) col.append(h("p", { class: "faint" }, ui("條目內容太少，整理不出亮點。")));
+    if (!s.stories.length && !picks.length) col.append(h("p", { class: "faint" }, ui("維基百科沒有更多有梗的段落，基本資料見上方「兩隊檔案對照」。想要查證過的故事，按上方「📋 複製故事卡請求」。")));
     col.append(h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${s.title}」 · `), h("a", { href: s.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
     const hook = s.info.find((x) => /綽號/.test(x));
     const hit = picks[0]?.say || s.stories.find((x) => x.length <= 95) || "";
     const worst = s.info.find((x) => /最慘一敗/.test(x));
     const best = s.info.find((x) => /最大勝仗/.test(x));
-    const nick = hook ? (/「([^」]+)」/.exec(hook)?.[1] || "").split("、")[0] : "";
+    const nick = hook ? (factMap([hook]).nick?.v || "").split("、")[0] : "";
     const line = [nick ? `${name}綽號叫「${nick}」` : "", hit || "", worst ? `隊史最慘一敗是${factMap([worst]).worst?.v || ""}，那一場大概是不能提的傷疤` : best ? `隊史最大勝仗是${factMap([best]).best?.v || ""}` : ""].filter(Boolean).join("；");
-    if (line) say.push(`${name}有什麼故事？${line}。`);
+    if (line) say.push(`${name}有什麼故事？${line.replace(/[。；]+$/, "")}。`.replace(/。；/g, "；"));
   }
   block.append(cols);
   if (say.length) block.append(scriptBlock([...say, "這兩隊你比較想看誰寫下新故事？主隊扣 1、客隊扣 2！"], "口播：兩隊故事"));
