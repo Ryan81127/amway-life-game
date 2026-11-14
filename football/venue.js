@@ -48,12 +48,12 @@ function infoboxRows(doc) {
 
 async function enSearchPage(q, extra = "") {
   const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&origin=*&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=1&prop=langlinks%7Ccoordinates%7Cextracts&lllang=zh&exintro=1&explaintext=1&exsentences=4${extra}`;
-  const page = (await fetch(url).then((r) => r.json())).query?.pages?.[0];
+  const page = (await fetchT(url).then((r) => r.json())).query?.pages?.[0];
   return page || null;
 }
 
 async function zhSummary(title) {
-  const r = await fetch(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, { headers: { "Accept-Language": "zh-tw" } });
+  const r = await fetchT(`https://zh.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, { headers: { "Accept-Language": "zh-tw" } });
   return r.ok ? r.json() : null;
 }
 
@@ -126,7 +126,7 @@ async function countryInfo(countryEn) {
 
 async function geocode(city, country) {
   try {
-    const j = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=5&language=en`).then((r) => r.json());
+    const j = await fetchT(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=5&language=en`).then((r) => r.json());
     const list = j.results || [];
     const hit = list.find((x) => !country || x.country === country) || list[0];
     return hit ? { lat: hit.latitude, lon: hit.longitude, country: hit.country } : null;
@@ -135,22 +135,52 @@ async function geocode(city, country) {
   }
 }
 
-async function weatherAt(lat, lon, kickoff) {
+function fetchT(url, opts = {}, ms = 9000) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), ms);
+  return fetch(url, { ...opts, signal: c.signal }).finally(() => clearTimeout(t));
+}
+
+/* 逐時天氣：Open-Meteo 預報 → Open-Meteo 歷史預報（已開賽）→ wttr.in（部分網路連不到 Open-Meteo 預報時） */
+async function weatherAt(lat, lon, kickoff, utcOffset) {
   const k = new Date(kickoff);
   const days = (k - Date.now()) / 86400000;
-  const hourly = "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m";
-  let url;
   if (days > 15) return null;
   const ymd = k.toISOString().slice(0, 10);
-  if (days < -4) url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${ymd}&end_date=${ymd}&hourly=${hourly.replace(",precipitation_probability", "")}&timezone=GMT`;
-  else url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${hourly}&timezone=GMT&start_date=${ymd}&end_date=${ymd}`;
-  const j = await fetch(url).then((r) => r.json());
-  const times = j.hourly?.time || [];
   const target = k.toISOString().slice(0, 13);
-  const i = times.findIndex((t) => t.slice(0, 13) === target);
-  if (i < 0) return null;
-  const v = (key) => j.hourly?.[key]?.[i];
-  return { temp: v("temperature_2m"), feel: v("apparent_temperature"), hum: v("relative_humidity_2m"), pop: v("precipitation_probability"), rain: v("precipitation"), code: v("weather_code"), wind: v("wind_speed_10m"), utcOffset: j.utc_offset_seconds };
+  const hourly = "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m";
+  const pick = (j) => {
+    const i = (j.hourly?.time || []).findIndex((t) => t.slice(0, 13) === target);
+    if (i < 0) return null;
+    const v = (key) => j.hourly?.[key]?.[i];
+    return { temp: v("temperature_2m"), feel: v("apparent_temperature"), hum: v("relative_humidity_2m"), pop: v("precipitation_probability") ?? null, rain: v("precipitation"), code: v("weather_code"), wind: v("wind_speed_10m"), utcOffset: utcOffset ?? null, src: "Open-Meteo" };
+  };
+  const urls = days < 0.1
+    ? [`https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${hourly.replace(",precipitation_probability", "")}&timezone=GMT&start_date=${ymd}&end_date=${ymd}`]
+    : [`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${hourly}&timezone=GMT&start_date=${ymd}&end_date=${ymd}`];
+  for (const u of urls) {
+    try {
+      const j = await fetchT(u).then((r) => r.json());
+      const w = pick(j);
+      if (w) return w;
+    } catch { /* 換下一個來源 */ }
+  }
+  if (days >= -0.2 && days <= 2.5) {
+    try {
+      const j = await fetchT(`https://wttr.in/${lat},${lon}?format=j1&lang=zh-tw`, {}, 12000).then((r) => r.json());
+      const off = utcOffset ?? Math.round(lon / 15) * 3600;
+      const local = new Date(k.getTime() + off * 1000);
+      const day = (j.weather || []).find((d) => d.date === local.toISOString().slice(0, 10));
+      if (day) {
+        const hr = local.getUTCHours() * 100;
+        const slot = day.hourly.reduce((a, x) => (Math.abs(Number(x.time) - hr) < Math.abs(Number(a.time) - hr) ? x : a), day.hourly[0]);
+        const desc = slot["lang_zh-tw"]?.[0]?.value || slot.weatherDesc?.[0]?.value || "";
+        const code = /雷/.test(desc) ? 95 : /雪/.test(desc) ? 73 : /陣雨/.test(desc) ? 80 : /雨/.test(desc) ? 61 : /霧/.test(desc) ? 45 : /陰/.test(desc) ? 3 : /多雲|雲/.test(desc) ? 2 : 0;
+        return { temp: Number(slot.tempC), feel: Number(slot.FeelsLikeC), hum: Number(slot.humidity), pop: Number(slot.chanceofrain), rain: Number(slot.precipMM), code, desc, wind: Number(slot.windspeedKmph), utcOffset: off, src: "wttr.in" };
+      }
+    } catch { /* 都失敗就算了 */ }
+  }
+  return null;
 }
 
 async function monthClimate(lat, lon, kickoff) {
@@ -159,11 +189,11 @@ async function monthClimate(lat, lon, kickoff) {
   const m = String(k.getUTCMonth() + 1).padStart(2, "0");
   const last = new Date(Date.UTC(y, k.getUTCMonth() + 1, 0)).getUTCDate();
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${y}-${m}-01&end_date=${y}-${m}-${last}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto`;
-  const j = await fetch(url).then((r) => r.json());
+  const j = await fetchT(url).then((r) => r.json());
   const d = j.daily;
   if (!d?.time?.length) return null;
   const avg = (a) => a.filter((x) => x != null).reduce((s, x) => s + x, 0) / a.filter((x) => x != null).length;
-  return { year: y, month: Number(m), hi: avg(d.temperature_2m_max), lo: avg(d.temperature_2m_min), rainDays: d.precipitation_sum.filter((x) => x >= 1).length, rainSum: d.precipitation_sum.reduce((s, x) => s + (x || 0), 0), days: d.time.length, tz: j.timezone };
+  return { year: y, month: Number(m), hi: avg(d.temperature_2m_max), lo: avg(d.temperature_2m_min), rainDays: d.precipitation_sum.filter((x) => x >= 1).length, rainSum: d.precipitation_sum.reduce((s, x) => s + (x || 0), 0), days: d.time.length, tz: j.timezone, utcOffset: j.utc_offset_seconds };
 }
 
 async function ensureVenue(model) {
@@ -190,10 +220,8 @@ async function ensureVenue(model) {
     let weather = null;
     let climate = null;
     if (base.coords) {
-      [weather, climate] = await Promise.all([
-        weatherAt(base.coords.lat, base.coords.lon, model.kickoff).catch(() => null),
-        monthClimate(base.coords.lat, base.coords.lon, model.kickoff).catch(() => null)
-      ]);
+      climate = await monthClimate(base.coords.lat, base.coords.lon, model.kickoff).catch(() => null);
+      weather = await weatherAt(base.coords.lat, base.coords.lon, model.kickoff, climate?.utcOffset).catch(() => null);
     }
     venueStore.set(key, { status: "ok", ...base, weather, climate, at: Date.now() });
   } catch (err) {
@@ -247,14 +275,14 @@ function venueBlock(model) {
   if (w && w.temp != null) {
     const local = w.utcOffset != null ? new Date(new Date(model.kickoff).getTime() + w.utcOffset * 1000).toISOString().slice(11, 16) : "";
     wp.append(h("div", { class: "wx" },
-      h("div", { class: "wx-main" }, h("span", { class: "wx-ic" }, WMO_ICON(w.code)), h("b", null, `${Math.round(w.temp)}°C`), h("span", null, ui(WMO_ZH[w.code] || ""))),
+      h("div", { class: "wx-main" }, h("span", { class: "wx-ic" }, WMO_ICON(w.code)), h("b", null, `${Math.round(w.temp)}°C`), h("span", null, ui(w.desc || WMO_ZH[w.code] || ""))),
       h("div", { class: "wx-grid" },
         h("span", null, ui(`體感 ${Math.round(w.feel)}°C`)), h("span", null, ui(`濕度 ${Math.round(w.hum)}%`)),
         w.pop != null ? h("span", null, ui(`降雨機率 ${w.pop}%`)) : h("span", null, ui(`雨量 ${w.rain ?? 0} mm`)),
         h("span", null, ui(`風速 ${Math.round(w.wind)} km/h`)),
         local ? h("span", null, ui(`當地開球時間 ${local}`)) : null)));
     wp.append(h("ul", { class: "st-bullets" }, weatherImpact(w).map((x) => h("li", null, ui(x)))));
-    say.push(`開球時天氣${WMO_ZH[w.code] || ""}，氣溫大約 ${Math.round(w.temp)} 度${w.pop != null ? `，降雨機率 ${w.pop}%` : ""}。${weatherImpact(w)[0]}`);
+    say.push(`開球時天氣${w.desc || WMO_ZH[w.code] || ""}，氣溫大約 ${Math.round(w.temp)} 度${w.pop != null ? `，降雨機率 ${w.pop}%` : ""}。${weatherImpact(w)[0]}`);
   } else {
     wp.append(h("p", { class: "faint" }, ui("開賽時間超過 15 天，或還拿不到逐時預報；比賽前幾天再按「重新整理」。")));
   }
@@ -262,7 +290,7 @@ function venueBlock(model) {
   if (c) {
     wp.append(h("p", null, ui(`📅 當地 ${c.month} 月氣候（參考 ${c.year} 年同月實測）：白天平均 ${trimNum(c.hi)}°C、夜間 ${trimNum(c.lo)}°C，${c.days} 天中有 ${c.rainDays} 天下雨，月雨量約 ${Math.round(c.rainSum)} mm。`)));
   }
-  wp.append(h("p", { class: "faint" }, ui("資料：Open-Meteo（逐時預報／歷史實測）。")));
+  wp.append(h("p", { class: "faint" }, ui(`資料：${w?.src || "Open-Meteo"}（開賽時逐時天氣）、Open-Meteo 歷史實測（當月氣候）。`)));
   block.append(wp);
   /* 4. 國家特色 */
   const co = st.country;
