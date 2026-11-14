@@ -10,7 +10,10 @@ const FBC=window.CITY_FIREBASE;
 const LOCAL=/[?&]net=local\b/.test(location.search);
 const NET=window.NET={on:false,connecting:false,room:"",uid:"",name:"",peers:{},tr:null,sendT:0,hbT:0,last:"",lastT:performance.now(),myEm:"",myEmT:0,hornT:0,joinedAt:0};
 const EMOTES=["👋","👍","❤️","😂","🎉","💪"];
-const avail=()=>LOCAL||!!(FBC&&FBC.apiKey&&FBC.databaseURL);
+const HAS_FB=!!(FBC&&FBC.apiKey&&FBC.databaseURL);
+const MODE=LOCAL?"local":HAS_FB?"firebase":"public";
+const MQ_OVERRIDE=decodeURIComponent((location.search.match(/[?&]mqtt=([^&]+)/)||[])[1]||"");
+const BROKERS=MQ_OVERRIDE?[MQ_OVERRIDE]:["wss://broker.hivemq.com:8884/mqtt","wss://broker.emqx.io:8084/mqtt","wss://test.mosquitto.org:8081"];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cleanName=s=>String(s||"").replace(/[<>&"'`\\]/g,"").trim().slice(0,10);
 const cleanRoom=s=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
@@ -34,6 +37,21 @@ async function fbTransport(room){
   emit(v){const r=evs.push(v);setTimeout(()=>r.remove().catch(()=>{}),20000)},
   onEvent(cb){evs.orderByChild("t").startAt(t0).on("child_added",s=>cb(s.val()))},
   leave(){mine.remove().catch(()=>{});pl.off();evs.off()}}}
+/* 公開 MQTT 中繼站：不需要帳號，免設定（資料公開，只傳暱稱與位置） */
+async function mqttTransport(room){
+ if(!window.mqtt)await loadScript("vendor/mqtt.min.js");
+ const uid="M"+Math.random().toString(36).slice(2,10),base=`amwaycity1/${room}/`;let pcb=null,ecb=null;const seen={};
+ let cli=null,lastErr=null;
+ for(const url of BROKERS){cli=await new Promise(res=>{const c=mqtt.connect(url,{clientId:"uc_"+uid,clean:true,keepalive:30,reconnectPeriod:3000,connectTimeout:7000,will:{topic:base+"x/"+uid,payload:"1",qos:0,retain:false}});
+   const t=setTimeout(()=>{c.end(true);res(null)},8000);c.once("connect",()=>{clearTimeout(t);res(c)});c.once("error",e=>{lastErr=e})});if(cli)break}
+ if(!cli)throw lastErr||new Error("no broker");
+ cli.on("message",(topic,buf)=>{const rest=topic.slice(base.length),k=rest[0];let v=null;try{v=JSON.parse(buf.toString())}catch(e){}
+  if(k=="p"){const id=rest.slice(2);if(!v)return;const ex=seen[id];seen[id]=1;pcb&&pcb(ex?"chg":"add",id,v)}
+  else if(k=="x"){const id=rest.slice(2);delete seen[id];pcb&&pcb("del",id)}
+  else if(k=="e"&&v)ecb&&ecb(v)});
+ await new Promise(res=>cli.subscribe(base+"#",{qos:0},()=>res()));
+ return{uid,send(v){cli.publish(base+"p/"+uid,JSON.stringify(v),{qos:0})},onPlayers(cb){pcb=cb},emit(v){cli.publish(base+"e",JSON.stringify(v),{qos:0})},onEvent(cb){ecb=cb},
+  leave(){try{cli.publish(base+"x/"+uid,"1",{qos:0});cli.end()}catch(e){}}}}
 function localTransport(room){
  const uid="L"+Math.random().toString(36).slice(2,10),ch=new BroadcastChannel("city-net-"+room),seen={};let pcb=null,ecb=null,closed=false;const bc={postMessage:m=>{if(!closed)ch.postMessage(m)},close:()=>{closed=true;ch.close()},set onmessage(f){ch.onmessage=f}};
  bc.onmessage=e=>{const d=e.data;if(d.k=="p"){const ex=seen[d.id];seen[d.id]=1;pcb&&pcb(ex?"chg":"add",d.id,d.v)}else if(d.k=="x"){delete seen[d.id];pcb&&pcb("del",d.id)}else if(d.k=="e")ecb&&ecb(d.v)};
@@ -46,7 +64,7 @@ async function connect(room,name){
  if(room.length<3){toast("⚠️ 房間代碼","請輸入 3～8 個英文字母或數字。","#f87171");return}
  if(!name){toast("⚠️ 暱稱","請輸入暱稱（10 字以內）。","#f87171");return}
  NET.connecting=true;S.netName=name;S.netRoom=room;save();toast("🔌 連線中…","正在加入房間 "+room,"#5ec8ff");
- try{const tr=LOCAL?localTransport(room):await fbTransport(room);
+ try{const tr=MODE=="local"?localTransport(room):MODE=="firebase"?await fbTransport(room):await mqttTransport(room);
   Object.assign(NET,{tr,uid:tr.uid,room,name,on:true,peers:{},joinedAt:performance.now(),last:""});
   tr.onPlayers(onPeer);tr.onEvent(onEvent);sendState(true);
   toast("🟢 已加入房間 "+room,"同一個房間代碼的人會在同一座城裡看到彼此。到 📱 →「連線」可以邀請朋友。","#4ade80");
@@ -126,12 +144,12 @@ const tabs=document.querySelector("#phone .tabs");const tb=document.createElemen
 tb.onclick=()=>{phTab="n";tabs.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==tb));renderPhone()};
 tabs.querySelectorAll("button").forEach(b=>{if(b!==tb){const old=b.onclick;b.onclick=()=>{tb.classList.remove("on");old&&old()}}});
 function inviteUrl(){const u=new URL(location.href);u.search="";u.hash="";u.searchParams.set("room",NET.room||S.netRoom||"");if(LOCAL)u.searchParams.set("net","local");return u.toString()}
-function joinForm(){const dis=!avail();return`<h3 style="margin:0 0 6px">👥 多人連線（同一座城）</h3>
+function joinForm(){const dis=false;return`<h3 style="margin:0 0 6px">👥 多人連線（同一座城）</h3>
  <p class="sub">輸入同一個房間代碼的人，會在同一座城裡即時看到彼此走路、開車、騎車。任務、分享和團隊數字仍然各自計算。</p>
- ${dis?`<div class="kc" style="border-color:#f87171"><b>連線伺服器尚未設定</b><br>管理者需要在 city/firebase-config.js 填入 Firebase 設定後才能連線（步驟見 city/MULTIPLAYER.md）。</div>`:""}
+ ${MODE=="public"?`<div class="kc"><b>🌐 使用公開連線伺服器（免設定）</b><br>房間代碼像密碼一樣，選一個別人猜不到的代碼。請只用暱稱，不要輸入個人資料。</div>`:""}
  <p style="margin:10px 0 4px;font-weight:900">暱稱（別人會看到，請勿用真名或電話）</p><input id="nNm" maxlength="10" value="${esc(S.netName||"")}" placeholder="例如：阿明" style="width:100%;font-size:17px;padding:10px;border-radius:10px;border:2px solid #444;background:#111;color:#fff">
  <p style="margin:10px 0 4px;font-weight:900">房間代碼（3～8 個英文或數字）</p><input id="nRm" maxlength="8" value="${esc(urlRoom||S.netRoom||randRoom())}" style="width:100%;font-size:20px;letter-spacing:4px;text-transform:uppercase;padding:10px;border-radius:10px;border:2px solid #444;background:#111;color:#fff;font-family:Anton,sans-serif">
- <button class="btn w100" id="nGo" ${dis?"disabled":""}>🟢 加入房間</button>`}
+ <p id="nErr" style="color:#f87171;font-weight:900;margin:6px 0 0"></p><button class="btn w100" id="nGo" ${dis?"disabled":""}>🟢 加入房間</button>`}
 function netTab(){if(!NET.on)return joinForm()+(NET.connecting?`<p class="sub">連線中…</p>`:"");
  const o=me(),list=Object.entries(NET.peers).map(([id,p])=>({id,p,d:Math.round(Math.hypot(p.x-o.x,p.y-o.y)/4)})).sort((a,b)=>a.d-b.d);
  return`<h3 style="margin:0 0 6px">🟢 房間 <span style="font-family:Anton;letter-spacing:3px;color:var(--gold)">${esc(NET.room)}</span>｜${list.length+1} 人在線</h3>
@@ -147,9 +165,13 @@ function bindNetTab(){const g=$("#nGo");if(g)g.onclick=()=>{connect($("#nRm").va
  document.querySelectorAll(".nEm").forEach(b=>b.onclick=()=>{NET.myEm=b.dataset.e;NET.myEmT=3.5;emit("emote",b.dataset.e);closeOv("phone")});
  document.querySelectorAll(".nTp").forEach(b=>b.onclick=()=>{const p=NET.peers[b.dataset.id];if(!p)return;if(MS){toast("⚠️ 任務進行中","完成或離開任務後才能傳送。","#f87171");return}const o=me();o.x=p.x+36;o.y=p.y+36;if(PL.car){PL.car.vx=PL.car.vy=0}pushOut(o,12);closeOv("phone");toast("📍 已傳送",`你來到 ${p.n} 旁邊了。`,"#5ec8ff")});
  const lv=$("#nLv");if(lv)lv.onclick=leave}
-// title button
-const bs=$("#bStart");if(bs){const b=document.createElement("button");b.className="btn w100 gr";b.id="bNet";b.style.maxWidth="340px";b.textContent="👥 多人連線（同一座城）";bs.insertAdjacentElement("afterend",b);
- b.onclick=()=>{bs.click();let n=0;const iv=setInterval(()=>{if(++n>400){clearInterval(iv);return}if(!STARTED||PAUSE)return;clearInterval(iv);phTab="n";$("#phone").classList.remove("hide");PAUSE=true;tabs.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==tb));renderPhone()},300)}}
+// title button：先在首頁直接填暱稱和房間，按加入後才進遊戲
+const bs=$("#bStart");
+const ov=document.createElement("div");ov.id="netOv";ov.className="ov hide";ov.style.zIndex="45";ov.style.background="rgba(8,10,16,.88)";ov.innerHTML='<div class="panel"></div>';document.body.appendChild(ov);
+function openTitleJoin(){ov.querySelector(".panel").innerHTML=joinForm()+'<button class="btn dk w100" id="nCancel" style="margin-top:8px">返回</button>';ov.classList.remove("hide");
+ $("#nCancel").onclick=()=>ov.classList.add("hide");
+ $("#nGo").onclick=()=>{const rm=$("#nRm").value,nm=$("#nNm").value;if(cleanRoom(rm).length<3){$("#nErr").textContent="房間代碼要 3～8 個英文或數字";return}if(!cleanName(nm)){$("#nErr").textContent="請輸入暱稱（10 字以內）";return}ov.classList.add("hide");bs.click();connect(rm,nm)}}
+if(bs){const b=document.createElement("button");b.className="btn w100 gr";b.id="bNet";b.style.maxWidth="340px";b.textContent="👥 多人連線（同一座城）";bs.insertAdjacentElement("afterend",b);b.onclick=openTitleJoin}
 if(urlRoom&&$("#bNet"))$("#bNet").textContent=`👥 加入房間 ${urlRoom}`;
 addEventListener("pagehide",()=>{if(NET.on)try{NET.tr.leave()}catch(e){}});
 })();
