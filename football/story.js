@@ -414,8 +414,8 @@ function factMap(info) {
     else if (/^目前聯賽/.test(line)) k = "league";
     if (!k) continue;
     if (k === "caps" || k === "goals") {
-      const m = /^(.+?)\s*[（(](\d+)\s*([場球])[）)]/.exec(raw.trim());
-      out[k] = m ? { v: m[1].trim(), sub: `${m[2]} ${m[3]}` } : { v: raw.trim(), sub: "" };
+      const m = /^(.+?)\s*[（(](\d+)\s*[場球]?[）)]/.exec(raw.trim());
+      out[k] = m ? { v: m[1].trim(), sub: `${m[2]} ${k === "caps" ? "場" : "球"}` } : { v: raw.trim(), sub: "" };
       continue;
     }
     out[k] = factClean(raw);
