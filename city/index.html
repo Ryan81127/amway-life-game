@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#111">
 <title>人生升級：升級城｜安麗城市任務</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
@@ -87,7 +88,7 @@ body.cut #hud,body.cut #mm,body.cut #phoneBtn,body.cut #muteBtn,body.cut #viewBt
 #joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:#fff8;border:3px solid #fffb}
 .tb{position:fixed;z-index:9;border-radius:50%;border:3px solid #000;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:24px;touch-action:none;cursor:pointer}
 .tb small{font-size:11px;line-height:1}
-#bAct{right:22px;bottom:calc(92px + env(safe-area-inset-bottom));width:74px;height:74px;background:radial-gradient(#4fd17a,#1f8a45)}
+#bAct{right:20px;bottom:calc(120px + env(safe-area-inset-bottom));width:74px;height:74px;background:radial-gradient(#4fd17a,#1f8a45)}
 #bHb{right:104px;bottom:calc(30px + env(safe-area-inset-bottom));width:64px;height:64px;background:radial-gradient(#ff6b6b,#b52a2a)}
 #bHorn{right:22px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;background:radial-gradient(#ffd23d,#b88a00);color:#000}
 .touch-off #joy,.touch-off #joyBase,.touch-off .tb{display:none}
@@ -164,6 +165,109 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 .gems{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
 .gems span{background:#222;border-radius:20px;padding:4px 10px;font-weight:900;font-size:14px;opacity:.35}
 .gems span.on{opacity:1;background:linear-gradient(#ffe066,#f2b300);color:#000}
+#bWarp{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom));z-index:6;border:3px solid #000;border-radius:24px;background:#3ad6c8;color:#000;font-weight:900;font-size:15px;padding:8px 16px;font-family:inherit;box-shadow:0 4px 0 #000;cursor:pointer}
+#bWarp.hide{display:none}
+.need{background:#13261b;border:2px solid var(--green);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:15px;line-height:1.5}
+.cert{background:linear-gradient(160deg,#fff6d6,#ffe08a);color:#3a2a00;border:4px double #b8860b;border-radius:14px;padding:14px;margin:10px 0;text-align:center}
+.cert h3{margin:2px 0 6px;font-size:22px;color:#7a4a00}
+.cert ul{text-align:left;margin:6px 0 4px;padding-left:20px;font-size:13px;line-height:1.6}
+.cheat{background:#10202a;border:2px solid var(--cyan);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.6}
+.cheat b{color:var(--cyan)}
+.lad{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:14px}
+.lad span{width:92px;text-align:right;color:#ccc}
+.lad i{flex:1;height:14px;border-radius:7px;background:#333;position:relative;overflow:hidden}
+.lad i u{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#57ff8a,#ffd23d)}
+.lad.on span{color:var(--gold);font-weight:900}
+.tabs button{padding:8px 2px !important;font-size:13px !important}
+/* ===== v2.1 設計系統：一個色盤、字級 22/17/14、圓角卡片、主按鈕單一顏色 ===== */
+:root{--bg:#151922;--card:#1f2533;--line:#323a4f;--txt:#eef1f7;--sub:#9aa3b5;--pri:#ffcf3f;--ok:#4ade80;--bad:#f87171;--info:#5ec8ff;--spade:#c9a2ff}
+#info,#pass,#phone{background:rgba(8,10,16,.58);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.panel{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px;box-shadow:0 18px 50px #000a;color:var(--txt)}
+.panel h2{font-size:22px;line-height:1.3;margin:0 0 10px;font-weight:900}
+.panel h3{font-size:17px;margin:12px 0 6px}
+.panel p{font-size:15px;line-height:1.6;margin:.35em 0}
+.btn{border:0;border-radius:14px;padding:12px 18px;font-size:17px;background:var(--pri);color:#1a1300;box-shadow:0 3px 0 #b8901a;margin:8px 0 0}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #b8901a}
+.btn.dk{background:transparent;color:var(--txt);border:2px solid var(--line);box-shadow:none}
+.btn.pk{background:var(--pri);color:#1a1300}
+.btn.gr{background:#06c755;color:#fff;box-shadow:0 3px 0 #04913e}
+.btn.sm{font-size:14px;padding:8px 12px;border-radius:12px}
+.kc{background:var(--card);border-left:4px solid var(--info);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.55;color:var(--txt)}
+.kc b{color:var(--info)}
+.disc{font-size:12px;color:#ffb3c8;margin-top:6px;line-height:1.5}
+.lede{font-size:17px;font-weight:900;line-height:1.5;margin:6px 0}
+.sub{font-size:14px;color:var(--sub);line-height:1.5}
+.bign{font-family:Anton,"Noto Sans TC",sans-serif;font-size:44px;line-height:1.05;color:var(--pri);letter-spacing:.5px}
+.bign small{font-size:16px;color:var(--sub);font-family:"Noto Sans TC",sans-serif;margin-left:4px}
+.pbar{height:14px;border-radius:7px;background:#2a3142;overflow:hidden;margin:8px 0 4px;position:relative}
+.pbar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,var(--ok),var(--pri))}
+.pbar em{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;border-radius:2px}
+details.more{margin:10px 0 0;background:var(--card);border-radius:12px;padding:0 12px}
+details.more summary{cursor:pointer;font-size:14px;font-weight:900;color:var(--info);padding:10px 0;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:" ▾"}details.more[open] summary::after{content:" ▴"}
+details.more>div{padding:0 0 10px;font-size:14px;line-height:1.6;color:var(--txt)}
+.og{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 4px}
+.og .btn{margin:0;padding:16px 8px;font-size:17px;flex-direction:column;gap:2px;background:var(--card);color:var(--txt);border:2px solid var(--line);box-shadow:none}
+.og .btn:active{border-color:var(--pri)}
+.og .btn i{font-style:normal;font-size:28px}
+.row2{display:flex;gap:8px;margin-top:6px}.row2 .btn{flex:1}
+.flipline{font-size:14px;color:var(--spade);font-weight:900;text-align:center;margin-top:8px}
+.needb{background:#122a1c;border:2px solid var(--ok);border-radius:14px;padding:10px 12px;font-size:17px;font-weight:900;line-height:1.45;margin:10px 0 2px;text-align:center}
+.hero{text-align:center}.hero .face{font-size:56px;line-height:1.1}
+.rwd{display:inline-block;background:#173322;color:var(--ok);font-weight:900;border-radius:20px;padding:4px 12px;font-size:15px;margin-top:6px}
+.near5{background:linear-gradient(90deg,#3b2a66,#24324f);border:2px solid var(--spade);border-radius:14px;padding:10px;font-size:17px;font-weight:900;text-align:center;margin:10px 0;animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+.flip{perspective:900px;width:150px;height:210px;margin:6px auto 10px}
+.flip .in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.3,1.4,.5,1)}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.flip .b{background:repeating-linear-gradient(45deg,#3a4a8a 0 10px,#2c3970 10px 20px);border:4px solid #fff}
+.flip .f{background:#fff;color:#111;transform:rotateY(180deg);border:4px solid var(--spade);box-shadow:0 0 30px var(--spade)}
+.flip .f .r{font-family:Anton;font-size:64px;line-height:1}.flip .f .e{font-size:40px}
+.eagle{background:linear-gradient(160deg,#2b2350,#1a2036);border:2px solid var(--spade);border-radius:16px;padding:12px;text-align:center}
+.eagle b{color:var(--spade)}
+#bShare{position:fixed;right:14px;bottom:calc(44px + env(safe-area-inset-bottom));z-index:9;min-width:82px;height:66px;border-radius:33px;border:0;background:linear-gradient(#ffd84d,#f2a900);color:#1a1300;font-weight:900;font-size:15px;font-family:inherit;box-shadow:0 4px 0 #a87400,0 6px 18px #0008;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;padding:0 12px;cursor:pointer}
+#bShare span{font-size:22px}
+#bShare .bd{position:absolute;top:-6px;right:-4px;background:var(--spade);color:#120a24;border-radius:12px;font-size:12px;padding:2px 7px;font-weight:900}
+#bShare.glow{animation:glow 1.1s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 4px 0 #a87400,0 0 0 0 #c9a2ffcc}50%{box-shadow:0 4px 0 #a87400,0 0 0 12px #c9a2ff00}}
+#shareHint{position:fixed;left:50%;transform:translateX(-50%);white-space:nowrap;bottom:calc(140px + env(safe-area-inset-bottom));z-index:9;background:#241c40ee;border:1px solid var(--spade);color:#fff;border-radius:12px;padding:6px 10px;font-size:13px;font-weight:700;pointer-events:none}body.hinting #prompt{visibility:hidden}
+#shareHint.hide{display:none}
+.touch-off #shareHint{display:none}
+#askBtn{position:fixed;right:10px;top:calc(196px + env(safe-area-inset-top));z-index:12;border:0;border-radius:18px;background:#1f2533ee;color:#fff;font-weight:900;font-size:14px;padding:7px 12px;font-family:inherit;border:1px solid var(--line);cursor:pointer}
+body.cut #askBtn,body.cut #bShare,body.cut #shareHint{visibility:hidden}
+#muteBtn{display:none}#bTalk{display:none !important}#viewBtn{left:64px}
+#tip{position:fixed;right:10px;top:calc(236px + env(safe-area-inset-top));z-index:14;width:min(300px,calc(100% - 20px));background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--info);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.55;color:var(--txt);box-shadow:0 10px 30px #000a;display:none}
+#tip.on{display:block;animation:pop .3s ease}
+#tip b{color:var(--info)}
+#inc{position:fixed;left:10px;top:calc(204px + env(safe-area-inset-top));z-index:11;width:166px;background:#151922a6;transition:opacity .35s,transform .35s;transform-origin:22px 0;border:1px solid var(--line);border-radius:14px;padding:7px 9px 6px;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0006;backdrop-filter:blur(4px)}
+#inc .r{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+#inc small{font-size:10.5px;color:#aab3c5;font-weight:700}
+#inc .n{font-family:Anton,sans-serif;font-size:19px;line-height:1.05;letter-spacing:.3px}
+#inc .p{color:var(--pri)}#inc .m{color:var(--ok)}
+#inc .pbar{height:6px;margin:4px 0 3px}
+#inc .nx{font-size:10.5px;line-height:1.3;color:#dfe6f3;font-weight:700}
+#inc .dc{font-size:9.5px;line-height:1.25;color:#ff9db0;margin-top:2px}
+#inc.pop{animation:incPop .7s}@keyframes incPop{0%{box-shadow:0 0 0 0 #57ff8a}40%{box-shadow:0 0 0 6px #57ff8a66;transform:scale(1.04)}100%{box-shadow:0 4px 14px #0006;transform:none}}
+body.cut #inc,body.hideinc #inc,body:has(#tip.on) #inc{visibility:hidden}
+#inc.col{opacity:0;transform:scale(.25);pointer-events:none}
+#incBtn{position:fixed;left:12px;top:calc(204px + env(safe-area-inset-top));z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:opacity .3s}
+#incBtn.hid{opacity:0;pointer-events:none}
+#incBtn.pulse{animation:incBtnP 1.2s ease-out 2}@keyframes incBtnP{0%{box-shadow:0 0 0 0 #57ff8acc}70%{box-shadow:0 0 0 14px #57ff8a00}100%{box-shadow:0 0 0 0 #57ff8a00}}
+body.cut #incBtn{visibility:hidden}
+#askBtn{background:linear-gradient(135deg,#14e0c8,#8b5cf6 60%,#d946ef)!important;border:2px solid #fff!important;border-radius:999px!important;padding:6px 14px 6px 6px!important;display:flex;align-items:center;gap:6px;font-size:15px!important;color:#fff;text-shadow:0 1px 2px #0007;box-shadow:0 0 14px #8b5cf6aa,0 0 4px #14e0c8;animation:askGlow 2.4s ease-in-out infinite}
+#askBtn .av{width:28px;height:28px;border-radius:50%;background:#fff;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;position:relative;animation:askBob 1.6s ease-in-out infinite;text-shadow:none}
+#askBtn .av i{position:absolute;right:-5px;top:-7px;width:16px;height:16px;border-radius:50%;background:#ffcf3f;color:#111;font-style:normal;font-size:11px;line-height:16px;text-align:center;border:1.5px solid #fff}
+#askBtn.first{animation:askGlow 2.4s ease-in-out infinite,askPulse 1.4s ease-out infinite}
+@keyframes askGlow{0%,100%{box-shadow:0 0 10px #8b5cf699,0 0 3px #14e0c8}50%{box-shadow:0 0 20px #d946efcc,0 0 8px #14e0c8}}
+@keyframes askBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#tip{top:calc(246px + env(safe-area-inset-top))!important}
+@keyframes askPulse{0%{outline:0 solid #14e0c8aa;outline-offset:0}100%{outline:10px solid #14e0c800;outline-offset:4px}}
+#feed{top:calc(250px + env(safe-area-inset-top));width:min(250px,calc(100vw - 196px))}
+.rc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.rc>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center}
+.rc b{display:block;font-family:Anton,sans-serif;font-size:26px;color:#fff}.rc small{font-size:12px;color:#aab3c5}
 </style>
 </head>
 <body class="touch-off">
@@ -181,8 +285,10 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 <div id="joy"></div><div id="joyBase"><div id="joyKnob"></div></div>
 <div class="tb" id="bAct">🚗<small>上車</small></div>
 <div class="tb" id="bHb">⚡<small>甩尾</small></div>
-<div class="tb" id="bHorn">📯</div>
+<button id="bShare" title="開口分享"><span>📣</span>開口分享<i class="bd" id="shareBd">0</i></button><div id="shareHint" class="hide">再翻一張，黑桃 2 可能就在下一個</div>
+<div id="inc" title="本月收入（示意）" onclick="if(!PAUSE&&STARTED){togglePhone();const b=document.querySelector('.tabs button[data-t=&quot;r&quot;]');b&&b.click()}"></div><button id="incBtn" class="hid" title="本月收入（示意）" aria-label="查看本月收入（示意）">💰</button><button id="askBtn" aria-label="問小安"><span class="av">安<i>?</i></span>問小安</button><div id="tip"></div>
 <div class="tb hide" id="bTalk">💬<small>分享</small></div>
+<button id="bWarp" class="hide" title="輕鬆模式：傳送到目標">🚀 傳送到目標</button>
 <div id="foot">直銷商個人製作，非安麗官方網站｜內容依安麗台灣公開資訊整理，以官網公告為準｜收入數字皆為示範試算，非保證、因人而異</div>
 
 <div id="title" class="ov">
@@ -196,15 +302,15 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
   <p style="text-align:center;font-size:15px;line-height:1.7;margin:12px 0">開放城市任務版：在城裡開車、接 6 個任務，<br>把《安麗新人手冊》與《卓越新星計劃》一路玩懂。</p>
   <div style="text-align:center"><button class="btn w100" id="bStart" style="max-width:340px">▶ 開始遊戲</button><br><button class="btn dk" id="bReset" style="font-size:14px;padding:8px 14px">重新開始</button></div>
   <div class="how">
-   <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 分享 OPP（新功能）</b><br>走路靠近路人，按 T（手機按 💬），開口分享安麗。對方可能加入直銷商、生活會員、安麗之友，或婉拒。每次開口都有「勇氣 EXP」，被拒絕也算數！加入的夥伴會隨機購買產品，累積團隊營業額與 BV（遊戲模擬）。</div>
-   <div style="grid-column:span 2"><b>🚲 共享單車／🛵 共享電動機車</b><br>路邊停有單車（比走路快一點）和電動機車（比單車再快），靠近按 E／🚗 就能騎。汽車開太快撞到路人，他會被撞飛到外太空（過一會兒會走回來）；單車、機車或慢速只會把人撞開。</div>
+   <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 真心對話（分享 OPP）</b><br>走路靠近路人，按 T（手機按 💬）。每位路人頭上都寫著他的需要，先聽懂需要、再挑合適的話題，對方才會滿意。結果看你懂不懂對方，不是靠運氣。每次開口都有「勇氣 EXP」，被拒絕也算數！</div>
+   <div style="grid-column:span 2"><b>🚲 共享單車／🛵 共享電動機車</b><br>路邊停有單車（比走路快一點）和電動機車（比單車再快），靠近按 E／🚗 就能騎。路人看到車會跳開；開太快擦到路人，車子會彈開、扣一點信用值，記得禮讓行人。</div>
    <div><b>移動／開車</b><br>電腦：WASD 或方向鍵<br>手機：左下搖桿（推哪邊就往哪開）</div>
    <div><b>上車／下車</b><br>電腦：E 或 F<br>手機：綠色 🚗 按鈕</div>
    <div><b>甩尾</b><br>電腦：空白鍵<br>手機：紅色 ⚡ 按鈕</div>
    <div><b>答題路口</b><br>先開到「❓答題路口」，三條路會亮起 A／B／C（左轉／直走／右轉），開進正確答案那條路</div>
    <div><b>謠言值 ★</b><br>答錯或撞到陷阱錐會增加，謠言車會追你。甩掉它們，或開到「小安客服站」清除</div>
    <div><b>視角 👁</b><br>電腦：V 鍵；手機：👁 按鈕<br>俯瞰 ↔ 第一人稱</div>
-   <div><b>手機 📱</b><br>看任務清單、知識圖鑑和隱藏積點包</div>
+   <div><b>手機 📱</b><br>任務、顧客、升級路線圖、知識圖鑑；設定裡可開「輕鬆模式」</div>
   </div>
   <p class="fine">直銷商個人製作，非安麗官方網站。內容依安麗台灣公開資訊整理，以官網公告為準。<br>遊戲中所有收入數字皆為示範試算，非保證收入、因人而異。本遊戲為原創作品，與任何既有遊戲品牌無關。</p>
  </div>
@@ -212,16 +318,18 @@ iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:4px 0}
 <div id="cut" class="ov hide"><div class="bar top"></div><div class="bar bot"></div><div class="ttl"></div><div class="sub"><div class="cav"></div><div class="ctx"><div class="who"></div><div class="say"></div></div></div><div class="nx">點一下 / Enter 繼續 ▶</div></div>
 <div id="pass" class="ov hide"><div class="panel"></div></div>
 <div id="wasted" class="ov hide"><div class="t out">被謠言淹沒了</div><p class="out" style="font-size:16px;font-weight:700">別擔心，到小安客服站重新出發。<br>正確資訊永遠以官網公告為準。</p><button class="btn" id="bRespawn">重新出發</button></div>
-<div id="phone" class="ov hide"><div class="panel"><div class="tabs"><button data-t="m" class="on">任務</button><button data-t="t">團隊</button><button data-t="k">知識圖鑑</button><button data-t="s">設定</button></div><div id="phBody"></div><button class="btn w100" id="phClose" style="margin-top:12px">關閉手機</button></div></div>
+<div id="phone" class="ov hide"><div class="panel"><div class="tabs"><button data-t="m" class="on">任務</button><button data-t="t">顧客</button><button data-t="r">路線</button><button data-t="k">圖鑑</button><button data-t="s">設定</button></div><div id="phBody"></div><button class="btn w100" id="phClose" style="margin-top:12px">關閉手機</button></div></div>
 <div id="info" class="ov hide"><div class="panel"></div></div>
 
 <script src="../src/data.js"></script>
+<script src="data-city.js"></script>
 <script>
 "use strict";
 const CFG=window.AMWAY_GAME_CONFIG;
 const KEY="amway-city-v1";
 let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
-S=Object.assign({done:{},cards:[],gems:[],exp:0,branches:[],found:[],mute:false,team:[],opp:{talks:0,dist:0,mem:0,fri:0,rej:0,streak:0},day:1,clock:480,sales:0,bv:0,today:{sales:0,bv:0,join:0}},S||{});
+S=Object.assign({done:{},cards:[],gems:[],exp:0,branches:[],found:[],mute:false,team:[],opp:{talks:0,dist:0,mem:0,fri:0,rej:0,streak:0},day:1,clock:480,sales:0,bv:0,today:{sales:0,bv:0,join:0},why:"",easy:false,playT:0,pname:""},S||{});
+S.opp=Object.assign({talks:0,dist:0,mem:0,fri:0,rej:0,streak:0,sat:0,rep:0,spades:0,since:0},S.opp||{});S.today=Object.assign({sales:0,bv:0,join:0,sat:0,flips:0,spades:0,sv:[]},S.today||{});if(!S.mo)S.mo={k:Math.floor(((S.day||1)-1)/30),own:S.today.bv||0,pb:{},last:0};S.mo=Object.assign({own:0,pb:{},last:0},S.mo);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=s=>document.querySelector(s);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -287,7 +395,7 @@ function pick2(R,a){return a[Math.floor(R()*a.length)]}
 /* ================= STATE ================= */
 const cv=$("#cv"),ctx=cv.getContext("2d");const mmc=$("#mm"),mx=mmc.getContext("2d");
 let VW=0,VH=0,DPR=1;
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR;cv.height=VH*DPR}
+function resize(){DPR=Math.min(2.5,window.devicePixelRatio||1);VW=innerWidth;VH=innerHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);cv.style.width=VW+"px";cv.style.height=VH+"px";ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";try{const n=chunkScale();if(n!=CHS){CHS=n;CHUNKS.clear()}}catch(e){}}
 addEventListener("resize",resize);resize();
 const START=sw(1,3,"n",.12);
 const PL={x:START.x,y:START.y,a:-Math.PI/2,car:null,credit:100,stars:0,starT:0,hitCD:0,px:START.x,py:START.y};
@@ -324,11 +432,14 @@ function nextIx(n){const h=n.dir==0||n.dir==2,pos=h?n.x:n.y;
  if(n.dir==0||n.dir==1)return Math.ceil(pos/PT);return Math.floor((pos-RWP)/PT)}
 const PNAMES=["小美","阿明","志豪","雅婷","淑芬","建宏","怡君","家豪","佩君","俊傑","美玲","宗翰","欣怡","冠宇","惠如","承恩","秀英","文雄","詩涵","子軒","佳蓉","振興","麗華","柏翰"];
 const JOBS=[["上班族","👩‍💼"],["大學生","🧑‍🎓"],["家庭主婦","👩"],["退休老師","👴"],["健身教練","🏋️"],["小吃店老闆","🧑‍🍳"],["工程師","👨‍💻"],["護理師","👩‍⚕️"],["業務員","🧑‍💼"],["新手爸媽","👨‍👩‍👧"],["美髮師","💇"],["外送員","🛵"]];
+// 每位路人的需要（決定對話結果，不靠機率）
+const NEEDS={air:{t:"想讓家裡空氣更乾淨",k:"air"},nut:{t:"想簡單補充日常營養",k:"nut"},water:{t:"想喝到濾過的水",k:"water"},biz:{t:"想知道有沒有兼顧家庭的副業",k:"biz"},info:{t:"只是想先了解安麗是什麼",k:"info"}};
+const NEED_BY_JOB={"上班族":"nut","大學生":"info","家庭主婦":"water","退休老師":"water","健身教練":"nut","小吃店老闆":"biz","工程師":"nut","護理師":"info","業務員":"biz","新手爸媽":"air","美髮師":"biz","外送員":"info"};
 const MOODS=["看起來很忙","正在散步","剛下班","心情不錯","在等朋友","滑著手機"];
 function spawnPeds(){
  PEDS=[];const R=rng(99);const SK=["#f1c9a0","#d9a877","#a8754f","#f6dcc0"],SH=["#ff5577","#3d7dff","#ffd23d","#57ff8a","#fff","#a65aff","#ff9a3d","#333"];
  for(let i=0;i<70;i++){const b=BLOCKS[Math.floor(R()*BLOCKS.length)];
-  const job=pick2(R,JOBS);PEDS.push({b,s:R()*4*8*T,dir:R()<.5?1:-1,v:28+R()*30,sk:pick2(R,SK),sh:pick2(R,SH),hair:pick2(R,["#2a1d14","#4a3020","#111","#7a5a3a","#c9a26a"]),jump:0,say:"",sayT:0,off:0,x:0,y:0,name:pick2(R,PNAMES),job:job[0],av:job[1],mood:pick2(R,MOODS),ang:0})}
+  const job=pick2(R,JOBS);PEDS.push({b,s:R()*4*8*T,dir:R()<.5?1:-1,v:28+R()*30,sk:pick2(R,SK),sh:pick2(R,SH),hair:pick2(R,["#2a1d14","#4a3020","#111","#7a5a3a","#c9a26a"]),jump:0,say:"",sayT:0,off:0,x:0,y:0,name:pick2(R,PNAMES),job:job[0],av:job[1],mood:pick2(R,MOODS),ang:0,need:NEED_BY_JOB[job[0]]})}
 }
 function pedPos(p){const L=8*T,x0=p.b.x+T*.5,y0=p.b.y+T*.5;let s=((p.s%(4*L))+4*L)%(4*L);
  if(s<L)return[x0+s,y0,0,1];if(s<2*L)return[x0+L,y0+s-L,-1,0];if(s<3*L)return[x0+L-(s-2*L),y0+L,0,-1];return[x0,y0+L-(s-3*L),1,0]}
@@ -354,7 +465,7 @@ joy.addEventListener("pointerup",endJoy);joy.addEventListener("pointercancel",en
 function moveJoy(e){let dx=e.clientX-JOY.ox,dy=e.clientY-JOY.oy;const d=Math.hypot(dx,dy),m=Math.min(d,56);if(d>0){dx=dx/d*m;dy=dy/d*m}
  JOY.x=dx/56;JOY.y=dy/56;JOY.m=m/56;jk.style.transform=`translate(${dx}px,${dy}px)`}
 const hold=(el,on,off)=>{el.addEventListener("pointerdown",e=>{e.preventDefault();audioInit();on()});el.addEventListener("pointerup",off);el.addEventListener("pointercancel",off);el.addEventListener("pointerleave",off)};
-hold($("#bAct"),()=>ACT=true,()=>{});hold($("#bTalk"),()=>TALK=true,()=>{});hold($("#bHb"),()=>HB=true,()=>HB=false);hold($("#bHorn"),horn,()=>{});
+hold($("#bAct"),()=>ACT=true,()=>{});hold($("#bTalk"),()=>TALK=true,()=>{});hold($("#bHb"),()=>HB=true,()=>HB=false);
 $("#phoneBtn").onclick=()=>togglePhone();
 $("#quiz").onclick=()=>{if(QZ){QZ.t0=TIME;$("#quiz").classList.remove("mini")}};
 $("#viewBtn").onclick=()=>toggleView();
@@ -395,16 +506,19 @@ const MDEF=[
  {id:3,title:"每月準時送達",at:sw(0,1,"n",.6),target:170,col:"#ff3d7f"},
  {id:4,title:"六都據點巡迴",at:sw(3,1,"s",.5),target:230,col:"#38e1ff"},
  {id:5,title:"謠言大追緝",at:sw(4,4,"n",.5),target:150,col:"#a65aff"},
- {id:6,title:"分店開張",at:sw(2,0,"s",.5),target:240,col:"#ffd23d"}];
+ {id:6,title:"分店開張",at:sw(2,0,"s",.5),target:330,col:"#ffd23d"},
+ {id:7,title:"商店街產品配送",at:sw(3,3,"e",.5),target:300,col:"#3ad6c8",bonus:1,after:4}];
 const nextMission=()=>MDEF.find(m=>!S.done[m.id]);
-const MYTHS=["保證月入十萬？","零風險穩賺？","拉人頭就會賺？","證書＝營養師？","買越多越好？","不用經營也有錢？"];
+const isHot=m=>m===nextMission()||!!(m.bonus&&!S.done[m.id]&&S.done[m.after]);
+const isAvail=m=>!!(S.done[m.id]||m===nextMission()||(m.bonus&&S.done[m.after]));
+const MYTHS=["月入十萬一定有？","完全沒有風險？","拉人頭就會有收入？","證書＝營養師？","買越多越好？","不用經營也有收入？"];
 const quizSteps=(qs,txt)=>qs.map((q,i)=>({t:"quiz",q,txt:`${txt} ${i+1}/${qs.length}`}));
 function steps(id){const a=A(id),c=a.comp,who=`${c.e} ${c.n}`;
  if(id==1)return[
   {t:"talk",lines:[[who,a.story[0]],[who,a.story[1]],[who,"這座城很大，先熟悉交通工具。旁邊那台共享車借你開！"],[who,"走到車旁按 E（手機按綠色 🚗）上車。"]]},
   {t:"car",txt:"走到旁邊的<em>共享車</em>，按 E／🚗 上車"},
   {t:"goto",p:sw(2,2,"s",.5),txt:"開車到<em>安麗空間服務櫃檯</em>"},
-  {t:"talk",lines:[["🧑‍💼 櫃檯人員","歡迎！先認識三種身份：安麗之友 0 元、生活會員入會費 200 元、直銷商押金 1,000 元（退會時可退回）。"],["🧑‍💼 櫃檯人員","加入可以到安麗空間櫃檯，或用 Am-Card 右上角「線上加入」。生活會員入會費申請後不得退還喔。"],[who,"路上設好了答題路口：先開到 ❓ 路口，再開進正確字母那條路！"]]},
+  {t:"talk",lines:[["🧑‍💼 櫃檯人員","歡迎！先認識三種身份：安麗之友 0 元、生活會員入會費 200 元、直銷商押金 1,000 元（退會時可退回）。"],["🧑‍💼 櫃檯人員","加入可以到安麗空間櫃檯，或用 Am-Card 右上角「線上加入」。生活會員入會費申請後不得退還喔。"],["🧑‍💼 櫃檯人員","新人須知：加入沒有推薦或囤貨義務；收入來自產品銷售與服務顧客，不是招募。加入後 30 日內可書面解約退貨（細節以官網公告為準）。"],[who,"路上設好了答題路口：先開到 ❓ 路口，再開進正確字母那條路！"]]},
   ...quizSteps(a.qs,"身份考驗")];
  if(id==2)return[
   {t:"talk",lines:[[who,a.story[0]],[who,"5 個好康包裹散落在城裡，每個包裹都是一項新人好康。"],[who,"限時 150 秒，全部收齊！看小地圖上的黃點。"]]},
@@ -419,7 +533,7 @@ function steps(id){const a=A(id),c=a.comp,who=`${c.e} ${c.n}`;
  if(id==4)return[
   {t:"talk",lines:[[who,a.story[0]],[who,"安麗空間全台六個據點，這座城裡都有分身。全部巡過一次！"],[who,"順序隨你，看小地圖的黃點。"]]},
   {t:"collect",items:[[sw(2,2,"n",.5),"🏪","台北松山",a.cards[4]],[sw(0,2,"e",.5),"🏪","桃園",a.cards[5]],[sw(4,1,"w",.5),"🏪","新竹竹北",a.cards[0]],[sw(1,4,"n",.5),"🏪","台中西屯",a.cards[1]],[sw(3,4,"n",.5),"🏪","台南安平",a.cards[2]],[sw(4,3,"s",.5),"🏪","高雄左營",a.cards[6]]],txt:"巡迴<em>六個安麗空間據點</em>"},
-  {t:"talk",lines:[[who,"六據點巡完！營業時間：每日 12:00～20:00，每月首日 13:00 起。"],[who,a.cards[7][1]+"。答題路口開始！"]]},
+  {t:"talk",lines:[[who,"六據點巡完！營業時間：每日 12:00～20:00，每月首日 13:00 起（以官網公告為準）。"],[who,a.cards[7][1]+"。答題路口開始！"]]},
   ...quizSteps(a.qs,"數位工具")];
  if(id==5)return[
   {t:"talk",lines:[[who,a.story[0]],[who,"不好了！城裡冒出一堆「謠言車」，到處散播錯誤資訊！"],[who,"開進「真相路口」的正確答案答對一題，就能破解一台謠言車。小心被追上！"]]},
@@ -429,8 +543,49 @@ function steps(id){const a=A(id),c=a.comp,who=`${c.e} ${c.n}`;
  if(id==6)return[
   {t:"talk",lines:[[who,a.story[0]],[who,a.story[1]],[who,"城裡有四塊空地 A、B、C、D。開過去把分店開起來！"],[who,"所有數字都是"+DISC+"。"]]},
   {t:"lots",txt:"到<em>空地 A～D</em> 開設分店"},
+  {t:"talk",lines:[[who,"最後幾題是新人最常卡住的門檻：個人 100 PV、初階架構、銅章架構。"]]},
   ...quizSteps(a.qs,"卓越新星")];
+ if(id==7)return[
+  {t:"talk",lines:[[who,a.story[0]],[who,a.story[1]],[who,"先開到「安麗空間」看四張訂單，替每位顧客挑對產品。"]]},
+  {t:"goto",p:SPACE_PT,txt:"開到<em>安麗空間</em>看顧客訂單"},
+  {t:"fn",fn:pickOrders},
+  {t:"collect",items:DELIV.map(d=>[d.p,d.av,d.who+"："+d.prod,KC(d.card)]),txt:"把產品<em>送到顧客手上</em>"},
+  {t:"fn",fn:sprintPanel},
+  ...quizSteps(a.qs,"配送考驗")];
 }
+const SPACE_PT=sw(2,2,"s",.5);
+const KC=t=>A(7).cards.find(c=>c[0]==t);
+const PRODS=[["♨️","益之源 Pro 淨熱組","淨水＋熱水的組合"],["💧","eSpring Pro 淨水器（單機）","只有淨水"],["🌬","逸新 SKY／Mini 空氣清淨機","過濾空氣中的灰塵和花粉"],["🥗","紐崔萊日常營養補充","日常營養補充"]];
+const DELIV=[{who:"新手爸媽",av:"👨‍👩‍👧",need:"家裡有小孩，想讓室內空氣更乾淨",ans:2,prod:"逸新 SKY",card:"逸新怎麼介紹",p:sw(1,4,"e",.5)},
+ {who:"家庭主婦",av:"👩",need:"想喝到濾過的水，也想要熱水泡茶",ans:0,prod:"益之源 Pro 淨熱組",card:"益之源 Pro 淨熱組",p:sw(3,4,"w",.6)},
+ {who:"退休老師",av:"👴",need:"只想喝到濾過的水，不需要熱水",ans:1,prod:"eSpring Pro 淨水器",card:"產品售價與 BV",p:sw(0,3,"e",.5)},
+ {who:"上班族",av:"👩‍💼",need:"想簡單補充日常營養",ans:3,prod:"紐崔萊",card:"紐崔萊怎麼介紹",p:sw(4,3,"n",.3)}];
+async function pickOrders(){
+ for(const d of DELIV){let ok=false;while(!ok&&MS){ok=await new Promise(res=>{panel("info",`<h2>📋 顧客訂單 ${DELIV.indexOf(d)+1}/${DELIV.length}</h2><div class="hero"><div class="face">${d.av}</div><div class="sub">${d.who}</div></div><div class="needb">💭「${d.need}」</div><p class="sub" style="text-align:center">挑一個最合適的產品</p><div class="og">${PRODS.map((p,i)=>`<button class="btn pp" data-i="${i}" style="font-size:15px"><i>${p[0]}</i>${p[1].replace("（單機）","").replace("空氣清淨機","")}<small style="font-size:12px;color:var(--sub);font-weight:700">${p[2]}</small></button>`).join("")}</div>`);
+   document.querySelectorAll(".pp").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(i==d.ans){SFX.ok();toast("✅ 選對了",d.who+" 需要的是「"+PRODS[i][1]+"」","#57ff8a");S.exp+=20;closeOv("info");res(true)}else{SFX.bad();MS&&MS.mistakes++;toast("🤔 再想想",d.who+" 說的是「"+d.need+"」，這個產品不是他要的。","#ff4d6d");res(false)}})})}}
+ if(MS)await infoBox(`<h2>📦 四張訂單備好了</h2><p class="lede">開車送到四位顧客手上。</p><p class="sub">小地圖上的黃點就是顧客。</p><div class="kc"><b>BV 不等於售價</b><br>BV 為遊戲示意，實際依產品而定</div><details class="more"><summary>看更多：產品售價與 BV</summary><div>${KC("產品售價與 BV")[1]}</div></details>`,"出發配送")}
+async function sprintPanel(){["特惠套組衝刺（示範）","不要囤貨","淨熱組上市資訊","逸新 SKY／Mini 年度特惠","單品示範試算","組合示範試算"].forEach(t=>unlockCard(KC(t)));
+ const lad=rows=>rows.map(r=>`<div class="lad"><span>${r[0]}｜${fmt(r[1])}</span><i><u style="width:${r[2]/21*100}%"></u></i><b style="width:104px;font-size:13px">${r[2]}%＝${r[3]}</b></div>`).join("");
+ await infoBox(`<h2>🏁 特惠套組衝刺（示範）</h2><p class="lede">顧客選的組數不同，<br>級距就不同。</p><p class="sub">只有自己一組、沒有下線。</p>
+  <p style="font-weight:900;margin:8px 0 2px">♨️ 益之源 Pro 淨熱組 <span class="sub">$39,800｜BV 37,904</span></p>${lad([["1 組",37904,6,"2,274.24"],["2 組",75808,9,"6,822.72"],["3 組",113712,12,"13,645.44"],["6 組",227424,15,"34,113.60"]])}
+  <p class="disc">⚠️ 示範試算，非保證收入。BV 不等於售價。</p>
+  <details class="more"><summary>看更多：逸新 SKY、Mini、eSpring Pro</summary><div>
+  <p style="font-weight:900;margin:8px 0 2px">🌬 逸新 SKY <span class="sub">$41,000｜BV 39,048</span></p>${lad([["1 台",39048,6,"2,342.88"],["2 台",78096,9,"7,028.64"],["3 台",117144,12,"14,057.28"]])}
+  <p style="font-weight:900;margin:8px 0 2px">🌬 SKY Mini <span class="sub">$21,500｜BV 20,476</span></p>${lad([["1 台",20476,3,"614.28"],["2 台",40952,6,"2,457.12"],["3 台",61428,9,"5,528.52"]])}
+  <p style="font-weight:900;margin:8px 0 2px">💧 eSpring Pro 淨水器・單機 <span class="sub">$36,800｜BV 35,048</span></p>${lad([["1 台",35048,6,"2,102.88"],["2 台",70096,9,"6,308.64"],["3 台",105144,12,"12,617.28"]])}
+  <p class="disc">⚠️ 示範試算，非保證收入。eSpring Pro 單機和益之源 Pro 淨熱組是不同品項。</p></div></details>
+  <details class="more"><summary>📅 情報卡：上市與特惠日期</summary><div>${KC("淨熱組上市資訊")[1]}<br><br>${KC("逸新 SKY／Mini 年度特惠")[1].replace("遊戲裡的價格與 BV 見下一張卡","")}</div></details>`,"看看這個月的組合");
+ await new Promise(res=>{panel("info",`<h2>🎯 差一點就到 12%</h2><p class="sub">三位顧客各自選了 SKY＋Mini＋淨熱組</p>
+  <div class="bign">97,428<small>BV（當月）</small></div>
+  <div class="pbar"><i style="width:${97428/100000*100}%"></i><em style="left:calc(100% - 3px)"></em></div>
+  <div style="display:flex;justify-content:space-between" class="sub"><span>9%＝8,768.52</span><span>12% 門檻 100,000</span></div>
+  <p class="lede" style="text-align:center;color:#ffb070">還差 2,572 BV</p>
+  <p class="disc">⚠️ 只有自己一組、沒有下線，示範試算，非保證收入。</p>
+  <p class="lede" style="margin-top:10px">你會怎麼做？</p>
+  <button class="btn w100" id="spB">🤝 再認識一位顧客，聽聽他的需要</button>
+  <button class="btn dk w100" id="spA">🛒 自己先買一堆衝業績</button>`);
+  $("#spA").onclick=()=>{SFX.bad();MS&&MS.mistakes++;$("#info .panel").insertAdjacentHTML("beforeend",`<div class="kc" style="border-color:var(--bad);margin-top:10px"><b style="color:var(--bad)">⚠️ 不要囤貨</b><br>沒有推薦或囤貨義務。自己囤貨只會壓住錢和空間，下個月又要重來。</div>`);$("#spA").disabled=true};
+  $("#spB").onclick=()=>{SFX.ok();S.exp+=30;closeOv("info");infoBox(`<div class="hero"><div class="face">✅</div><h2>就是這樣</h2></div><p class="lede">業績來自真正需要的顧客。</p><p class="sub">就算這個月沒到 12%，你服務的顧客還會回購。</p>`,"繼續").then(res)}})}
 function startMission(m){
  const a=A(m.id);MS={m,a,st:steps(m.id),i:-1,t0:TIME,mistakes:0,limit:0,left:0};
  QZ=null;OBJ=null;tone(330,.2);
@@ -440,6 +595,7 @@ function nextStep(){if(!MS)return;MS.i++;QZ=null;OBJ=null;$("#quiz").classList.a
  if(MS.i>=MS.st.length)return passMission();enterStep(MS.st[MS.i])}
 function enterStep(st){
  if(st.t=="talk")return cutscene(st.lines).then(nextStep);
+ if(st.t=="fn"){const my=MS;OBJ={text:"…"};updObj();st.fn().then(()=>{if(MS&&MS===my&&curStep()===st)nextStep()});return}
  if(st.t=="car"){if(PL.car)return nextStep();OBJ={p:CARS[0]?{x:CARS[0].x,y:CARS[0].y}:null,text:st.txt}}
  if(st.t=="goto")OBJ={p:st.p,text:st.txt};
  if(st.t=="collect"){MS.items=st.items.map(([p,ic,n,card])=>({p,ic,n,card,got:false}));MS.limit=st.limit||0;MS.left=MS.limit;OBJ={text:st.txt,multi:true}}
@@ -511,10 +667,15 @@ async function openBranch(l){
  SFX.pass();const p=lotPos(l);burst(p.x,p.y,"#ffd23d",60);
  const a=A(6),n=MS.lotN,ord=["A","B","C","D"].filter(x=>MS.lots.find(L=>L.l==x&&L.got));const tier=[3,6,12,21][n-1],card=a.cards[n-1];
  unlockCard(card);
- await infoBox(`<h2>🏪 分店 ${l} 開張！</h2><p>每一家分店都是夥伴各自服務自己的顧客——這是在建立你的顧客服務網路，不是拉人頭。</p>
-  <p style="font-weight:900">業績獎金比率（示範）：<span style="color:var(--gold)">${tier}%</span></p><div class="meter"><i style="width:${tier/21*100}%"></i></div>
-  <div class="kc"><b>${card[0]}</b><br>${card[1]}</div><p class="disc">⚠️ ${DISC}</p><p style="font-size:13px;color:#aaa">已開分店：${ord.join("、")}（${n}/4）</p>`);
- if(n>=4){unlockCard(a.cards[4]);unlockCard(a.cards[5]);await infoBox(`<h2>🌟 四家分店都開起來了</h2><div class="kc"><b>${a.cards[4][0]}</b><br>${a.cards[4][1]}</div><div class="kc"><b>${a.cards[5][0]}</b><br>${a.cards[5][1]}</div><p class="disc">⚠️ ${DISC}</p>`,"接受最終考驗");nextStep()}
+ const key=[null,"2,227.50","12,741.30","57,692.25"][n-1];
+ await infoBox(`<h2>🏪 分店 ${l} 開張！</h2><p class="lede">分店＝夥伴服務自己的顧客，<br>不是拉人頭。</p>
+  <div class="sub">業績獎金比率（示範）</div><div class="bign">${tier}%</div><div class="pbar"><i style="width:${tier/21*100}%"></i></div>
+  ${key?`<div class="sub" style="margin-top:8px">${card[0].replace("（示範）","")}重點數字</div><div class="bign" style="font-size:34px;color:#fff">${key}</div>`:""}
+  <p class="disc">⚠️ ${DISC}</p>
+  <details class="more"><summary>看更多：怎麼算的</summary><div>${card[1]}</div></details>
+  <p class="sub">已開分店：${ord.join("、")}（${n}/4）</p>`);
+ if(n>=4){unlockCard(a.cards[4]);unlockCard(a.cards[5]);await infoBox(`<h2>🌟 四家分店都開起來了</h2><p class="lede">達 21% 之後，月結還有領導獎金 6%。</p><div class="sub">領導獎金 6%（示範）</div><div class="bign" style="font-size:34px">37,867.50</div><p class="disc">⚠️ ${DISC}；資格以官網為準</p>
+ <details class="more"><summary>看更多：獎金類別</summary><div>${a.cards[4][1]}<br><br>${a.cards[5][1]}</div></details>`,"接受最終考驗");nextStep()}
 }
 function failMission(why){if(!MS)return;const m=MS.m;endMission();SFX.bad();
  panel("info",`<h2 style="color:#ff2d55">任務失敗</h2><p>${why}</p><p>重玩永遠免費，回到任務點就能再挑戰「${m.title}」。</p><button class="btn w100" id="fRetry">馬上重來</button><button class="btn dk w100" id="fQuit">先自由逛逛</button>`);
@@ -524,7 +685,8 @@ function passMission(){
  const m=MS.m,a=MS.a,secs=TIME-MS.t0,mist=MS.mistakes;const fast=secs<=m.target,perfect=mist==0,stars=1+(fast?1:0)+(perfect?1:0);
  const prev=S.done[m.id],first=!prev,oldE=evoIdx(),oldL=lvl();const exp=100+stars*50;S.exp+=exp;
  S.done[m.id]={stars:Math.max(stars,prev?prev.stars:0),best:prev?Math.min(prev.best,Math.round(secs)):Math.round(secs)};
- a.cards.forEach(unlockCard);if(a.gem&&!S.gems.includes(a.gem))S.gems.push(a.gem);save();
+ a.cards.forEach(unlockCard);if(a.gem&&!S.gems.includes(a.gem))S.gems.push(a.gem);if(m.id==6&&!S.endT)S.endT=Math.round(S.playT);save();
+ const vi=(CFG.videoUnlock||[]).indexOf(m.id),vNew=first&&vi>=0&&CFG.videos[vi]?CFG.videos[vi]:null;
  endMission();if(m.id==5){PL.stars=0;RU=[]}
  SFX.pass();big("任務完成！",m.title);confetti();
  const ne=evoIdx(),evo=ne>oldE?`<p style="font-size:18px;font-weight:900;color:var(--gold)">✨ 角色升級：${EVO[oldE][0]} → ${EVO[ne][0]} ${EVO[ne][1]}</p>`:"";
@@ -534,9 +696,10 @@ function passMission(){
  <div class="row"><span>⭐ 完成任務</span><b>✔</b></div><div class="row"><span>⏱ 速度（${Math.round(secs)} 秒／目標 ${m.target} 秒）</span><b>${fast?"✔":"—"}</b></div><div class="row"><span>🎯 零失誤（失誤 ${mist}）</span><b>${perfect?"✔":"—"}</b></div>
  <div class="row"><span>信任 EXP</span><b>+${exp}</b></div><div class="row"><span>${a.comp.e} 夥伴「${a.comp.n}」加入</span><b>${first?"NEW":"✔"}</b></div><div class="row"><span>📖 知識卡</span><b>${a.cards.length} 張</b></div>
  ${a.gem?`<div class="row"><span>💎 基石寶石「${a.gem}」</span><b>GET</b></div>`:""}${lvl()>oldL?`<p style="color:var(--green);font-weight:900">LEVEL UP！Lv.${lvl()}</p>`:""}${evo}
- <p style="font-size:13px;color:#aaa">${nm?`下一個任務：小地圖上的「${nm.id}」號標記（${nm.title}）`:"六個任務全部完成！"}</p>
- <button class="btn w100" id="pOk">${m.id==6&&S.gems.length>=4?"前往結局 ▶":"繼續"}</button>`);
- $("#pOk").onclick=()=>{closeOv("pass");if(m.id==6)ending()}},1400);
+ ${vNew?`<div class="row"><span>🎬 解鎖影片：${vNew.t.split("｜")[0]}</span><b>NEW</b></div>`:""}
+ <p style="font-size:13px;color:#aaa">${nm?`下一個任務：小地圖上的「${nm.id}」號標記（${nm.title}）`:"所有任務全部完成！"}${m.id==4&&!S.done[7]?"<br>🛍 加碼任務「7 商店街產品配送」已開放！":""}</p>
+ <button class="btn w100" id="pOk">${(m.id==6&&S.gems.length>=4)||(m.id==7&&S.done[6])?"前往結局 ▶":"繼續"}</button>`);
+ $("#pOk").onclick=()=>{closeOv("pass");if(m.id==6||(m.id==7&&S.done[6]))ending()}},1400);
 }
 function updObj(){const el=$("#obj");if(!MS){const nm=nextMission();el.innerHTML=STARTED?(nm?`開到小地圖上的 <em>${nm.id} 號任務標記</em>，停進光圈接任務「${nm.title}」`:`自由探索升級城！找找隱藏的<em>積點包</em>（${S.found.length}/${COLLECT.length}）`):"";return}
  el.innerHTML=OBJ?OBJ.text:""}
@@ -600,7 +763,7 @@ function carHits(c){ // player car vs npc/parked/rumor
 /* ================= UPDATE ================= */
 let shake=0,radioT=0,lastNear=null;
 function update(dt){
- TIME+=dt;PL.hitCD-=dt;if(QZ&&TIME-QZ.t0>10)$("#quiz").classList.add("mini");tickClock(dt);
+ TIME+=dt;PL.hitCD-=dt;S.playT=(S.playT||0)+dt;if(QZ&&TIME-QZ.t0>10)$("#quiz").classList.add("mini");tickClock(dt);
  PL.px=(PL.car||PL).x;PL.py=(PL.car||PL).y;
  // controls
  let thr=0,st=0,hb=HB||K[" "];
@@ -613,7 +776,7 @@ function update(dt){
   PL.steer=lerp(PL.steer||0,st,Math.min(1,dt*(Math.abs(st)>Math.abs(PL.steer||0)?9:14)));st=PL.steer;
   const imp=stepCar(c,thr,st,hb,dt);if(imp>170){SFX.crash();shake=.3;burst(c.x,c.y,"#ffd23d",8)}
   carHits(c);
-  for(const q of PEDS){if(q.fly||q.gone)continue;const d=Math.hypot(q.x-c.x,q.y-c.y);if(d<(c.kind=="car"?24:15)&&c.speed>40){if(c.kind=="car"&&c.speed>250)launchPed(q,c);else if(!q.kx)shovePed(q,c)}}
+  for(const q of PEDS){const d=Math.hypot(q.x-c.x,q.y-c.y);if(d<(c.kind=="car"?26:16)&&c.speed>40&&!q.kx)dodgePed(q,c)}
   if(c.drift&&c.speed>220&&Math.random()<.6)PARTS.push({x:c.x-Math.cos(c.a)*24,y:c.y-Math.sin(c.a)*24,vx:0,vy:0,life:.8,max:.8,col:"#cfcfcf",r:6,smoke:1});
   PL.x=c.x;PL.y=c.y;PL.a=c.a;
   if(ENG&&!S.mute){ENG.o.frequency.value=40+c.speed*.16+(thr>0?10:0);ENG.g.gain.value=.035}
@@ -632,8 +795,8 @@ function update(dt){
  const isTouch=!document.body.classList.contains("touch-off");
  const tp=nearPed();if(TALK){TALK=false;if(tp&&!PAUSE){talk(tp);return}}
  $("#bTalk").classList.toggle("hide",!tp);$("#bHb").classList.toggle("hide",!PL.car);
- if(tp){pr.textContent=(isTouch?"按 💬 ":"按 T ")+`和 ${tp.name} 分享 OPP`+(near?(isTouch?"｜🚗 上車":"｜E 上車"):"");pr.classList.remove("hide")}
- else if(!PL.car&&near){const K2=KINDS[near.kind];pr.textContent=(isTouch?"按 🚗 ":"按 E ")+(near.kind=="car"?"上車":"騎上"+K2.nm);pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
+ if(tp){pr.textContent=(isTouch?"按 📣 ":"按 T ")+`和 ${tp.name} 開口分享`+(near?(isTouch?"｜🚗 上車":"｜E 上車"):"");pr.classList.remove("hide")}
+ else if(!PL.car&&near){const K2=KINDS[near.kind];pr.textContent=near.kind=="car"?(isTouch?"按 🚗 上車":"按 E 上車"):(isTouch?`點一下 ${K2.ic} 換騎${near.kind=="bike"?"腳踏車":"機車"}`:`按 E 換騎${near.kind=="bike"?"腳踏車":"機車"}`);pr.classList.remove("hide")}else if(PL.car&&!isTouch&&TIME-(PL.enterT||0)<4){pr.textContent="WASD 開車｜空白鍵甩尾｜E 下車";pr.classList.remove("hide")}else pr.classList.add("hide");
  $("#bAct").innerHTML=PL.car?"🚶<small>下車</small>":(near&&near.kind!="car"?KINDS[near.kind].ic+"<small>騎乘</small>":"🚗<small>上車</small>");
  // world
  for(const n of NPC)npcStep(n,dt);
@@ -642,7 +805,7 @@ function update(dt){
  for(const c of CONES)if(c.vx){c.x+=c.vx*dt;c.y+=c.vy*dt;c.vx*=.92;c.vy*=.92;if(Math.abs(c.vx)<1)c.vx=0}
  // mission start
  const p=PL.car||PL;
- if(!MS&&!PAUSE){for(const m of MDEF){const avail=S.done[m.id]||m===nextMission();if(avail&&dist(p,m.at)<90&&(p.speed||0)<160&&lastNear!==m){lastNear=m;startMission(m);break}}
+ if(!MS&&!PAUSE){for(const m of MDEF){const avail=isAvail(m);if(avail&&dist(p,m.at)<90&&(p.speed||0)<160&&lastNear!==m){lastNear=m;startMission(m);break}}
   if(lastNear&&dist(p,lastNear.at)>140)lastNear=null}
  updMission(dt);
  // collectibles
@@ -651,6 +814,8 @@ function update(dt){
  // particles
  for(const q of PARTS){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.95;q.vy*=.95;q.life-=dt;if(q.g)q.vy+=q.g*dt}
  PARTS=PARTS.filter(q=>q.life>0);for(const f of FLOATS){f.y-=30*dt;f.life-=dt}FLOATS=FLOATS.filter(f=>f.life>0);
+ if(!INC.started){INC.started=1;incShow(10000)}recapTry();if(tipT>0){tipT-=dt;if(tipT<=0){$("#tip").classList.remove("on");document.body.classList.remove("hideinc")}}
+ for(const q of PEDS)if(q.radarT>0)q.radarT-=dt;
  if(toastT>0){toastT-=dt;if(toastT<=0)$("#toast").classList.remove("on")}
  if(bigT>0){bigT-=dt;if(bigT<=0)$("#big").classList.remove("on")}
  if(radioT>0){radioT-=dt;if(radioT<=0)$("#radio").classList.remove("on")}
@@ -662,7 +827,8 @@ function enterCar(c){PL.car=c;CARS.splice(CARS.indexOf(c),1);PL.enterT=TIME;SFX.
  const k=pick(tips);$("#radio b").textContent="📻 知識 FM 88.8";$("#radio span").textContent=k[0]+"："+k[1];if(QZ)return;$("#radio").classList.add("on");radioT=5}
 function exitCar(){const c=PL.car;const sx=-Math.sin(c.a),sy=Math.cos(c.a);let ok=false;
  for(const s of[-1,1]){const o={x:c.x+sx*s*(c.Wd/2+20),y:c.y+sy*s*(c.Wd/2+20)};if(!pushOut({...o},10)){PL.x=o.x;PL.y=o.y;ok=true;break}}
- if(!ok){PL.x=c.x;PL.y=c.y+30;pushOut(PL,11)}c.vx=c.vy=0;c.speed=0;CARS.push(c);PL.car=null;SFX.door()}
+ if(!ok){PL.x=c.x;PL.y=c.y+30;pushOut(PL,11)}c.vx=c.vy=0;c.speed=0;CARS.push(c);PL.car=null;SFX.door();
+ if(c.kind=="car"&&!S.rideTip){S.rideTip=1;save();S.rideHiT=TIME+8;toast("💬 小安","附近有腳踏車、機車可以騎，地圖上有光圈的就是。","#5ec8ff")}}
 function sig(){const t=TIME%22;return t<8?["g","r"]:t<10?["y","r"]:t<11?["r","r"]:t<19?["r","g"]:t<21?["r","y"]:["r","r"]}
 function npcStep(n,dt){
  const dx=DX[n.dir],dy=DY[n.dir];let sp=n.vmax;
@@ -684,15 +850,16 @@ function npcStep(n,dt){
  const ta=n.dir*Math.PI/2;n.a+=angDiff(ta,n.a)*Math.min(1,dt*8);
  n.honk=Math.max(0,n.honk-dt);
 }
-function launchPed(p,c){p.fly=.001;p.flyX=p.x;p.flyY=p.y;p.say=pick(["哇啊啊啊～","飛走啦～","我會回來的～"]);p.sayT=1.6;tone(300,.9,"triangle",.06,1400);shake=.2;S.launched=(S.launched||0)+1;if(S.launched==1)toast("🚀 路人被撞飛到外太空了！","開慢一點啦～他過一會兒會走回來。車速太快才會撞飛，單車、機車或慢速只會把人撞開。","#ff9a3d")}
-function shovePed(p,c){const d=Math.hypot(p.x-c.x,p.y-c.y)||1,f=60+c.speed*.8;p.kx=(p.x-c.x)/d*f;p.ky=(p.y-c.y)/d*f;p.say=pick(["哎唷！","看路啦！","好險～","撞到我了啦"]);p.sayT=1.6;p.face="😠";p.faceT=2.5;tone(200,.12,"square",.05)}
+function dodgePed(p,c){const d=Math.hypot(p.x-c.x,p.y-c.y)||1,f=90+c.speed*.35;p.kx=(p.x-c.x)/d*f;p.ky=(p.y-c.y)/d*f;p.jump=.7;p.say=pick(["好險～","呼～好險！","小心開喔～"]);p.sayT=1.8;p.face="😅";p.faceT=2.5;tone(660,.1,"triangle",.05);
+ if(c.speed>200&&PL.hitCD<=0){PL.hitCD=1.2;c.vx*=-.35;c.vy*=-.35;c.speed=Math.hypot(c.vx,c.vy);shake=.2;SFX.crash();PL.credit=Math.max(5,PL.credit-8);float(c.x,c.y-30,"禮讓行人！信用值 -8","#ff9a3d");
+  if(!S.yieldTip){S.yieldTip=1;save();toast("🚸 禮讓行人","開太快差點擦到路人，車子彈開、信用值 -8。慢一點，路人就有時間閃開。","#ff9a3d")}}}
 function pedStep(p,dt){if(p.gone>0){p.gone-=dt;if(p.gone<=0){p.fly=0;p.say="我回來了～";p.sayT=2.5;p.face="😤";p.faceT=4}return}
  if(p.fly>0){p.fly+=dt;if(p.fly>1.9)p.gone=18;return}
  if(p.kx||p.ky){p.ox=(p.ox||0)+p.kx*dt;p.oy=(p.oy||0)+p.ky*dt;const k=Math.pow(.02,dt);p.kx*=k;p.ky*=k;if(Math.abs(p.kx)+Math.abs(p.ky)<2){p.kx=p.ky=0}}else if(p.ox||p.oy){const k=Math.pow(.4,dt);p.ox*=k;p.oy*=k;if(Math.abs(p.ox)+Math.abs(p.oy)<.5)p.ox=p.oy=0}
  if(p.faceT>0)p.faceT-=dt;
  const hold=p.talking||(!PL.car&&Math.hypot(PL.x-p.x,PL.y-p.y)<46);if(!hold){p.s+=p.dir*p.v*dt*(p.jump>0?3:1);if(Math.random()<dt*.05)p.dir*=-1}
  const[x,y,ix,iy]=pedPos(p);p.ix=ix;p.iy=iy;
- const c=PL.car;if(c&&c.speed>80&&!(c.kind=="car"&&c.speed>250)&&Math.hypot(c.x-p.x,c.y-p.y)<95&&p.jump<=0&&Math.random()<.6){p.jump=.7;p.say=pick(["哇！","小心開！","嚇死我了","慢一點～"]);p.sayT=1.6}
+ const c=PL.car;if(c&&c.speed>80&&Math.hypot(c.x-p.x,c.y-p.y)<95&&p.jump<=0&&Math.random()<.6){p.jump=.7;p.say=pick(["哇！","小心開！","嚇死我了","慢一點～"]);p.sayT=1.6}
  if(p.jump>0){p.jump-=dt;p.off=Math.min(28,p.off+dt*140)}else p.off=Math.max(0,p.off-dt*30);
  const nx=x+ix*p.off+(p.ox||0),ny=y+iy*p.off+(p.oy||0);if(Math.abs(nx-p.x)+Math.abs(ny-p.y)>.05)p.ang=Math.atan2(ny-p.y,nx-p.x);if(hold)p.ang=Math.atan2(PL.y-ny,PL.x-nx);p.moving=!hold;p.x=nx;p.y=ny;p.sayT-=dt}
 function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=60+Math.random()*240;PARTS.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.6+Math.random()*.5,max:1.1,col,r:2+Math.random()*3})}}
@@ -714,7 +881,7 @@ function render(){
  const inView=(x,y,m=0)=>x>vx0-m&&x<vx1+m&&y>vy0-m&&y<vy1+m;
  // ground (cached detailed chunks)
  const DI=dayInfo();
- for(let j=Math.max(0,Math.floor(vy0/CH));j<=Math.min(Math.floor((W-1)/CH),Math.floor(vy1/CH));j++)for(let i=Math.max(0,Math.floor(vx0/CH));i<=Math.min(Math.floor((W-1)/CH),Math.floor(vx1/CH));i++)ctx.drawImage(chunk(i,j),i*CH,j*CH,CH+.6,CH+.6);
+ for(let j=Math.max(0,Math.floor(vy0/CH));j<=Math.min(Math.floor((W-1)/CH),Math.floor(vy1/CH));j++)for(let i=Math.max(0,Math.floor(vx0/CH));i<=Math.min(Math.floor((W-1)/CH),Math.floor(vx1/CH));i++){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(chunk(i,j),i*CH,j*CH,CH+.6,CH+.6)}
  // sun shadows (move with the clock)
  const SV=sunVec(DI);if(SV.a>0){ctx.fillStyle=`rgba(10,20,40,${SV.a})`;ctx.beginPath();
   for(const b of BLD){if(!inView(b.x+b.w/2,b.y+b.h/2,b.ht*1.6+b.w))continue;const dx=SV.x*b.ht,dy=SV.y*b.ht,x0=b.x,y0=b.y,x1=b.x+b.w,y1=b.y+b.h;
@@ -725,7 +892,7 @@ function render(){
  const pulse=(Math.sin(TIME*4)+1)/2;
  const marker=(x,y,col,label,r=70)=>{if(!inView(x,y,200))return;ctx.globalAlpha=.25+pulse*.2;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=col;ctx.lineWidth=5;ctx.beginPath();ctx.arc(x,y,r*.75+pulse*r*.25,0,7);ctx.stroke();
   if(label){const by=y-50-Math.sin(TIME*3)*8;ctx.font="900 30px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.lineWidth=6;ctx.strokeStyle="#000";ctx.strokeText(label,x,by);ctx.fillStyle="#fff";ctx.fillText(label,x,by)}};
- if(!MS){const nm=nextMission();for(const m of MDEF){if(S.done[m.id]||m===nm)marker(m.at.x,m.at.y,m===nm?m.col:"#888",(m===nm?"":"↺")+m.id+" "+A(m.id).comp.e)}}
+ if(!MS){const nm=nextMission();for(const m of MDEF){if(isAvail(m))marker(m.at.x,m.at.y,isHot(m)?m.col:"#888",(isHot(m)?"":"↺")+m.id+" "+A(m.id).comp.e)}}
  marker(XIAOAN.x,XIAOAN.y,"#3d7dff",PL.stars?"💬 清除謠言":"",55);
  COLLECT.forEach((c,i)=>{if(S.found.includes(i)||!inView(c.x,c.y))return;ctx.font="34px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🪙",c.x,c.y-Math.abs(Math.sin(TIME*3+i))*10)});
  if(MS){const st=curStep();
@@ -753,7 +920,7 @@ function render(){
    else{ctx.font=`${20+(t-1.6)*90}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✨",X,Y)}
    if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.flyX,q.flyY-30);ctx.fillText(q.say,q.flyX,q.flyY-30)}continue}
   if(!inView(q.x,q.y))continue;const sw3=q.moving?Math.sin(TIME*9+q.s*.1)*4:0;
-  ctx.fillStyle="#0003";ctx.beginPath();ctx.ellipse(q.x+3,q.y+4,9,7,0,0,7);ctx.fill();
+  ctx.fillStyle="#0002";ctx.beginPath();ctx.ellipse(q.x+3,q.y+4,12,10,0,0,7);ctx.fill();ctx.fillStyle="#0002";ctx.beginPath();ctx.ellipse(q.x+2,q.y+3,8,6.5,0,0,7);ctx.fill();
   ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.ang);
   ctx.fillStyle="#2b2b33";ctx.fillRect(sw3-3,-5,6,4);ctx.fillRect(-sw3-3,1,6,4);
   ctx.fillStyle=q.sk;ctx.beginPath();ctx.arc(-sw3*.6,-8.5,2.6,0,7);ctx.arc(sw3*.6,8.5,2.6,0,7);ctx.fill();
@@ -765,7 +932,7 @@ function render(){
   if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.x,q.y-30);ctx.fillText(q.say,q.x,q.y-30)}}
  // cars
  const drawCar=(c,o={})=>{if(!inView(c.x,c.y,60))return;if(c.kind=="bike"||c.kind=="scooter"){drawTwo(c,c===PL.car||c.dir!==undefined);return}ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L||54,Wd=c.Wd||28;
-  ctx.fillStyle="#0005";rr(-L/2+4,-Wd/2+5,L,Wd,7);ctx.fill();
+  ctx.fillStyle="#0002";rr(-L/2+1,-Wd/2+2,L+8,Wd+8,11);ctx.fill();ctx.fillStyle="#0003";rr(-L/2+3,-Wd/2+4,L+2,Wd+2,8);ctx.fill();
   ctx.fillStyle=c.color;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();ctx.strokeStyle="#0008";ctx.lineWidth=2;ctx.stroke();
   if(c.truck){ctx.fillStyle="#ddd";ctx.fillRect(-L/2+2,-Wd/2+2,L*.62,Wd-4);ctx.fillStyle="#1d2a38";ctx.fillRect(L*.2,-Wd/2+4,7,Wd-8)}
   else{ctx.fillStyle="#1d2a38";rr(L*.08,-Wd/2+4,L*.2,Wd-8,3);ctx.fill();rr(-L*.36,-Wd/2+5,L*.14,Wd-10,3);ctx.fill();ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",1.18);rr(-L*.2,-Wd/2+4,L*.27,Wd-8,3);ctx.fill()}
@@ -778,14 +945,19 @@ function render(){
   ctx.restore();
   if(c.ai){ctx.font="900 17px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText("謠言："+c.myth,c.x,c.y-30);ctx.fillStyle="#d9a8ff";ctx.fillText("謠言："+c.myth,c.x,c.y-30)}
   if(c.honk>0&&c.honk>1){ctx.font="700 18px 'Noto Sans TC'";ctx.fillStyle="#fff";ctx.fillText("叭！",c.x,c.y-26)}};
+ // v2.1 可騎乘的單車／機車：光圈＋標籤
+ {const lab=[];const hi=(S.rideHiT||0)>TIME;for(const c of CARS){if(c.kind=="car"||!inView(c.x,c.y,80))continue;const pr=(Math.sin(TIME*3+c.x*.01)+1)/2;ctx.strokeStyle=c.kind=="bike"?`rgba(255,207,63,${.45+pr*.4})`:`rgba(94,200,255,${.45+pr*.4})`;ctx.lineWidth=hi?5:3;ctx.beginPath();ctx.arc(c.x,c.y,(hi?26:20)+pr*6,0,7);ctx.stroke();
+   if(!lab.some(q=>Math.hypot(q.x-c.x,q.y-c.y)<90)){lab.push(c);const t=c.kind=="bike"?"🚲 可騎乘":"🛵 可騎乘";ctx.font="900 15px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";const w=ctx.measureText(t).width+14;ctx.fillStyle="#151922e0";rr(c.x-w/2,c.y-44,w,22,11);ctx.fill();ctx.fillStyle="#fff";ctx.fillText(t,c.x,c.y-33)}}}
  for(const c of CARS)drawCar(c);for(const n of NPC)drawCar(n);for(const r of RU)drawCar(r);
+ for(const q of PEDS){if(!(q.radarT>0)||!inView(q.x,q.y,60))continue;const a=Math.min(1,q.radarT);ctx.globalAlpha=a;ctx.strokeStyle="#5ec8ff";ctx.lineWidth=4;ctx.beginPath();ctx.arc(q.x,q.y,22+Math.sin(TIME*6)*3,0,7);ctx.stroke();
+  const t="💭 "+NEED_SHORT[q.need||"info"];ctx.font="900 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";const w=ctx.measureText(t).width+18;ctx.fillStyle="#122a1cf0";rr(q.x-w/2,q.y-62,w,28,14);ctx.fill();ctx.strokeStyle="#4ade80";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#fff";ctx.fillText(t,q.x,q.y-48);ctx.globalAlpha=1}
  if(PL.car)drawCar(PL.car);
  else{ctx.save();ctx.translate(PL.x,PL.y);ctx.fillStyle="#0005";ctx.beginPath();ctx.arc(3,4,12,0,7);ctx.fill();ctx.rotate(PL.a);const sw2=Math.sin(PL.walk||0)*5;
   ctx.fillStyle="#222";ctx.fillRect(-4+sw2,-9,8,5);ctx.fillRect(-4-sw2,4,8,5);ctx.fillStyle="#ff3d7f";ctx.beginPath();ctx.ellipse(0,0,8,12,0,0,7);ctx.fill();ctx.fillStyle="#2a1d14";ctx.beginPath();ctx.arc(1,0,6.5,0,7);ctx.fill();ctx.restore();
   ctx.font="22px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(EVO[evoIdx()][0],PL.x,PL.y-26)}
  if(PL.car&&PL.car.kind=="car"){ctx.font="18px serif";ctx.textAlign="center";ctx.fillText(EVO[evoIdx()][0],PL.car.x,PL.car.y-30)}
  // contact NPC figures
- for(const m of MDEF){if(!inView(m.at.x,m.at.y))continue;if(MS&&MS.m===m)continue;if(!(S.done[m.id]||m===nextMission()))continue;ctx.font="34px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(A(m.id).comp.e,m.at.x+40,m.at.y+Math.sin(TIME*5)*3)}
+ for(const m of MDEF){if(!inView(m.at.x,m.at.y))continue;if(MS&&MS.m===m)continue;if(!(isAvail(m)))continue;ctx.font="34px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(A(m.id).comp.e,m.at.x+40,m.at.y+Math.sin(TIME*5)*3)}
  // particles (ground)
  for(const q of PARTS){ctx.globalAlpha=clamp(q.life/q.max,0,1)*(q.smoke?.4:1);ctx.fillStyle=q.col;if(q.sq)ctx.fillRect(q.x,q.y,q.r*2,q.r);else{ctx.beginPath();ctx.arc(q.x,q.y,q.smoke?q.r*(2-q.life):q.r,0,7);ctx.fill()}}ctx.globalAlpha=1;
  // trees
@@ -834,6 +1006,8 @@ function render(){
  for(const f of FLOATS){ctx.globalAlpha=clamp(f.life,0,1);ctx.font="900 24px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText(f.t,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.t,f.x,f.y)}ctx.globalAlpha=1;
  // day / night
  lighting(DI,z,sx,sy);
+ {ctx.setTransform(DPR,0,0,DPR,0,0);const vg=ctx.createRadialGradient(VW/2,VH*.48,Math.min(VW,VH)*.35,VW/2,VH*.48,Math.hypot(VW,VH)*.62);vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(10,14,24,.28)");ctx.fillStyle=vg;ctx.fillRect(0,0,VW,VH);
+  const sk=ctx.createLinearGradient(0,0,0,VH);sk.addColorStop(0,"rgba(255,244,214,.07)");sk.addColorStop(.5,"rgba(255,255,255,0)");ctx.fillStyle=sk;ctx.fillRect(0,0,VW,VH)}
  // offscreen arrow
  ctx.setTransform(DPR,0,0,DPR,0,0);
  const tg=objTarget();if(tg){const sx2=(tg.x-CAM.x)*z+W2/2,sy2=(tg.y-CAM.y)*z+H2/2;const m=46;
@@ -863,8 +1037,9 @@ function drawMini(){const s=272,R=s/2,sc=2*MS_*1.0;mx.setTransform(1,0,0,1,0,0);
  const toM=q=>[R+(q.x-p.x)*sc,R+(q.y-p.y)*sc];
  const tg=objTarget();if(tg){const path=gps(p,tg);mx.strokeStyle="#c77dff";mx.lineWidth=6;mx.lineJoin="round";mx.beginPath();path.forEach((q,i)=>{const[a,b]=toM(q);i?mx.lineTo(a,b):mx.moveTo(a,b)});mx.stroke()}
  const blip=(q,col,txt,rad=10,edge=true)=>{let[a,b]=toM(q);const d=Math.hypot(a-R,b-R);if(d>R-12){if(!edge)return;a=R+(a-R)/d*(R-12);b=R+(b-R)/d*(R-12)}mx.fillStyle=col;mx.strokeStyle="#000";mx.lineWidth=3;mx.beginPath();mx.arc(a,b,rad,0,7);mx.fill();mx.stroke();if(txt){mx.fillStyle="#000";mx.font="900 15px sans-serif";mx.textAlign="center";mx.textBaseline="middle";mx.fillText(txt,a,b+1)}};
- if(!MS){const nm=nextMission();for(const m of MDEF)if(S.done[m.id]||m===nm)blip(m.at,m===nm?m.col:"#999",String(m.id),12,m===nm)}
+ if(!MS){const nm=nextMission();for(const m of MDEF)if(isAvail(m))blip(m.at,isHot(m)?m.col:"#999",String(m.id),12,isHot(m))}
  blip(XIAOAN,"#3d7dff","客",11,PL.stars>0);
+ {const seen=[];for(const c of CARS){if(c.kind=="car")continue;if(seen.some(q=>Math.hypot(q.x-c.x,q.y-c.y)<90))continue;seen.push(c);blip(c,c.kind=="bike"?"#ffcf3f":"#5ec8ff","",5,false)}for(const q of PEDS)if(q.radarT>0)blip(q,"#4ade80","",6,false)}
  if(MS){const st=curStep();if(st&&st.t=="collect")for(const it of MS.items)if(!it.got)blip(it.p,"#ffd23d","",8);if(st&&st.t=="lots")for(const L of MS.lots)if(!L.got)blip(L.p,"#ffd23d",L.l,11)}
  if(QZ&&QZ.pads)for(const pd of QZ.pads)blip(pd,GC[pd.i],GL[pd.i],12);
  if(tg)blip(tg,"#ffd23d","",9);
@@ -873,10 +1048,10 @@ function drawMini(){const s=272,R=s/2,sc=2*MS_*1.0;mx.setTransform(1,0,0,1,0,0);
  mx.restore();mx.fillStyle="#fff";mx.font="900 18px sans-serif";mx.textAlign="center";mx.strokeStyle="#000";mx.lineWidth=4;mx.strokeText("N",R,20);mx.fillText("N",R,20)}
 /* HUD */
 let hudCache="";
-function drawHUD(){const s=`${S.exp}|${lvl()}|${PL.stars}|${Math.round(PL.credit)}|${evoIdx()}|${MS?Math.ceil(MS.left):""}|${MS?MS.limit:0}|${Math.floor(S.clock/5)}|${S.today.bv}|${S.team.length}`;if(s==hudCache)return;hudCache=s;
+function drawHUD(){const s=`${S.exp}|${lvl()}|${PL.stars}|${Math.round(PL.credit)}|${evoIdx()}|${MS?Math.ceil(MS.left):""}|${MS?MS.limit:0}|${Math.floor(S.clock/5)}|${S.today.bv}|${S.team.length}|${S.today.flips}|${S.today.spades}`;if(s==hudCache)return;hudCache=s;
  $("#exp").textContent="EXP "+String(S.exp).padStart(6,"0");$("#lvl").textContent=`Lv.${lvl()}　知識卡 ${S.cards.length}/${AREAS.reduce((a,x)=>a+x.cards.length,0)}`;
  $("#stars").innerHTML=`<b>${"★".repeat(PL.stars)}</b><i>${"★".repeat(5-PL.stars)}</i>`;$("#credit i").style.width=clamp(PL.credit,0,100)+"%";
- const e=EVO[evoIdx()];$("#evo").textContent=`${e[0]} ${e[1]}`;const DI2=dayInfo();$("#clock").textContent=`${DI2.dark>.5?"🌙":DI2.warm>.3?"🌇":"☀️"} 第 ${S.day} 天 ${clockStr()}`;$("#teamH").textContent=`👥 ${S.opp.dist+S.opp.mem+S.opp.fri} 人｜今日 BV ${fmt(S.today.bv)}`;
+ const e=EVO[evoIdx()];$("#evo").textContent=`${e[0]} ${e[1]}`;const DI2=dayInfo();$("#clock").textContent=`${DI2.dark>.5?"🌙":DI2.warm>.3?"🌇":"☀️"} 第 ${S.day} 天 ${clockStr()}`;$("#teamH").textContent=`🃏 今天翻了 ${S.today.flips||0} 張牌・遇到 ${S.today.spades||0} 張黑桃 2`;$("#shareBd").textContent=S.today.flips||0;
  const tm=$("#timer");if(MS&&MS.limit){const v=Math.max(0,Math.ceil(MS.left));tm.textContent=`${Math.floor(v/60)}:${String(v%60).padStart(2,"0")}`;tm.classList.remove("hide");tm.classList.toggle("low",v<=15)}else tm.classList.add("hide")}
 
 /* ================= PHONE / ENDING ================= */
@@ -885,23 +1060,85 @@ function togglePhone(){const o=$("#phone");if(!o.classList.contains("hide")){clo
 $("#phClose").onclick=()=>closeOv("phone");
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{phTab=b.dataset.t;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x==b));renderPhone()});
 function renderPhone(){const el=$("#phBody");const nm=nextMission();
- if(phTab=="m"){el.innerHTML=`<div class="gems">${["自由","家庭","希望","獎勵"].map(g=>`<span class="${S.gems.includes(g)?"on":""}">💎 ${g}</span>`).join("")}</div>`+MDEF.map(m=>{const a=A(m.id),d=S.done[m.id],open=d||m===nm;
-   return`<div class="ml ${open?"":"lock"}"><div class="ic">${open?a.comp.e:"🔒"}</div><div class="tx"><b>${m.id}. ${open?m.title:"？？？"}</b><br><small>${open?a.ch:a.mystery}</small></div><div style="color:var(--gold);font-size:18px">${d?"★".repeat(d.stars)+"☆".repeat(3-d.stars):m===nm?"NEXT":""}</div></div>`}).join("")+
-   `<p style="font-size:13px;color:#aaa">🪙 隱藏積點包：${S.found.length}/${COLLECT.length}　｜　Lv.${lvl()}　EXP ${S.exp}</p>${S.done[6]?`<button class="btn pk w100" onclick="closeOv('phone');ending()">🎬 再看一次結局</button>`:""}`}
+ if(phTab=="m"){el.innerHTML=`<div class="gems">${["自由","家庭","希望","獎勵"].map(g=>`<span class="${S.gems.includes(g)?"on":""}">💎 ${g}</span>`).join("")}</div>`+MDEF.map(m=>{const a=A(m.id),d=S.done[m.id],open=isAvail(m);
+   const open2=isAvail(m);return`<div class="ml ${open2?"":"lock"}" data-m="${open2?m.id:""}" style="${open2&&S.easy?"cursor:pointer":""}"><div class="ic">${open?a.comp.e:"🔒"}</div><div class="tx"><b>${m.id}. ${open||open2?m.title:"？？？"}</b><br><small>${open?a.ch:a.mystery}</small></div><div style="color:var(--gold);font-size:18px">${d?"★".repeat(d.stars)+"☆".repeat(3-d.stars):isHot(m)?(m.bonus?"加碼":"NEXT"):""}${S.easy&&open2?" 🚀":""}</div></div>`}).join("")+
+   `<p style="font-size:13px;color:#aaa">🪙 隱藏積點包：${S.found.length}/${COLLECT.length}　｜　Lv.${lvl()}　EXP ${S.exp}</p>`+
+   (S.easy?`<p style="font-size:13px;color:var(--cyan)">🚀 輕鬆模式：點下面的任務就直接傳送過去</p>`:"")+videoList()+
+   `${S.done[6]?`<button class="btn pk w100" onclick="closeOv('phone');ending()">🎬 再看一次結局</button>`:""}`;
+  el.querySelectorAll(".ml[data-m]").forEach(r=>r.onclick=()=>{if(!S.easy)return;const m=MDEF.find(x=>x.id==+r.dataset.m);if(m&&isAvail(m)){if(MS)endMission();lastNear=null;warpTo(m.at,true)}})}
+ if(phTab=="r"){el.innerHTML=roadmap()}
  if(phTab=="t"){el.innerHTML=teamTab()}
  if(phTab=="k"){el.innerHTML=AREAS.map(a=>`<h3 style="margin:10px 0 4px">${a.ic} ${a.ch}</h3>`+a.cards.map(c=>S.cards.includes(c[0])?`<div class="kc"><b>${c[0]}</b><br>${c[1]}</div>`:`<div class="kc lock">🔒 ${c[0]}</div>`).join("")).join("")+`<p class="disc">${DISC}</p>`}
- if(phTab=="s"){el.innerHTML=`<p>音效：<button class="btn dk" id="sMute">${S.mute?"🔇 已關閉":"🔊 已開啟"}</button></p><p>傳送回起點：<button class="btn dk" id="sHome">回初始村</button></p><p>清除全部進度：<button class="btn pk" id="sReset">重置</button></p><p style="font-size:13px;color:#aaa">原版闖關遊戲：<a href="../" style="color:var(--cyan)">人生升級：安麗闖關</a></p>`;
-  $("#sMute").onclick=()=>{$("#muteBtn").click();renderPhone()};$("#sHome").onclick=()=>{if(MS)endMission();if(PL.car)exitCar();PL.x=START.x;PL.y=START.y;closeOv("phone")};$("#sReset").onclick=()=>{if(confirm("確定清除全部進度？")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}}}}
+ if(phTab=="s"){el.innerHTML=`<p>輕鬆模式：<button class="btn ${S.easy?"gr":"dk"}" id="sEasy">${S.easy?"✅ 已開啟":"⬜ 已關閉"}</button><br><small style="color:#aaa">開啟後：點任務就傳送過去；畫面下方出現「🚀 傳送到目標」。答題路口的答案還是要自己選。</small></p>
+  <p style="margin-bottom:4px">快速傳送（已解鎖的地點）：</p><div style="display:flex;flex-wrap:wrap;gap:6px">${warpPlaces().map((w,i)=>`<button class="btn dk wp" data-i="${i}" style="font-size:13px;padding:6px 10px">${w[0]}</button>`).join("")}</div>
+  <p>音效：<button class="btn dk" id="sMute">${S.mute?"🔇 已關閉":"🔊 已開啟"}</button></p><p>傳送回起點：<button class="btn dk" id="sHome">回初始村</button></p><p>清除全部進度：<button class="btn pk" id="sReset">重置</button></p><p style="font-size:13px;color:#aaa">原版闖關遊戲：<a href="../" style="color:var(--cyan)">人生升級：安麗闖關</a></p>`;
+  $("#sMute").onclick=()=>{S.mute=!S.mute;save();if(S.mute&&ENG)ENG.g.gain.value=0;renderPhone()};$("#sEasy").onclick=()=>{S.easy=!S.easy;save();updWarp();renderPhone()};el.querySelectorAll(".wp").forEach(b=>b.onclick=()=>{const w=warpPlaces()[+b.dataset.i];if(MS)endMission();warpTo(w[1],false)});$("#sHome").onclick=()=>{if(MS)endMission();if(PL.car)exitCar();PL.x=START.x;PL.y=START.y;closeOv("phone")};$("#sReset").onclick=()=>{if(confirm("確定清除全部進度？")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}}}}
+function fmtT(t){t=Math.max(0,Math.round(t||0));return`${Math.floor(t/60)} 分 ${t%60} 秒`}
+function chaptersDone(){return MDEF.filter(m=>S.done[m.id]).map(m=>A(m.id).ch)}
+function videoList(){const V=CFG.videos||[],U=CFG.videoUnlock||[];if(!V.length)return"";
+ return`<h4 style="margin:10px 0 4px">🎬 影片（每完成一章解鎖一支）</h4>`+V.map((v,i)=>{const mid=U[i],ok=!mid||S.done[mid];return ok?`<div class="kc"><b>🎬 ${v.t}</b><br><a href="${v.url}" target="_blank" rel="noopener" style="color:var(--cyan)">在 YouTube 觀看</a></div>`:`<div class="kc lock">🔒 完成第 ${mid} 號任務解鎖</div>`}).join("")}
+function roadmap(){const m=monthTier(),mo=m.mo,cur=m.t;
+ return`<h3 style="margin:0 0 4px">🗺 人生升級路線圖</h3><p class="sub" style="margin:0 0 6px">級距看「當月」團隊 BV，每月重新計算，不累加。</p>
+ <div class="bign">${cur?cur[1]+"%":"未達 3%"}<small>依今天的步調，每月約可到</small></div>
+ ${[...TIERS].map(t=>{const on=cur&&cur[0]==t[0];return`<div class="lad ${on?"on":""}"><span>${fmt(t[0])}</span><i><u style="width:${Math.min(100,mo/t[0]*100)}%"></u></i><b style="width:64px">${t[1]}%${on?" 📍":""}</b></div>`}).join("")}
+ <p class="disc">每個月都做到這個量（一天 BV（示意）${fmt(m.day)} × 30 天），每月約可到 ${cur?cur[1]+"%":"未達 3%"}（示範試算，非保證收入）</p>
+ <details class="more"><summary>看更多：初階、銅章、21% 之後</summary><div>
+ <div class="kc"><b>🌱 初階架構 +30%</b><br>級距 ≥9%、個人 ≥100 PV、國內 3 組下線腿各 ≥3%</div>
+ <div class="kc"><b>🥉 銅章架構 +40%</b><br>級距 ≥15%、個人 ≥100 PV、3 組下線腿各 ≥6%、自 2014/15 年度起未達金獎章</div>
+ <div class="kc"><b>🏆 21% 之後</b><br>領導獎金 6%、紅寶石 2%、明珠 1%、翡翠以上 0.25%：資格與計算以官網為準。白金等獎銜的收入以官網為準。</div>
+ <div class="kc"><b>📅 情報卡：3Q有你</b><br>10 月達 Q +1,500 分、11 月達 Q +1,000 分（詳情以官網為準）</div>
+ <div class="kc"><b>📅 情報卡：銅章架構重啟獎金</b><br>6 個月內完成 3 次銅章架構，當月最高 NT$25,000，詳情見官網</div></div></details>
+ <p class="disc">遊戲 BV 為示意；所有金額皆為示範試算，非保證收入、因人而異。</p>`}
+function shareText(){return`我用 ${fmtT(S.endT||S.playT)} 全破「人生升級：升級城」，一路翻了 ${S.opp.talks} 張牌，你能更快嗎？`}
+async function shareChallenge(){const url=CFG.shareUrl||location.href.split("#")[0],text=shareText();
+ try{if(navigator.share){await navigator.share({title:"人生升級：升級城",text,url});return}}catch(e){if(e&&e.name=="AbortError")return}
+ try{await navigator.clipboard.writeText(text+" "+url);toast("📋 已複製挑戰碼","貼到 LINE 或限動，找朋友一起挑戰！","#57ff8a")}catch(e){prompt("複製這段文字分享給朋友：",text+" "+url)}}
 function ending(){
- const cta=[CFG.lineUrl?`<a class="btn gr" href="${CFG.lineUrl}" target="_blank" rel="noopener">💬 LINE 聊聊</a>`:CFG.lineId?`<p>LINE ID：${CFG.lineId}</p>`:"",CFG.phone?`<a class="btn" href="tel:${CFG.phone}">📞 ${CFG.phone}</a>`:""].join("");
- panel("info",`<div style="text-align:center"><div style="font-size:54px">🌟</div><h2 style="font-size:28px;color:var(--gold);transform:skewX(-8deg)">升級城・全破！</h2><p>你從 🌱 新人一路升級成 🌟 卓越新星，集齊四顆基石：</p>
- <div class="gems">${["自由","家庭","希望","獎勵"].map(g=>`<span class="${S.gems.includes(g)?"on":""}">💎 ${g}</span>`).join("")}</div>
- <p>自由，來自時間與選擇；家庭，是一起打拚的理由；希望，延伸到社會需要的地方；獎勵，是用心服務顧客累積的成果（${DISC}）。</p></div>
- <div class="kc"><b>💛 希望工場</b><br>${CFG.hopeName}（2012 年成立），把「希望」延伸到社會需要的地方。<br><a class="btn dk" href="${CFG.hopeUrl}" target="_blank" rel="noopener" style="margin-top:8px">認識希望工場</a></div>
- <h3>🎬 解鎖影片</h3>${CFG.videos.map(v=>`<p style="font-size:13px"><b>${v.t}</b></p><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${v.id}" allowfullscreen></iframe>`).join("")}
- <h3>想更了解？跟 ${CFG.distributorName} 聊聊</h3>${cta||`<p style="font-size:13px;color:#aaa">（聯絡方式設定中）</p>`}
+ const cta=[CFG.lineUrl?`<a class="btn gr" href="${CFG.lineUrl}" target="_blank" rel="noopener" style="flex:1">💬 LINE 聊聊</a>`:CFG.lineId?`<p>LINE ID：${CFG.lineId}</p>`:"",CFG.phone?`<a class="btn dk" href="tel:${CFG.phone}">📞 ${CFG.phone}</a>`:""].join("");
+ const name=esc(S.pname||"升級城冒險者"),chs=chaptersDone(),tt=fmtT(S.endT||S.playT);
+ panel("info",`<div class="hero"><div class="face">🌟</div><h2 style="color:var(--pri)">升級城・全破！</h2>
+ ${S.why?`<p class="lede">為了「${esc(S.why)}」，<br>你又往前走了一大步。</p>`:`<p class="lede">從 🌱 新人一路升級成 🌟 卓越新星。</p>`}
+ <div class="gems">${["自由","家庭","希望","獎勵"].map(g=>`<span class="${S.gems.includes(g)?"on":""}">💎 ${g}</span>`).join("")}</div></div>
+ <div class="cert" id="cert"><div style="font-size:12px;letter-spacing:4px">CERTIFICATE</div><h3>🏅 升級城全破證書</h3>
+  <div style="font-size:22px;font-weight:900">${name}</div>
+  <div style="display:flex;justify-content:center;gap:18px;margin:8px 0 4px"><div><div style="font-family:Anton;font-size:26px">${Math.floor((S.endT||0)/60)}:${String(Math.round(S.endT||0)%60).padStart(2,"0")}</div><div style="font-size:12px">全破時間</div></div><div><div style="font-family:Anton;font-size:26px">${S.opp.talks}</div><div style="font-size:12px">翻牌（分享）</div></div><div><div style="font-family:Anton;font-size:26px">${S.opp.spades||0}</div><div style="font-size:12px">黑桃 2</div></div></div>
+  ${S.why?`<div style="font-size:13px">我的升級理由：${esc(S.why)}</div>`:""}
+  <div style="font-size:13px;margin-top:4px">完成 ${chs.length} 章：${chs.map(c=>c.replace(/（.*?）/,"").split(" ").pop()).join("・")}</div>
+  <div style="font-size:11px;margin-top:6px">黑桃 2 為遊戲設定，非實際比例｜直銷商個人製作，非安麗官方網站</div></div>
+ <div class="row2"><input id="pnIn" maxlength="12" placeholder="證書上的名字" value="${S.pname?esc(S.pname):""}" style="flex:2;font-size:16px;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:#fff;font-family:inherit"><button class="btn dk sm" id="pnOk" style="flex:1;margin:0">更新名字</button></div>
+ <button class="btn w100" id="enShare">🏁 分享挑戰碼</button>
+ <p class="sub" style="text-align:center;margin:4px 0 0">「我用 ${tt} 全破，翻了 ${S.opp.talks} 張牌，你能更快嗎？」</p>
+ <h3 style="text-align:center">想更了解？跟 ${CFG.distributorName} 聊聊</h3><div class="row2">${cta}</div>
+ <details class="more"><summary>📝 知識小抄（可截圖存下來）</summary><div class="cheat" style="margin:0 0 4px">
+  ① 三種身份：安麗之友、生活會員、直銷商；新人沒有推薦或囤貨義務<br>
+  ② 業績獎金級距（當月團隊 BV）：1萬 3%｜3萬 6%｜5萬 9%｜10萬 12%｜20萬 15%｜35萬 18%｜50萬 21%<br>
+  ③ 初階 +30%：級距 ≥9%、個人 ≥100 PV、國內 3 組腿各 ≥3%<br>
+  ④ 銅章 +40%：級距 ≥15%、個人 ≥100 PV、3 組腿各 ≥6%<br>
+  ⑤ BV 不等於售價：淨熱組 $39,800 → BV 37,904<br>
+  ⑥ 收入來自產品銷售與服務顧客，不是招募<br>
+  <span style="color:#ffb3c8">金額皆為示範試算，非保證收入；資格與規定以官網公告為準</span></div></details>
+ <details class="more"><summary>💎 四顆基石的意思</summary><div>自由，來自時間與選擇；家庭，是一起打拚的理由；希望，延伸到社會需要的地方；獎勵，是用心服務顧客累積的成果（${DISC}）。</div></details>
+ <details class="more"><summary>💛 希望工場</summary><div>${CFG.hopeName}（2012 年成立），把「希望」延伸到社會需要的地方。<br><a class="btn dk sm" href="${CFG.hopeUrl}" target="_blank" rel="noopener">認識希望工場</a></div></details>
+ <details class="more"><summary>🎬 解鎖影片</summary><div>${CFG.videos.map((v,i)=>{const mid=(CFG.videoUnlock||[])[i];return(!mid||S.done[mid])?`<p style="font-size:13px"><b>${v.t}</b></p><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${v.id}" allowfullscreen></iframe>`:`<div class="kc lock">🔒 完成第 ${mid} 號任務解鎖</div>`}).join("")}</div></details>
  <p class="disc">直銷商個人製作，非安麗官方網站。所有收入數字皆為示範試算，非保證收入、因人而異。</p>
- <button class="btn w100" id="enOk">繼續在城裡逛逛</button>`);$("#enOk").onclick=()=>{closeOv("info");updObj()}}
+ <button class="btn dk w100" id="enOk">繼續在城裡逛逛</button>`);$("#enOk").onclick=()=>{closeOv("info");updObj()};
+ $("#enShare").onclick=shareChallenge;$("#pnOk").onclick=()=>{S.pname=$("#pnIn").value.trim().slice(0,12);save();ending()}}
+function esc(t){return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
+/* ---- 我為什麼要升級 ---- */
+function askWhy(){return new Promise(res=>{const W=["✈️ 帶家人出遊","🧸 多陪小孩","🏦 存一筆安心基金"];
+ panel("info",`<h2>🌟 我為什麼要升級？</h2><p>每個人升級的理由都不一樣。選一個你的理由，全破時會再提醒你。</p>${W.map((w,i)=>`<button class="btn dk w100 wy" data-i="${i}" style="justify-content:flex-start;text-align:left">${w}</button>`).join("")}
+ <p style="display:flex;gap:6px;margin-top:6px"><input id="whyIn" maxlength="20" placeholder="或寫下自己的理由" style="flex:1;font-size:16px;padding:8px;border-radius:8px;border:2px solid #555;background:#111;color:#fff;font-family:inherit"><button class="btn" id="whyOk" style="font-size:14px">確定</button></p>`);
+ const done=v=>{S.why=v;save();closeOv("info");res()};
+ document.querySelectorAll(".wy").forEach(b=>b.onclick=()=>done(W[+b.dataset.i].replace(/^\S+\s/,"")));
+ $("#whyOk").onclick=()=>{const v=$("#whyIn").value.trim();if(v)done(v.slice(0,20))}})}
+/* ---- 輕鬆模式／快速傳送 ---- */
+function warpPlaces(){const L=[["🏡 初始村",START],["💬 小安客服站",XIAOAN],["🏪 安麗空間",SPACE_PT]];
+ for(const m of MDEF)if(S.done[m.id])L.push([`${A(m.id).comp.e} ${m.id}. ${m.title}`,m.at]);return L}
+function warpTo(p,mission){if(!p)return;closeOv("phone");const o=PL.car||PL;const off=mission?{x:p.x,y:p.y}:{x:p.x,y:p.y+(isRoad(p.x,p.y+60)?60:0)};
+ o.x=off.x;o.y=off.y;if(PL.car){PL.car.vx=PL.car.vy=0;PL.car.speed=0}PL.x=o.x;PL.y=o.y;CAM.x=o.x;CAM.y=o.y;if(!mission)lastNear=MDEF.find(m=>dist(m.at,o)<140)||null;SFX.pick();burst(o.x,o.y,"#3ad6c8",30);toast("🚀 快速傳送","已傳送到目的地","#3ad6c8")}
+function warpTarget(){if(!S.easy||!STARTED||PAUSE)return null;if(MS){const st=curStep();if(QZ){return QZ.pads?null:{x:QZ.ic.x+(QZ.ic.x>W/2?-300:300),y:QZ.ic.y}}return objTarget()}return null}
+function updWarp(){const t=warpTarget();$("#bWarp").classList.toggle("hide",!t)}
+$("#bWarp").onclick=()=>{const t=warpTarget();if(!t)return;const o=PL.car||PL;o.x=t.x;o.y=t.y;if(PL.car){PL.car.vx=PL.car.vy=0;PL.car.speed=0}PL.x=o.x;PL.y=o.y;SFX.pick();burst(o.x,o.y,"#3ad6c8",24)};
 
 
 /* ================= TWO-WHEELERS ================= */
@@ -914,10 +1151,10 @@ function drawTwo(c,rider){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);cons
  ctx.restore();if(c===PL.car){ctx.font="16px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(EVO[evoIdx()][0],c.x,c.y-20)}}
 
 /* ================= DETAILED GROUND (cached chunks) ================= */
-const CH=512,CHS=1.25,CHUNKS=new Map();
+const CH=512,CHUNKS=new Map();function chunkScale(){return Math.round(Math.min(2,Math.max(1.25,(window.devicePixelRatio||1)*.8))*4)/4}let CHS=chunkScale();
 function chunk(i,j){const k=i+","+j;let c=CHUNKS.get(k);if(c){CHUNKS.delete(k);CHUNKS.set(k,c);return c}
  c=document.createElement("canvas");c.width=c.height=Math.ceil(CH*CHS);const g=c.getContext("2d");g.scale(CHS,CHS);g.translate(-i*CH,-j*CH);paintGround(g,i*CH,j*CH,CH);
- CHUNKS.set(k,c);if(CHUNKS.size>24)CHUNKS.delete(CHUNKS.keys().next().value);return c}
+ CHUNKS.set(k,c);if(CHUNKS.size>(CHS>1.6?14:24))CHUNKS.delete(CHUNKS.keys().next().value);return c}
 function paintGround(g,x0,y0,s){const R=rng(((x0*7+y0*13)|0)+1);
  g.fillStyle="#5f9c48";g.fillRect(x0,y0,s,s);for(let i=0;i<700;i++){g.fillStyle=R()<.5?"#568f41":"#6dab54";g.fillRect(x0+R()*s,y0+R()*s,3,2)}
  g.save();g.beginPath();g.rect(0,0,W,W);g.clip();
@@ -976,7 +1213,10 @@ function paintBlock(g,B){const x=B.x,y=B.y,S9=9*T,ix=x+T,iy=y+T,L=7*T,R=rng(B.bx
  g.strokeStyle="#f2c200";g.lineWidth=3;g.beginPath();g.moveTo(x+120,y+S9);g.lineTo(x+S9-120,y+S9);g.stroke();
  for(const[bx3,by3,sd,f]of BIKE_ST){if(bx3!=B.bx||by3!=B.by)continue;const q=sw(bx3,by3,sd,f),h=(sd=="n"||sd=="s");g.fillStyle="#7a7f86";h?g.fillRect(q.x-36,q.y-2,72,4):g.fillRect(q.x-2,q.y-36,4,72);g.fillStyle="#f2a900";g.fillRect(h?q.x+40:q.x-8,h?q.y-8:q.y+40,16,16);g.fillStyle="#fff";g.font="900 11px sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("🚲",h?q.x+48:q.x,h?q.y:q.y+48)}
  // hydrant
- g.fillStyle="#d63a3a";g.beginPath();g.arc(x+T*.8,y+T*.25,5,0,7);g.fill()}
+ g.fillStyle="#d63a3a";g.beginPath();g.arc(x+T*.8,y+T*.25,5,0,7);g.fill()
+ // v2：建築與樹木的柔和接地陰影（只畫進快取區塊，不影響每幀效能）
+ g.save();g.shadowColor="rgba(20,24,30,.42)";g.shadowBlur=22*CHS;g.shadowOffsetX=5*CHS;g.shadowOffsetY=7*CHS;g.fillStyle="#77736a";for(const b of mine)g.fillRect(b.x+2,b.y+2,b.w-4,b.h-4);
+ g.shadowColor="rgba(20,40,20,.35)";g.shadowBlur=14*CHS;g.fillStyle="#3f6e34";for(const tr of TREES)if(tr.x>=x&&tr.x<x+S9&&tr.y>=y&&tr.y<y+S9){g.beginPath();g.arc(tr.x,tr.y,tr.r*.8,0,7);g.fill()}g.restore()}
 
 /* ================= TIME / LIGHTING ================= */
 function hull(P){P.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];for(const p of P){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}for(let i=P.length-1;i>=0;i--){const p=P[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}up.pop();lo.pop();return lo.concat(up)}
@@ -994,70 +1234,161 @@ function lighting(d,z,sx,sy){ctx.setTransform(DPR,0,0,DPR,0,0);
  ctx.fillStyle=VIG;ctx.fillRect(0,0,VW,VH)}
 const clockStr=()=>{const m=Math.floor(S.clock);return`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`};
 const fmt=n=>Math.round(n).toLocaleString("en-US");
+const fmtM=n=>{const v=Math.floor(Math.round((+n||0)*10000)/100)/100;return v.toLocaleString("en-US",{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2})};
 
 /* ================= OPP / TEAM ================= */
-const RES_ICON={dist:"🌳",mem:"🌿",fri:"🌱",rej:"💭"};
-const JOIN=[{k:"dist",p:27.5,n:"直銷商",e:"🌳",say:["聽起來不錯，我想加入直銷商試試看！","好啊，我們一起做！"]},
- {k:"mem",p:22.5,n:"生活會員",e:"🌿",say:["我先當生活會員，買東西比較划算","生活會員就好，我想訂長客計畫"]},
- {k:"fri",p:22.5,n:"安麗之友",e:"🌱",say:["先加安麗之友看看","我先從安麗之友開始了解"]},
- {k:"rej",p:27.5,n:"婉拒",e:"🙅",say:["謝謝，我現在沒興趣","我再想想，改天吧","目前不需要，謝謝你"]}];
-const OPENERS=[["🧴","分享自己用產品的真實體驗"],["🏡","聊聊能兼顧家庭的副業機會"],["🎟","邀請一起參加產品體驗會"]];
+const RES_ICON={dist:"🦅",mem:"🌿",fri:"🌱",rej:"💭"};
+const OUT={air:{k:"mem",n:"生活會員",e:"🌿",say:"原來空氣清淨機是靠濾網過濾灰塵和花粉，我想先當生活會員，買起來比較划算。"},
+ water:{k:"mem",n:"生活會員",e:"🌿",say:"濾過的水喝起來安心多了，我想當生活會員，之後訂長客計畫。"},
+ nut:{k:"fri",n:"安麗之友",e:"🌱",say:"日常營養補充聽起來很簡單，我先加安麗之友看看。"},
+ biz:{k:"dist",n:"直銷商",e:"🌳",say:"能兼顧家庭又是靠服務顧客，我想加入直銷商試試看！"},
+ info:{k:"fri",n:"安麗之友",e:"🌱",say:"謝謝你給我官方資訊，我先加安麗之友慢慢了解。"}};
+const OPENERS=[["🌬","air","分享逸新空氣清淨機怎麼過濾空氣中的灰塵和花粉"],["💧","water","分享益之源淨水器怎麼濾水"],["🥗","nut","分享紐崔萊怎麼做日常營養補充"],["🏡","biz","聊聊能兼顧家庭的副業機會"],["ℹ️","info","先簡單介紹安麗，給他 iShare 官方資訊"],["🙋","push","直接邀請他加入直銷商"]];
+const MISS_SAY={push:["你都還沒問我需要什麼耶……","我不太喜歡被推銷，先不用了"],other:["謝謝，不過我目前比較需要別的","嗯……這個我現在用不到"]};
 const CHEER=["被拒絕不是失敗，是離下一個「好」更近一步！","每一次開口都是練習，你已經比昨天更勇敢了。","對方說「不」，是對這件事，不是對你這個人。","頂尖的直銷商，也是一次次開口練出來的。","換個人、換個時間，結果可能就不一樣。","今天的拒絕，是明天成功故事的開場白。"];
-const BUY_P={直銷商:.75,生活會員:.6,安麗之友:.35};
+const BUY_P={直銷商:.75,生活會員:.6,安麗之友:.35,老鷹夥伴:.8};
 const BADGES=[1,5,10,20,30,50,100,200];
 let SCHED=[];
 function nearPed(){if(PL.car||PAUSE)return null;let b=null,bd=50;for(const p of PEDS){if(p.result&&!(p.result=="rej"&&p.rejDay<S.day))continue;const d=Math.hypot(p.x-PL.x,p.y-PL.y);if(d<bd){bd=d;b=p}}return b}
-function rollJoin(){let r=Math.random()*100;for(const j of JOIN){if(r<j.p)return j;r-=j.p}return JOIN[3]}
+function judge(p,i){if(!OPENERS[i])return null;const op=OPENERS[i],nd=p.need||"info";return op[1]==nd?OUT[nd]:null}
 function faceType(o){const f=o.faceT>0?o.face:"";if(["😄","😊","🙂","😤"].includes(f)&&f!="😤")return"happy";if(["🤔","😅","🙅","😑","😠"].includes(f))return"sad";if(!f&&o.result&&o.result!="rej")return"happy";return"neutral"}
-function talk(p){PAUSE=true;p.talking=true;SFX.door();p.face="😐";p.faceT=99;
- panel("info",`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>😐</b></div><h2 style="margin:4px 0">${p.name}</h2><p style="margin:0;font-size:13px;color:#aaa">表情：面無表情</p><p style="color:#aaa;margin:0">${p.job}｜${p.mood}</p></div>
- <p style="margin-top:12px;font-weight:900">你想怎麼開口？</p>${OPENERS.map((x,i)=>`<button class="btn dk w100 op" data-i="${i}" style="justify-content:flex-start;text-align:left">${x[0]} ${x[1]}</button>`).join("")}
- <button class="btn w100" id="tkCancel" style="margin-top:10px;background:#333;color:#fff">先不要，下次再聊</button>
- <p style="font-size:12px;color:#aaa;margin-top:8px">已開口 ${S.opp.talks} 次｜加入 ${S.opp.dist+S.opp.mem+S.opp.fri} 人</p>`);
+const SHORT={air:["🌬️","聊空氣"],water:["💧","聊好水"],nut:["🥗","聊營養"],biz:["🏡","聊副業"],info:["ℹ️","給官方資訊"]};
+const NEED_SHORT={air:"想要好空氣",water:"想喝好水",nut:"想補充營養",biz:"想找副業",info:"想了解安麗"};
+/* 撲克牌理論：黑桃 2 機率（遊戲設定，非實際比例） */
+const SPADE={base:.06,rampFrom:10,ramp:.04,pity:18};
+function spadeChance(since){if(since+1>=SPADE.pity)return 1;return since+1>SPADE.rampFrom?SPADE.base+(since+1-SPADE.rampFrom)*SPADE.ramp:SPADE.base}
+function flipLine(){return`🃏 今天翻了 ${S.today.flips||0} 張牌・遇到 ${S.today.spades||0} 張黑桃 2`}
+function pokerIntro(){return new Promise(res=>{panel("info",`<div class="hero"><div class="face">🃏</div><h2>撲克牌理論</h2></div>
+ <p class="lede">一副牌 52 張，裡面一定有黑桃 2。</p>
+ <p class="lede">每次分享＝翻一張牌。<br>被拒絕很正常，繼續翻。</p>
+ <p class="sub">持續翻牌，總會遇到「想一起了解、發展事業的夥伴」。</p>
+ <p class="disc">黑桃 2 出現的機率是遊戲設定，非實際比例。</p>
+ <details class="more"><summary>看更多</summary><div>每個人的需要都不一樣：先聽懂需要、聊對話題，對方就會滿意（這部分看你懂不懂對方，不靠運氣）。黑桃 2 則像翻牌，什麼時候出現說不準，但一直翻，遲早會遇到（遊戲設定）。</div></details>
+ <button class="btn w100" id="pkOk">開始翻牌</button>`);$("#pkOk").onclick=()=>{S.pokerSeen=1;save();closeOv("info");res()}})}
+async function talk(p){PAUSE=true;p.talking=true;if(!S.pokerSeen)await pokerIntro();PAUSE=true;SFX.door();p.face="😐";p.faceT=99;const nd=NEEDS[p.need||"info"];
+ const keys=["air","water","nut","biz","info"],right=p.need||"info";let others=keys.filter(k=>k!=right).sort(()=>Math.random()-.5).slice(0,3);const show=[right,...others].sort(()=>Math.random()-.5);
+ panel("info",`<div style="display:flex;gap:12px;align-items:center"><div class="tav" style="font-size:44px"><span>${p.av}</span></div><div><div style="font-size:17px;font-weight:900">${p.name}</div><div class="sub">${p.job}</div></div></div>
+ <div class="needb">💭「${nd.t}」</div>
+ <p class="sub" style="text-align:center">先聽懂需要，你想聊什麼？</p>
+ <div class="og">${show.map(k=>{const i=OPENERS.findIndex(o=>o[1]==k);return`<button class="btn op" data-i="${i}"><i>${SHORT[k][0]}</i>${SHORT[k][1]}</button>`}).join("")}</div>
+ <div class="row2"><button class="btn dk sm op" data-i="${OPENERS.findIndex(o=>o[1]=="push")}">🙋 直接邀請加入</button><button class="btn dk sm" id="tkCancel">先不要</button></div>
+ <div class="flipline">${flipLine()}</div>`);
  document.querySelectorAll(".op").forEach(b=>b.onclick=()=>talkRoll(p,+b.dataset.i));$("#tkCancel").onclick=()=>{p.talking=false;p.faceT=0;closeOv("info")}}
-function talkRoll(p,i){$("#info .panel").innerHTML=`<div style="text-align:center;padding:26px 0"><div class="tav"><span>${p.av}</span><b>🤨</b></div><p style="font-size:17px">${OPENERS[i][0]} 你：「${OPENERS[i][1]}……」</p><p style="font-size:26px;font-weight:900" class="dots">🤔 ${p.name} 考慮中</p></div>`;tone(520,.1,"triangle",.05);setTimeout(()=>talkResult(p),1200)}
+function talkRoll(p,i){$("#info .panel").innerHTML=`<div class="hero" style="padding:20px 0"><div class="face">${p.av}</div><p class="lede">${OPENERS[i][0]}「${OPENERS[i][2]}……」</p><p class="sub dots">${p.name} 聽你說</p><div class="flip" style="width:90px;height:126px"><div class="in"><div class="b"></div></div></div><p class="sub">翻牌中……</p></div>`;tone(520,.1,"triangle",.05);setTimeout(()=>talkResult(p,i),1100)}
 const FACES={dist:["😄","🤩"],mem:["😊","😄"],fri:["🙂","😊"],rej:["🤔","😅","🙅","😑"]},FACE_TXT={"😄":"開心","🤩":"超興奮","😊":"微笑","🙂":"點頭","🤔":"疑惑","😅":"尷尬","🙅":"拒絕","😑":"冷淡"};
-function talkResult(p){const j=rollJoin(),o=S.opp;const fc=pick(FACES[j.k]);p.face=fc;p.faceT=8;o.talks++;o[j.k]++;let exp=15;p.result=j.k;p.talking=false;const say=pick(j.say);
- let html;
- if(j.k=="rej"){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();
-  const joined=o.dist+o.mem+o.fri,rate=Math.round(joined/o.talks*100);
-  html=`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>${fc}</b></div><p style="margin:0;font-size:13px;color:#aaa">表情：${FACE_TXT[fc]}</p><h2>${p.name}：「${say}」</h2>
-  <p style="font-size:17px;color:var(--gold);font-weight:900">${pick(CHEER)}</p>
-  ${o.streak>=2?`<p>連續 ${o.streak} 次婉拒也沒關係——你目前的加入率是 <b style="color:var(--green)">${rate}%</b>，平均每開口 ${joined?(o.talks/joined).toFixed(1):"—"} 次就有 1 人加入。下一位很可能就是 YES！</p>`:`<p>${p.name} 明天可以再聊一次。</p>`}
-  <p style="font-size:20px;font-weight:900;color:var(--green)">💪 勇氣 +${exp} EXP</p></div>`}
- else{o.streak=0;exp+=25;S.today.join++;const m={n:p.name,t:j.n,av:p.av,d:S.day,sales:0,bv:0};S.team.push(m);scheduleMember(m,S.clock);SFX.pass();
-  html=`<div style="text-align:center"><div class="tav"><span>${p.av}</span><b>${fc}</b></div><p style="margin:0;font-size:13px;color:#aaa">表情：${FACE_TXT[fc]}｜${j.e} ${j.n}</p><h2 style="color:var(--gold)">🎉 ${p.name} 加入了${j.n}！</h2><p style="font-size:17px">「${say}」</p>
-  <p style="font-size:20px;font-weight:900;color:var(--green)">勇氣 +15｜加入 +25 EXP</p><p style="font-size:13px;color:#aaa">${j.n}夥伴之後會隨機購買產品，累積團隊營業額與 BV。可在 📱 手機 →「團隊」查看。</p></div>`}
+function spadeSound(){[523,659,784,1046,1318].forEach((f,k)=>tone(f,.22,"triangle",.07,0,k*.09));tone(1568,.6,"sine",.05,0,.5)}
+function talkResult(p,i=0,forceSpade){const j=judge(p,i),o=S.opp,op=OPENERS[i];let exp=15;p.talking=false;
+ o.talks++;S.today.flips=(S.today.flips||0)+1;
+ const canSpade=op[1]!="push";let spade=false;
+ if(canSpade){spade=forceSpade!=null?!!forceSpade:Math.random()<spadeChance(o.since||0)}
+ if(spade){o.since=0;o.spades=(o.spades||0)+1;S.today.spades=(S.today.spades||0)+1}else o.since=(o.since||0)+1;
+ const k=j?j.k:(spade?"dist":"rej");o[k]=(o[k]||0)+1;p.result=k;const fc=pick(FACES[k]);p.face=fc;p.faceT=8;
+ const nd=NEEDS[p.need||"info"];let html;
+ if(j){o.sat=(o.sat||0)+1;exp+=25;S.today.sat=(S.today.sat||0)+1;const m={n:p.name,t:j.n,av:p.av,d:S.day,sales:0,bv:0,buys:0};S.team.push(m);scheduleMember(m,S.clock)}
+ if(!j&&!spade){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();const say=pick(op[1]=="push"?MISS_SAY.push:MISS_SAY.other);const five=o.streak%5==0;
+  html=`<div class="hero"><div class="face">${fc}</div><p class="lede">${p.name}：「${say}」</p><p style="font-size:17px;color:var(--pri);font-weight:900">${pick(CHEER)}</p><span class="rwd">💪 勇氣 +${exp} EXP</span></div>
+  ${five?`<div class="near5">🃏 你離黑桃 2 又近了一張</div>`:""}
+  <details class="more"><summary>看更多</summary><div>${op[1]=="push"?"一開口就邀請加入，對方會覺得被推銷。先聽懂需要，再分享對他有用的東西。":`${p.name}的需要是「${nd.t}」，下次換個話題試試。`}<br>${p.name} 明天可以再聊一次。</div></details>`;
+  if(five){tone(392,.15,"triangle",.06);tone(523,.2,"triangle",.06,0,.12)}}
+ else{o.streak=0;SFX.pass();
+  html=j?`<div class="hero"><div class="face">${fc}</div><h2 style="color:var(--pri)">${p.name} 很滿意！</h2><p class="sub">「${j.say}」</p><span class="rwd">勇氣 +15｜顧客滿意 +25 EXP</span></div>`:"";
+  if(spade){exp+=60;S.team.push({n:p.name,t:"老鷹夥伴",av:p.av,d:S.day,sales:0,bv:0,buys:0,spade:1});scheduleMember(S.team[S.team.length-1],S.clock);
+   html=`<div class="hero"><div class="flip" id="spFlip"><div class="in"><div class="b"></div><div class="f"><div class="r">♠2</div><div class="e">🦅</div></div></div></div>
+   <h2 style="color:var(--spade)">翻到黑桃 2 了！</h2></div>
+   <div class="eagle"><div style="font-size:13px;letter-spacing:3px;color:var(--sub)">老鷹夥伴卡</div><div style="font-size:22px;font-weight:900;margin:4px 0">${p.av} ${p.name}</div><b>想一起了解、發展事業的夥伴</b><p class="sub" style="margin:6px 0 0">「${pick(["我也想多一份收入、兼顧家庭，可以多跟我說說嗎？","我身邊也有朋友在問，想跟你一起了解怎麼經營。","聽你這樣分享，我想一起來學。"])}」</p></div>
+   <p class="disc">黑桃 2 出現的機率是遊戲設定，非實際比例。</p>
+   ${j?`<p class="sub" style="text-align:center">也聊對了需要：顧客滿意 +1</p>`:""}<div style="text-align:center"><span class="rwd" style="background:#2b2350;color:var(--spade)">🦅 老鷹夥伴 +60 EXP</span></div>`}}
  S.exp+=exp;save();
  const nb=BADGES.find(b=>b==o.talks);
- html+=`<div class="stat"><div><small>累計開口</small><b>${o.talks}</b></div><div><small>加入人數</small><b style="color:var(--green)">${o.dist+o.mem+o.fri}</b></div></div>`+(nb?`<p style="text-align:center;font-weight:900;color:var(--gold)">🏅 解鎖勇氣徽章：開口 ${nb} 次！</p>`:"")+`<button class="btn w100" id="tkOk">💬 繼續找下一位聊</button>`;
+ html+=`<div class="stat"><div><small>真心對話</small><b>${o.talks}</b></div><div><small>顧客滿意</small><b style="color:var(--ok)">${o.sat||0}</b></div></div>`+(nb?`<p style="text-align:center;font-weight:900;color:var(--pri)">🏅 勇氣徽章：翻牌 ${nb} 張！</p>`:"")+`<div class="flipline">${flipLine()}</div><button class="btn w100" id="tkOk">🃏 再翻下一張</button>`;
  $("#info .panel").innerHTML=html;$("#tkOk").onclick=()=>{closeOv("info");if(!MS)updObj()};
- p.say=j.k=="rej"?"改天再聊～":"一起加油！";p.sayT=2.5}
+ if(spade){spadeSound();confetti();setTimeout(()=>{const f=$("#spFlip");if(f)f.classList.add("on")},120);burst(p.x,p.y,"#c9a2ff",50)}
+ updShareBtn();
+ p.say=spade?"一起加油！":j?"謝謝你！":"改天再聊～";p.sayT=2.5}
 function scheduleMember(m,from){const pr=BUY_P[m.t]||.4;if(Math.random()>=pr)return;const lo=Math.max(from+20,9*60),hi=21*60;if(lo>=hi)return;
- const amt=Math.round((2000+Math.random()*3000)/10)*10;const big=m.t=="直銷商"&&Math.random()<.04;SCHED.push({m,at:lo+Math.random()*(hi-lo),amt:big?40000:amt,bv:big?40000:amt,big})}
+ const amt=Math.round((2000+Math.random()*3000)/10)*10;SCHED.push({m,at:lo+Math.random()*(hi-lo),amt,bv:Math.round(amt*(.8+Math.random()*.15))})}
 function scheduleDay(from){SCHED=[];for(const m of S.team)scheduleMember(m,from)}
 let clockSave=0;
 function tickClock(dt){S.clock+=dt*6;
- for(const e of SCHED){if(e.done||S.clock<e.at)continue;e.done=1;e.m.sales+=e.amt;e.m.bv+=e.bv;S.sales+=e.amt;S.bv+=e.bv;S.today.sales+=e.amt;S.today.bv+=e.bv;save();tone(1046,.08,"triangle",.04);
-  feed(e.big?`🎉 <b>大訂單！</b>${e.m.av} ${e.m.n}（${e.m.t}）團購 BV <b>${fmt(e.bv)}</b>`:`🛒 ${e.m.av} ${e.m.n}（${e.m.t}）購買產品 NT$<b>${fmt(e.amt)}</b>｜BV ${fmt(e.bv)}`)}
- if(S.clock>=1440){const t=S.today;S.clock-=1440;S.day++;toast(`📊 第 ${S.day-1} 天結算`,`營業額 NT$${fmt(t.sales)}｜BV ${fmt(t.bv)}｜新加入 ${t.join} 人。新的一天，繼續開口吧！`,"#57ff8a");S.today={sales:0,bv:0,join:0};scheduleDay(0);save()}
+ for(const e of SCHED){if(e.done||S.clock<e.at)continue;e.done=1;e.m.sales+=e.amt;e.m.bv+=e.bv;e.m.buys=(e.m.buys||0)+1;S.sales+=e.amt;S.bv+=e.bv;S.today.sales+=e.amt;S.today.bv+=e.bv;monthCheck();if(e.m.spade){const pk=e.m.n+"#"+e.m.d;S.mo.pb[pk]=(S.mo.pb[pk]||0)+e.bv}else S.mo.own=(S.mo.own||0)+e.bv;S.today.sv=S.today.sv||[];if(!S.today.sv.includes(e.m.n+"#"+e.m.d))S.today.sv.push(e.m.n+"#"+e.m.d);updInc(true);{const ib=$("#incBtn");ib.classList.remove("pulse");void ib.offsetWidth;ib.classList.add("pulse");if($("#inc").classList.contains("col"))incShow(4000)}const rep=e.m.buys>1;if(rep)S.opp.rep=(S.opp.rep||0)+1;save();tone(1046,.08,"triangle",.04);
+  const lab=e.m.spade?"🦅 夥伴團隊訂單":rep?(e.m.t=="生活會員"?"🔁 長客續訂":"🔁 顧客回購"):"🛒 顧客購買";
+  feed(`${lab}：${e.m.av} ${e.m.n}（${e.m.t}）NT$<b>${fmt(e.amt)}</b>｜BV（示意）${fmt(e.bv)}`)}
+ if(S.clock>=1440){const t=S.today;S.clock-=1440;S.day++;{const c=incNow();RECAP={mk:S.mo.k,day:S.day-1,flips:t.flips||0,served:(t.sv||[]).length,grp:c.grp,pct:c.pct,ded:c.ded,bonus:c.bonus,prev:S.mo.last||0};S.mo.last=c.bonus;if(monthCheck()){RECAP.reset=1;RECAP.bonusNew=0}updInc(false)}S.lastDayBV=t.bv;S.today={sales:0,bv:0,join:0,sat:0,flips:0,spades:0,sv:[]};scheduleDay(0);save()}
  clockSave+=dt;if(clockSave>6){clockSave=0;save()}}
 function feed(html){const el=document.createElement("div");el.className="fi";el.innerHTML=html;const f=$("#feed");f.prepend(el);while(f.children.length>4)f.lastChild.remove();setTimeout(()=>el.classList.add("out"),5500);setTimeout(()=>el.remove(),6100)}
-function teamTab(){const o=S.opp,joined=o.dist+o.mem+o.fri,rate=o.talks?Math.round(joined/o.talks*100):0;
- const tier=[...TIERS].reverse().find(t=>S.bv>=t[0]);const bar=(n,c,lab)=>`<div class="hb"><span>${lab}</span><i style="width:${o.talks?Math.max(2,n/o.talks*100):2}%;background:${c}"></i><em>${n} 人（${o.talks?Math.round(n/o.talks*100):0}%）</em></div>`;
- return`<h3 style="margin:0 0 6px">👥 我的團隊・第 ${S.day} 天 ${clockStr()}</h3>
- <div class="stat"><div><small>累計開口</small><b>${o.talks}</b></div><div><small>加入率</small><b style="color:var(--green)">${rate}%</b></div>
- <div><small>今日營業額</small><b>NT$${fmt(S.today.sales)}</b></div><div><small>今日 BV</small><b>${fmt(S.today.bv)}</b></div>
- <div><small>累計營業額</small><b>NT$${fmt(S.sales)}</b></div><div><small>累計 BV</small><b>${fmt(S.bv)}</b></div></div>
- ${bar(o.dist,"#57ff8a","🌳 直銷商")}${bar(o.mem,"#38e1ff","🌿 生活會員")}${bar(o.fri,"#ffd23d","🌱 安麗之友")}${bar(o.rej,"#888","💭 婉拒")}
- <div class="kc"><b>業績獎金級距對照（示範）</b><br>累計 BV ${fmt(S.bv)} → ${tier?`達 ${fmt(tier[0])} 級距：${tier[1]}%`:"尚未達 10,000（3%）級距"}。實際以每月業績計算。</div>
- <h4 style="margin:10px 0 4px">夥伴名單（${S.team.length}）</h4>${S.team.length?S.team.slice().reverse().slice(0,30).map(m=>`<div class="ml"><div class="ic">${m.av}</div><div class="tx"><b>${m.n}</b>｜${m.t}<br><small>第 ${m.d} 天加入｜營業額 NT$${fmt(m.sales)}｜BV ${fmt(m.bv)}</small></div></div>`).join(""):`<p style="color:#aaa">還沒有夥伴。走到路人旁邊按 💬／T 開口分享吧！</p>`}
- <p class="disc">遊戲模擬：加入機率、購買金額與 BV 皆為隨機設定（為簡化，1 元≈1 BV），非真實數據、非保證收入、因人而異。直銷商的收入來自產品銷售與用心服務顧客，不是招募人數。</p>`}
 
+function monthCard(){const m=monthTier();const pct=m.t?m.t[1]:0,nx=m.nx;
+ return`<div class="kc"><b>級距看「當月」團隊 BV（每月重新計算）</b><div class="bign">${pct?pct+"%":"未達 3%"}<small>每月約可到</small></div>
+ <div class="pbar"><i style="width:${Math.min(100,m.mo/500000*100)}%"></i></div>
+ <div class="sub">以一天 BV（示意）${fmt(m.day)} × 30 天 ≈ ${fmt(m.mo)}${nx?`；到 ${nx[1]}% 還差 ${fmt(nx[0]-m.mo)}`:""}</div>
+ <p class="disc" style="margin:4px 0 0">每個月都做到這個量，每月約可到 ${pct?pct+"%":"未達 3%"}（示範試算，非保證收入）</p></div>`}
+function teamTab(){const o=S.opp,joined=o.dist+o.mem+o.fri;
+ return`<h3 style="margin:0 0 6px">🤝 我的顧客・第 ${S.day} 天 ${clockStr()}</h3><div class="flipline" style="font-size:17px;margin:4px 0 8px">${flipLine()}</div><p class="disc" style="text-align:center;margin:0 0 6px">黑桃 2 出現的機率是遊戲設定，非實際比例</p>
+ <div class="stat"><div><small>真心對話</small><b>${o.talks}</b></div><div><small>顧客滿意</small><b style="color:var(--green)">${o.sat||0}</b></div>
+ <div><small>顧客回購／長客續訂</small><b style="color:var(--gold)">${o.rep||0}</b></div><div><small>今日營業額</small><b>NT$${fmt(S.today.sales)}</b></div>
+ <div><small>累計營業額</small><b>NT$${fmt(S.sales)}</b></div><div><small>累計 BV（示意）</small><b>${fmt(S.bv)}</b></div></div>
+ <p style="font-size:12px;color:#aaa;margin:4px 0">（次要）選擇的身份：🌳 直銷商 ${o.dist}｜🌿 生活會員 ${o.mem}｜🌱 安麗之友 ${o.fri}｜💭 改天再聊 ${o.rej}</p>
+ ${monthCard()}
+ <h4 style="margin:10px 0 4px">顧客名單（${S.team.length}）</h4>${S.team.length?S.team.slice().reverse().slice(0,30).map(m=>`<div class="ml"><div class="ic">${m.av}</div><div class="tx"><b>${m.n}</b>｜${m.t}<br><small>第 ${m.d} 天｜購買 ${m.buys||0} 次｜營業額 NT$${fmt(m.sales)}｜BV（示意）${fmt(m.bv)}</small></div></div>`).join(""):`<p style="color:#aaa">還沒有顧客。走到路人旁邊按 💬／T，先聽懂對方的需要吧！</p>`}
+ <p class="disc">遊戲模擬：購買金額為遊戲設定；BV 為遊戲示意，實際依產品而定（例：益之源 Pro 淨熱組 $39,800 的 BV 是 37,904）。非真實數據，示範試算，非保證收入。直銷商的收入來自產品銷售與用心服務顧客，不是招募人數。</p>`}
+
+/* ===== 📣 開口分享／需求雷達／💡 問小安 ===== */
+function sharePed(){const o=PL.car||PL;let b=null,bd=PL.car?150:120;for(const p of PEDS){if(p.result&&!(p.result=="rej"&&p.rejDay<S.day))continue;const d=Math.hypot(p.x-o.x,p.y-o.y);if(d<bd){bd=d;b=p}}return b}
+function shareTap(){if(PAUSE||!STARTED)return;audioInit();const p=sharePed();
+ if(p){if(PL.car){if(PL.car.speed>90){toast("📣 先停下來","車速放慢，才能下車開口分享。","#ffcf3f");return}exitCar()}PL.x=p.x+18;PL.y=p.y;talk(p);return}
+ const o=PL.car||PL;const list=PEDS.filter(q=>!q.result||(q.result=="rej"&&q.rejDay<S.day)).map(q=>[Math.hypot(q.x-o.x,q.y-o.y),q]).sort((a,b)=>a[0]-b[0]).slice(0,3);
+ list.forEach(([d,q])=>q.radarT=6);SFX.pick();toast("📡 需求雷達","附近 3 位路人的需要已標在地圖上，靠近他們再按 📣。","#5ec8ff")}
+function updShareBtn(){const g=(S.opp.streak||0)>=3;$("#bShare").classList.toggle("glow",g);$("#shareHint").classList.toggle("hide",!g||!STARTED);document.body.classList.toggle("hinting",g&&STARTED);$("#shareBd").textContent=S.today.flips||0}
+$("#bShare").addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();shareTap()});
+let tipT=0;
+/* ===== 收入儀表（示範試算） ===== */
+const MONTH_DAYS=30;
+function tierPct(bv){const t=[...TIERS].reverse().find(x=>bv>=x[0]);return t?t[1]:0}
+function incCalc(own,pbs){pbs=pbs||[];const grp=own+pbs.reduce((a,b)=>a+b,0),pct=tierPct(grp),ded=pbs.reduce((a,b)=>a+b*tierPct(b)/100,0);
+ const bonus=Math.max(0,grp*pct/100-ded),nx=TIERS.find(x=>grp<x[0]);let need=0,est=null;
+ if(nx){need=nx[0]-grp;est=Math.max(0,nx[0]*nx[1]/100-ded)}
+ return{grp,pct,ded,bonus,nx,need,est}}
+function incNow(){return incCalc(S.mo.own||0,Object.values(S.mo.pb||{}))}
+function monthCheck(){const k=Math.floor((S.day-1)/MONTH_DAYS);if(S.mo.k!==k){S.mo={k,own:0,pb:{},last:0,reset:1};return true}return false}
+const INC={grp:0,bonus:0,pct:0,a:null};
+function incHTML(g,b,p,c){const nx=c.nx?`再 <b>${fmt(c.need)}</b> BV 到 ${c.nx[1]}%，預估可到 $${fmtM(c.est)}`:"已到最高級距 21%";
+ const lo=[...TIERS].reverse().find(x=>c.grp>=x[0]),from=lo?lo[0]:0,to=c.nx?c.nx[0]:from,w=c.nx?clamp((c.grp-from)/(to-from)*100,0,100):100;
+ return`<div class="r"><small>本月 BV（示意）</small><small>第 ${S.mo.k+1} 個月</small></div><div class="n">${fmt(g)}</div>
+ <div class="r"><div><small>目前級距</small><div class="n p">${p}%</div></div><div style="text-align:right"><small>示範獎金</small><div class="n m">NT$${fmtM(b)}</div></div></div>
+ <div class="pbar"><i style="width:${w}%"></i></div><div class="nx">${nx}</div><div class="dc">示範試算，非保證收入，實際以公司規定為準</div>`}
+let incTimer=0;
+function incShow(ms){const el=$("#inc"),b=$("#incBtn");el.classList.remove("col");b.classList.add("hid");clearTimeout(incTimer);incTimer=setTimeout(incHide,ms||10000)}
+function incHide(){$("#inc").classList.add("col");$("#incBtn").classList.remove("hid")}
+function updInc(anim){const c=incNow(),el=$("#inc");if(!el)return;if(!anim&&INC.a){cancelAnimationFrame(INC.a);INC.a=null}
+ if(!anim||INC.a===null&&INC.grp===c.grp){INC.grp=c.grp;INC.bonus=c.bonus;INC.pct=c.pct;el.innerHTML=incHTML(c.grp,c.bonus,c.pct,c);return}
+ const g0=INC.grp,b0=INC.bonus,t0=performance.now();INC.grp=c.grp;INC.bonus=c.bonus;INC.pct=c.pct;el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop");
+ if(INC.a)cancelAnimationFrame(INC.a);
+ const st=now=>{const k=Math.min(1,(now-t0)/900),e=1-Math.pow(1-k,3);el.innerHTML=incHTML(g0+(c.grp-g0)*e,b0+(c.bonus-b0)*e,c.pct,c);INC.a=k<1?requestAnimationFrame(st):null};INC.a=requestAnimationFrame(st)}
+let RECAP=null;
+function recapTry(){if(!RECAP||!STARTED||MS||PAUSE||document.body.classList.contains("cut"))return;const r=RECAP;RECAP=null;
+ const d=r.bonus-r.prev,ds=r.reset?"新的一個月，級距重新計算":(d>0?`較昨天 +NT$${fmtM(d)}`:d<0?`較昨天 −NT$${fmtM(-d)}`:"和昨天一樣");
+ panel("info",`<div class="hero"><div class="face">📊</div><h2>第 ${r.day} 天結算</h2></div>
+ <div class="rc"><div><b>${r.flips}</b><small>今天分享（次）</small></div><div><b>${r.served}</b><small>服務顧客（位）</small></div><div><b style="color:var(--pri)">${r.pct}%</b><small>本月級距</small></div></div>
+ <div style="text-align:center"><small class="sub">${r.reset?`第 ${r.mk+1} 個月（已結束）示範獎金`:"本月示範獎金"}</small><div class="bign" style="color:var(--ok)">NT$${fmtM(r.bonus)}</div><div style="font-weight:900;color:${d>0?"var(--ok)":"#aab3c5"}">${ds}</div>
+ <p class="disc" style="margin:4px 0 0">示範試算，非保證收入，實際以公司規定為準</p></div>
+ <details class="more"><summary>看更多：怎麼算的</summary><div>本月 BV（示意）${fmt(r.grp)} × ${r.pct}%${r.ded?` − 夥伴自己級距的部分 ${fmtM(r.ded)}`:""} ＝ ${fmtM(r.bonus)}。<br>級距看「當月」團隊 BV，每月重新計算，不累加。收入只來自顧客的產品訂單；有人加入本身不會增加收入。</div></details>
+ <button class="btn w100" id="rcVis" style="margin-top:10px">🗺 每個月都做到這個量，每月約可到幾 %？</button><button class="btn dk w100" id="ibOk" style="margin-top:8px">繼續</button>`);
+ $("#ibOk").onclick=()=>closeOv("info");$("#rcVis").onclick=()=>{closeOv("info");togglePhone();const b=document.querySelector('.tabs button[data-t="r"]');b&&b.click()}}
+function monthTier(){const day=Math.max(S.lastDayBV||0,S.today.bv||0),mo=day*30,t=[...TIERS].reverse().find(x=>mo>=x[0]);return{day,mo,t,nx:TIERS.find(x=>mo<x[0])}}
+function askTip(){if(!STARTED)return;if(!S.askSeen){S.askSeen=1;$("#askBtn").classList.remove("first");save()}let L=[];const tp=nearPed()||(!PL.car&&sharePed());
+ if(tp&&!MS){L=[`💡 <b>${tp.name}</b> 就在旁邊。`,"先問問他最近在煩惱什麼，看看他頭上的需要。","聊對他在意的事，比急著介紹更重要。"]}
+ else if(QZ){L=["💡 先開到 ❓ 答題路口，三條路會亮起。","不確定答案？打開 📱 → 圖鑑，回想剛剛的知識卡。"]}
+ else if(MS&&OBJ&&OBJ.text){L=["💡 目前目標："+OBJ.text.replace(/<[^>]+>/g,""),"小地圖上的紫色線就是導航。"]}
+ else{const nm=nextMission();const o=PL.car||PL;const mt=monthTier();
+  L=[nm?`💡 下一個任務：<b>${nm.id}. ${nm.title}</b>（約 ${Math.round(dist(o,nm.at)/10)} m）`:"💡 任務都完成了！可以找路人翻牌、找隱藏積點包。",
+   "BV 是業績點數，不等於售價（淨熱組 $39,800 → BV 37,904）。",
+   mt.day?`每個月都做到這個量，每月約可到 ${mt.t?mt.t[1]+"%":"未達 3%"}（示範試算，非保證收入）`:"級距看「當月」團隊 BV，每月重新計算。"]}
+ const el=$("#tip");el.innerHTML=L.slice(0,3).join("<br>");el.classList.add("on");tipT=6;SFX.pick()}
+$("#askBtn").onclick=askTip;
 /* ================= FIRST-PERSON VIEW ================= */
 function hex2(h){const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]}
 let FB=null,FBx=null,FBimg=null,FB32=null,ZB=null,GR=0,GG=0,GB=0,RINGS=[];
-function fpSetup(){const ps=Math.max(VW,VH)/(VW>VH?520:400),bw=Math.max(80,Math.round(VW/ps)),bh=Math.max(80,Math.round(VH/ps));
+function fpSetup(){const ps=Math.max(VW,VH)/(VW>VH?720:560),bw=Math.max(80,Math.round(VW/ps)),bh=Math.max(80,Math.round(VH/ps));
  if(FB&&FB.width==bw&&FB.height==bh)return;FB=document.createElement("canvas");FB.width=bw;FB.height=bh;FBx=FB.getContext("2d");FBimg=FBx.createImageData(bw,bh);FB32=new Uint32Array(FBimg.data.buffer);ZB=new Float32Array(bw)}
 function gcol(x,y){
  if(x<0||y<0||x>=W||y>=W){GR=60;GG=107;GB=53;return}
@@ -1072,7 +1403,7 @@ function gcol(x,y){
 }
 function fpRings(){RINGS=[];const add=(q,r,col,a=.35)=>RINGS.push({x:q.x,y:q.y,r2:r*r,c:hex2(col),a});const pulse=(Math.sin(TIME*4)+1)/2;
  if(QZ){if(QZ.pads)QZ.pads.forEach(pd=>add(pd,95,GC[pd.i],.45));else add(QZ.ic,110,"#ffd23d",.3+pulse*.15)}
- if(!MS){const nm=nextMission();for(const m of MDEF)if(S.done[m.id]||m===nm)add(m.at,70,m===nm?m.col:"#888888")}
+ if(!MS){const nm=nextMission();for(const m of MDEF)if(isAvail(m))add(m.at,70,isHot(m)?m.col:"#888888")}
  else{const st=curStep();if(st&&st.t=="goto")add(st.p,70,"#ffd23d");if(st&&st.t=="collect")MS.items.forEach(it=>{if(!it.got)add(it.p,60,"#ffd23d")});if(st&&st.t=="lots")MS.lots.forEach(L=>{if(!L.got)add(L.p,70,"#ffd23d")});if(st&&st.t=="race"&&MS.pts[MS.ri])add(MS.pts[MS.ri],95,"#ff3d7f",.4)}
  add(XIAOAN,55,"#3d7dff",.3)}
 function renderFP(){
@@ -1094,14 +1425,14 @@ function renderFP(){
     if(v>b.ht-5){r=c[0]*1.15;g=c[1]*1.15;bb=c[2]*1.15}else if(winU&&v>12&&v<b.ht-10){const vv=v%38;if(vv>12&&vv<28){if(((col*7+Math.floor(v/38)*13+b.id)%5)==0){r=255;g=220;bb=130}else{r=44;g=70;bb=104}}}
     r=r+(SK[0]-r)*fog;g=g+(SK[1]-g)*fog;bb=bb+(SK[2]-bb)*fog;buf[y*bw+x]=(255<<24)|((bb>255?255:bb|0)<<16)|((g>255?255:g|0)<<8)|(r>255?255:r|0)}
    if(t<ZB[x])ZB[x]=t}}
- FBx.putImageData(FBimg,0,0);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(FB,0,0,VW,VH);ctx.imageSmoothingEnabled=true;
+ FBx.putImageData(FBimg,0,0);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(FB,0,0,VW,VH);
  // sprites
  const SP=[];const push=(o,kind,ex={})=>{const rx2=o.x-cx,ry2=o.y-cy,d=rx2*fx+ry2*fy;if(d<14||d>FOG)return;const lat=rx2*rx+ry2*ry;const sx=bw/2+lat*f/d;if(sx<-60||sx>bw+60)return;SP.push(Object.assign({o,kind,d,sx},ex))};
  for(const c of CARS)push(c,"car");for(const n of NPC)push(n,"car");for(const r of RU)push(r,"car");
  for(const q of PEDS)push(q,"ped");for(const t of TREES)push(t,"tree");for(const c of CONES)push(c,"cone");
  COLLECT.forEach((c,i)=>{if(!S.found.includes(i))push(c,"emoji",{e:"🪙",h:14})});
  for(const b of BLD)if(b.label)push({x:b.x+b.w/2,y:b.y+b.h/2},"sign",{t:b.label,h:b.ht+26,col:b.sign||"#000"});
- if(!MS){const nm=nextMission();for(const m of MDEF)if(S.done[m.id]||m===nm){push(m.at,"beam",{col:m===nm?m.col:"#888888",t:(m===nm?"":"↺")+m.id+" "+m.title});push({x:m.at.x+40,y:m.at.y},"emoji",{e:A(m.id).comp.e,h:0})}}
+ if(!MS){const nm=nextMission();for(const m of MDEF)if(isAvail(m)){push(m.at,"beam",{col:isHot(m)?m.col:"#888888",t:(isHot(m)?"":"↺")+m.id+" "+m.title});push({x:m.at.x+40,y:m.at.y},"emoji",{e:A(m.id).comp.e,h:0})}}
  else{const st=curStep();if(st&&st.t=="goto")push(st.p,"beam",{col:"#ffd23d",t:"📍 目的地"});if(st&&st.t=="collect")MS.items.forEach(it=>{if(!it.got)push(it.p,"beam",{col:"#ffd23d",t:it.ic+" "+it.n})});
   if(st&&st.t=="lots")MS.lots.forEach(L=>{if(!L.got)push(L.p,"beam",{col:"#ffd23d",t:"🏗 分店 "+L.l})});if(st&&st.t=="race"&&MS.pts[MS.ri])push(MS.pts[MS.ri],"beam",{col:"#ff3d7f",t:`第 ${MS.ri+1} 期`})}
  if(QZ){if(QZ.pads)QZ.pads.forEach(pd=>{const t=QZ.q[1][QZ.order[pd.i]];push(pd,"pad",{col:GC[pd.i],L:GL[pd.i],t:t.length>11?t.slice(0,10)+"…":t})});else push(QZ.ic,"beam",{col:"#ffd23d",t:"❓ 答題路口"})}
@@ -1142,20 +1473,21 @@ function lbl(t,x,y,col,sc){const fs=clamp(18*sc,10,26);ctx.font=`900 ${fs}px 'No
 
 /* ================= LOOP / BOOT ================= */
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(STARTED&&!PAUSE)update(dt);else if(ENG)ENG.g.gain.value=0;if(S.view=="fp"&&STARTED)renderFP();else render();if(MINI)drawMini();drawHUD();requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(((now/250)|0)!=(loop.k||0)){loop.k=(now/250)|0;updWarp()}if(STARTED&&!PAUSE)update(dt);else if(ENG)ENG.g.gain.value=0;if(S.view=="fp"&&STARTED)renderFP();else render();if(MINI)drawMini();drawHUD();requestAnimationFrame(loop)}
 function boot(){genWorld();scheduleDay(S.clock);spawnParked();spawnNPC();spawnPeds();$("#muteBtn").textContent=S.mute?"🔇":"🔊";$("#viewBtn").textContent=S.view=="fp"?"🗺":"👁";
- const c0=CARS[0];c0.x=START.x+70;c0.y=START.y;requestAnimationFrame(loop)}
-$("#bStart").onclick=()=>{audioInit();$("#title").classList.add("hide");STARTED=true;PAUSE=false;updObj();
+ const c0=CARS[0];c0.x=START.x+70;c0.y=START.y;updInc(false);$("#inc").classList.add("col");$("#incBtn").onclick=e=>{e.stopPropagation();incShow(10000)};if(!S.askSeen)$("#askBtn").classList.add("first");requestAnimationFrame(loop)}
+$("#bStart").onclick=async()=>{audioInit();$("#title").classList.add("hide");STARTED=true;PAUSE=false;updObj();
+ if(!S.why)await askWhy();updShareBtn();
  if(!S.done[1]&&!S.seen){S.seen=1;save();cutscene([["📻 升級城廣播","歡迎來到升級城！在這座城裡，每個任務都是一章安麗知識。"],["📻 升級城廣播","小地圖上的彩色數字是任務標記，紫色線是導航路線。"],["📻 升級城廣播","先走到前面的「1 號」光圈，啾啾在等你！"]],["人生升級","升級城 LEVEL-UP CITY"])}};
 $("#bReset").onclick=()=>{if(confirm("確定清除全部進度、重新開始？")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}};
-if(Object.keys(S.done).length)$("#bStart").textContent="▶ 繼續遊戲（已完成 "+Object.keys(S.done).length+"/6）";
+if(Object.keys(S.done).length)$("#bStart").textContent="▶ 繼續遊戲（已完成 "+Object.keys(S.done).length+"/"+MDEF.length+"）";
 boot();
 // debug hooks for testing
 window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=x;o.y=y;if(PL.car){PL.car.vx=PL.car.vy=0}},
  answer:(right=true)=>{if(!QZ)return false;const o=PL.car||PL;if(!QZ.pads){o.x=QZ.ic.x;o.y=QZ.ic.y+300;quizCross()}const i=QZ.order.indexOf(QZ.q[2]),j=right?i:(i+1)%QZ.n,pd=QZ.pads[j];o.x=pd.x;o.y=pd.y;quizCross();return true},
- talkTo:()=>{const p=PEDS[0];PL.x=p.x+20;PL.y=p.y;talk(p);return p},res:()=>talkResult(PEDS[0]),roll:n=>{const c={};for(let i=0;i<n;i++){const k=rollJoin().k;c[k]=(c[k]||0)+1}return c},clock:v=>{S.clock=v},PEDS:()=>PEDS,
+ talkTo:()=>{const p=PEDS[0];PL.x=p.x+20;PL.y=p.y;talk(p);return p},res:(i,f)=>{const p=PEDS[0];return talkResult(p,i==null?OPENERS.findIndex(o=>o[1]==p.need):i,f)},spadeChance,SPADE,shareTap,askTip,incShow,incHide,incCalc,incNow,updInc,tierPct,monthCheck,judge,OPENERS,clock:v=>{S.clock=v},PEDS:()=>PEDS,
  CARS:()=>CARS,KINDS,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
- next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF[id-1]),pass:()=>passMission(),missions:MDEF};
+ next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF.find(m=>m.id==id)),ending:()=>ending(),obj:()=>objTarget(),step:()=>{const c=curStep();return c?c.t:null},pass:()=>passMission(),missions:MDEF};
 </script>
 </body>
 </html>
