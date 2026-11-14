@@ -62,7 +62,7 @@ body.cut #hud,body.cut #mm,body.cut #phoneBtn,body.cut #muteBtn,body.cut #viewBt
 #quiz .o b{flex:none;width:24px;height:24px;border-radius:6px;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:15px}
 #quiz small{display:block;color:#bbb;font-size:12px;margin-top:3px}
 @media (min-width:760px){#quiz{top:calc(10px + env(safe-area-inset-top));width:min(520px,calc(100% - 420px))}}
-#timer{position:fixed;top:calc(150px + env(safe-area-inset-top));right:12px;font-size:28px;color:#fff;z-index:10;pointer-events:none}
+#timer{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);font-size:32px;color:#fff;z-index:12;pointer-events:none;background:#000a;border:2px solid #fff4;border-radius:12px;padding:0 12px;line-height:1.3}
 #timer.low{color:#ff4d6d}
 #obj{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(172px + env(safe-area-inset-bottom));width:min(640px,calc(100% - 24px));text-align:center;font-size:17px;font-weight:900;line-height:1.4;z-index:10;pointer-events:none;color:#fff}
 #obj em{font-style:normal;color:var(--gold)}
@@ -406,7 +406,7 @@ let MS=null;          // active mission state
 let QZ=null;          // active quiz gates
 let OBJ=null;         // current objective {p, text}
 const XIAOAN=sw(1,1,"e",.5);
-const KINDS={car:{L:54,Wd:28,max:400,acc:420,cr:15,co:15,R:19,nm:"汽車",ic:"🚗"},bike:{L:30,Wd:10,max:280,acc:360,cr:8,co:7,R:10,nm:"共享單車",ic:"🚲"},scooter:{L:34,Wd:13,max:330,acc:420,cr:9,co:8,R:11,nm:"共享電動機車",ic:"🛵"}};
+const KINDS={car:{L:54,Wd:28,max:400,acc:420,cr:15,co:15,R:19,nm:"汽車",ic:"🚗"},bike:{L:30,Wd:10,max:280,acc:360,cr:8,co:7,R:10,nm:"共享單車",ic:"🚲"},scooter:{L:34,Wd:13,max:400,acc:430,cr:9,co:8,R:11,nm:"共享電動機車",ic:"🛵"}};
 function mkCar(x,y,a,color,o={}){const k=KINDS[o.kind||"car"];return Object.assign({x,y,a,vx:0,vy:0,speed:0,color,kind:"car",acc:k.acc,max:k.max,L:k.L,Wd:k.Wd,cr:k.cr,co:k.co,R:k.R,brake:false,stuck:0,rev:0},o)}
 const BIKE_ST=[[1,3,"n",.62],[2,2,"w",.3],[3,3,"n",.18],[0,2,"e",.72],[2,4,"n",.32],[4,1,"s",.62],[1,1,"s",.42],[3,0,"s",.2],[0,0,"e",.5],[4,3,"w",.7]];
 const SCOOT=[[1,3,"n",.82],[2,3,"s",.2],[3,2,"n",.62],[0,1,"s",.3],[4,4,"w",.3],[2,1,"e",.7],[1,4,"e",.4],[3,4,"n",.8],[4,2,"n",.2],[0,3,"n",.3],[2,0,"w",.6],[1,2,"s",.7],[3,1,"w",.2],[4,0,"w",.8]];
@@ -715,16 +715,24 @@ function ruTarget(c){const p=PL.car||PL;if(dist(c,p)<320)return p;
  if(h>=0){const cl=clamp(Math.floor(c.x/PT),0,5),cr=clamp(cl+1,0,5);return ctr(p.x>c.x?cr:cl,h)}
  if(v>=0){const rt=clamp(Math.floor(c.y/PT),0,5),rb=clamp(rt+1,0,5);return ctr(v,p.y>c.y?rb:rt)}
  return p}
+function hiddenBld(){if(!PL.car||PL.car.kind!="bike")return null;const p=PL.car;for(const b of BLD)if(p.x>b.x+4&&p.x<b.x+b.w-4&&p.y>b.y+4&&p.y<b.y+b.h-4)return b;return null}
+function outsidePt(b,c){const m=50;let x=clamp(c.x,b.x-m,b.x+b.w+m),y=clamp(c.y,b.y-m,b.y+b.h+m);if(x>b.x-m&&x<b.x+b.w+m&&y>b.y-m&&y<b.y+b.h+m){const dl=x-(b.x-m),dr=b.x+b.w+m-x,dt2=y-(b.y-m),db=b.y+b.h+m-y,mn=Math.min(dl,dr,dt2,db);if(mn==dl)x=b.x-m;else if(mn==dr)x=b.x+b.w+m;else if(mn==dt2)y=b.y-m;else y=b.y+b.h+m}return{x,y}}
 function updRumor(dt){
+ const hid=hiddenBld();
+ if(hid){if(!PL.hideT){PL.hideT=.001;PL.hideMsg=0;if(RU.length)toast("🏠 騎進建築物躲起來了！","謠言車進不來，會在外面等 10 秒。","#5ec8ff")}else PL.hideT+=dt;
+  if(RU.length){const left=Math.max(0,Math.ceil(10-PL.hideT));const pr=$("#prompt");pr.textContent=left>0?`🏠 躲藏中…謠言車 ${left} 秒後離開`:"🏠 躲藏中";pr.classList.remove("hide")}
+  if(PL.hideT>=10&&RU.length){if(MS&&MS.chase){if(!PL.hideMsg){PL.hideMsg=1;toast("🕵️ 這批謠言躲不掉","「謠言大追緝」要開進真相路口答對才能破解喔！","#c78bff")}}
+   else{for(const r of RU){burst(r.x,r.y,"#c78bff",16);float(r.x,r.y-24,"等不到人…撤退！","#c78bff")}RU=[];PL.stars=0;PL.starT=0;toast("🚓 謠言車等不到人，離開了！","謠言值歸零。騎單車躲進建築物是甩掉追兵的好方法。","#4ade80")}}}
+ else PL.hideT=0;
  const want=PL.stars>0?Math.min(4,PL.stars):0;
  while(RU.length<want&&!(MS&&MS.chase&&RU.length>=remainingChase()))spawnRumor();
  if(!MS||!MS.chase)while(RU.length>want)RU.pop();
  const p=PL.car||PL;let near=false;
- for(const c of RU){const t=ruTarget(c);const des=Math.atan2(t.y-c.y,t.x-c.x),d=angDiff(des,c.a);
+ for(const c of RU){const t=hid?outsidePt(hid,c):ruTarget(c);if(hid&&Math.hypot(t.x-c.x,t.y-c.y)<40){stepCar(c,0,0,true,dt);continue}const des=Math.atan2(t.y-c.y,t.x-c.x),d=angDiff(des,c.a);
   if(c.rev>0){c.rev-=dt;stepCar(c,-1,-Math.sign(d),false,dt)}else{stepCar(c,Math.abs(d)>1.7?.35:1,clamp(d*2.6,-1,1),Math.abs(d)>1.2&&c.speed>250,dt);
    if(c.speed<25){c.stuck+=dt;if(c.stuck>.9){c.rev=.7;c.stuck=0}}else c.stuck=0}
   const dd=dist(c,p);if(dd<600)near=true;if(dd>1900){const i=RU.indexOf(c);RU.splice(i,1);break}
-  if(dd<(PL.car?40:28)&&PL.hitCD<=0){PL.hitCD=1;PL.credit-=PL.car?12:18;SFX.crash();burst(p.x,p.y,"#c78bff",18);float(p.x,p.y-30,c.myth,"#c78bff");
+  if(!hid&&dd<(PL.car?40:28)&&PL.hitCD<=0){PL.hitCD=1;PL.credit-=PL.car?12:18;SFX.crash();burst(p.x,p.y,"#c78bff",18);float(p.x,p.y-30,c.myth,"#c78bff");
    const nx=(p.x-c.x)/(dd||1),ny=(p.y-c.y)/(dd||1);if(PL.car){PL.car.vx+=nx*260;PL.car.vy+=ny*260}else{PL.x+=nx*30;PL.y+=ny*30}c.vx-=nx*200;c.vy-=ny*200}}
  for(let i=0;i<RU.length;i++)for(let j=i+1;j<RU.length;j++){const a=RU[i],b=RU[j],d=dist(a,b);if(d<40&&d>0){const nx=(a.x-b.x)/d,ny=(a.y-b.y)/d,o=(40-d)/2;a.x+=nx*o;a.y+=ny*o;b.x-=nx*o;b.y-=ny*o}}
  if(PL.stars>0&&!(MS&&MS.chase)){if(!near)PL.starT+=dt;else PL.starT=Math.max(0,PL.starT-dt*.5);if(PL.starT>9){PL.stars--;PL.starT=0;if(!PL.stars)toast("😮‍💨 甩掉謠言了","謠言值歸零。正確資訊以官網公告為準。","#57ff8a")}}
@@ -755,10 +763,10 @@ function stepCar(c,thr,st,hb,dt){
  c.vx=fx*fs+lx;c.vy=fy*fs+ly;c.x+=c.vx*dt;c.y+=c.vy*dt;
  c.drift=Math.hypot(lx,ly)>90;c.brake=(thr<0&&fs>20)||hb;
  // two collision circles
- let imp=0;const CO=c.co||15,CR=c.cr||15;for(const off of[CO,-CO]){const o={x:c.x+fx*off,y:c.y+fy*off};const n=pushOut(o,CR);if(n){c.x+=o.x-(c.x+fx*off);c.y+=o.y-(c.y+fy*off);const vn=c.vx*n[0]+c.vy*n[1];if(vn<0){imp=Math.max(imp,-vn);c.vx-=n[0]*vn*1.35;c.vy-=n[1]*vn*1.35}}}
+ let imp=0;const CO=c.co||15,CR=c.cr||15;const ghost=c.kind=="bike"&&c===PL.car;if(ghost){c.x=clamp(c.x,12,W-12);c.y=clamp(c.y,12,W-12)}for(const off of ghost?[]:[CO,-CO]){const o={x:c.x+fx*off,y:c.y+fy*off};const n=pushOut(o,CR);if(n){c.x+=o.x-(c.x+fx*off);c.y+=o.y-(c.y+fy*off);const vn=c.vx*n[0]+c.vy*n[1];if(vn<0){imp=Math.max(imp,-vn);c.vx-=n[0]*vn*1.35;c.vy-=n[1]*vn*1.35}}}
  c.speed=Math.hypot(c.vx,c.vy);return imp}
 function carHits(c){ // player car vs npc/parked/rumor
- const list=[...NPC,...CARS];for(const o of list){if(o===c)continue;const d=dist(c,o),R=(o.truck?25:(o.R||19))+(c.R||19);if(d<R&&d>0){const nx=(c.x-o.x)/d,ny=(c.y-o.y)/d;c.x+=nx*(R-d);c.y+=ny*(R-d);const vn=c.vx*nx+c.vy*ny;if(vn<0){c.vx-=nx*vn*1.4;c.vy-=ny*vn*1.4;if(-vn>140){SFX.crash();burst((c.x+o.x)/2,(c.y+o.y)/2,"#ffd23d",10);if(o.dir!==undefined)o.honk=1.2;shake=.25}}}}}
+ const list=[...NPC,...CARS];for(const o of list){if(o===c||o.fly)continue;const d=dist(c,o),R=(o.truck?25:(o.R||19))+(c.R||19);if(d<R&&d>0){const nx=(c.x-o.x)/d,ny=(c.y-o.y)/d;c.x+=nx*(R-d);c.y+=ny*(R-d);const vn=c.vx*nx+c.vy*ny;if(vn<0){c.vx-=nx*vn*1.4;c.vy-=ny*vn*1.4;if(-vn>140){SFX.crash();burst((c.x+o.x)/2,(c.y+o.y)/2,"#ffd23d",10);if(o.dir!==undefined){o.honk=1.2;if(-vn>160)launchNPC(o)}shake=.25}}}}}
 
 /* ================= UPDATE ================= */
 let shake=0,radioT=0,lastNear=null;
@@ -776,7 +784,7 @@ function update(dt){
   PL.steer=lerp(PL.steer||0,st,Math.min(1,dt*(Math.abs(st)>Math.abs(PL.steer||0)?9:14)));st=PL.steer;
   const imp=stepCar(c,thr,st,hb,dt);if(imp>170){SFX.crash();shake=.3;burst(c.x,c.y,"#ffd23d",8)}
   carHits(c);
-  for(const q of PEDS){const d=Math.hypot(q.x-c.x,q.y-c.y);if(d<(c.kind=="car"?26:16)&&c.speed>40&&!q.kx)dodgePed(q,c)}
+  for(const q of PEDS){if(q.fly||q.gone>0)continue;const d=Math.hypot(q.x-c.x,q.y-c.y);if(d<(c.kind=="car"?26:16)&&c.speed>40&&!q.kx){if(c.kind!="bike"&&c.speed>250)launchPed(q,c);else dodgePed(q,c)}}
   if(c.drift&&c.speed>220&&Math.random()<.6)PARTS.push({x:c.x-Math.cos(c.a)*24,y:c.y-Math.sin(c.a)*24,vx:0,vy:0,life:.8,max:.8,col:"#cfcfcf",r:6,smoke:1});
   PL.x=c.x;PL.y=c.y;PL.a=c.a;
   if(ENG&&!S.mute){ENG.o.frequency.value=40+c.speed*.16+(thr>0?10:0);ENG.g.gain.value=.035}
@@ -830,7 +838,7 @@ function exitCar(){const c=PL.car;const sx=-Math.sin(c.a),sy=Math.cos(c.a);let o
  if(!ok){PL.x=c.x;PL.y=c.y+30;pushOut(PL,11)}c.vx=c.vy=0;c.speed=0;CARS.push(c);PL.car=null;SFX.door();
  if(c.kind=="car"&&!S.rideTip){S.rideTip=1;save();S.rideHiT=TIME+8;toast("💬 小安","附近有腳踏車、機車可以騎，地圖上有光圈的就是。","#5ec8ff")}}
 function sig(){const t=TIME%22;return t<8?["g","r"]:t<10?["y","r"]:t<11?["r","r"]:t<19?["r","g"]:t<21?["r","y"]:["r","r"]}
-function npcStep(n,dt){
+function npcStep(n,dt){if(n.fly>0){n.fly+=dt;if(n.fly>2.1)respawnNPC(n);return}
  const dx=DX[n.dir],dy=DY[n.dir];let sp=n.vmax;
  const obs=[...NPC,...RU,...CARS];if(PL.car)obs.push(PL.car);else if(isRoad(PL.x,PL.y))obs.push(PL);
  for(const o of obs){if(o===n)continue;const rx=o.x-n.x,ry=o.y-n.y,al=rx*dx+ry*dy;if(al<=0||al>130)continue;const lat=Math.abs(rx*dy-ry*dx);if(lat<30){sp=al<70?0:Math.min(sp,n.vmax*.4)}}
@@ -850,10 +858,16 @@ function npcStep(n,dt){
  const ta=n.dir*Math.PI/2;n.a+=angDiff(ta,n.a)*Math.min(1,dt*8);
  n.honk=Math.max(0,n.honk-dt);
 }
+const FLY_LINES=["開車小心點啦～～～","駕照是用點數換的喔？！","我的珍奶還沒喝完啊～～","我要去月球找外星人分享產品了～","這是新的長客配送方式嗎～","幫我跟我媽說我飛很高～","下次記得踩煞車啊～～","我還沒說要不要加入耶～","外太空有免運嗎～～"];
+const BACK_LINES=["我回來了！開車小心點啦！","外太空的 Wi-Fi 好慢，我先回來了","剛剛在月球順便分享了產品 😎","下次再撞我，我要跟小安客服投訴喔！","飛好高…順便看了整座升級城的夜景"];
+function launchPed(p,c){p.fly=.001;p.flyX=p.x;p.flyY=p.y;p.say=pick(FLY_LINES);p.sayT=2.6;p.face="😵";p.faceT=3;p.kx=p.ky=0;tone(300,.9,"triangle",.06,1400);shake=.2;S.launched=(S.launched||0)+1;if(S.launched==1)toast("🚀 路人被撞飛到外太空了！","開慢一點啦～他過一會兒會走回來。汽車、機車太快才會撞飛；騎單車或慢速只會讓人閃開。","#ff9a3d")}
+function launchNPC(n){if(n.fly)return;n.fly=.001;n.flyX=n.x;n.flyY=n.y;tone(220,1,"sawtooth",.05,900);float(n.x,n.y-30,pick(["我的車啊～～","保險會理賠嗎～","叭叭叭～～","開車小心點啦！","我剛洗的車！"]),"#ffd23d");shake=.3;burst(n.x,n.y,"#ffd23d",20)}
+function respawnNPC(n){const p=PL.car||PL;let s2=null;for(let t=0;t<40;t++){const q=pick(SEGS);if(Math.hypot(q.x-p.x,q.y-p.y)>800){s2=q;break}}s2=s2||pick(SEGS);
+ if(s2.h){n.dir=Math.random()<.5?0:2;n.y=laneY(s2.k,n.dir);n.x=s2.x}else{n.dir=Math.random()<.5?1:3;n.x=laneX(s2.c,n.dir);n.y=s2.y}n.a=n.dir*Math.PI/2;n.v=0;n.plan=null;n.fly=0;n.ix=nextIx(n)}
 function dodgePed(p,c){const d=Math.hypot(p.x-c.x,p.y-c.y)||1,f=90+c.speed*.35;p.kx=(p.x-c.x)/d*f;p.ky=(p.y-c.y)/d*f;p.jump=.7;p.say=pick(["好險～","呼～好險！","小心開喔～"]);p.sayT=1.8;p.face="😅";p.faceT=2.5;tone(660,.1,"triangle",.05);
  if(c.speed>200&&PL.hitCD<=0){PL.hitCD=1.2;c.vx*=-.35;c.vy*=-.35;c.speed=Math.hypot(c.vx,c.vy);shake=.2;SFX.crash();PL.credit=Math.max(5,PL.credit-8);float(c.x,c.y-30,"禮讓行人！信用值 -8","#ff9a3d");
   if(!S.yieldTip){S.yieldTip=1;save();toast("🚸 禮讓行人","開太快差點擦到路人，車子彈開、信用值 -8。慢一點，路人就有時間閃開。","#ff9a3d")}}}
-function pedStep(p,dt){if(p.gone>0){p.gone-=dt;if(p.gone<=0){p.fly=0;p.say="我回來了～";p.sayT=2.5;p.face="😤";p.faceT=4}return}
+function pedStep(p,dt){if(p.gone>0){p.gone-=dt;if(p.gone<=0){p.fly=0;p.say=pick(BACK_LINES);p.sayT=3.5;p.face="😤";p.faceT=4}return}
  if(p.fly>0){p.fly+=dt;if(p.fly>1.9)p.gone=18;return}
  if(p.kx||p.ky){p.ox=(p.ox||0)+p.kx*dt;p.oy=(p.oy||0)+p.ky*dt;const k=Math.pow(.02,dt);p.kx*=k;p.ky*=k;if(Math.abs(p.kx)+Math.abs(p.ky)<2){p.kx=p.ky=0}}else if(p.ox||p.oy){const k=Math.pow(.4,dt);p.ox*=k;p.oy*=k;if(Math.abs(p.ox)+Math.abs(p.oy)<.5)p.ox=p.oy=0}
  if(p.faceT>0)p.faceT-=dt;
@@ -948,7 +962,8 @@ function render(){
  // v2.1 可騎乘的單車／機車：光圈＋標籤
  {const lab=[];const hi=(S.rideHiT||0)>TIME;for(const c of CARS){if(c.kind=="car"||!inView(c.x,c.y,80))continue;const pr=(Math.sin(TIME*3+c.x*.01)+1)/2;ctx.strokeStyle=c.kind=="bike"?`rgba(255,207,63,${.45+pr*.4})`:`rgba(94,200,255,${.45+pr*.4})`;ctx.lineWidth=hi?5:3;ctx.beginPath();ctx.arc(c.x,c.y,(hi?26:20)+pr*6,0,7);ctx.stroke();
    if(!lab.some(q=>Math.hypot(q.x-c.x,q.y-c.y)<90)){lab.push(c);const t=c.kind=="bike"?"🚲 可騎乘":"🛵 可騎乘";ctx.font="900 15px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";const w=ctx.measureText(t).width+14;ctx.fillStyle="#151922e0";rr(c.x-w/2,c.y-44,w,22,11);ctx.fill();ctx.fillStyle="#fff";ctx.fillText(t,c.x,c.y-33)}}}
- for(const c of CARS)drawCar(c);for(const n of NPC)drawCar(n);for(const r of RU)drawCar(r);
+ for(const c of CARS)drawCar(c);for(const n of NPC){if(!n.fly){drawCar(n);continue}const t=n.fly,k=Math.min(t/1.8,1),sc=(1+Math.sin(k*Math.PI)*1.8)*(1-k*.85),X=n.flyX,Y=n.flyY-t*260;
+  if(t<1.7){ctx.save();ctx.translate(X,Y);ctx.scale(sc,sc);ctx.translate(-X,-Y);drawCar(Object.assign({},n,{x:X,y:Y,a:n.a+t*11,fly:0}));ctx.restore()}else{ctx.font=`${24+(t-1.7)*120}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✨",X,Y)}}for(const r of RU)drawCar(r);
  for(const q of PEDS){if(!(q.radarT>0)||!inView(q.x,q.y,60))continue;const a=Math.min(1,q.radarT);ctx.globalAlpha=a;ctx.strokeStyle="#5ec8ff";ctx.lineWidth=4;ctx.beginPath();ctx.arc(q.x,q.y,22+Math.sin(TIME*6)*3,0,7);ctx.stroke();
   const t="💭 "+NEED_SHORT[q.need||"info"];ctx.font="900 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";const w=ctx.measureText(t).width+18;ctx.fillStyle="#122a1cf0";rr(q.x-w/2,q.y-62,w,28,14);ctx.fill();ctx.strokeStyle="#4ade80";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#fff";ctx.fillText(t,q.x,q.y-48);ctx.globalAlpha=1}
  if(PL.car)drawCar(PL.car);
@@ -1066,7 +1081,7 @@ function renderPhone(){const el=$("#phBody");const nm=nextMission();
    (S.easy?`<p style="font-size:13px;color:var(--cyan)">🚀 輕鬆模式：點下面的任務就直接傳送過去</p>`:"")+videoList()+
    `${S.done[6]?`<button class="btn pk w100" onclick="closeOv('phone');ending()">🎬 再看一次結局</button>`:""}`;
   el.querySelectorAll(".ml[data-m]").forEach(r=>r.onclick=()=>{if(!S.easy)return;const m=MDEF.find(x=>x.id==+r.dataset.m);if(m&&isAvail(m)){if(MS)endMission();lastNear=null;warpTo(m.at,true)}})}
- if(phTab=="r"){el.innerHTML=roadmap()}
+ if(phTab=="r"){el.innerHTML=roadmap();rmCalc()}
  if(phTab=="t"){el.innerHTML=teamTab()}
  if(phTab=="k"){el.innerHTML=AREAS.map(a=>`<h3 style="margin:10px 0 4px">${a.ic} ${a.ch}</h3>`+a.cards.map(c=>S.cards.includes(c[0])?`<div class="kc"><b>${c[0]}</b><br>${c[1]}</div>`:`<div class="kc lock">🔒 ${c[0]}</div>`).join("")).join("")+`<p class="disc">${DISC}</p>`}
  if(phTab=="s"){el.innerHTML=`<p>輕鬆模式：<button class="btn ${S.easy?"gr":"dk"}" id="sEasy">${S.easy?"✅ 已開啟":"⬜ 已關閉"}</button><br><small style="color:#aaa">開啟後：點任務就傳送過去；畫面下方出現「🚀 傳送到目標」。答題路口的答案還是要自己選。</small></p>
@@ -1077,18 +1092,46 @@ function fmtT(t){t=Math.max(0,Math.round(t||0));return`${Math.floor(t/60)} 分 $
 function chaptersDone(){return MDEF.filter(m=>S.done[m.id]).map(m=>A(m.id).ch)}
 function videoList(){const V=CFG.videos||[],U=CFG.videoUnlock||[];if(!V.length)return"";
  return`<h4 style="margin:10px 0 4px">🎬 影片（每完成一章解鎖一支）</h4>`+V.map((v,i)=>{const mid=U[i],ok=!mid||S.done[mid];return ok?`<div class="kc"><b>🎬 ${v.t}</b><br><a href="${v.url}" target="_blank" rel="noopener" style="color:var(--cyan)">在 YouTube 觀看</a></div>`:`<div class="kc lock">🔒 完成第 ${mid} 號任務解鎖</div>`}).join("")}
-function roadmap(){const m=monthTier(),mo=m.mo,cur=m.t;
- return`<h3 style="margin:0 0 4px">🗺 人生升級路線圖</h3><p class="sub" style="margin:0 0 6px">級距看「當月」團隊 BV，每月重新計算，不累加。</p>
- <div class="bign">${cur?cur[1]+"%":"未達 3%"}<small>依今天的步調，每月約可到</small></div>
- ${[...TIERS].map(t=>{const on=cur&&cur[0]==t[0];return`<div class="lad ${on?"on":""}"><span>${fmt(t[0])}</span><i><u style="width:${Math.min(100,mo/t[0]*100)}%"></u></i><b style="width:64px">${t[1]}%${on?" 📍":""}</b></div>`}).join("")}
- <p class="disc">每個月都做到這個量（一天 BV（示意）${fmt(m.day)} × 30 天），每月約可到 ${cur?cur[1]+"%":"未達 3%"}（示範試算，非保證收入）</p>
- <details class="more"><summary>看更多：初階、銅章、21% 之後</summary><div>
- <div class="kc"><b>🌱 初階架構 +30%</b><br>級距 ≥9%、個人 ≥100 PV、國內 3 組下線腿各 ≥3%</div>
- <div class="kc"><b>🥉 銅章架構 +40%</b><br>級距 ≥15%、個人 ≥100 PV、3 組下線腿各 ≥6%、自 2014/15 年度起未達金獎章</div>
- <div class="kc"><b>🏆 21% 之後</b><br>領導獎金 6%、紅寶石 2%、明珠 1%、翡翠以上 0.25%：資格與計算以官網為準。白金等獎銜的收入以官網為準。</div>
- <div class="kc"><b>📅 情報卡：3Q有你</b><br>10 月達 Q +1,500 分、11 月達 Q +1,000 分（詳情以官網為準）</div>
- <div class="kc"><b>📅 情報卡：銅章架構重啟獎金</b><br>6 個月內完成 3 次銅章架構，當月最高 NT$25,000，詳情見官網</div></div></details>
- <p class="disc">遊戲 BV 為示意；所有金額皆為示範試算，非保證收入、因人而異。</p>`}
+const tierOf=bv=>{const t=[...TIERS].reverse().find(x=>bv>=x[0]);return t?t[1]:0};
+const fmt2=n=>Number(n).toLocaleString("en-US",{maximumFractionDigits:2});
+const BVS=n=>n>=10000?(n/10000)+"萬":fmt(n);
+const RM_PRE=[["自訂（自己輸入）",null],["例 ①：剛起步——自己＋4 位顧客",[37125,0,0]],["例 ②：陪 4 位夥伴各做到例 ①",[7425,4,37125]],["例 ③：4 位夥伴各做到例 ②",[7425,4,155925]],["用我在遊戲裡的步調",-1]];
+function roadmap(){const m=monthTier(),mo=m.mo,cur=m.t,nx=m.nx,mx=TIERS[TIERS.length-1][0];
+ const stairs=TIERS.map((t,i)=>{const on=cur&&cur[0]==t[0],done=mo>=t[0];return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px">${on?`<div style="font-size:18px">📍</div>`:""}<div style="font-size:12px;font-weight:900;color:${done?"var(--pri)":"var(--sub)"}">${t[1]}%</div><div style="width:100%;height:${22+i*15}px;border-radius:8px 8px 3px 3px;background:${on?"linear-gradient(#ffe066,#f2b300)":done?"linear-gradient(#4ade80,#1f8a45)":"#2a3142"};box-shadow:${on?"0 0 0 2px #fff":"none"}"></div><div style="font-size:11px;color:var(--sub)">${BVS(t[0])}</div></div>`}).join("");
+ return`<h3 style="margin:0 0 2px">🗺 收入怎麼算？3 步看懂</h3><p class="sub" style="margin:0 0 8px">全部都是<b>示範試算</b>，非保證收入、因人而異。</p>
+ <div style="background:var(--card);border-radius:14px;padding:10px 10px 8px"><div style="font-size:13px;font-weight:900;margin-bottom:6px">① 團隊每月 BV 越多，業績獎金％越高</div>
+  <div style="display:flex;gap:4px;align-items:flex-end;height:150px">${stairs}</div>
+  <p class="sub" style="margin:6px 0 0;font-size:13px">📍 依你在遊戲裡的步調：每月約 <b style="color:var(--pri)">${fmt(mo)} BV</b>${cur?`，在 ${cur[1]}% 這一階`:""}${nx?`，再 ${fmt(nx[0]-mo)} BV 到 ${nx[1]}%`:"，已到最高階 21%"}。</p></div>
+ <div style="background:var(--card);border-radius:14px;padding:12px;margin-top:10px">
+  <div style="font-size:13px;font-weight:900;margin-bottom:6px">② 🧮 自己試算看看</div>
+  <select id="rmPre" onchange="rmPreset()" style="width:100%;font-size:15px;padding:9px;border-radius:10px;background:#111;color:#fff;border:2px solid #444">${RM_PRE.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join("")}</select>
+  <label style="display:block;margin-top:10px;font-size:14px">🙋 自己＋顧客，每月 BV<input id="rmA" type="number" inputmode="numeric" min="0" step="100" value="37125" oninput="rmCalc()" style="width:100%;font-size:18px;padding:8px;border-radius:10px;background:#111;color:#fff;border:2px solid #444;margin-top:4px"></label>
+  <label style="display:block;margin-top:10px;font-size:14px">🤝 夥伴人數：<b id="rmNv">0</b> 位<input id="rmN" type="range" min="0" max="6" value="0" oninput="rmCalc()" style="width:100%"></label>
+  <label id="rmBw" style="display:block;margin-top:6px;font-size:14px">👥 每位夥伴的團隊每月 BV<input id="rmB" type="number" inputmode="numeric" min="0" step="100" value="37125" oninput="rmCalc()" style="width:100%;font-size:18px;padding:8px;border-radius:10px;background:#111;color:#fff;border:2px solid #444;margin-top:4px"></label>
+  <div id="rmOut" style="margin-top:12px"></div></div>
+ <div style="font-size:13px;font-weight:900;margin:12px 0 4px">③ 看不懂？點開看說明</div>
+ <details class="more"><summary>什麼是 BV？</summary><div>BV 是產品計算獎金用的「業績值」。你和顧客買產品、夥伴團隊買產品，都會累積成<b>當月團隊 BV</b>。例：顧客買一組 3,000 BV 的產品，你的團隊 BV 就 +3,000（遊戲簡化，實際 BV 以產品標示為準）。</div></details>
+ <details class="more"><summary>為什麼只看「當月」？</summary><div>級距每個月重新計算、不累加。這個月做到 50,000 BV 是 9%，下個月要再做到才會是 9%。所以「每月穩定」比「一次衝很高」更重要。</div></details>
+ <details class="more"><summary>為什麼要「扣掉夥伴的部分」？</summary><div>你領的是<b>你和夥伴之間的級距差額</b>。例 ②：團隊 155,925 BV 對到 12% = 18,711；4 位夥伴各自 37,125 BV 已經領 6%（每位 2,227.50），所以你領 18,711 − 2,227.50×4 = <b>9,801</b>。夥伴做得越好，大家一起往上。</div></details>
+ <details class="more"><summary>初階、銅章加碼是什麼？</summary><div>🌱 <b>初階架構 +30%</b>：級距 ≥9%、個人 ≥100 PV、國內 3 組下線腿各 ≥3%。<br>🥉 <b>銅章架構 +40%</b>：級距 ≥15%、個人 ≥100 PV、3 組下線腿各 ≥6%、自 2014/15 年度起未達金獎章。<br>例 ②：9,801 × 1.3 ≈ 12,741（符合初階才有）。</div></details>
+ <details class="more"><summary>21% 之後還有什麼？</summary><div>領導獎金 6%、紅寶石 2%、明珠 1%、翡翠以上 0.25%；資格與計算以官網為準，白金等獎銜收入以官網為準。</div></details>
+ <details class="more"><summary>📅 本期活動情報</summary><div>3Q有你：10 月達 Q +1,500 分、11 月達 Q +1,000 分。<br>銅章架構重啟獎金：6 個月內完成 3 次銅章架構，當月最高 NT$25,000。<br>（詳情以官網為準）</div></details>
+ <p class="disc">遊戲 BV 為示意；所有金額皆為示範試算，非保證收入、因人而異，實際以公司規定為準。</p>`}
+function rmPreset(){const v=RM_PRE[+$("#rmPre").value][1];if(!v)return;let a=v;if(v===-1){a=[Math.round(monthTier().mo),0,0]}$("#rmA").value=a[0];$("#rmN").value=a[1];if(a[2])$("#rmB").value=a[2];rmCalc()}
+function rmCalc(){const A=Math.max(0,+$("#rmA").value||0),n=+$("#rmN").value||0,B=Math.max(0,+$("#rmB").value||0);$("#rmNv").textContent=n;$("#rmBw").style.opacity=n?1:.4;
+ const T=A+n*B,p=tierOf(T),q=n?tierOf(B):0,G=T*p/100,g=B*q/100,X=Math.max(0,G-n*g);
+ const ini=n>=3&&p>=9&&q>=3,brz=n>=3&&p>=15&&q>=6,nx=TIERS.find(t=>T<t[0]);
+ const row=(ic,l,r,c="")=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #fff1;font-size:14px"><span>${ic} ${l}</span><b style="white-space:nowrap;${c}">${r}</b></div>`;
+ $("#rmOut").innerHTML=`<div style="text-align:center;background:#0d1a12;border:2px solid var(--ok);border-radius:14px;padding:10px"><div class="sub" style="font-size:13px">示範業績獎金（每月）</div><div class="bign" style="color:var(--ok)">NT$${fmt2(X)}</div>
+  ${p?`<div style="height:12px;border-radius:6px;background:#2a3142;overflow:hidden;display:flex;margin:6px 0 2px"><i style="width:${G?X/G*100:0}%;background:var(--ok)"></i><i style="flex:1;background:#555"></i></div><div class="sub" style="font-size:12px">綠色＝你領的　灰色＝夥伴各自領走的</div>`:""}</div>
+  ${row("👥","團隊 BV",`${fmt(A)}${n?` ＋ ${n}×${fmt(B)}`:""} ＝ ${fmt(T)}`)}
+  ${row("📶","對到級距",p?p+"%":"未達 3%（要 10,000 BV）","color:var(--pri)")}
+  ${row("💰","團隊獎金",`${fmt(T)} × ${p}% ＝ ${fmt2(G)}`)}
+  ${n?row("➖",`扣夥伴的部分（每位 ${q}%）`,`${n} × ${fmt2(g)} ＝ −${fmt2(n*g)}`,"color:#f87171"):""}
+  ${row("✅","你的業績獎金",`NT$${fmt2(X)}`,"color:var(--ok)")}
+  ${brz?`<div class="kc" style="margin-top:8px"><b>🥉 若符合銅章架構 +40%</b>：≈ NT$${fmt2(X*1.4)}（需符合資格，以官網為準）</div>`:ini?`<div class="kc" style="margin-top:8px"><b>🌱 若符合初階架構 +30%</b>：≈ NT$${fmt2(X*1.3)}（需符合資格，以官網為準）</div>`:""}
+  ${nx?`<p class="sub" style="font-size:13px;margin-top:6px">💡 團隊再多 ${fmt(nx[0]-T)} BV，就會到 ${nx[1]}%。</p>`:`<p class="sub" style="font-size:13px;margin-top:6px">🏆 已到 21%，之後還有領導獎金等（以官網為準）。</p>`}
+  <p class="disc">示範試算，非保證收入、因人而異；實際獎金依公司規定與當月實際業績計算。</p>`}
 function shareText(){return`我用 ${fmtT(S.endT||S.playT)} 全破「人生升級：升級城」，一路翻了 ${S.opp.talks} 張牌，你能更快嗎？`}
 async function shareChallenge(){const url=CFG.shareUrl||location.href.split("#")[0],text=shareText();
  try{if(navigator.share){await navigator.share({title:"人生升級：升級城",text,url});return}}catch(e){if(e&&e.name=="AbortError")return}
@@ -1428,7 +1471,7 @@ function renderFP(){
  FBx.putImageData(FBimg,0,0);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(FB,0,0,VW,VH);
  // sprites
  const SP=[];const push=(o,kind,ex={})=>{const rx2=o.x-cx,ry2=o.y-cy,d=rx2*fx+ry2*fy;if(d<14||d>FOG)return;const lat=rx2*rx+ry2*ry;const sx=bw/2+lat*f/d;if(sx<-60||sx>bw+60)return;SP.push(Object.assign({o,kind,d,sx},ex))};
- for(const c of CARS)push(c,"car");for(const n of NPC)push(n,"car");for(const r of RU)push(r,"car");
+ for(const c of CARS)push(c,"car");for(const n of NPC)if(!n.fly)push(n,"car");for(const r of RU)push(r,"car");
  for(const q of PEDS)push(q,"ped");for(const t of TREES)push(t,"tree");for(const c of CONES)push(c,"cone");
  COLLECT.forEach((c,i)=>{if(!S.found.includes(i))push(c,"emoji",{e:"🪙",h:14})});
  for(const b of BLD)if(b.label)push({x:b.x+b.w/2,y:b.y+b.h/2},"sign",{t:b.label,h:b.ht+26,col:b.sign||"#000"});
@@ -1486,7 +1529,7 @@ boot();
 window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=x;o.y=y;if(PL.car){PL.car.vx=PL.car.vy=0}},
  answer:(right=true)=>{if(!QZ)return false;const o=PL.car||PL;if(!QZ.pads){o.x=QZ.ic.x;o.y=QZ.ic.y+300;quizCross()}const i=QZ.order.indexOf(QZ.q[2]),j=right?i:(i+1)%QZ.n,pd=QZ.pads[j];o.x=pd.x;o.y=pd.y;quizCross();return true},
  talkTo:()=>{const p=PEDS[0];PL.x=p.x+20;PL.y=p.y;talk(p);return p},res:(i,f)=>{const p=PEDS[0];return talkResult(p,i==null?OPENERS.findIndex(o=>o[1]==p.need):i,f)},spadeChance,SPADE,shareTap,askTip,incShow,incHide,incCalc,incNow,updInc,tierPct,monthCheck,judge,OPENERS,clock:v=>{S.clock=v},PEDS:()=>PEDS,
- CARS:()=>CARS,KINDS,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
+ CARS:()=>CARS,KINDS,BLD:()=>BLD,RU:()=>RU,NPC:()=>NPC,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
  next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF.find(m=>m.id==id)),ending:()=>ending(),obj:()=>objTarget(),step:()=>{const c=curStep();return c?c.t:null},pass:()=>passMission(),missions:MDEF};
 </script>
 <script src="firebase-config.js"></script>
