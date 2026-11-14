@@ -1,6 +1,6 @@
 /* 體育館：球場資料（維基百科）、開賽時天氣與當月氣候（Open-Meteo）、主辦國家特色（維基百科）。 */
 
-const VENUE_PREFIX = "fb-venue-v1:";
+const VENUE_PREFIX = "fb-venue-v2:";
 const venueStore = new Map();
 
 const WMO_ZH = {
@@ -67,7 +67,7 @@ async function stadiumInfo(model) {
     if (doc) {
       for (const [k, v] of infoboxRows(doc)) {
         const hit = STADIUM_KEYS.find(([re]) => re.test(k));
-        if (hit && !out.facts[hit[1]] && v.length < 120) out.facts[hit[1]] = v;
+        if (hit && !out.facts[hit[1]] && v.length < 120) out.facts[hit[1]] = v.replace(/^Grass$/i, "天然草皮").replace(/^Artificial (turf|grass)$/i, "人工草皮").replace(/^Hybrid( grass)?$/i, "混合草皮").replace(/^Municipality of (.+)$/i, "$1 市政府");
       }
       const sents = [];
       for (const sec of docSections(doc)) {
@@ -106,21 +106,36 @@ async function countryInfo(countryEn) {
     const hit = pick.find(([re]) => re.test(k));
     if (hit && !facts[hit[1]] && v.length < 90) facts[hit[1]] = { v: v.replace(/（[^）]{20,}）/g, ""), icon: hit[2] };
   }
-  const want = /美食|料理|菜|飲食|咖啡|啤酒|葡萄酒|文化|音樂|舞蹈|節慶|節日|世界遺產|遺產|宗教|景點|著名|聞名|以.*聞名|特產|運動|足球|國球|傳統|語言|旅遊|自然|山|海灘|沙漠|氣候/;
+  const want = /美食|料理|菜餚|名菜|飲食|咖啡|啤酒|葡萄酒|茶|文化|音樂|舞蹈|節慶|節日|慶典|世界遺產|名勝|景點|國家公園|旅遊|特產|足球|國球|運動|奧運|傳統|氣候|聞名/;
+  const bad = /領土|爭議|戰爭|內戰|衝突|獨立|政府|總統|總理|議會|國會|承認|主權|軍隊|軍事|屠殺|難民|制裁|選舉|政黨|恐怖|殖民|佔領|占領|入侵/;
   const sents = [];
   for (const sec of docSections(doc)) {
-    if (STORY_SKIP.test(sec.head) || /政治|政府|軍事|外交|行政區劃|經濟/.test(sec.head)) continue;
-    for (const s of storySentences(sec.text)) if (want.test(s) || /文化|飲食|體育|旅遊|宗教|節日/.test(sec.head)) sents.push({ s, head: sec.head });
+    if (STORY_SKIP.test(sec.head) || /歷史|政治|政府|軍事|外交|行政區劃|經濟|人口/.test(sec.head)) continue;
+    for (const s of storySentences(sec.text)) {
+      if (bad.test(s) || /^[它其該此這]/.test(s)) continue;
+      if (want.test(s) || /文化|飲食|體育|旅遊|宗教|節日|地理|氣候/.test(sec.head)) sents.push({ s, head: sec.head });
+    }
   }
-  const seen = new Set();
+  const tagOf = (x) => {
+    const t = x.head + x.s;
+    if (/足球|運動|奧運|體育|國球/.test(t)) return "⚽ 體育";
+    if (/美食|料理|菜|飲食|咖啡|啤酒|葡萄酒|茶|特產/.test(t)) return "🍽️ 美食";
+    if (/世界遺產|名勝|景點|國家公園|旅遊/.test(t)) return "🏞️ 景點";
+    if (/氣候|溫|降雨|雨季|乾季/.test(t)) return "🌤️ 氣候";
+    if (/節|音樂|舞|文化|宗教|傳統/.test(t)) return "🎭 文化";
+    return "📌 特色";
+  };
   const features = [];
+  const count = {};
   for (const x of sents) {
-    const tag = /體育|足球|運動/.test(x.head + x.s) ? "⚽ 體育" : /飲食|美食|料理|菜|咖啡|酒/.test(x.head + x.s) ? "🍽️ 美食" : /節|音樂|舞|文化|宗教|傳統/.test(x.head + x.s) ? "🎭 文化" : /遺產|景點|旅遊|自然|山|海/.test(x.head + x.s) ? "🏞️ 景點" : "📌 特色";
-    if (seen.has(tag) && features.filter((f) => f.tag === tag).length >= 2) continue;
-    seen.add(tag);
+    const tag = tagOf(x);
+    if ((count[tag] || 0) >= 2) continue;
+    count[tag] = (count[tag] || 0) + 1;
     features.push({ tag, s: x.s });
-    if (features.length >= 7) break;
+    if (features.length >= 8) break;
   }
+  const order = ["⚽ 體育", "🍽️ 美食", "🎭 文化", "🏞️ 景點", "🌤️ 氣候", "📌 特色"];
+  features.sort((a, b) => order.indexOf(a.tag) - order.indexOf(b.tag));
   return { name: toTw(sum?.title || zh), intro: sum?.extract || "", url: `https://zh.wikipedia.org/zh-tw/${encodeURIComponent(zh)}`, facts, features };
 }
 
@@ -301,7 +316,7 @@ function venueBlock(model) {
     if (co.intro) cp.append(h("p", null, ui(String(co.intro).split(/(?<=。)/).slice(0, 2).join(""))));
     if (co.features.length) cp.append(h("div", { class: "st-label" }, ui("🎯 國家特色（美食、文化、體育、景點）")), h("div", { class: "st-list" }, co.features.map((f) => h("div", { class: "st-item" }, h("b", null, ui(f.tag)), h("p", null, ui(f.s))))));
     cp.append(h("p", { class: "faint kc-src" }, ui("來源：維基百科 · "), h("a", { href: co.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
-    const food = co.features.find((f) => /美食/.test(f.tag)) || co.features[0];
+    const food = co.features.find((f) => /美食/.test(f.tag)) || co.features.find((f) => /體育|文化|景點/.test(f.tag));
     if (food) say.push(`順便認識一下${co.name}：${food.s}`);
   } else {
     cp.append(h("p", { class: "muted" }, ui("找不到主辦國家的資料。")));
