@@ -10,11 +10,11 @@ function svRing(label, hit, n, big) {
 }
 
 function svBadge(hit) {
-  if (hit === true) return h("span", { class: "sv-b hit" }, "✅");
-  if (hit === false) return h("span", { class: "sv-b miss" }, "❌");
-  if (hit === "push") return h("span", { class: "sv-b push" }, "↔");
-  if (hit === "na") return h("span", { class: "sv-b na" }, "–");
-  return h("span", { class: "sv-b pend" }, "⏳");
+  if (hit === true) return h("span", { class: "sv-b sv-ok" }, "✅");
+  if (hit === false) return h("span", { class: "sv-b sv-bad" }, "❌");
+  if (hit === "push") return h("span", { class: "sv-b sv-push" }, "↔");
+  if (hit === "na") return h("span", { class: "sv-b sv-na" }, "–");
+  return h("span", { class: "sv-b sv-pend" }, "⏳");
 }
 
 /* 預測 vs 實際：每個數據一列，上條預測、下條實際，同一個比例尺 */
@@ -63,7 +63,7 @@ function svBars(rows) {
 
 /* 賽前預測卡：左預測、右實際，中間結果 */
 function svCards(rows) {
-  return h("div", { class: "sv-cards" }, rows.map((r) => h("div", { class: `sv-card ${r.hit === true ? "hit" : r.hit === false ? "miss" : ""}` },
+  return h("div", { class: "sv-cards" }, rows.map((r) => h("div", { class: `sv-card ${r.hit === true ? "sv-ok" : r.hit === false ? "sv-bad" : ""}` },
     h("div", { class: "sv-ct" }, ui(r.label)),
     h("div", { class: "sv-cmp" },
       h("div", { class: "sv-side" }, h("small", null, ui("預測")), h("b", null, ui(r.pick))),
@@ -87,7 +87,7 @@ function svMatrix(model, bag) {
         ...graded.map((g) => {
           const c = g.cells[k];
           if (!c) return h("td", null, "");
-          const cls = c.g.hit === true ? "hit" : c.g.hit === false ? "miss" : c.g.hit === "push" ? "push" : "pend";
+          const cls = c.g.hit === true ? "sv-ok" : c.g.hit === false ? "sv-bad" : c.g.hit === "push" ? "sv-push" : "sv-pend";
           return h("td", { class: `sv-cell ${cls}`, title: `${c.it.text} → ${c.g.actual}` }, h("div", { class: "sv-cv" }, ui(c.it.text.replace(/（只算這之後的進球）/, "").replace(/^全場/, ""))));
         }));
     })));
@@ -99,7 +99,7 @@ function svCornerStrip(model, bag) {
   if (bag?.corners?.item) items.push({ minute: "賽前", it: bag.corners.item, g: gradeOne(bag.corners.item, model, null) });
   for (const snap of bag?.cornerLive || []) items.push({ minute: ledgerMinuteLabel(snap.minute), it: snap.item, g: gradeOne(snap.item, model, snap) });
   if (!items.length) return null;
-  return h("div", { class: "sv-strip" }, items.map((x) => h("div", { class: `sv-chip ${x.g.hit === true ? "hit" : x.g.hit === false ? "miss" : "pend"}`, title: x.g.gap },
+  return h("div", { class: "sv-strip" }, items.map((x) => h("div", { class: `sv-chip ${x.g.hit === true ? "sv-ok" : x.g.hit === false ? "sv-bad" : "sv-pend"}`, title: x.g.gap },
     h("small", null, ui(x.minute)), h("b", null, ui(x.it.text.replace(/（預估.*）/, "").replace("角球", ""))), svBadge(x.g.hit))));
 }
 
