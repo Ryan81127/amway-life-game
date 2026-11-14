@@ -189,8 +189,9 @@ function previewBlock(model) {
   }
   if (sh.stars[0] && sa.stars[0]) points.push(`關鍵對位：${H}的 ${sh.stars[0].name} 對上 ${A}的 ${sa.stars[0].name}，誰先開火誰就帶動全隊。`);
   if (fh && fa) {
-    const better = fh.w > fa.w ? [H, fh] : fa.w > fh.w ? [A, fa] : null;
-    points.push(better ? `氣勢：${better[0]}近 ${better[1].n} 場 ${better[1].w} 勝，帶著好手感進場。` : `氣勢：兩隊近況差不多（${H} ${fh.w} 勝、${A} ${fa.w} 勝）。`);
+    const desc = (n, f) => `${n}近 ${f.n} 場 ${f.w} 勝 ${f.d} 和 ${f.l} 負（${f.mood}）`;
+    const hot = fh.w >= 3 && fh.w > fa.w ? H : fa.w >= 3 && fa.w > fh.w ? A : null;
+    points.push(`氣勢：${desc(H, fh)}；${desc(A, fa)}${hot ? `，${hot}帶著好手感進場` : fh.l >= 3 && fa.l >= 3 ? "，兩隊都急需一場勝利" : ""}。`);
   }
   const outs = [...sh.out.map((x) => `${H} ${x.name}`), ...sa.out.map((x) => `${A} ${x.name}`)];
   if (outs.length) points.push(`缺陣影響：${outs.slice(0, 3).join("、")}，輪換深度會被考驗。`);
