@@ -968,6 +968,7 @@ function buildModel(data, leagueSlug) {
     kickoff: comp.date || data.header?.competitions?.[0]?.date,
     venue: venue.fullName || "",
     city: venue.address?.city || "",
+    country: venue.address?.country || "",
     minute,
     home,
     away,

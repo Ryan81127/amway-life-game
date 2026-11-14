@@ -992,3 +992,9 @@ body.has-rail #app { padding-left: 64px; }
 .fact-table .fv { font-weight: 700; line-height: 1.45; }
 .fact-table .fs { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
 @media (max-width: 640px) { .fact-table { font-size: 13px; } .fact-table thead th:first-child, .fact-table tbody th { width: 28%; } }
+.fact-table.kv th { width: 32%; }
+.wx { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 4px 0 8px; }
+.wx-main { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.wx-main b { font-size: 30px; color: var(--gold); }
+.wx-ic { font-size: 30px; }
+.wx-grid { display: grid; grid-template-columns: repeat(2, auto); gap: 4px 16px; font-size: 13px; color: var(--muted); }

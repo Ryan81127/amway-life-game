@@ -392,11 +392,11 @@ function renderMatch(app, route) {
   const hasComm = commRich(model);
   if (typeof ledgerCapture === "function") ledgerCapture(model);
   if (pre) {
-    wrap.append(...[predSection(model), inplayBlock(model), cornerBlock(model), injuryBlock(model), starsBlock(model), historyBlock(model), coachBlock(model), cardsBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
+    wrap.append(...[predSection(model), inplayBlock(model), cornerBlock(model), injuryBlock(model), starsBlock(model), historyBlock(model), coachBlock(model), venueBlock(model), cardsBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else if (done) {
-    wrap.append(...[recapBlock(model), settleBlock(model), cornerBlock(model), starsBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), historyBlock(model), coachBlock(model), injuryBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
+    wrap.append(...[recapBlock(model), settleBlock(model), cornerBlock(model), starsBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), savedPredSection(model), movementBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), formBlock(model), h2hBlock(model), historyBlock(model), coachBlock(model), venueBlock(model), injuryBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else {
-    wrap.append(...[analysisBlock(model), savedPredSection(model), inplayBlock(model), cornerBlock(model), recapBlock(model), settleBlock(model), injuryBlock(model), starsBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), movementBlock(model), oddsBlock(model), formationBlock(model), cheatBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model), historyBlock(model), coachBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
+    wrap.append(...[analysisBlock(model), savedPredSection(model), inplayBlock(model), cornerBlock(model), recapBlock(model), settleBlock(model), injuryBlock(model), starsBlock(model), cardsBlock(model), statsBlock(model), timeline(model), hasComm ? null : checkpointBlock(), movementBlock(model), oddsBlock(model), formationBlock(model), cheatBlock(model), lineupBlock(model), formBlock(model), h2hBlock(model), historyBlock(model), coachBlock(model), venueBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   }
   app.append(wrap, footer());
   app.dataset.ready = "1";
@@ -412,8 +412,8 @@ function matchNav(model) {
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const items = pre
-    ? [["prediction", "盤口預測"], ["inplay", "滾球"], ["corners", "角球"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
-    : [...(phase === "ft" ? [] : [["mood", "此刻可以說"], ["inplay", "滾球"]]), ["recap", "復盤"], ["settle", "對帳"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
+    ? [["prediction", "盤口預測"], ["inplay", "滾球"], ["corners", "角球"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["cards", "知識卡"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
+    : [...(phase === "ft" ? [] : [["mood", "此刻可以說"], ["inplay", "滾球"]]), ["recap", "復盤"], ["settle", "對帳"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "事件"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
   /* 側欄按鈕順序跟頁面區塊分開。進行中：話術、預測、滾球、角球，再接復盤、對帳。 */
   const railRank = { mood: 10, prediction: 20, inplay: 30, corners: 40, recap: 50, settle: 55, stats: 60, timeline: 70, "live-analysis": 80, stars: 90, cards: 100, injuries: 110, history: 120, coaches: 130, movement: 140, links: 150 };
   const railItems = pre ? items : items.slice().sort((a, b) => (railRank[a[0]] ?? 500) - (railRank[b[0]] ?? 500));
