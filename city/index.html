@@ -262,7 +262,8 @@ body.cut #incBtn{visibility:hidden}
 #askBtn.first{animation:askGlow 2.4s ease-in-out infinite,askPulse 1.4s ease-out infinite}
 @keyframes askGlow{0%,100%{box-shadow:0 0 10px #8b5cf699,0 0 3px #14e0c8}50%{box-shadow:0 0 20px #d946efcc,0 0 8px #14e0c8}}
 @keyframes askBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-#tip{top:calc(246px + env(safe-area-inset-top))!important}
+#tip{top:calc(246px + env(safe-area-inset-top))!important;pointer-events:auto!important;padding-bottom:6px!important}
+.tipX{display:block;margin:8px 0 0 auto;border:0;border-radius:10px;background:#2a3142;color:#fff;font-weight:900;font-size:14px;padding:6px 14px;font-family:inherit;cursor:pointer}
 @keyframes askPulse{0%{outline:0 solid #14e0c8aa;outline-offset:0}100%{outline:10px solid #14e0c800;outline-offset:4px}}
 #feed{top:calc(250px + env(safe-area-inset-top));width:min(250px,calc(100vw - 196px))}
 .rc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
@@ -302,7 +303,7 @@ body.cut #incBtn{visibility:hidden}
   <p style="text-align:center;font-size:15px;line-height:1.7;margin:12px 0">開放城市任務版：在城裡開車、接 6 個任務，<br>把《安麗新人手冊》與《卓越新星計劃》一路玩懂。</p>
   <div style="text-align:center"><button class="btn w100" id="bStart" style="max-width:340px">▶ 開始遊戲</button><br><button class="btn dk" id="bReset" style="font-size:14px;padding:8px 14px">重新開始</button></div>
   <div class="how">
-   <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 真心對話（分享 OPP）</b><br>走路靠近路人，按 T（手機按 💬）。每位路人頭上都寫著他的需要，先聽懂需要、再挑合適的話題，對方才會滿意。結果看你懂不懂對方，不是靠運氣。每次開口都有「勇氣 EXP」，被拒絕也算數！</div>
+   <div style="grid-column:span 2;border:2px solid var(--green)"><b>💬 真心對話（分享 OPP）</b><br>走路靠近路人，按 T（手機按 💬）。每位路人頭上都寫著他的需要，先聽懂需要、再挑合適的話題，對方才會滿意。聊對需要更容易成功，但就算聊對了，也有大約 4 成的人會先婉拒，這很正常。每次開口都有「勇氣 EXP」，被拒絕也算數！</div>
    <div style="grid-column:span 2"><b>🚲 共享單車／🛵 共享電動機車</b><br>路邊停有單車（比走路快一點）和電動機車（比單車再快），靠近按 E／🚗 就能騎。路人看到車會跳開；開太快擦到路人，車子會彈開、扣一點信用值，記得禮讓行人。</div>
    <div><b>移動／開車</b><br>電腦：WASD 或方向鍵<br>手機：左下搖桿（推哪邊就往哪開）</div>
    <div><b>上車／下車</b><br>電腦：E 或 F<br>手機：綠色 🚗 按鈕</div>
@@ -715,11 +716,11 @@ function ruTarget(c){const p=PL.car||PL;if(dist(c,p)<320)return p;
  if(h>=0){const cl=clamp(Math.floor(c.x/PT),0,5),cr=clamp(cl+1,0,5);return ctr(p.x>c.x?cr:cl,h)}
  if(v>=0){const rt=clamp(Math.floor(c.y/PT),0,5),rb=clamp(rt+1,0,5);return ctr(v,p.y>c.y?rb:rt)}
  return p}
-function hiddenBld(){if(!PL.car||PL.car.kind!="bike")return null;const p=PL.car;for(const b of BLD)if(p.x>b.x+4&&p.x<b.x+b.w-4&&p.y>b.y+4&&p.y<b.y+b.h-4)return b;return null}
+function hiddenBld(){const p=PL.car?(PL.car.kind=="bike"?PL.car:null):PL;if(!p)return null;for(const b of BLD)if(p.x>b.x+4&&p.x<b.x+b.w-4&&p.y>b.y+4&&p.y<b.y+b.h-4)return b;return null}
 function outsidePt(b,c){const m=50;let x=clamp(c.x,b.x-m,b.x+b.w+m),y=clamp(c.y,b.y-m,b.y+b.h+m);if(x>b.x-m&&x<b.x+b.w+m&&y>b.y-m&&y<b.y+b.h+m){const dl=x-(b.x-m),dr=b.x+b.w+m-x,dt2=y-(b.y-m),db=b.y+b.h+m-y,mn=Math.min(dl,dr,dt2,db);if(mn==dl)x=b.x-m;else if(mn==dr)x=b.x+b.w+m;else if(mn==dt2)y=b.y-m;else y=b.y+b.h+m}return{x,y}}
 function updRumor(dt){
  const hid=hiddenBld();
- if(hid){if(!PL.hideT){PL.hideT=.001;PL.hideMsg=0;if(RU.length)toast("🏠 騎進建築物躲起來了！","謠言車進不來，會在外面等 10 秒。","#5ec8ff")}else PL.hideT+=dt;
+ if(hid){if(!PL.hideT){PL.hideT=.001;PL.hideMsg=0;if(RU.length)toast(PL.car?"🏠 騎進建築物躲起來了！":"🏠 躲進建築物了！","謠言車進不來，會在外面等 10 秒。","#5ec8ff")}else PL.hideT+=dt;
   if(RU.length){const left=Math.max(0,Math.ceil(10-PL.hideT));const pr=$("#prompt");pr.textContent=left>0?`🏠 躲藏中…謠言車 ${left} 秒後離開`:"🏠 躲藏中";pr.classList.remove("hide")}
   if(PL.hideT>=10&&RU.length){if(MS&&MS.chase){if(!PL.hideMsg){PL.hideMsg=1;toast("🕵️ 這批謠言躲不掉","「謠言大追緝」要開進真相路口答對才能破解喔！","#c78bff")}}
    else{for(const r of RU){burst(r.x,r.y,"#c78bff",16);float(r.x,r.y-24,"等不到人…撤退！","#c78bff")}RU=[];PL.stars=0;PL.starT=0;toast("🚓 謠言車等不到人，離開了！","謠言值歸零。騎單車躲進建築物是甩掉追兵的好方法。","#4ade80")}}}
@@ -793,7 +794,7 @@ function update(dt){
   if(S.view=="fp"){PL.a+=mx2*2.6*dt;const fw=-my2;if(Math.abs(fw)>.05){PL.x+=Math.cos(PL.a)*fw*210*dt;PL.y+=Math.sin(PL.a)*fw*210*dt;PL.walk=(PL.walk||0)+dt*10}mx2=0;my2=0}
   const m=Math.hypot(mx2,my2);
   if(m>0){const sp=210*Math.min(1,m);PL.x+=mx2/Math.max(1,m)*sp*dt;PL.y+=my2/Math.max(1,m)*sp*dt;PL.a=Math.atan2(my2,mx2);PL.walk=(PL.walk||0)+dt*10}
-  pushOut(PL,11);for(const c of[...CARS,...NPC]){const d=dist(PL,c);if(d<26&&d>0){PL.x+=(PL.x-c.x)/d*(26-d);PL.y+=(PL.y-c.y)/d*(26-d)}}
+  PL.x=clamp(PL.x,11,W-11);PL.y=clamp(PL.y,11,W-11);for(const c of[...CARS,...NPC]){const d=dist(PL,c);if(d<26&&d>0){PL.x+=(PL.x-c.x)/d*(26-d);PL.y+=(PL.y-c.y)/d*(26-d)}}
   if(ENG)ENG.g.gain.value=0;
  }
  // enter/exit
@@ -896,6 +897,7 @@ function render(){
  // ground (cached detailed chunks)
  const DI=dayInfo();
  for(let j=Math.max(0,Math.floor(vy0/CH));j<=Math.min(Math.floor((W-1)/CH),Math.floor(vy1/CH));j++)for(let i=Math.max(0,Math.floor(vx0/CH));i<=Math.min(Math.floor((W-1)/CH),Math.floor(vx1/CH));i++){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(chunk(i,j),i*CH,j*CH,CH+.6,CH+.6)}
+ if(window.SCN)SCN.ground(vx0,vy0,vx1,vy1,DI);
  // sun shadows (move with the clock)
  const SV=sunVec(DI);if(SV.a>0){ctx.fillStyle=`rgba(10,20,40,${SV.a})`;ctx.beginPath();
   for(const b of BLD){if(!inView(b.x+b.w/2,b.y+b.h/2,b.ht*1.6+b.w))continue;const dx=SV.x*b.ht,dy=SV.y*b.ht,x0=b.x,y0=b.y,x1=b.x+b.w,y1=b.y+b.h;
@@ -1017,6 +1019,7 @@ function render(){
     if(night){ctx.fillStyle=g2.c+"55";ctx.fillRect(sx4-17,sy4-6,34,len+12)}ctx.fillStyle="#fff";ctx.font="900 14px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";for(let k=0;k<g2.t.length;k++)ctx.fillText(g2.t[k],sx4,sy4+12+k*16)}}
   if(b.label){const fs=Math.min(rw/(b.label.length+.5),58);ctx.font=`900 ${fs}px 'Noto Sans TC',sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";const ly=b.tower?ry+rh*.82:ry+rh*.42;
    ctx.fillStyle=b.sign||"#000";const tw=ctx.measureText(b.label).width;ctx.fillRect(rx+rw/2-tw/2-10,ly-fs*.65,tw+20,fs*1.3);ctx.fillStyle="#fff";ctx.fillText(b.label,rx+rw/2,ly+2)}}
+ if(window.SCN)SCN.sky(vx0,vy0,vx1,vy1,DI);
  // floats
  for(const f of FLOATS){ctx.globalAlpha=clamp(f.life,0,1);ctx.font="900 24px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText(f.t,f.x,f.y);ctx.fillStyle=f.col;ctx.fillText(f.t,f.x,f.y)}ctx.globalAlpha=1;
  // day / night
@@ -1293,7 +1296,8 @@ const BUY_P={直銷商:.75,生活會員:.6,安麗之友:.35,老鷹夥伴:.8};
 const BADGES=[1,5,10,20,30,50,100,200];
 let SCHED=[];
 function nearPed(){if(PL.car||PAUSE)return null;let b=null,bd=50;for(const p of PEDS){if(p.result&&!(p.result=="rej"&&p.rejDay<S.day))continue;const d=Math.hypot(p.x-PL.x,p.y-PL.y);if(d<bd){bd=d;b=p}}return b}
-function judge(p,i){if(!OPENERS[i])return null;const op=OPENERS[i],nd=p.need||"info";return op[1]==nd?OUT[nd]:null}
+const MATCH_REJ_P=.4,MATCH_REJ=["聽起來真的不錯，但我想再考慮看看","我先跟家人討論一下再說","最近手頭比較緊，下次吧","我懂你的意思，不過現在先不用"];
+function judge(p,i){p.matchRej=0;if(!OPENERS[i])return null;const op=OPENERS[i],nd=p.need||"info";if(op[1]!=nd)return null;if(Math.random()<MATCH_REJ_P){p.matchRej=1;return null}return OUT[nd]}
 function faceType(o){const f=o.faceT>0?o.face:"";if(["😄","😊","🙂","😤"].includes(f)&&f!="😤")return"happy";if(["🤔","😅","🙅","😑","😠"].includes(f))return"sad";if(!f&&o.result&&o.result!="rej")return"happy";return"neutral"}
 const SHORT={air:["🌬️","聊空氣"],water:["💧","聊好水"],nut:["🥗","聊營養"],biz:["🏡","聊副業"],info:["ℹ️","給官方資訊"]};
 const NEED_SHORT={air:"想要好空氣",water:"想喝好水",nut:"想補充營養",biz:"想找副業",info:"想了解安麗"};
@@ -1328,10 +1332,10 @@ function talkResult(p,i=0,forceSpade){const j=judge(p,i),o=S.opp,op=OPENERS[i];l
  const k=j?j.k:(spade?"dist":"rej");o[k]=(o[k]||0)+1;p.result=k;const fc=pick(FACES[k]);p.face=fc;p.faceT=8;
  const nd=NEEDS[p.need||"info"];let html;
  if(j){o.sat=(o.sat||0)+1;exp+=25;S.today.sat=(S.today.sat||0)+1;const m={n:p.name,t:j.n,av:p.av,d:S.day,sales:0,bv:0,buys:0};S.team.push(m);scheduleMember(m,S.clock)}
- if(!j&&!spade){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();const say=pick(op[1]=="push"?MISS_SAY.push:MISS_SAY.other);const five=o.streak%5==0;
+ if(!j&&!spade){o.streak=(o.streak||0)+1;p.rejDay=S.day;SFX.star();const say=pick(p.matchRej?MATCH_REJ:(op[1]=="push"?MISS_SAY.push:MISS_SAY.other));const five=o.streak%5==0;
   html=`<div class="hero"><div class="face">${fc}</div><p class="lede">${p.name}：「${say}」</p><p style="font-size:17px;color:var(--pri);font-weight:900">${pick(CHEER)}</p><span class="rwd">💪 勇氣 +${exp} EXP</span></div>
   ${five?`<div class="near5">🃏 你離黑桃 2 又近了一張</div>`:""}
-  <details class="more"><summary>看更多</summary><div>${op[1]=="push"?"一開口就邀請加入，對方會覺得被推銷。先聽懂需要，再分享對他有用的東西。":`${p.name}的需要是「${nd.t}」，下次換個話題試試。`}<br>${p.name} 明天可以再聊一次。</div></details>`;
+  <details class="more"><summary>看更多</summary><div>${op[1]=="push"?"一開口就邀請加入，對方會覺得被推銷。先聽懂需要，再分享對他有用的東西。":(p.matchRej?`你有聊到他的需要「${nd.t}」，他還是想再考慮。就算聊對了，大約也有 4 成的人會先婉拒，這很正常。保持關心，下次再聊。`:`${p.name}的需要是「${nd.t}」，下次換個話題試試。`)}<br>${p.name} 明天可以再聊一次。</div></details>`;
   if(five){tone(392,.15,"triangle",.06);tone(523,.2,"triangle",.06,0,.12)}}
  else{o.streak=0;SFX.pass();
   html=j?`<div class="hero"><div class="face">${fc}</div><h2 style="color:var(--pri)">${p.name} 很滿意！</h2><p class="sub">「${j.say}」</p><span class="rwd">勇氣 +15｜顧客滿意 +25 EXP</span></div>`:"";
@@ -1426,7 +1430,8 @@ function askTip(){if(!STARTED)return;if(!S.askSeen){S.askSeen=1;$("#askBtn").cla
   L=[nm?`💡 下一個任務：<b>${nm.id}. ${nm.title}</b>（約 ${Math.round(dist(o,nm.at)/10)} m）`:"💡 任務都完成了！可以找路人翻牌、找隱藏積點包。",
    "BV 是業績點數，不等於售價（淨熱組 $39,800 → BV 37,904）。",
    mt.day?`每個月都做到這個量，每月約可到 ${mt.t?mt.t[1]+"%":"未達 3%"}（示範試算，非保證收入）`:"級距看「當月」團隊 BV，每月重新計算。"]}
- const el=$("#tip");el.innerHTML=L.slice(0,3).join("<br>");el.classList.add("on");tipT=6;SFX.pick()}
+ const el=$("#tip");el.innerHTML=L.slice(0,3).join("<br>")+`<button class="tipX" onclick="event.stopPropagation();hideTip()">收起 ▲</button>`;el.classList.add("on");tipT=8;SFX.pick()}
+function hideTip(){$("#tip").classList.remove("on");tipT=0;document.body.classList.remove("hideinc")}
 $("#askBtn").onclick=askTip;
 /* ================= FIRST-PERSON VIEW ================= */
 function hex2(h){const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]}
@@ -1434,6 +1439,7 @@ let FB=null,FBx=null,FBimg=null,FB32=null,ZB=null,GR=0,GG=0,GB=0,RINGS=[];
 function fpSetup(){const ps=Math.max(VW,VH)/(VW>VH?720:560),bw=Math.max(80,Math.round(VW/ps)),bh=Math.max(80,Math.round(VH/ps));
  if(FB&&FB.width==bw&&FB.height==bh)return;FB=document.createElement("canvas");FB.width=bw;FB.height=bh;FBx=FB.getContext("2d");FBimg=FBx.createImageData(bw,bh);FB32=new Uint32Array(FBimg.data.buffer);ZB=new Float32Array(bw)}
 function gcol(x,y){
+ if(x>=W&&y>-3000&&y<W+3000){if(x<W+70){GR=233;GG=216;GB=166}else{const w=((x*.05+y*.11)|0)&7;GR=34+w*2;GG=118+w*3;GB=176+w*3}return}
  if(x<0||y<0||x>=W||y>=W){GR=60;GG=107;GB=53;return}
  const lx=x%PT,ly=y%PT,inH=ly<RWP,inV=lx<RWP;
  if(inH||inV){GR=58;GG=60;GB=66;
@@ -1532,6 +1538,7 @@ window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=
  CARS:()=>CARS,KINDS,BLD:()=>BLD,RU:()=>RU,NPC:()=>NPC,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
  next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF.find(m=>m.id==id)),ending:()=>ending(),obj:()=>objTarget(),step:()=>{const c=curStep();return c?c.t:null},pass:()=>passMission(),missions:MDEF};
 </script>
+<script src="scenery.js"></script>
 <script src="firebase-config.js"></script>
 <script src="net.js"></script>
 </body>
