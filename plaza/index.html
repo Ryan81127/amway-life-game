@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>人脈廣場｜台灣城市商務人脈媒合</title>
+<meta name="description" content="走進台灣街角的人脈廣場：說出你的需求，對的廠商會跑過來找你，再由 Ryan 親自幫你牽線。">
+<meta property="og:title" content="人脈廣場｜台灣城市商務人脈媒合">
+<meta property="og:description" content="說出你的需求，對的廠商會跑過來找你。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1d2433">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./" aria-label="人脈廣場首頁">
+    <span class="seal" aria-hidden="true">人<br>脈</span>
+    <span class="brand-t"><b>人脈廣場</b><small>TAIWAN · 台灣城市商務媒合</small></span>
+  </a>
+  <nav class="top-act">
+    <button type="button" class="btn ghost" id="btnMe">打造我的形象</button>
+    <button type="button" class="btn red" id="btnJoin">我想加入</button>
+  </nav>
+</header>
+
+<main>
+  <section class="stage-wrap">
+    <div class="stage t-dusk" id="stage">
+      <svg id="scene" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="sk1"/><stop offset=".55" class="sk2"/><stop offset="1" class="sk3"/>
+          </linearGradient>
+          <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d9a083"/><stop offset="1" stop-color="#a95d43"/>
+          </linearGradient>
+          <pattern id="brick" width="56" height="22" patternUnits="userSpaceOnUse">
+            <path d="M0 21.5H56M0 10.5H56M14 0V10.5M42 11V22" stroke="#8a4632" stroke-opacity=".28" stroke-width="1.2" fill="none"/>
+          </pattern>
+          <pattern id="stripe" width="16" height="10" patternUnits="userSpaceOnUse">
+            <rect width="8" height="10" fill="#c8352b"/><rect x="8" width="8" height="10" fill="#f6efe2"/>
+          </pattern>
+          <radialGradient id="glowG"><stop offset="0" stop-color="#ffcf6b" stop-opacity=".9"/><stop offset="1" stop-color="#ffcf6b" stop-opacity="0"/></radialGradient>
+          <radialGradient id="plazaG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f1d2b6" stop-opacity=".75"/><stop offset="1" stop-color="#f1d2b6" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="1400" height="800" fill="url(#skyG)"/>
+        <g class="stars">
+          <circle cx="120" cy="70" r="1.6"/><circle cx="260" cy="140" r="1.2"/><circle cx="420" cy="60" r="1.8"/><circle cx="560" cy="170" r="1.1"/>
+          <circle cx="850" cy="80" r="1.5"/><circle cx="980" cy="150" r="1.2"/><circle cx="1180" cy="60" r="1.7"/><circle cx="1320" cy="130" r="1.2"/>
+          <circle cx="760" cy="40" r="1.3"/><circle cx="1260" cy="210" r="1"/><circle cx="60" cy="200" r="1.1"/>
+        </g>
+        <circle class="sun" cx="1060" cy="250" r="48"/>
+        <g class="moon"><circle cx="1080" cy="150" r="30" fill="#f4ecd2"/><circle cx="1094" cy="140" r="27" class="moon-cut"/></g>
+        <!-- 中央山脈 -->
+        <path class="mtn1" d="M0 410Q110 330 230 380T470 350Q560 300 660 360T880 340Q990 290 1100 345T1400 330V480H0Z"/>
+        <path class="mtn2" d="M0 440Q150 390 300 425T600 410Q720 385 820 420T1080 405Q1240 380 1400 415V480H0Z"/>
+        <!-- 天際線 -->
+        <g class="bld">
+          <rect x="430" y="330" width="60" height="150"/><rect x="495" y="300" width="44" height="180"/><rect x="545" y="350" width="70" height="130"/>
+          <rect x="620" y="320" width="40" height="160"/><rect x="760" y="335" width="52" height="145"/><rect x="818" y="300" width="46" height="180"/>
+          <rect x="870" y="345" width="70" height="135"/><rect x="380" y="370" width="46" height="110"/><rect x="945" y="375" width="40" height="105"/>
+        </g>
+        <g class="win">
+          <rect x="440" y="345" width="8" height="5"/><rect x="458" y="345" width="8" height="5"/><rect x="440" y="370" width="8" height="5"/><rect x="474" y="395" width="8" height="5"/>
+          <rect x="503" y="318" width="7" height="5"/><rect x="522" y="340" width="7" height="5"/><rect x="503" y="380" width="7" height="5"/><rect x="560" y="365" width="9" height="5"/>
+          <rect x="590" y="390" width="9" height="5"/><rect x="628" y="340" width="7" height="5"/><rect x="644" y="372" width="7" height="5"/><rect x="772" y="352" width="8" height="5"/>
+          <rect x="790" y="380" width="8" height="5"/><rect x="826" y="320" width="7" height="5"/><rect x="845" y="355" width="7" height="5"/><rect x="884" y="362" width="9" height="5"/>
+          <rect x="912" y="392" width="9" height="5"/><rect x="390" y="385" width="7" height="5"/><rect x="955" y="392" width="7" height="5"/>
+        </g>
+        <!-- 台北 101 -->
+        <g class="t101" transform="translate(700 0)">
+          <path d="M-34 480L-28 405H28L34 480Z"/>
+          <path d="M-23 405L-28 375H28L23 405Z"/><path d="M-23 375L-28 345H28L23 375Z"/><path d="M-23 345L-28 315H28L23 345Z"/><path d="M-23 315L-28 285H28L23 315Z"/>
+          <path d="M-23 285L-28 255H28L23 285Z"/><path d="M-23 255L-28 225H28L23 255Z"/><path d="M-23 225L-28 195H28L23 225Z"/><path d="M-23 195L-28 165H28L23 195Z"/>
+          <path d="M-15 165L-17 140H17L15 165Z"/><rect x="-8" y="120" width="16" height="20"/><rect x="-2.2" y="72" width="4.4" height="50"/>
+          <g class="win"><rect x="-3" y="170" width="6" height="190" opacity=".55"/><rect x="-20" y="420" width="40" height="4"/></g>
+        </g>
+        <!-- 高架捷運 -->
+        <g class="mrt">
+          <rect x="0" y="432" width="1400" height="11" class="beam"/>
+          <g class="pillar"><rect x="70" y="443" width="10" height="40"/><rect x="290" y="443" width="10" height="40"/><rect x="510" y="443" width="10" height="40"/><rect x="890" y="443" width="10" height="40"/><rect x="1110" y="443" width="10" height="40"/><rect x="1330" y="443" width="10" height="40"/></g>
+          <g class="train">
+            <rect x="0" y="410" width="110" height="22" rx="6" fill="#e9edf0"/><rect x="114" y="410" width="110" height="22" rx="4" fill="#e9edf0"/><rect x="228" y="410" width="110" height="22" rx="6" fill="#e9edf0"/>
+            <rect x="0" y="424" width="338" height="3" fill="#2f6fb5"/>
+            <g class="win"><rect x="10" y="414" width="90" height="7" rx="2"/><rect x="124" y="414" width="90" height="7" rx="2"/><rect x="238" y="414" width="90" height="7" rx="2"/></g>
+          </g>
+        </g>
+        <!-- 廟宇 -->
+        <g class="temple">
+          <rect x="70" y="470" width="320" height="12" fill="#c9b9a6"/>
+          <rect x="95" y="398" width="270" height="74" fill="#b4332a"/>
+          <rect x="105" y="402" width="10" height="70" fill="#8d2820"/><rect x="345" y="402" width="10" height="70" fill="#8d2820"/>
+          <rect x="190" y="410" width="80" height="62" fill="#6e1f19"/><rect x="194" y="414" width="34" height="58" fill="#8d2820"/><rect x="232" y="414" width="34" height="58" fill="#8d2820"/>
+          <g fill="#e5b74d"><circle cx="205" cy="430" r="1.6"/><circle cx="217" cy="430" r="1.6"/><circle cx="205" cy="445" r="1.6"/><circle cx="217" cy="445" r="1.6"/><circle cx="243" cy="430" r="1.6"/><circle cx="255" cy="430" r="1.6"/><circle cx="243" cy="445" r="1.6"/><circle cx="255" cy="445" r="1.6"/></g>
+          <rect x="130" y="420" width="44" height="34" fill="#8d2820"/><rect x="286" y="420" width="44" height="34" fill="#8d2820"/>
+          <path d="M136 437H168M152 424V450M292 437H324M308 424V450" stroke="#e5b74d" stroke-width="1.4"/>
+          <path d="M48 402Q230 378 412 402L398 388Q230 360 62 388Z" fill="#5d221c"/>
+          <path d="M70 388Q230 362 390 388" stroke="#e5b74d" stroke-width="3" fill="none"/>
+          <path d="M64 389Q44 378 38 352" stroke="#5d221c" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M396 389Q416 378 422 352" stroke="#5d221c" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <rect x="150" y="352" width="160" height="36" fill="#b4332a"/>
+          <rect x="205" y="358" width="50" height="22" fill="#2a3e66" stroke="#e5b74d" stroke-width="2"/>
+          <text x="230" y="374" text-anchor="middle" font-size="13" fill="#e5b74d" font-family="Noto Serif TC, serif" font-weight="900">福德宮</text>
+          <path d="M120 358Q230 334 340 358L330 346Q230 322 130 346Z" fill="#5d221c"/>
+          <path d="M138 346Q230 326 322 346" stroke="#e5b74d" stroke-width="2.4" fill="none"/>
+          <path d="M134 347Q118 338 114 318" stroke="#5d221c" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M326 347Q342 338 346 318" stroke="#5d221c" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M200 332Q215 322 230 330Q245 322 260 332" stroke="#3f9b7a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <circle cx="230" cy="326" r="5" fill="#e5b74d"/>
+          <g class="glow"><circle cx="150" cy="412" r="20" fill="url(#glowG)"/><circle cx="310" cy="412" r="20" fill="url(#glowG)"/></g>
+          <ellipse cx="150" cy="412" rx="8" ry="10" fill="#d93a2c"/><ellipse cx="310" cy="412" rx="8" ry="10" fill="#d93a2c"/>
+          <path d="M150 401V396M310 401V396" stroke="#5d221c" stroke-width="1.5"/>
+          <path d="M215 482H245L240 466H220Z" fill="#7a6a58"/><rect x="214" y="458" width="32" height="9" rx="2" fill="#94826d"/>
+        </g>
+        <!-- 夜市 -->
+        <g class="market">
+          <rect x="1010" y="300" width="34" height="150" fill="#b4332a"/>
+          <text x="1027" y="330" text-anchor="middle" font-size="22" fill="#ffd54d" font-family="Noto Serif TC, serif" font-weight="900">夜</text>
+          <text x="1027" y="360" text-anchor="middle" font-size="22" fill="#ffd54d" font-family="Noto Serif TC, serif" font-weight="900">市</text>
+          <rect x="1024" y="450" width="6" height="30" fill="#5a3b2e"/>
+          <g>
+            <rect x="900" y="438" width="100" height="40" fill="#e8dccb"/><path d="M895 418H1005L1000 432H900Z" fill="url(#stripe)"/>
+            <rect x="912" y="400" width="76" height="18" rx="3" fill="#ffd54d"/><text x="950" y="414" text-anchor="middle" font-size="12" fill="#5d221c" font-weight="700" font-family="Noto Sans TC, sans-serif">雞排</text>
+          </g>
+          <g>
+            <rect x="1060" y="438" width="100" height="40" fill="#e8dccb"/><path d="M1055 418H1165L1160 432H1060Z" fill="url(#stripe)"/>
+            <rect x="1068" y="400" width="84" height="18" rx="3" fill="#2f6f5e"/><text x="1110" y="414" text-anchor="middle" font-size="12" fill="#fff6dc" font-weight="700" font-family="Noto Sans TC, sans-serif">珍珠奶茶</text>
+            <rect x="1090" y="426" width="8" height="12" rx="1.5" fill="#c58a5a"/><rect x="1104" y="426" width="8" height="12" rx="1.5" fill="#c58a5a"/>
+          </g>
+          <g>
+            <rect x="1175" y="438" width="100" height="40" fill="#e8dccb"/><path d="M1170 418H1280L1275 432H1175Z" fill="url(#stripe)"/>
+            <rect x="1185" y="400" width="80" height="18" rx="3" fill="#b4332a"/><text x="1225" y="414" text-anchor="middle" font-size="12" fill="#ffd54d" font-weight="700" font-family="Noto Sans TC, sans-serif">蚵仔煎</text>
+          </g>
+          <g>
+            <rect x="1290" y="438" width="100" height="40" fill="#e8dccb"/><path d="M1285 418H1395L1390 432H1290Z" fill="url(#stripe)"/>
+            <rect x="1300" y="400" width="80" height="18" rx="3" fill="#ffd54d"/><text x="1340" y="414" text-anchor="middle" font-size="12" fill="#5d221c" font-weight="700" font-family="Noto Sans TC, sans-serif">臭豆腐</text>
+          </g>
+          <path d="M880 372Q1135 420 1400 368" stroke="#3a2a22" stroke-width="1.5" fill="none"/>
+          <g class="glow">
+            <circle cx="910" cy="382" r="16" fill="url(#glowG)"/><circle cx="980" cy="394" r="16" fill="url(#glowG)"/><circle cx="1050" cy="400" r="16" fill="url(#glowG)"/>
+            <circle cx="1120" cy="403" r="16" fill="url(#glowG)"/><circle cx="1190" cy="401" r="16" fill="url(#glowG)"/><circle cx="1260" cy="395" r="16" fill="url(#glowG)"/><circle cx="1330" cy="384" r="16" fill="url(#glowG)"/>
+          </g>
+          <g class="lant">
+            <ellipse cx="910" cy="384" rx="6" ry="8" fill="#d93a2c"/><ellipse cx="980" cy="396" rx="6" ry="8" fill="#f2b33d"/><ellipse cx="1050" cy="402" rx="6" ry="8" fill="#d93a2c"/>
+            <ellipse cx="1120" cy="405" rx="6" ry="8" fill="#f2b33d"/><ellipse cx="1190" cy="403" rx="6" ry="8" fill="#d93a2c"/><ellipse cx="1260" cy="397" rx="6" ry="8" fill="#f2b33d"/><ellipse cx="1330" cy="386" rx="6" ry="8" fill="#d93a2c"/>
+          </g>
+        </g>
+        <!-- 路燈 -->
+        <g class="lamp"><rect x="560" y="400" width="4" height="80" fill="#3b3f48"/><path d="M562 402Q576 396 584 404" stroke="#3b3f48" stroke-width="3" fill="none"/><circle cx="585" cy="407" r="4" fill="#ffe7a3"/>
+          <rect x="836" y="400" width="4" height="80" fill="#3b3f48"/><path d="M838 402Q824 396 816 404" stroke="#3b3f48" stroke-width="3" fill="none"/><circle cx="815" cy="407" r="4" fill="#ffe7a3"/></g>
+        <g class="glow"><circle cx="585" cy="410" r="28" fill="url(#glowG)"/><circle cx="815" cy="410" r="28" fill="url(#glowG)"/></g>
+        <!-- 紅磚道廣場 -->
+        <rect x="0" y="478" width="1400" height="322" fill="url(#floorG)"/>
+        <rect x="0" y="478" width="1400" height="322" fill="url(#brick)"/>
+        <rect x="0" y="476" width="1400" height="6" fill="#9a8a78"/>
+        <ellipse cx="700" cy="640" rx="430" ry="120" fill="url(#plazaG)"/>
+        <ellipse cx="700" cy="640" rx="300" ry="80" fill="none" stroke="#f6e2cc" stroke-opacity=".5" stroke-width="3"/>
+        <rect class="tint" x="0" y="478" width="1400" height="322"/>
+        <!-- 榕樹 -->
+        <g class="tree">
+          <path d="M40 560Q52 500 44 450L60 450Q58 505 72 560Z" fill="#5b3f2c"/>
+          <circle cx="20" cy="420" r="52"/><circle cx="80" cy="400" r="58"/><circle cx="130" cy="440" r="40"/><circle cx="50" cy="370" r="44"/>
+          <path d="M1360 560Q1348 500 1356 450L1340 450Q1342 505 1328 560Z" fill="#5b3f2c"/>
+          <circle cx="1380" cy="420" r="52"/><circle cx="1320" cy="400" r="58"/><circle cx="1270" cy="445" r="38"/><circle cx="1350" cy="368" r="44"/>
+        </g>
+        <!-- 機車 -->
+        <g class="scooters" fill="#2c2f36">
+          <g transform="translate(60 735)"><circle cx="0" cy="40" r="15"/><circle cx="92" cy="40" r="15"/><path d="M-6 30Q10 4 40 8H70Q86 10 96 30L84 30Q76 20 60 22H30Q16 22 8 30Z" fill="#c8352b"/><rect x="34" y="-6" width="34" height="9" rx="4"/><path d="M90 26L100 -10" stroke="#2c2f36" stroke-width="5"/></g>
+          <g transform="translate(1240 728)"><circle cx="0" cy="40" r="15"/><circle cx="92" cy="40" r="15"/><path d="M-6 30Q10 4 40 8H70Q86 10 96 30L84 30Q76 20 60 22H30Q16 22 8 30Z" fill="#4f86c6"/><rect x="34" y="-6" width="34" height="9" rx="4"/><path d="M-2 26L-12 -10" stroke="#2c2f36" stroke-width="5"/></g>
+        </g>
+      </svg>
+
+      <div class="stage-copy">
+        <h1>在台灣的街角，<br>遇見你需要的人</h1>
+        <p class="hud"><span class="live" aria-hidden="true"></span>廣場上有 <b id="cnt">0</b> 位商家 · 由 <span class="owner"></span> 親自牽線</p>
+      </div>
+      <button type="button" class="theme-btn" id="btnTheme" aria-label="切換時段">黃昏</button>
+
+      <div id="floor" aria-label="人脈廣場，點擊人物查看介紹"></div>
+      <div class="hovercard" id="hover" aria-hidden="true"></div>
+      <div class="state" id="state"></div>
+      <div class="hint" id="hint">點一下地板，你的角色會走過去</div>
+
+      <form class="needbar" id="needForm" autocomplete="off">
+        <label class="sr" for="needInput">輸入你的需求</label>
+        <div class="nb-row">
+          <input id="needInput" type="search" maxlength="40" placeholder="你需要什麼？例：漏水、報稅、開幕拍照">
+          <button class="btn red" type="submit">呼叫廠商</button>
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="快速呼叫產業"></div>
+      </form>
+      <aside class="drawer" id="drawer" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="how-in">
+      <div class="how-h">
+        <h2>三步驟，找到對的人</h2>
+        <p>這裡不交換聯絡方式。你說需求，<span class="owner"></span> 先確認雙方意願，再幫你們牽線。</p>
+      </div>
+      <ol class="steps">
+        <li><span>01</span><b>說出需求</b><p>在廣場輸入「漏水」「報稅」，相關廠商會跑過來找你。</p></li>
+        <li><span>02</span><b>請我介紹</b><p>看完介紹，按「請幫我介紹」留下你的需求。</p></li>
+        <li><span>03</span><b>確認後牽線</b><p>沒有合適的廠商？留下需求，我幫你去找。</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="dir" id="dir">
+    <div class="dir-h"><h2>廣場商家目錄</h2><span id="dirTotal"></span></div>
+    <div class="dir-grid" id="dirGrid"></div>
+  </section>
+</main>
+<footer class="foot">人脈廣場 · 公開頁面不顯示任何私人聯絡方式 · <a href="admin.html">管理後台</a></footer>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script src="avatar.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

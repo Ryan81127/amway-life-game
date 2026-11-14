@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>人脈廣場後台（Demo）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="data.js"></script>
+<script src="avatar.js"></script>
+<script src="admin-ui.js"></script>
+<script>
+/* Demo 後台：這個頁面是公開的，所以只讀取「這台瀏覽器」在 Demo 模式送出的測試資料，不含任何真實資料。
+   正式上線後，真實資料存在你的 Google Sheet，請改用 Apps Script 私人後台網址（只有你的 Google 帳號能開）。 */
+(function () {
+  const KEY = 'plaza_demo_db';
+  const get = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
+  const put = v => localStorage.setItem(KEY, JSON.stringify(v));
+  const patch = (id, fn) => { const db = get(); const x = db.find(i => i.id === id); if (x) fn(x); put(db); return Promise.resolve(); };
+  const C = window.PLAZA_CONFIG;
+  const live = !!C.API_URL;
+
+  function sample() {
+    const t = h => new Date(Date.now() - h * 3600e3).toISOString();
+    const db = get();
+    db.push(
+      { kind: 'join', id: 'jdemo1', name: '何品妍', industry: '寵物美容', title: '寵物美容店店長', city: '台中', short_intro: '專做犬貓美容與 SPA，店內有自然採光的美容室。', services: '寵物美容、洗澡、到府美容', can_help_with: '寵物友善活動合作', looking_for: '攝影、行銷、室內設計', profile_url: '', phone: '0912-000-111', line_id: 'pet_ho', email: '', source_circle: 'BNI', consent: 'yes', avatar: JSON.stringify({ g: 'f', hair: 'ponytail', top: 'polo', topColor: '#e58fa4', bottom: 'jeans' }), approved: false, active: true, note: '', created_at: t(2) },
+      { kind: 'join', id: 'jdemo2', name: '鄭宇翔', industry: '水電', title: '水電行老闆', city: '台中', short_intro: '三代水電行，社區老客戶多，報價透明。', services: '水電維修、管線更新', can_help_with: '社區住戶介紹', looking_for: '室內設計、物業管理', profile_url: '', phone: '0933-222-333', line_id: '', email: '', source_circle: '朋友介紹', consent: 'yes', avatar: JSON.stringify({ g: 'm', hair: 'buzz', top: 'vest', topColor: '#1f3a5f', bottom: 'cargo' }), approved: false, active: true, note: '', created_at: t(5) },
+      { kind: 'match', id: 'mdemo1', requester: '王小姐', contact: 'LINE: wang_cafe', target_id: 'p11', target_name: '周子豪', target_industry: '室內設計', why: '咖啡廳要重新裝潢', need: '20 坪，預算 80 萬，三月前完工', next_step: '安排線上聊聊', status: '新需求', note: '', created_at: t(1) },
+      { kind: 'match', id: 'mdemo2', requester: '林先生', contact: '0922-555-666', target_id: 'p06', target_name: '黃雅婷', target_industry: '會計', why: '新開餐廳需要記帳', need: '每月記帳與報稅', next_step: '直接請對方報價', status: '已聯絡', note: '已傳 LINE 給雅婷', created_at: t(26) },
+      { kind: 'need', id: 'ndemo1', need: '寵物美容', detail: '想找可以到府幫老狗洗澡的美容師', area: '台中北屯', timeline: '一週內', requester: '陳太太', contact: '0911-777-888', status: '新需求', note: '', created_at: t(3) },
+      { kind: 'need', id: 'ndemo2', need: '翻譯', detail: '越南供應商合約需要中越翻譯', area: '線上', timeline: '越快越好', requester: '吳經理', contact: 'wu@example.com', status: '尋找中', note: '問過讀書會的阿芳', created_at: t(30) }
+    );
+    put(db.filter((x, i, a) => a.findIndex(y => y.id === x.id) === i));
+  }
+
+  window.PlazaAdmin.mount(document.getElementById('app'), {
+    mode: 'demo',
+    siteUrl: location.href.replace(/admin\.html.*$/, ''),
+    banner: live
+      ? '網站已連上 Google Sheet。<b>真實資料不會出現在這個公開頁面</b>,請開啟你的 Apps Script 私人後台網址（結尾 ?admin=1）。'
+      : '這是 Demo 後台：只顯示<b>這台瀏覽器</b>在廣場上送出的測試資料。連上 Google Sheet 後，真實資料改在只有你能登入的 Apps Script 私人後台查看。',
+    extraTools: '<button class="btn ghost sm" id="adSample">加入範例資料</button><button class="btn ghost sm" id="adClear">清除測試資料</button><a class="btn red sm" href="./">回到廣場</a>',
+    async load() {
+      const db = get();
+      return {
+        members: db.filter(x => x.kind === 'join'),
+        matches: db.filter(x => x.kind === 'match'),
+        needs: db.filter(x => x.kind === 'need'),
+        industries: window.PLAZA_SEED.map(p => p.industry)
+      };
+    },
+    setMember: (id, p) => patch(id, x => Object.assign(x, p)),
+    setStatus: (k, id, s) => patch(id, x => { x.status = s; }),
+    setNote: (k, id, n) => patch(id, x => { x.note = n; })
+  });
+  document.addEventListener('click', e => {
+    if (e.target.id === 'adSample') { sample(); document.getElementById('adReload').click(); }
+    if (e.target.id === 'adClear' && confirm('清除這台瀏覽器裡所有 Demo 測試資料？')) { localStorage.removeItem(KEY); document.getElementById('adReload').click(); }
+  });
+})();
+</script>
+</body>
+</html>
