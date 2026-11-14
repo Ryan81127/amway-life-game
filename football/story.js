@@ -363,6 +363,67 @@ function storyQueueBlock(model) {
   return box;
 }
 
+const FACT_ORDER = [
+  ["nick", "綽號", "🏷️"], ["founded", "成立", "📅"], ["rank", "目前 FIFA 排名", "📈"], ["best", "隊史最大勝仗", "💥"], ["worst", "隊史最慘一敗", "💔"],
+  ["peak", "FIFA 排名最高", "🔝"], ["wc", "世界盃參賽", "🌍"], ["wcbest", "世界盃最佳", "🏆"], ["ac", "亞洲盃參賽", "🌏"], ["acbest", "亞洲盃最佳", "🥇"],
+  ["caps", "隊史出場王", "👕"], ["goals", "隊史射手王", "⚽"], ["first", "隊史第一場國際賽", "🕰️"], ["home", "主場", "🏟️"], ["league", "目前聯賽", "🏅"]
+];
+
+/* 把「非正式／正式」「大陸時期／遷台後」這類多段資料只留最新、正式的那段，括號內容拆成小字 */
+function factClean(v) {
+  let t = String(v || "").replace(/\s+/g, " ").trim();
+  if (/非正式/.test(t) && /(^|[^非])正式/.test(t)) t = t.slice(t.search(/(?<!非)正式/) + 2).trim();
+  const seg = t.split(/(?:大陸時期|遷台後|遷臺後)（[^）]*）/).map((x) => x.trim()).filter(Boolean);
+  if (seg.length > 1) t = seg[seg.length - 1];
+  const m = /^([^（(]+)[（(]([^）)]*)[）)]?(.*)$/.exec(t);
+  if (m) return { v: (m[1] + (m[3] ? " " + m[3] : "")).replace(/[;；]\s*$/, "").trim(), sub: m[2].replace(/;/g, "；").trim() };
+  return { v: t, sub: "" };
+}
+
+function factMap(info) {
+  const out = {};
+  for (const line of info || []) {
+    let k = null;
+    let raw = line.includes("：") ? line.slice(line.indexOf("：") + 1) : line;
+    if (/綽號/.test(line)) {
+      const nick = (/「(.+)」/.exec(line)?.[1] || raw).replace(/[（(][^）)]*[）)]/g, "").split("、").map((x) => x.trim()).filter(Boolean).slice(0, 3).join("、");
+      out.nick = { v: nick, sub: "" };
+      continue;
+    }
+    if (/^成立/.test(line)) { out.founded = { v: line.replace(/^成立於\s*/, ""), sub: "" }; continue; }
+    if (/目前 FIFA 排名/.test(line)) {
+      const m = /第\s*(\d+)\s*([↑↓]\s*\d+)?\s*[（(]?([^）)]*)/.exec(line);
+      if (m) out.rank = { v: `第 ${m[1]} 名`, sub: [m[2] ? m[2].replace(/\s/g, "") : "", m[3]].filter(Boolean).join(" · ") };
+      continue;
+    }
+    if (/FIFA 排名最高/.test(line)) {
+      const m = /第\s*(\d+)\s*[（(]?([^）)]*)/.exec(line);
+      if (m) out.peak = { v: `第 ${m[1]} 名`, sub: m[2] || "" };
+      continue;
+    }
+    if (/出場王/.test(line)) k = "caps";
+    else if (/射手王/.test(line)) k = "goals";
+    else if (/第一場國際賽/.test(line)) k = "first";
+    else if (/最大勝仗/.test(line)) k = "best";
+    else if (/最慘一敗/.test(line)) k = "worst";
+    else if (/世界盃參賽/.test(line)) k = "wc";
+    else if (/世界盃最佳/.test(line)) k = "wcbest";
+    else if (/亞洲盃參賽/.test(line)) k = "ac";
+    else if (/亞洲盃最佳/.test(line)) k = "acbest";
+    else if (/^主場/.test(line)) { out.home = { v: raw.replace(/、$/, ""), sub: "" }; continue; }
+    else if (/^目前聯賽/.test(line)) k = "league";
+    if (!k) continue;
+    if (k === "caps" || k === "goals") {
+      const m = /^(.+?)\s*[（(](\d+)\s*([場球])[）)]/.exec(raw.trim());
+      out[k] = m ? { v: m[1].trim(), sub: `${m[2]} ${m[3]}` } : { v: raw.trim(), sub: "" };
+      continue;
+    }
+    out[k] = factClean(raw);
+    if ((k === "wc" || k === "ac") && /^\d+(次)?$/.test(out[k].v)) out[k].v = `${out[k].v.replace("次", "")} 次`;
+  }
+  return out;
+}
+
 function historyBlock(model) {
   const block = h("section", { class: "block", id: "history" }, h("h2", null, ui("兩隊故事與看點")));
   block.append(storyQueueBlock(model));
@@ -377,32 +438,64 @@ function historyBlock(model) {
     ...(st.rivalry ? [`${st.rivalry.title}：${String(st.rivalry.text).split(/(?<=[。.])/).slice(0, 2).join("")}`] : []),
     ...st.cross, ...h2hLines(model), ...contrastLines(model, st)
   ];
-  block.append(h("h3", null, ui("⚔️ 兩隊之間")));
+  /* ⚔️ 兩隊之間：恩怨、交手、對比 */
+  const between = h("div", { class: "st-panel" }, h("h3", { class: "st-h" }, ui("⚔️ 兩隊之間")));
   if (cross.length) {
-    block.append(h("ul", { class: "reasons" }, cross.map((x) => h("li", null, ui(x)))));
+    between.append(h("div", { class: "st-list" }, cross.map((x) => {
+      const m = /^([^：]{2,22})：([\s\S]+)$/.exec(x);
+      return h("div", { class: "st-item" }, m ? [h("b", null, ui(m[1])), h("p", null, ui(m[2]))] : h("p", null, ui(x)));
+    })));
     say.push(rivalCards[0]?.say || `說到這兩隊之間：${cross.slice(0, 2).join("")}`);
   } else {
-    block.append(h("p", { class: "faint" }, ui("維基百科和 ESPN 都沒有兩隊直接交手的故事，這種「初次見面」反而好聊：誰先適應對方，誰就拿下主動權。")));
+    between.append(h("p", { class: "faint" }, ui("維基百科和 ESPN 都沒有兩隊直接交手的故事，這種「初次見面」反而好聊：誰先適應對方，誰就拿下主動權。")));
   }
+  block.append(between);
+  /* 📋 兩隊檔案：同一個項目左右對照 */
+  const facts = { home: factMap(st.home?.info), away: factMap(st.away?.info) };
+  const rows = FACT_ORDER.filter(([k]) => facts.home[k] || facts.away[k]).map(([k, label, icon]) => h("tr", null,
+    h("th", null, h("span", { class: "fi" }, icon), ui(label)),
+    ...["home", "away"].map((side) => {
+      const f = facts[side][k];
+      return h("td", null, f ? [h("div", { class: "fv" }, ui(f.v)), f.sub ? h("div", { class: "fs" }, ui(f.sub)) : null] : h("span", { class: "faint" }, "–"));
+    })));
+  if (rows.length) {
+    block.append(h("div", { class: "st-panel" }, h("h3", { class: "st-h" }, ui("📋 兩隊檔案對照")),
+      h("div", { class: "table-wrap" }, h("table", { class: "fact-table" },
+        h("thead", null, h("tr", null, h("th", null, ""), h("th", null, ui(`🏠 ${model.home.name}`)), h("th", null, ui(`✈️ ${model.away.name}`)))),
+        h("tbody", null, rows)))));
+  }
+  /* 各隊故事：桌機左右兩欄、手機上下 */
+  const cols = h("div", { class: "st-cols" });
   for (const side of ["home", "away"]) {
     const s = st[side];
     const name = model[side].name;
-    block.append(h("h3", null, ui(`${side === "home" ? "🏠" : "✈️"} ${name}`)));
-    if (!s) { block.append(h("p", { class: "muted" }, ui("維基百科沒有找到這支球隊。"))); continue; }
+    const col = h("div", { class: "st-panel st-team" }, h("h3", { class: "st-h" }, ui(`${side === "home" ? "🏠" : "✈️"} ${name}`)));
+    cols.append(col);
+    if (!s) { col.append(h("p", { class: "muted" }, ui("維基百科沒有找到這支球隊。"))); continue; }
     const picks = cur.filter((c) => c.owner === name && c.topic !== "球員");
-    if (picks.length) block.append(h("ul", { class: "reasons" }, picks.map((c) => h("li", null, h("b", null, ui(c.title + "：")), ui(c.fact)))));
-    if (s.info.length) block.append(h("div", { class: "chips" }, s.info.map((x) => h("span", { class: "pill" }, ui(x)))));
-    if (s.stories.length) block.append(h("ul", { class: "reasons" }, s.stories.map((x) => h("li", null, ui(x)))));
-    if (s.honors.length) block.append(h("p", { class: "faint" }, ui("🏆 榮譽：" + s.honors.join("；"))));
-    if (!s.info.length && !s.stories.length) block.append(h("p", { class: "faint" }, ui("條目內容太少，整理不出亮點。")));
-    block.append(h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${s.title}」 · `), h("a", { href: s.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
+    if (picks.length) {
+      col.append(h("div", { class: "st-label" }, ui("⭐ 精選故事（已查證）")),
+        h("div", { class: "st-list" }, picks.map((c) => h("div", { class: "st-item pick" }, h("b", null, ui(c.title)), h("p", null, ui(c.fact))))));
+    }
+    if (s.stories.length) {
+      const top = s.stories.slice(0, 3);
+      const rest = s.stories.slice(3);
+      col.append(h("div", { class: "st-label" }, ui("📖 經典片段（維基百科）")),
+        h("ul", { class: "st-bullets" }, top.map((x) => h("li", null, ui(x)))));
+      if (rest.length) col.append(h("details", { class: "fold", "data-k": "st-more-" + side }, h("summary", null, ui(`再看 ${rest.length} 則`)), h("ul", { class: "st-bullets" }, rest.map((x) => h("li", null, ui(x))))));
+    }
+    if (s.honors.length) col.append(h("details", { class: "fold", "data-k": "st-hon-" + side }, h("summary", null, ui(`🏆 榮譽（${s.honors.length}）`)), h("ul", { class: "st-bullets" }, s.honors.map((x) => h("li", null, ui(x))))));
+    if (!s.info.length && !s.stories.length && !picks.length) col.append(h("p", { class: "faint" }, ui("條目內容太少，整理不出亮點。")));
+    col.append(h("p", { class: "faint kc-src" }, ui(`來源：維基百科「${s.title}」 · `), h("a", { href: s.url, target: "_blank", rel: "noopener" }, ui("看完整條目"))));
     const hook = s.info.find((x) => /綽號/.test(x));
     const hit = picks[0]?.say || s.stories.find((x) => x.length <= 95) || "";
     const worst = s.info.find((x) => /最慘一敗/.test(x));
     const best = s.info.find((x) => /最大勝仗/.test(x));
-    const line = [hook ? `${name}${hook.split("、")[0]}${hook.includes("、") ? "」" : ""}` : "", hit || "", worst ? `${worst}，那一場大概是隊史不能提的傷疤` : best || ""].filter(Boolean).join("；");
+    const nick = hook ? (/「([^」]+)」/.exec(hook)?.[1] || "").split("、")[0] : "";
+    const line = [nick ? `${name}綽號叫「${nick}」` : "", hit || "", worst ? `隊史最慘一敗是${factMap([worst]).worst?.v || ""}，那一場大概是不能提的傷疤` : best ? `隊史最大勝仗是${factMap([best]).best?.v || ""}` : ""].filter(Boolean).join("；");
     if (line) say.push(`${name}有什麼故事？${line}。`);
   }
+  block.append(cols);
   if (say.length) block.append(scriptBlock([...say, "這兩隊你比較想看誰寫下新故事？主隊扣 1、客隊扣 2！"], "口播：兩隊故事"));
   block.append(h("p", { class: "faint" }, ui("自動從維基百科繁體版挑出含「冠軍、首次、紀錄、德比、爆冷、衝突、綽號」等有梗的句子，以及兩隊條目中提到對方的段落。維基百科可公開編輯，數字播前請點連結確認。")));
   return block;

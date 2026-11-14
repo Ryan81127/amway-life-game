@@ -968,3 +968,27 @@ body.has-rail #app { padding-left: 64px; }
 .coach-card h4 { margin: 10px 0 4px; font-size: 14px; color: var(--gold); }
 .coach-hook { font-size: 15px; font-weight: 700; line-height: 1.6; }
 .coach-quote { font-style: italic; border-left: 3px solid var(--gold); padding-left: 8px; }
+
+/* ---------- 兩隊故事排版 ---------- */
+.st-panel { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 12px 0; background: rgba(255,255,255,.02); }
+.st-h { margin: 0 0 10px; font-size: 16px; }
+.st-list { display: grid; gap: 8px; }
+.st-item { border-left: 3px solid rgba(240,195,106,.55); padding: 6px 10px; background: rgba(255,255,255,.03); border-radius: 0 10px 10px 0; }
+.st-item b { display: block; font-size: 14px; color: var(--gold); margin-bottom: 2px; }
+.st-item p { margin: 0; line-height: 1.65; font-size: 14px; }
+.st-item.pick { border-left-color: rgba(90,210,140,.7); }
+.st-label { font-size: 13px; font-weight: 800; color: var(--muted); margin: 12px 0 6px; letter-spacing: .02em; }
+.st-bullets { margin: 0; padding-left: 18px; }
+.st-bullets li { margin: 6px 0; line-height: 1.65; font-size: 14px; }
+.st-cols { display: grid; gap: 12px; grid-template-columns: 1fr; }
+.st-cols .st-panel { margin: 0; }
+@media (min-width: 900px) { .st-cols { grid-template-columns: 1fr 1fr; } }
+.fact-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+.fact-table th, .fact-table td { padding: 8px 8px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: top; text-align: left; word-break: break-word; }
+.fact-table thead th { color: var(--gold); font-size: 14px; border-bottom: 1px solid var(--line); }
+.fact-table thead th:first-child, .fact-table tbody th { width: 30%; }
+.fact-table tbody th { color: var(--muted); font-weight: 600; font-size: 13px; white-space: normal; }
+.fact-table .fi { margin-right: 4px; }
+.fact-table .fv { font-weight: 700; line-height: 1.45; }
+.fact-table .fs { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+@media (max-width: 640px) { .fact-table { font-size: 13px; } .fact-table thead th:first-child, .fact-table tbody th { width: 28%; } }
