@@ -14,12 +14,6 @@
 
 多人連線（同一座城）：程式在 `city/net.js`，設定在 `city/firebase-config.js`，設定步驟見 [`city/MULTIPLAYER.md`](city/MULTIPLAYER.md)。
 
-## 3D 人體健康探索（健康管理衛教平台）
-
-`health-src/` 是獨立的 React + TypeScript + React Three Fiber 專案，給健康管理師做衛教諮詢用：症狀問卷、即時 3D 人體、規則式衛教分析、審核後匯出 A4 PDF。操作說明與尚未完成的項目見 [`health-src/README.md`](health-src/README.md)。
-
-建置輸出在 `health/`（不進版控，部署時由 GitHub Actions 建置）。線上網址：<https://ryan81127.github.io/amway-life-game/health/>
-
 題目與知識卡直接讀取 `src/data.js`，改那裡兩個版本會一起更新。進度存在瀏覽器（`amway-city-v1`），手機 📱 → 設定可以重置。
 
 ## 怎麼改文字與聯絡方式
