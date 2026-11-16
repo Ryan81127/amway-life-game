@@ -22,12 +22,8 @@ function cmPick(arr, seed) {
 
 function cmStatusLine(sit, id, name) {
   if (sit?.state !== "ok" || !sit.status) return "";
-  const lines = [];
-  for (const tg of sit.targets || []) {
-    const s = mvStatusText(sit, tg.k, id);
-    if (s && s.code !== "alive" && s.code !== "unknown") { lines.push(`${name}${s.text}`); break; }
-  }
-  return lines[0] ? lines[0] + "。" : "";
+  const s = mvStatusText(sit, focusK(sit, id), id);
+  return s && s.code !== "alive" && s.code !== "unknown" ? `${name}${s.text}。` : "";
 }
 
 /* 依比賽階段整理出各段落的事實句（重要的排前面）。 */
@@ -77,9 +73,16 @@ function cmFacts(model, sit, mot) {
       for (const side of ["home", "away"]) {
         const r = side === "home" ? rh : ra;
         const n = model[side].name;
-        if (r.rank > sit.mainK) {
-          const g = sit.goalsNeeded(model[side].id);
-          st.push(g ? `${n}目前在晉級線外，其他場次不變的話，還要再進 ${g} 球才能擠進前 ${sit.mainK}。` : `${n}目前在晉級線外，光靠自己進球還不夠，需要其他場次幫忙。`);
+        const fk = focusK(sit, model[side].id);
+        const label = sit.targets.find((t) => t.k === fk)?.label || `前 ${fk}`;
+        const code = sit.status?.get(fk)?.get(model[side].id)?.code;
+        if (code === "clinched" || code === "out") {
+          st.push(cmStatusLine(sit, model[side].id, n));
+        } else if (r.rank > fk) {
+          const g = sit.goalsNeeded(model[side].id, fk);
+          st.push(g ? `${n}的目標是${label}，照目前比分還在線外，其他場次不變的話要再進 ${g} 球。` : `${n}的目標是${label}，照目前比分還在線外，光靠自己進球不夠，需要其他場次幫忙。`);
+        } else if (code) {
+          st.push(`${n}照目前比分可以${label}，但還沒有數學確定。`);
         } else if (r.tied?.length) st.push(`${n}和${r.tied.map(sit.nameOf).join("、")}各項都相同，名次要靠公平競賽分等決定，資料不足。`);
       }
       if (lead === null) {
@@ -99,9 +102,9 @@ function cmFacts(model, sit, mot) {
         const enters = g.changes.filter((c) => c.enters).map((c) => sit.nameOf(c.id));
         if (!drops.length && !enters.length) continue;
         const other = g.match !== model.id;
-        f.push(`${other ? "隔壁場" : ""}如果${sit.nameOf(g.scorer)}再進一球，${enters.length ? enters.join("、") + "會升進晉級區" : ""}${enters.length && drops.length ? "，" : ""}${drops.length ? drops.join("、") + "會掉出晉級區" : ""}。`);
+        f.push(`${other ? "隔壁場" : ""}如果${sit.nameOf(g.scorer)}再進一球，${enters.length ? enters.join("、") + `會升進前 ${sit.mainK}` : ""}${enters.length && drops.length ? "，" : ""}${drops.length ? drops.join("、") + `會掉出前 ${sit.mainK}` : ""}。`);
       }
-      if (!f.length) f.push("下一球不管誰進，晉級區的球隊暫時都不會變。");
+      if (!f.length) f.push(`下一球不管誰進，前 ${sit.mainK} 名的球隊暫時都不會變。`);
       out.push({ id: "nextgoal", title: "下一球與同組連動", facts: f });
       const others = sit.live.filter((m) => m.id !== model.id);
       if (others.length) out.push({ id: "other", title: "同組另一場", facts: others.map((m) => `隔壁場傳來消息：${sit.nameOf(m.home)} ${m.hs} 比 ${m.as} ${sit.nameOf(m.away)}${m.simulated ? "（手動輸入的比分）" : ""}。`) });
@@ -109,7 +112,7 @@ function cmFacts(model, sit, mot) {
     const min = model.minute.period >= 2 ? Math.max(45, model.minute.base || 45) : model.minute.base || 0;
     if (min >= 65) {
       const left = Math.max(0, 90 - min);
-      const need = ["home", "away"].filter((s) => { const r = s === "home" ? rh : ra; return r && sit.matches && r.rank > sit.mainK; }).map((s) => model[s].name);
+      const need = ["home", "away"].filter((s) => { const r = s === "home" ? rh : ra; const fk = focusK(sit, model[s].id); return r && sit.matches && r.rank > fk && sit.status?.get(fk)?.get(model[s].id)?.code !== "out"; }).map((s) => model[s].name);
       out.push({ id: "clock", title: "時間壓力", facts: [
         `正規時間只剩大約 ${left} 分鐘。`,
         need.length ? `${need.join("和")}必須在剩下的時間改變比分，接下來可能會加派攻擊手、冒險壓上。` : lead ? `${model[lead].name}領先，接下來的重點是控制節奏、減少失誤。` : "目前平手，先進球的一方將掌握主動。",

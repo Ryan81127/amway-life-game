@@ -42,8 +42,8 @@ function v2Track(model, sit) {
     const before = prev.ranks.get(r.id);
     if (before == null || before === r.rank) continue;
     const k = sit.mainK;
-    const move = before > k && r.rank <= k ? "升進晉級區" : before <= k && r.rank > k ? "掉出晉級區" : r.rank < before ? "上升" : "下降";
-    log.unshift({ at: Date.now(), text: `${r.name} 第 ${before} → 第 ${r.rank}（${move}）`, key: move.includes("晉級區") });
+    const move = before > k && r.rank <= k ? `升進前 ${k}` : before <= k && r.rank > k ? `掉出前 ${k}` : r.rank < before ? "上升" : "下降";
+    log.unshift({ at: Date.now(), text: `${r.name} 第 ${before} → 第 ${r.rank}（${move}）`, key: move.includes("前 ") });
   }
   v2Log.set(model.id, log.slice(0, 20));
 }
@@ -75,7 +75,7 @@ function situationStrip(model) {
     if (!r) continue;
     box.append(h("div", { class: "v2-strip-team" },
       h("b", null, ui(`${model[side].name} 第 ${r.rank}`)), h("span", { class: "faint" }, ui(` ${r.pts} 分`)),
-      sit.status ? v2StatusBadge(sit, sit.mainK, r.id) : null));
+      sit.status ? v2StatusBadge(sit, focusK(sit, r.id), r.id) : null));
   }
   const last = (v2Log.get(model.id) || [])[0];
   if (last && Date.now() - last.at < 10 * 60000) box.append(h("div", { class: last.key ? "v2-alert key" : "v2-alert" }, ui(`${taipeiClock(new Date(last.at))} ${last.text}`)));
@@ -105,7 +105,7 @@ function standingsView(model) {
     h("thead", null, h("tr", null, ["#", "球隊", "賽", "勝", "和", "負", "進", "失", "淨", "分"].map((x) => h("th", null, ui(x))))),
     h("tbody", null, sit.table.map((r) => h("tr", { class: `${r.id === H.id || r.id === A.id ? "me" : ""} ${zcls(r.zone)}` },
       h("td", null, String(r.rank) + (r.tied?.length ? "=" : "")),
-      h("td", { class: "tn" }, ui(r.name), r.zone ? h("span", { class: "v2-zone" }, ui(r.zone.label)) : null, sit.status && k ? h("div", null, v2StatusBadge(sit, k, r.id)) : null),
+      h("td", { class: "tn" }, ui(r.name), r.zone ? h("span", { class: "v2-zone" }, ui(r.zone.label)) : null, sit.status && k ? h("div", null, v2StatusBadge(sit, focusK(sit, r.id), r.id)) : null),
       ...[r.p, r.w, r.d, r.l, r.gf, r.ga, (r.gd > 0 ? "+" : "") + r.gd].map((x) => h("td", null, String(x))),
       h("td", { class: "pts" }, String(r.pts))))))));
   if (sit.unresolved?.length) block.append(h("p", { class: "v2-note" }, ui(`⚠️ ${sit.unresolved.map((t) => t.map(sit.nameOf).join("、")).join("；")} 的積分與可比較項目完全相同（名次標「=」），要靠公平競賽分、抽籤或賽前排名決定，這些資料看板沒有。`)));
@@ -129,9 +129,10 @@ function standingsView(model) {
           card.append(h("p", { class: "v2-if" }, ui([txt("W", "贏"), txt("D", "平"), txt("L", "輸")].filter(Boolean).join("｜"))));
         }
       }
-      if (sit.goalsNeeded && sit.isLive && r.rank > k) {
-        const g = sit.goalsNeeded(t.id);
-        card.append(h("p", { class: "lean" }, ui(g ? `其他場次不變的話，再進 ${g} 球可進到前 ${k}。` : `其他場次不變的話，自己再進 3 球也進不了前 ${k}，需要別場幫忙。`)));
+      const fk = focusK(sit, t.id);
+      if (sit.goalsNeeded && sit.isLive && r.rank > fk && sit.status.get(fk)?.get(t.id)?.code !== "out") {
+        const g = sit.goalsNeeded(t.id, fk);
+        card.append(h("p", { class: "lean" }, ui(g ? `其他場次不變的話，再進 ${g} 球可進到前 ${fk}。` : `其他場次不變的話，自己再進 3 球也進不了前 ${fk}，需要別場幫忙。`)));
       }
       cards.append(card);
     }
@@ -156,7 +157,7 @@ function standingsView(model) {
       const ch = g.changes.filter((c) => c.enters || c.drops);
       const all = g.changes.map((c) => `${sit.nameOf(c.id)} ${c.from}→${c.to}`).join("、");
       return h("li", { class: ch.length ? "key" : "" }, h("b", null, ui(`${g.match === model.id ? "" : "【隔壁場】"}${sit.nameOf(g.scorer)}進球（${g.score}）：`)),
-        ui(ch.length ? ch.map((c) => `${sit.nameOf(c.id)}${c.enters ? "升進" : "掉出"}晉級區`).join("、") : all ? `名次變動 ${all}，晉級區不變` : "名次不變"));
+        ui(ch.length ? ch.map((c) => `${sit.nameOf(c.id)}${c.enters ? "升進" : "掉出"}前 ${k}`).join("、") : all ? `名次變動 ${all}，前 ${k} 不變` : "名次不變"));
     });
     block.append(h("h3", null, ui("下一球的影響")), h("ul", { class: "v2-list" }, items));
   }

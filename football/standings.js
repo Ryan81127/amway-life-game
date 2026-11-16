@@ -141,6 +141,16 @@ function v2Ctx(model) {
   return c;
 }
 
+/* 每支球隊「還沒有定案」的目標裡最重要的一個；全部定案時回傳主要目標。 */
+function focusK(sit, id) {
+  if (!sit?.status) return sit?.mainK || 1;
+  for (const tg of sit.targets || []) {
+    const c = sit.status.get(tg.k)?.get(id)?.code;
+    if (c && c !== "clinched" && c !== "out") return tg.k;
+  }
+  return sit.mainK;
+}
+
 function simKey(ctx) {
   return `${ctx.slug}:${ctx.group?.name || ""}`;
 }
@@ -222,7 +232,7 @@ function situation(model, ctx) {
       out.notes.push("未賽場次太多，改用積分上下界判定。");
     }
     if (live.length) out.nextGoal = nextGoalEffects(ids, base, live, rules, out.mainK);
-    out.goalsNeeded = (id) => goalsNeeded(ids, base, live, rules, out.mainK, id);
+    out.goalsNeeded = (id, k) => goalsNeeded(ids, base, live, rules, k || out.mainK, id);
     /* 本場三種結果後的排名（其他進行中比賽照目前比分、未賽的不計） */
     const me = all.find((m) => m.id === model.id);
     if (me && me.state !== "post") {

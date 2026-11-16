@@ -88,20 +88,23 @@ function marketPanel(model, sit, mot) {
     const cons = [];
     if (lh != null && la != null) {
       const rowsAh = pred?.markets?.find((x) => x.id === "ah")?.ahRows;
-      const hit = rowsAh?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsAh?.find((x) => x.isMarket);
-      modelText = `預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）` + (hit ? `；${ahWords("home", hit.L)} 過盤 ${pct(hit.home)}、${ahWords("away", -hit.L)} ${pct(hit.away)}` : "");
+      const preRow = rowsAh?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsAh?.find((x) => x.isMarket);
+      const liveRow = ipm?.ah?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9);
+      /* 比賽中只拿滾球模型對滾球盤；賽前模型不能拿來對滾球賠率 */
+      const hit = live ? (liveRow ? { L: liveRow.L, ph: liveRow.home / Math.max(1e-9, 1 - liveRow.push), pa: liveRow.away / Math.max(1e-9, 1 - liveRow.push) } : null) : (preRow ? { L: preRow.L, ph: preRow.home.eff, pa: preRow.away.eff } : null);
+      modelText = `賽前預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）` + (hit ? `；${live ? "滾球模型：" : ""}${H} ${hit.L > 0 ? "+" : ""}${trimNum(hit.L)} 過盤 ${pct(hit.ph)}、${A} ${-hit.L > 0 ? "+" : ""}${trimNum(-hit.L)} 過盤 ${pct(hit.pa)}` : "");
       const fav = lh >= la ? H : A;
-      pros.push(`模型看${fav}的預期進球較高。`);
+      pros.push(`賽前模型看${fav}的預期進球較高。`);
       if (dv && hit) {
-        const edge = hit.home - dv.a;
-        (Math.abs(edge) >= 0.03 ? pros : cons).push(`市場隱含機率（去抽水）${H} ${pct(dv.a)}，模型 ${pct(hit.home)}，差 ${edge >= 0 ? "+" : ""}${trimNum(Math.round(edge * 1000) / 10)} 個百分點。`);
-        concl = Math.abs(edge) < 0.03 ? "模型與市場價格接近，沒有明顯偏差。" : `模型比市場更看好${edge > 0 ? H : A}這一邊；差距不大時通常是市場知道更多（陣容、傷停）。`;
-      } else concl = Number.isFinite(line) ? "有盤口但缺賠率或模型逐線機率，只能參考預期進球差。" : "ESPN 沒有這場的讓球盤，只能參考預期進球差。";
+        const edge = hit.ph - dv.a;
+        (Math.abs(edge) >= 0.03 ? pros : cons).push(`市場隱含機率（去抽水）${H} ${pct(dv.a)}，模型 ${pct(hit.ph)}，差 ${edge >= 0 ? "+" : ""}${trimNum(Math.round(edge * 1000) / 10)} 個百分點。`);
+        concl = Math.abs(edge) < 0.03 ? "模型與市場價格接近，沒有明顯偏差。" : `模型比市場更看好${edge > 0 ? H : A}這一邊；通常是市場知道更多（陣容、傷停、場上狀況），差距只能當觀察點。`;
+      } else concl = Number.isFinite(line) ? "有盤口，但模型沒有這條線的機率，只能參考預期進球差。" : "ESPN 沒有這場的讓球盤，只能參考預期進球差。";
     }
     if (ipm && ip) pros.push(`滾球重算：剩餘時間預期進球 ${H} ${fx(ip.lh)}、${A} ${fx(ip.la)}。`);
     out.push({
       id: "ah", title: "亞洲讓球盤",
-      line: Number.isFinite(line) ? `${ahWords("home", line)}｜賠率 ${fmtDecimal(qh.decimal)}／${qa ? fmtDecimal(qa.decimal) : "–"}${qh.isLive ? "（滾球）" : ""}` : "沒有盤口資料",
+      line: Number.isFinite(line) ? `${H} ${line > 0 ? "+" : ""}${trimNum(line)}｜賠率 ${fmtDecimal(qh.decimal)}／${qa ? fmtDecimal(qa.decimal) : "–"}${qh.isLive ? "（滾球）" : ""}` : "沒有盤口資料",
       lineTime: Number.isFinite(line) ? at : "", vig: dv ? dv.vig : null, modelText, pros, cons,
       motivation: motLine, pitch: pitchLine,
       risks: ["早段紅牌或點球會讓盤口基礎完全改變。", "強隊領先後常收力，贏球不等於贏盤。"],
@@ -124,17 +127,16 @@ function marketPanel(model, sit, mot) {
     const cons = [];
     if (lh != null && la != null) {
       const rowsOu = pred?.markets?.find((x) => x.id === "ou")?.ouRows;
-      const hit = rowsOu?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsOu?.find((x) => x.isMarket) || rowsOu?.find((x) => Math.abs(x.L - 2.5) < 1e-9);
-      modelText = `賽前預期總進球 ${fx(lh + la)}` + (hit ? `；大 ${trimNum(hit.L)} 機率 ${pct(hit.over)}、小 ${pct(hit.under)}` : "");
-      if (ipm) {
-        const l = ipm.ou.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || ipm.ou[0];
-        modelText += `｜滾球：目前 ${cur} 球，剩餘預期 ${fx(ip.lh + ip.la)} 球` + (l ? `，大 ${trimNum(l.L)} 機率 ${pct(l.over)}` : "");
-      }
+      const preRow = rowsOu?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsOu?.find((x) => x.isMarket) || rowsOu?.find((x) => Math.abs(x.L - 2.5) < 1e-9);
+      const liveRow = ipm?.ou?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9);
+      const hit = live ? (liveRow ? { L: liveRow.L, po: liveRow.over, pu: liveRow.under } : null) : (preRow ? { L: preRow.L, po: preRow.over.eff, pu: preRow.under.eff } : null);
+      modelText = `賽前預期總進球 ${fx(lh + la)}` + (ip ? `｜目前 ${cur} 球，剩餘預期 ${fx(ip.lh + ip.la)} 球` : "") + (hit ? `；${live ? "滾球模型：" : ""}大 ${trimNum(hit.L)} 機率 ${pct(hit.po)}、小 ${pct(hit.pu)}` : "");
       (lh + la >= 2.8 ? pros : cons).push(`賽前預期總進球 ${fx(lh + la)}（${lh + la >= 2.8 ? "偏高" : lh + la <= 2.3 ? "偏低" : "中等"}）。`);
       if (dv && hit) {
-        const edge = hit.over - dv.a;
-        concl = Math.abs(edge) < 0.03 ? "模型與市場接近，沒有明顯偏差。" : `模型比市場${edge > 0 ? "更偏大球" : "更偏小球"}（差 ${trimNum(Math.round(Math.abs(edge) * 1000) / 10)} 個百分點）。`;
-      } else concl = "沒有可對照的市場賠率，只列模型機率。";
+        const edge = hit.po - dv.a;
+        (Math.abs(edge) >= 0.03 ? pros : cons).push(`市場隱含機率（去抽水）大球 ${pct(dv.a)}，模型 ${pct(hit.po)}。`);
+        concl = Math.abs(edge) < 0.03 ? "模型與市場接近，沒有明顯偏差。" : `模型比市場${edge > 0 ? "更偏大球" : "更偏小球"}（差 ${trimNum(Math.round(Math.abs(edge) * 1000) / 10)} 個百分點），只能當觀察點。`;
+      } else concl = Number.isFinite(line) ? "有盤口，但模型沒有這條線的機率。" : "沒有可對照的市場賠率，只列模型數字。";
     }
     if (xg && live) (xg.home.xg + xg.away.xg > (lh + la) * (ip ? ip.played / 90 : 0.5) ? pros : cons).push(`場上 xG 合計 ${fx(xg.home.xg + xg.away.xg)}，${xg.home.xg + xg.away.xg > (lh ?? 1.3) + (la ?? 1.1) ? "高於" : "未高於"}賽前預期的節奏。`);
     out.push({
@@ -157,7 +159,7 @@ function marketPanel(model, sit, mot) {
     out.push({
       id: "htou", title: "半場大小球", line: "ESPN 沒有半場盤口", lineTime: "", vig: null,
       modelText: past ? "上半場已結束。" : ht ? `半場大 0.5 機率 ${pct(ht.o05)}、大 1.5 機率 ${pct(ht.o15)}；半場主勝 ${pct(ht.r1.home)}、和 ${pct(ht.r1.draw)}、客勝 ${pct(ht.r1.away)}` : "資料不足（需要賽前模型；開賽前打開過這場才有）",
-      pros: ht && ht.o05 >= 0.7 ? ["模型預估上半場至少 1 球的機率偏高。"] : [], cons: ht && ht.o05 < 0.6 ? ["模型預估上半場進球機率不高。"] : [],
+      pros: !past && ht && ht.o05 >= 0.7 ? ["模型預估上半場至少 1 球的機率偏高。"] : [], cons: !past && ht && ht.o05 < 0.6 ? ["模型預估上半場進球機率不高。"] : [],
       motivation: motLine, pitch: pitchLine,
       risks: ["上半場進球數本來就比下半場少，樣本波動大。"], recheck: ["開場 15 分鐘的節奏", "早段進球"],
       comp: done([["半場盤口", false], ["進球模型", !!ht]]),
