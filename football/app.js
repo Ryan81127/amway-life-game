@@ -98,7 +98,10 @@ function maybeRender(options) {
   }
   pending = false;
   const y = soft ? window.scrollY : 0;
+  /* 重新渲染時保留使用者手動展開／收合的段落 */
+  const folds = soft ? [...document.querySelectorAll("details[data-k]")].map((d) => [d.dataset.k, d.open]) : [];
   render();
+  for (const [k, open] of folds) { const d = document.querySelector(`details[data-k="${CSS.escape(k)}"]`); if (d) d.open = open; }
   window.scrollTo(0, y);
 }
 
@@ -385,7 +388,20 @@ function renderMatch(app, route) {
       h("button", { class: "retry", onclick: () => loadMatch(route.league, route.event) }, "重試")));
   }
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
-  wrap.append(scoreboard(model), matchNav(model), grokButton(model), moodNowBlock(model));
+  /* 2.0 分頁：「看板」是原本的完整頁面，其餘分頁各自獨立渲染 */
+  const view = typeof v2View === "function" ? v2View() : "board";
+  wrap.append(...[scoreboard(model), typeof viewTabs === "function" ? viewTabs() : null, typeof situationStrip === "function" ? situationStrip(model) : null].filter(Boolean));
+  if (view !== "board") {
+    if (typeof clearRail === "function") clearRail();
+    if (typeof floatingSearch === "function") floatingSearch();
+    if (typeof ledgerCapture === "function") ledgerCapture(model);
+    wrap.append(...[v2Render(model, view)].filter(Boolean));
+    app.append(wrap, footer());
+    app.dataset.ready = "1";
+    app.dataset.view = "match";
+    return;
+  }
+  wrap.append(matchNav(model), grokButton(model), moodNowBlock(model));
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const done = phase === "ft" || model.minute.state === "post";
