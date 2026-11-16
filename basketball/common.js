@@ -68,7 +68,13 @@ function logoNode(src, abbr) {
 }
 
 function footer() {
-  return h("footer", { class: "foot" }, ui("資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。"));
+  const league = typeof currentLeague === "function" ? currentLeague() : "nba";
+  const src = league === "kbl"
+    ? "資料來源：KBL 官方，比分會更新。這聯賽沒有接公開盤口。"
+    : league === "bj"
+      ? "資料來源：B.League 官方賽程，2026-11-16 抓下整季。官方網站不讓瀏覽器直接更新，所以比分不會自動刷新。"
+      : "資料來源：ESPN。";
+  return h("footer", { class: "foot" }, ui(`${src}時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。`));
 }
 
 function errorBox(retry) {

@@ -86,14 +86,14 @@ function staticCards(model) {
     const city = CITY_FACTS[Number(t.id)] || [];
     city.forEach((fact, i) => out.push({ id: `city-${t.id}-${i}`, topic: "city", title: `${TEAM_CITY[Number(t.id)] || ""}冷知識`, fact, sources: [{ name: "維基百科", url: wikiUrl(TEAM_CITY[Number(t.id)] || t.rawName) }], checked: "", say: `來點${TEAM_CITY[Number(t.id)]}的冷知識：${fact}`, humor: { light: `下次去${TEAM_CITY[Number(t.id)]}，記得幫我打卡。`, spicy: `${t.name}今晚要是輸球，我就只記得這個冷知識了。` }, ask: `有去過${TEAM_CITY[Number(t.id)]}的朋友嗎？留言分享！`, when: i ? ["cold", "half"] : ["timeout", "cold"], status: "update", note: "城市常識，播前可複核" }));
   }
-  if (model.venue) out.push({ id: `venue-${model.id}`, topic: "city", title: `今晚球場：${model.venue}`, fact: `今晚比賽在 ${model.venue}${model.city ? "（" + model.city + "）" : ""} 進行${model.attendance ? "，現場觀眾 " + model.attendance.toLocaleString() + " 人" : ""}。`, sources: [{ name: "ESPN", url: `https://www.espn.com/nba/game/_/gameId/${model.id}` }], checked: today, say: `今晚的戰場在 ${model.venue}，主場球迷的聲音會不會影響比賽，我們等等看！`, humor: { light: "主場的地板，連彈跳都比較有利（大概）。", spicy: "客隊今晚要對抗的不只是對手，還有一萬多個人的噓聲。" }, ask: "你最想去哪一座 NBA 球館看現場？", when: ["open"], status: "verified" });
+  if (model.venue) out.push({ id: `venue-${model.id}`, topic: "city", title: `今晚球場：${model.venue}`, fact: `今晚比賽在 ${model.venue}${model.city ? "（" + model.city + "）" : ""} 進行${model.attendance ? "，現場觀眾 " + model.attendance.toLocaleString() + " 人" : ""}。`, sources: [{ name: model.sourceName || "ESPN", url: model.sourceUrl || `https://www.espn.com/nba/game/_/gameId/${model.id}` }], checked: today, say: `今晚的戰場在 ${model.venue}，主場球迷的聲音會不會影響比賽，我們等等看！`, humor: { light: "主場的地板，連彈跳都比較有利（大概）。", spicy: "客隊今晚要對抗的不只是對手，還有一萬多個人的噓聲。" }, ask: "你最想去哪一座 NBA 球館看現場？", when: ["open"], status: "verified" });
   return out;
 }
 
 function autoCards(model) {
   const out = [];
   const today = taipeiYmd(new Date());
-  const src = [{ name: "ESPN", url: `https://www.espn.com/nba/game/_/gameId/${model.id}` }];
+  const src = [{ name: model.sourceName || "ESPN", url: model.sourceUrl || `https://www.espn.com/nba/game/_/gameId/${model.id}` }];
   for (const side of ["home", "away"]) {
     const t = model[side];
     const st = model.standings?.[side];

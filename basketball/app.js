@@ -49,10 +49,37 @@ function headerBar(title, sub, actions, extra) {
   );
 }
 
+function leagueHref(id) {
+  return id === "nba" ? "./" : `?league=${id}`;
+}
+function setLeague(id) {
+  const url = new URL(location.href);
+  url.search = "";
+  if (id !== "nba") url.searchParams.set("league", id);
+  history.pushState({}, "", url);
+  state.matches = [];
+  state.news = [];
+  state.scheduleReady = false;
+  state.model = null;
+  state.pred = null;
+  state.day = "";
+  window.scrollTo(0, 0);
+  loadRoute();
+}
 function sportSwitch() {
+  const league = currentLeague();
+  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"]];
   return h("nav", { class: "sport-switch" },
     h("a", { href: "../football/" }, "⚽ ", ui("足球")),
-    h("a", { href: "./", "aria-current": "page" }, "🏀 NBA")
+    ...items.map(([id, label]) => h("a", {
+      href: leagueHref(id),
+      "aria-current": league === id ? "page" : null,
+      onclick: (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        if (league !== id) setLeague(id);
+      }
+    }, ui(label)))
   );
 }
 
@@ -69,6 +96,8 @@ function dayMatches(day, today) {
 function setScheduleParams(next) {
   const url = new URL(location.href);
   url.search = "";
+  const league = currentLeague();
+  if (league !== "nba") url.searchParams.set("league", league);
   const day = next.day ?? state.day;
   const tab = next.tab ?? state.tab;
   if (day && day !== taipeiYmd(new Date())) url.searchParams.set("day", day);
@@ -78,10 +107,13 @@ function setScheduleParams(next) {
 }
 
 function dateStrip(bounds, day) {
+  const ymds = eachYmd(bounds.start, bounds.end);
+  const long = ymds.length > 40;
   const strip = h("div", { class: "datestrip", role: "tablist", "aria-label": "選擇日期" });
-  for (const ymd of eachYmd(bounds.start, bounds.end)) {
-    const meta = ymdMeta(ymd);
+  for (const ymd of ymds) {
     const list = dayMatches(ymd, bounds.today);
+    if (long && !list.length && ymd !== day && ymd !== bounds.today) continue;
+    const meta = ymdMeta(ymd);
     const live = list.some((m) => m.state === "in");
     let rel = meta.wd;
     if (ymd === bounds.today) rel = "今天";
@@ -127,7 +159,7 @@ function renderSchedule(app) {
   };
   const sub = state.scheduleLoadedAt ? `更新於 ${taipeiClock(new Date(state.scheduleLoadedAt))}` : "台北時間";
   const refresh = h("button", { class: "icon-btn", onclick: () => manualRefresh() }, ui("重新整理"));
-  app.append(headerBar("NBA 轉播看板", sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
+  app.append(headerBar(leagueTitle(), sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
   const wrap = h("div", { class: "wrap" });
   wrap.append(sportSwitch());
   if (!state.scheduleReady && !state.matches.length) {
@@ -140,7 +172,8 @@ function renderSchedule(app) {
     app.append(wrap, footer());
     return;
   }
-  wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 5 秒偵測比分"))));
+  const pace = currentLeague() === "kbl" ? "比分來自 KBL 官方" : currentLeague() === "bj" ? "賽程是 2026-11-16 的官方快照" : "比賽中每 5 秒偵測比分";
+  wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(` · 台北時間 · ${pace}`))));
   const sections = [["live", "進行中", "目前沒有進行中的比賽"], ["pre", "未開賽", "這天沒有還沒開始的比賽"], ["post", "已完賽", "這天還沒有完賽的比賽"]]
     .filter(([id]) => state.tab === "all" || state.tab === id);
   let shown = 0;
@@ -155,7 +188,7 @@ function renderSchedule(app) {
   }
   if (!shown) {
     const next = eachYmd(addDays(day, 1), bounds.end).find((ymd) => dayMatches(ymd, bounds.today).length);
-    wrap.append(h("div", { class: "empty" }, ui(state.tab === "all" ? "這天沒有 NBA 比賽" : "這個分類沒有比賽"),
+    wrap.append(h("div", { class: "empty" }, ui(state.tab === "all" ? `這天沒有${leaguePill()}比賽` : "這個分類沒有比賽"),
       next ? h("button", { class: "retry", onclick: () => setScheduleParams({ day: next, tab: "all" }) }, ui(`看 ${dayTitle(next, bounds.today)}`)) : null));
   }
   if (state.news?.length) wrap.append(leagueNews());
@@ -164,7 +197,7 @@ function renderSchedule(app) {
   app.append(wrap, footer());
   app.dataset.view = "schedule";
   app.dataset.ready = state.scheduleReady ? "1" : "0";
-  document.title = ui("NBA 轉播看板");
+  document.title = ui(leagueTitle());
 }
 
 function countdown(iso) {
@@ -179,7 +212,8 @@ function countdown(iso) {
 function matchCard(m) {
   const live = m.state === "in";
   const pre = m.state === "pre";
-  const card = h("a", { class: live ? "match-card live" : pre ? "match-card pre" : "match-card post", href: `?event=${m.id}` });
+  const league = m.league || "nba";
+  const card = h("a", { class: live ? "match-card live" : pre ? "match-card pre" : "match-card post", href: league === "nba" ? `?event=${m.id}` : `?league=${league}&event=${m.id}` });
   card.addEventListener("click", (e) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
@@ -187,7 +221,7 @@ function matchCard(m) {
   });
   card.append(
     h("div", { class: "card-top" },
-      h("span", { class: "pill" }, "NBA"),
+      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : "NBA")),
       h("span", null, `${taipeiYmd(m.date) !== state.day ? shortDate(m.date) + " " : ""}${taipeiHM(m.date)} 台北`),
       h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(m.clock)] : ui(m.clock))
     ),
@@ -216,6 +250,7 @@ function leagueNews() {
 }
 
 function linksBlock(model) {
+  if (model?.league && typeof asiaLinks === "function") return asiaLinks(model);
   const q = model ? `${model.away.rawName} vs ${model.home.rawName}` : "NBA";
   const g = (site, extra) => `https://www.google.com/search?q=${encodeURIComponent(`${q} ${extra || ""} site:${site}`)}`;
   const items = [
@@ -235,7 +270,8 @@ function linksBlock(model) {
 /* ---------- 比賽頁 ---------- */
 
 function openMatch(id) {
-  history.pushState({}, "", `?event=${id}`);
+  const league = currentLeague();
+  history.pushState({}, "", league === "nba" ? `?event=${id}` : `?league=${league}&event=${id}`);
   state.model = null;
   state.pred = null;
   state.cards = null;
@@ -249,6 +285,8 @@ function openMatch(id) {
 function goSchedule() {
   const url = new URL(location.href);
   url.search = "";
+  const league = currentLeague();
+  if (league !== "nba") url.searchParams.set("league", league);
   if (state.day && state.day !== taipeiYmd(new Date())) url.searchParams.set("day", state.day);
   history.pushState({}, "", url);
   state.model = null;
@@ -263,11 +301,11 @@ function renderMatch(app, route) {
   const refresh = h("button", { class: "icon-btn", onclick: () => manualRefresh() }, ui("重新整理"));
   const sub = state.summaryLoadedAt ? `更新於 ${taipeiClock(new Date(state.summaryLoadedAt))}` : "";
   if (!m || m.id !== route.event) {
-    app.append(headerBar("NBA 轉播看板", sub, [back, refresh]));
+    app.append(headerBar(leagueTitle(), sub, [back, refresh]));
     app.append(h("div", { class: "wrap" }, state.summaryError ? errorBox(() => loadMatch(route.event)) : h("p", { class: "muted" }, ui("載入比賽資料中…"))), footer());
     return;
   }
-  document.title = ui(`${m.away.name} @ ${m.home.name}｜NBA 轉播看板`);
+  document.title = ui(`${m.away.name} @ ${m.home.name}｜${leagueTitle()}`);
   app.append(headerBar(`${m.away.name} @ ${m.home.name}`, sub, [back, refresh], matchNav(m)));
   const wrap = h("div", { class: "wrap" });
   const phase = m.status.phase;
@@ -276,7 +314,7 @@ function renderMatch(app, route) {
   let blocks;
   if (pre) {
     ensurePrediction(m);
-    blocks = [scoreboard(m), predSection(m), movementBlock(m), injuryBlock(m), formBlock(m), cardsBlock(m), newsBlock(m), linksBlock(m)];
+    blocks = [scoreboard(m), predSection(m), movementBlock(m), injuryBlock(m), rosterBlock(m), formBlock(m), cardsBlock(m), newsBlock(m), linksBlock(m)];
   } else if (live) {
     blocks = [scoreboard(m), momentBlock(m), liveQuarterBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), cardsBlock(m), injuryBlock(m), savedPredBlock(m), linksBlock(m)];
   } else {
@@ -293,7 +331,7 @@ function matchNav(m) {
   const pre = m.status.phase === "pre";
   const live = m.status.state === "in";
   const items = pre
-    ? [["pred", "盤口預測"], ["moves", "盤口走勢"], ["inj", "傷兵"], ["form", "近況"], ["cards", "知識卡"]]
+    ? [["pred", "盤口預測"], ["moves", "盤口走勢"], ["inj", "傷兵"], ...(m.league ? [["roster", "名單"]] : []), ["form", "近況"], ["cards", "知識卡"]]
     : live
       ? [["moments", "即時話術"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["cards", "知識卡"]]
       : [["full", "全場覆盤"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["cards", "知識卡"]];
@@ -345,14 +383,14 @@ function predSection(m) {
   const p = state.pred;
   const sec = h("section", { class: "panel", id: "pred" }, h("h2", null, ui("盤口預測")));
   if (!p) {
-    sec.append(h("p", { class: "muted" }, ui("ESPN 還沒開出盤口、也沒有足夠的本季數據，暫時無法預測。開賽前 1–2 天通常會出現。")));
+    sec.append(h("p", { class: "muted" }, ui(m.league ? "還沒有足夠的本季得失分，暫時無法預測。" : "ESPN 還沒開出盤口、也沒有足夠的本季數據，暫時無法預測。開賽前 1–2 天通常會出現。")));
     return sec;
   }
   const H = m.home.name;
   const A = m.away.name;
   const fav = p.mu >= 0 ? H : A;
   sec.append(h("div", { class: "pred-head" },
-    h("div", null, h("b", null, ui("預估比分")), h("span", { class: "big" }, `${A} ${Math.round(p.awayPts)} : ${Math.round(p.homePts)} ${H}`)),
+    h("div", null, h("b", null, ui("預估比分")), h("span", { class: "big" }, ui(`${A} ${Math.round(p.awayPts)} : ${Math.round(p.homePts)} ${H}`))),
     h("div", null, h("b", null, ui("模型分差")), h("span", { class: "big" }, ui(`${fav} 贏 ${trimNum(Math.abs(p.mu))}`))),
     h("div", null, h("b", null, ui("模型總分")), h("span", { class: "big" }, trimNum(p.muT))),
     h("div", null, h("b", null, ui(`${H} 勝率`)), h("span", { class: "big" }, pct(p.pHome)))
@@ -364,6 +402,8 @@ function predSection(m) {
       ui(` 模型機率 ${pct(v.p)}、公平賠率 ${fmtOdd(1 / v.p)}、期望值 ${evText(v.ev)}`),
       v.wild ? h("div", { class: "warn" }, ui("優勢超過 10%，通常代表模型漏掉了某些消息（傷兵、輪休），請先查最新先發名單。")) : null,
       v.warn ? h("div", { class: "warn" }, ui(v.warn)) : null))));
+  } else if (!m.odds) {
+    sec.append(h("p", { class: "muted" }, ui("這場沒有公開盤口。下面是根據本季得失分和近況做的模型，不是莊家開出的盤。")));
   } else {
     sec.append(h("p", { class: "muted" }, ui("目前主要盤口都沒有超過 2% 的優勢，盤口開得很準；想下注建議等先發名單出爐再看。")));
   }
@@ -383,11 +423,15 @@ function predSection(m) {
       h("p", { class: "faint" }, ui("依本季場均、今晚預估節奏（總分）調整；沒有球員盤口賠率，只提供參考線。"))));
   }
   sec.append(h("p", { class: "faint" }, ui(`模型：分差 = 市場 60% + 本季／近況數據 25% + ESPN BPI 15%（標準差 ${SIG_MARGIN} 分）；總分 = 市場 70% + 數據 30%（標準差 ${SIG_TOTAL} 分）。僅供參考，不構成投注建議。`)));
-  const lines = [
+  const lines = m.odds ? [
     `今晚 ${A} 作客 ${H}，盤口 ${H} ${fmtHandicap(p.line)}、大小分 ${trimNum(p.total)}。`,
     `我的模型看 ${fav} 贏 ${trimNum(Math.abs(p.mu))} 分左右，總分落在 ${Math.round(p.muT)} 附近。`,
     p.value[0] ? `如果要找價值，${p.value[0].label} 是模型覺得市場低估的選項。` : "盤口開得很準，今晚看球比看盤有趣。",
     "你們押哪一邊？留言說，賽後我們一起對答案！"
+  ] : [
+    `今晚 ${A} 作客 ${H}。這場沒有公開盤口。`,
+    `以目前數據來看，模型看 ${fav} 贏 ${trimNum(Math.abs(p.mu))} 分左右，總分落在 ${Math.round(p.muT)} 附近。`,
+    "這只是得失分模型，不是投注建議。你們看哪一邊？留言說，賽後一起對答案！"
   ];
   sec.append(scriptBlock(lines, "賽前口播"));
   return sec;
@@ -550,7 +594,11 @@ function boxBlock(m) {
       predTable(["球員", "時間", "得分", "籃板", "助攻", "投籃", "三分", "罰球", "抄", "帽", "失誤", "犯規", "+/-"],
         m.box.players[side].filter((p) => !p.dnp).map((p) => ({
           cls: p.starter ? "starter" : "",
-          cells: [`${p.starter ? "★ " : ""}${p.name}${p.pos ? " " + p.pos : ""}`, p.min, { node: String(p.pts), cls: p.pts >= 20 ? "pos" : "" }, p.reb, p.ast, `${p.fg.m}/${p.fg.a}`, `${p.tp.m}/${p.tp.a}`, `${p.ft.m}/${p.ft.a}`, p.stl, p.blk, p.tov, { node: String(p.pf), cls: p.pf >= 5 ? "neg" : "" }, signed(p.pm)]
+          cells: [
+            m.league && typeof nameHead === "function"
+              ? { node: h("span", null, p.starter ? "★ " : "", nameHead(p.en, p.jersey, p.ja), p.pos ? " " + ui(p.pos) : "") }
+              : `${p.starter ? "★ " : ""}${p.name}${p.pos ? " " + p.pos : ""}`,
+            p.min, { node: String(p.pts), cls: p.pts >= 20 ? "pos" : "" }, p.reb, p.ast, `${p.fg.m}/${p.fg.a}`, `${p.tp.m}/${p.tp.a}`, `${p.ft.m}/${p.ft.a}`, p.stl, p.blk, p.tov, { node: String(p.pf), cls: p.pf >= 5 ? "neg" : "" }, signed(p.pm)]
         }))),
       m.box.players[side].some((p) => p.dnp) ? h("p", { class: "faint" }, ui("未上場：" + m.box.players[side].filter((p) => p.dnp).map((p) => p.name + (p.reason ? `（${p.reason}）` : "")).join("、"))) : null)));
 }
@@ -600,6 +648,15 @@ function savedPredBlock(m) {
 /* ---------- 載入 ---------- */
 
 async function loadSchedule(mode) {
+  if (currentLeague() !== "nba") {
+    try { await loadAsiaSchedule(); }
+    catch (err) {
+      if (err.name === "AbortError") return;
+      state.scheduleError = true;
+      if (!readRoute().event) maybeRender({ soft: true });
+    }
+    return;
+  }
   state.abort?.abort();
   state.abort = new AbortController();
   const days = wantedDays(mode === "full" ? "full" : "near");
@@ -630,6 +687,15 @@ async function loadNews() {
 }
 
 async function loadMatch(id) {
+  if (currentLeague() !== "nba") {
+    state.summaryLoading = true;
+    try { await loadAsiaMatch(id); }
+    catch (err) {
+      if (!state.model) state.summaryError = true;
+      if (readRoute().event === id) maybeRender({ soft: true });
+    } finally { state.summaryLoading = false; }
+    return;
+  }
   if (state.summaryLoading) return;
   state.summaryLoading = true;
   try {
@@ -658,8 +724,10 @@ async function loadRoute() {
   } else {
     render();
     await loadSchedule("near");
-    loadSchedule("full");
-    loadNews();
+    if (currentLeague() === "nba") {
+      loadSchedule("full");
+      loadNews();
+    }
   }
 }
 
@@ -685,6 +753,7 @@ function sigOf(ev) {
 }
 
 async function pulse() {
+  if (currentLeague() !== "nba") return;
   if (document.hidden || state.pulseBusy) return;
   const route = readRoute();
   const m = state.model;

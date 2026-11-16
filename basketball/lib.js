@@ -61,6 +61,10 @@ function teamZh(id, fallback) {
 function relabelNames() { /* 中文隊名固定，切換用語時交給 speak() 轉換 */ }
 
 function windowBounds() {
+  if (typeof asiaWindow === "function") {
+    const extra = asiaWindow();
+    if (extra) return extra;
+  }
   const today = taipeiYmd(new Date());
   return { today, start: addDays(today, -3), end: addDays(today, 7) };
 }
@@ -473,7 +477,11 @@ function buildModel(data) {
 
 function readRoute() {
   const q = new URLSearchParams(location.search);
-  return { event: q.get("event") || "", day: q.get("day") || "", tab: q.get("tab") || "" };
+  const event = q.get("event") || "";
+  let league = q.get("league") || "";
+  if (!league && /^S\d+G\d+N\d+$/i.test(event)) league = "kbl";
+  if (!["kbl", "bj"].includes(league)) league = "nba";
+  return { event, day: q.get("day") || "", tab: q.get("tab") || "", league };
 }
 
 function anyLive() {
