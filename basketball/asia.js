@@ -51,6 +51,13 @@ if (typeof PHRASES !== "undefined") {
   }
 }
 
+let scheduleToken = 0;
+function invalidateSchedule() {
+  scheduleToken += 1;
+}
+function scheduleFresh(token) {
+  return token === scheduleToken;
+}
 let kblPack = null;
 let bjPack = null;
 let kblRoster = null;
@@ -269,12 +276,36 @@ function linesOf(block) {
   return all;
 }
 
+function quarterLines(block) {
+  if (!block) return [];
+  const qs = [1, 2, 3, 4].map((i) => Number(block["scoreq" + i]) || 0);
+  const extra = Array.isArray(block.scoreeq) ? block.scoreeq.map((n) => Number(n) || 0) : [];
+  return [...qs, ...extra];
+}
+function overlayKbl(raw, detail) {
+  const game = detail?.game;
+  if (!game) return raw;
+  const next = { ...raw };
+  if (game.isStarted != null) next.isStarted = game.isStarted;
+  if (game.isEnded != null) next.isEnded = game.isEnded;
+  if (game.playingQuarter) next.playingQuarter = game.playingQuarter;
+  const started = Number(next.isStarted) === 1 || Number(next.isEnded) === 1;
+  if (started && detail.teamrecords) {
+    next.scoreH = quarterLines(detail.teamrecords.home).reduce((sum, n) => sum + n, 0);
+    next.scoreA = quarterLines(detail.teamrecords.away).reduce((sum, n) => sum + n, 0);
+  }
+  return next;
+}
 async function loadKblMatch(id) {
-  const pack = kblPack || await loadKblPack();
-  const raw = pack.games.find((g) => String(g.gmkey) === String(id));
-  if (!raw) throw new Error("找不到這場");
+  const pack = await loadKblPack();
+  const found = pack.games.find((g) => String(g.gmkey) === String(id));
+  if (!found) throw new Error("找不到這場");
   const detail = await kblGet("/match/" + id).catch(() => null);
+  const raw = overlayKbl(found, detail);
+  Object.assign(found, { isStarted: raw.isStarted, isEnded: raw.isEnded, playingQuarter: raw.playingQuarter, scoreH: raw.scoreH, scoreA: raw.scoreA });
   const card = kblCard(raw);
+  const at = pack.cards.findIndex((m) => m.id === card.id);
+  if (at >= 0) pack.cards[at] = card;
   const game = detail?.game || {};
   const rec = detail?.teamrecords || {};
   card.home.linescores = linesOf(rec.home);
@@ -470,7 +501,9 @@ function finishModel(card, extra) {
 
 async function loadAsiaSchedule() {
   const league = currentLeague();
+  const token = scheduleToken;
   const pack = league === "kbl" ? await loadKblPack() : await loadBjPack();
+  if (!scheduleFresh(token) || currentLeague() !== league) return;
   state.matches = pack.cards;
   state.news = [];
   state.scheduleReady = true;
@@ -482,8 +515,9 @@ async function loadAsiaSchedule() {
 }
 async function loadAsiaMatch(id) {
   const league = currentLeague();
+  const token = scheduleToken;
   const model = league === "kbl" ? await loadKblMatch(id) : await loadBjMatch(id);
-  if (readRoute().event !== String(id)) return;
+  if (!scheduleFresh(token) || currentLeague() !== league || readRoute().event !== String(id)) return;
   if (model.status.phase === "pre") state.pred = null;
   state.model = model;
   state.summaryError = false;

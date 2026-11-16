@@ -53,6 +53,8 @@ function leagueHref(id) {
   return id === "nba" ? "./" : `?league=${id}`;
 }
 function setLeague(id) {
+  invalidateSchedule();
+  state.abort?.abort();
   const url = new URL(location.href);
   url.search = "";
   if (id !== "nba") url.searchParams.set("league", id);
@@ -652,11 +654,13 @@ async function loadSchedule(mode) {
     try { await loadAsiaSchedule(); }
     catch (err) {
       if (err.name === "AbortError") return;
+      if (currentLeague() === "nba") return;
       state.scheduleError = true;
       if (!readRoute().event) maybeRender({ soft: true });
     }
     return;
   }
+  const token = scheduleToken;
   state.abort?.abort();
   state.abort = new AbortController();
   const days = wantedDays(mode === "full" ? "full" : "near");
@@ -664,6 +668,7 @@ async function loadSchedule(mode) {
     const results = await Promise.allSettled(days.map((d) => limit(() => fetchDay(d))));
     const ok = results.filter((r) => r.status === "fulfilled");
     if (!ok.length) throw new Error("schedule");
+    if (!scheduleFresh(token) || currentLeague() !== "nba") return;
     const map = new Map(state.matches.map((m) => [m.id, m]));
     for (const r of ok) for (const ev of r.value) map.set(String(ev.id), normalizeEvent(ev));
     state.matches = [...map.values()];
@@ -675,12 +680,14 @@ async function loadSchedule(mode) {
     if (err.name === "AbortError") return;
     state.scheduleError = true;
   }
-  if (!readRoute().event) maybeRender({ soft: true });
+  if (scheduleFresh(token) && currentLeague() === "nba" && !readRoute().event) maybeRender({ soft: true });
 }
 
 async function loadNews() {
+  if (currentLeague() !== "nba") return;
   try {
     const data = await fetchJson(`${API}/news?limit=12`, new AbortController().signal);
+    if (currentLeague() !== "nba") return;
     state.news = (data.articles || []).map((a) => ({ title: a.headline, url: a.links?.web?.href || "", at: a.published })).filter((a) => a.title);
     if (!readRoute().event) maybeRender({ soft: true });
   } catch { /* 新聞抓不到就算了 */ }
@@ -698,11 +705,12 @@ async function loadMatch(id) {
   }
   if (state.summaryLoading) return;
   state.summaryLoading = true;
+  const token = scheduleToken;
   try {
     const ctl = new AbortController();
     const data = await fetchJson(`${API}/summary?event=${id}&_=${Date.now()}`, ctl.signal);
     const model = buildModel(data);
-    if (readRoute().event !== id) return;
+    if (!scheduleFresh(token) || currentLeague() !== "nba" || readRoute().event !== id) return;
     if (model.status.phase === "pre") state.pred = null;
     state.model = model;
     state.summaryError = false;
