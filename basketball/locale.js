@@ -16,6 +16,7 @@ function setLocale(next) {
   document.documentElement.lang = fbLocale === "cn" ? "zh-Hans" : "zh-Hant";
   window.dispatchEvent(new Event("fb-locale"));
 }
+document.documentElement.lang = fbLocale === "cn" ? "zh-Hans" : "zh-Hant";
 
 const TEAM_CN = {
   1: "老鹰", 2: "凯尔特人", 3: "鹈鹕", 4: "公牛", 5: "骑士", 6: "独行侠", 7: "掘金", 8: "活塞", 9: "勇士", 10: "火箭",
@@ -65,7 +66,19 @@ const PHRASES = [
   ["品質", "质量"],
   ["資料", "数据"],
   ["程式", "程序"],
-  ["宵夜", "夜宵"]
+  ["宵夜", "夜宵"],
+  ["韓籃甲", "韩篮甲"],
+  ["日本B聯賽", "日本B篮球联赛 PREMIER"],
+  ["音譯·未查證", "音译·未查证"],
+  ["辭典", "辞典"],
+  ["原名", "原名"],
+  ["這份賽程沒有比分", "这份赛程没有比分"],
+  ["還沒有足夠的本季數據", "还没有足够的本季数据"],
+  ["這場沒有公開盤口", "这场没有公开盘口"],
+  ["預測", "预测"],
+  ["莊家", "庄家"],
+  ["正官莊", "正官庄"],
+  ["索諾", "索诺"]
 ];
 
 let namePairs = null;
