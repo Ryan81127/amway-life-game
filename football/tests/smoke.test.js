@@ -54,7 +54,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   ok("同組另一場自動識別、即時積分榜：烏拉圭 2:0 時暫居第二");
   assert.ok(sit.nextGoal.some((g) => g.scorer === "KOR" && g.changes.some((c) => c.id === "URU" && c.drops)));
   ok("下一球：韓國進球會讓烏拉圭掉出晉級區");
-  for (const v of ["table", "motive", "script", "market"]) {
+  for (const v of ["table", "motive", "motive2", "script", "market"]) {
     const node = v2Render(model, v);
     assert.ok(node && node.textContent.length > 100, v);
     assert.ok(!/undefined|NaN|\[object/.test(node.textContent), `${v} 出現未處理的值：` + (/.{20}(undefined|NaN|\[object).{20}/.exec(node.textContent) || [""])[0]);
