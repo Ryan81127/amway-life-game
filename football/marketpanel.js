@@ -47,6 +47,26 @@ function calibration() {
   return { games, total };
 }
 
+/* 全場亞洲讓球（含目前比分、四分之一盤拆半）：回傳去掉走盤後的主／客過盤機率 */
+function mkFullAh(ip, line) {
+  const pois = (l, k) => { let p = Math.exp(-l); for (let i = 1; i <= k; i += 1) p *= l / i; return p; };
+  const frac = Math.abs(line % 1);
+  const parts = Math.abs(frac - 0.25) < 0.02 || Math.abs(frac - 0.75) < 0.02 ? [line - 0.25 * Math.sign(line || 1), line + 0.25 * Math.sign(line || 1)] : [line];
+  let ph = 0;
+  let pa = 0;
+  for (let i = 0; i <= 9; i += 1) for (let j = 0; j <= 9; j += 1) {
+    const p = pois(ip.lh, i) * pois(ip.la, j);
+    const margin = ip.hs + i - (ip.as + j);
+    for (const L of parts) {
+      const x = margin + L;
+      if (x > 1e-9) ph += p / parts.length;
+      else if (x < -1e-9) pa += p / parts.length;
+    }
+  }
+  const t = ph + pa || 1;
+  return { L: line, ph: ph / t, pa: pa / t };
+}
+
 function marketPanel(model, sit, mot) {
   const H = model.home.name;
   const A = model.away.name;
@@ -89,10 +109,10 @@ function marketPanel(model, sit, mot) {
     if (lh != null && la != null) {
       const rowsAh = pred?.markets?.find((x) => x.id === "ah")?.ahRows;
       const preRow = rowsAh?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsAh?.find((x) => x.isMarket);
-      const liveRow = ipm?.ah?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9);
-      /* 比賽中只拿滾球模型對滾球盤；賽前模型不能拿來對滾球賠率 */
-      const hit = live ? (liveRow ? { L: liveRow.L, ph: liveRow.home / Math.max(1e-9, 1 - liveRow.push), pa: liveRow.away / Math.max(1e-9, 1 - liveRow.push) } : null) : (preRow ? { L: preRow.L, ph: preRow.home.eff, pa: preRow.away.eff } : null);
-      modelText = `賽前預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）` + (hit ? `；${live ? "滾球模型：" : ""}${H} ${hit.L > 0 ? "+" : ""}${trimNum(hit.L)} 過盤 ${pct(hit.ph)}、${A} ${-hit.L > 0 ? "+" : ""}${trimNum(-hit.L)} 過盤 ${pct(hit.pa)}` : "");
+      /* 比賽中只拿滾球模型對滾球盤。ESPN 的滾球讓球是「全場」盤，所以要把目前比分加進去算 */
+      const liveRow = live && ip && Number.isFinite(line) ? mkFullAh(ip, line) : null;
+      const hit = live ? liveRow : (preRow ? { L: preRow.L, ph: preRow.home.eff, pa: preRow.away.eff } : null);
+      modelText = `賽前預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）` + (hit ? `；${live ? `滾球模型（含目前 ${ip.hs}:${ip.as}，全場盤）：` : ""}${H} ${hit.L > 0 ? "+" : ""}${trimNum(hit.L)} 過盤 ${pct(hit.ph)}、${A} ${-hit.L > 0 ? "+" : ""}${trimNum(-hit.L)} 過盤 ${pct(hit.pa)}` : "");
       const fav = lh >= la ? H : A;
       pros.push(`賽前模型看${fav}的預期進球較高。`);
       if (dv && hit) {
