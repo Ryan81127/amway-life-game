@@ -110,16 +110,23 @@ function marketPanel(model, sit, mot) {
       const rowsAh = pred?.markets?.find((x) => x.id === "ah")?.ahRows;
       const preRow = rowsAh?.find((x) => Number.isFinite(line) && Math.abs(x.L - line) < 1e-9) || rowsAh?.find((x) => x.isMarket);
       /* 比賽中只拿滾球模型對滾球盤。ESPN 的滾球讓球是「全場」盤，所以要把目前比分加進去算 */
-      const liveRow = live && ip && Number.isFinite(line) ? mkFullAh(ip, line) : null;
-      const hit = live ? liveRow : (preRow ? { L: preRow.L, ph: preRow.home.eff, pa: preRow.away.eff } : null);
-      modelText = `賽前預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）` + (hit ? `；${live ? `滾球模型（含目前 ${ip.hs}:${ip.as}，全場盤）：` : ""}${H} ${hit.L > 0 ? "+" : ""}${trimNum(hit.L)} 過盤 ${pct(hit.ph)}、${A} ${-hit.L > 0 ? "+" : ""}${trimNum(-hit.L)} 過盤 ${pct(hit.pa)}` : "");
+      /* 滾球：ESPN 沒有標明滾球讓球是「全場」還是「只算之後進球」，兩種都列，不拿來和市場比較 */
+      const full = live && ip && Number.isFinite(line) ? mkFullAh(ip, line) : null;
+      const rest = live && ip && Number.isFinite(line) ? mkFullAh({ ...ip, hs: 0, as: 0 }, line) : null;
+      const hit = live ? null : (preRow ? { L: preRow.L, ph: preRow.home.eff, pa: preRow.away.eff } : null);
+      const sgn = (x) => `${x > 0 ? "+" : ""}${trimNum(x)}`;
+      modelText = `賽前預期進球 ${H} ${fx(lh)}、${A} ${fx(la)}（差 ${fx(Math.abs(lh - la))}）`
+        + (hit ? `；${H} ${sgn(hit.L)} 過盤 ${pct(hit.ph)}、${A} ${sgn(-hit.L)} 過盤 ${pct(hit.pa)}` : "")
+        + (full ? `｜滾球模型 ${H} ${sgn(line)}：若為全場盤（含目前 ${ip.hs}:${ip.as}）過盤 ${pct(full.ph)}；若只算之後的進球 ${pct(rest.ph)}` : "");
+      if (live && full) cons.push("ESPN 沒有標明滾球讓球的計算基準（全場或從目前比分起算），所以不和市場價格比較，請以你使用平台的規則為準。");
       const fav = lh >= la ? H : A;
       pros.push(`賽前模型看${fav}的預期進球較高。`);
       if (dv && hit) {
         const edge = hit.ph - dv.a;
         (Math.abs(edge) >= 0.03 ? pros : cons).push(`市場隱含機率（去抽水）${H} ${pct(dv.a)}，模型 ${pct(hit.ph)}，差 ${edge >= 0 ? "+" : ""}${trimNum(Math.round(edge * 1000) / 10)} 個百分點。`);
         concl = Math.abs(edge) < 0.03 ? "模型與市場價格接近，沒有明顯偏差。" : `模型比市場更看好${edge > 0 ? H : A}這一邊；通常是市場知道更多（陣容、傷停、場上狀況），差距只能當觀察點。`;
-      } else concl = Number.isFinite(line) ? "有盤口，但模型沒有這條線的機率，只能參考預期進球差。" : "ESPN 沒有這場的讓球盤，只能參考預期進球差。";
+      } else if (live && full) concl = "滾球盤基準不明，只列兩種解讀的模型機率，不判斷市場偏差。";
+      else concl = Number.isFinite(line) ? "有盤口，但模型沒有這條線的機率，只能參考預期進球差。" : "ESPN 沒有這場的讓球盤，只能參考預期進球差。";
     }
     if (ipm && ip) pros.push(`滾球重算：剩餘時間預期進球 ${H} ${fx(ip.lh)}、${A} ${fx(ip.la)}。`);
     out.push({
