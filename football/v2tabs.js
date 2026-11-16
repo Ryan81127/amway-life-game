@@ -1,7 +1,7 @@
 /* 2.0 分頁：看板（原本內容）｜積分／出線｜戰意｜主播口播｜盤口觀察。
    原本的比賽頁完全保留在「看板」分頁；其餘分頁各自獨立渲染。 */
 
-const V2_VIEWS = [["board", "看板"], ["table", "積分／出線"], ["motive", "戰意"], ["script", "主播口播"], ["market", "盤口觀察"]];
+const V2_VIEWS = [["board", "看板"], ["table", "積分／出線"], ["motive", "戰意"], ["motive2", "戰意 2"], ["script", "主播口播"], ["market", "盤口觀察"]];
 const v2Log = new Map();
 const v2Last = new Map();
 
@@ -304,6 +304,7 @@ function v2MarketView(model) {
 function v2Render(model, view) {
   if (view === "table") return standingsView(model);
   if (view === "motive") return motivationView(model);
+  if (view === "motive2") return motive2View(model);
   if (view === "script") return commentaryView(model);
   if (view === "market") return v2MarketView(model);
   return null;

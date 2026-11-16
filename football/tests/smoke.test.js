@@ -32,9 +32,9 @@ global.fetch = async (url) => {
 const files = [...fs.readFileSync(path.join(dir, "index.html"), "utf8").matchAll(/src="([a-z0-9]+\.js)/g)].map((m) => m[1]).filter((f) => f !== "app.js");
 const appSrc = fs.readFileSync(path.join(dir, "app.js"), "utf8").replace(/\nboot\(\);?\s*$/, "\n");
 const src = files.map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n") + "\n" + appSrc + `
-;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel };`;
+;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade };`;
 (0, eval)(src);
-const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache } = globalThis.__t;
+const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade } = globalThis.__t;
 
 const model = { id: "E5", leagueSlug: "fifa.world", leagueName: "世界盃", kickoff: "2022-12-02T15:00Z", venue: "", city: "",
   home: { id: "KOR", name: "南韓", rawName: "South Korea", score: "1", linescores: [] }, away: { id: "POR", name: "葡萄牙", rawName: "Portugal", score: "1", linescores: [] },
@@ -54,12 +54,23 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   ok("同組另一場自動識別、即時積分榜：烏拉圭 2:0 時暫居第二");
   assert.ok(sit.nextGoal.some((g) => g.scorer === "KOR" && g.changes.some((c) => c.id === "URU" && c.drops)));
   ok("下一球：韓國進球會讓烏拉圭掉出晉級區");
-  for (const v of ["table", "motive", "script", "market"]) {
+  for (const v of ["table", "motive", "motive2", "script", "market"]) {
     const node = v2Render(model, v);
     assert.ok(node && node.textContent.length > 100, v);
     assert.ok(!/undefined|NaN|\[object/.test(node.textContent), `${v} 出現未處理的值：` + (/.{20}(undefined|NaN|\[object).{20}/.exec(node.textContent) || [""])[0]);
   }
   ok("四個新分頁都能渲染，沒有 undefined／NaN");
+  const liveSc = { scenarios: [
+    { label: "主隊再進 1 球", hs: 3, as: 0, rows: [{ id: "KOR", rank: 1 }] },
+    { label: "維持目前比分", hs: 2, as: 0, rows: [{ id: "KOR", rank: 2 }] },
+    { label: "客隊再進 1 球", hs: 2, as: 1, rows: [{ id: "KOR", rank: 2 }] }
+  ] };
+  assert.strictEqual(m2RankAfter(liveSc, "KOR", "home", "draw"), null);
+  assert.strictEqual(m2RankAfter(liveSc, "KOR", "home", "loss"), null);
+  assert.strictEqual(m2RankAfter(liveSc, "KOR", "home", "win"), null);
+  assert.strictEqual(m2Grade({ rank: 4 }, [{ code: "unknown", label: "晉級" }], null), null);
+  assert.strictEqual(m2Grade({ rank: 4 }, [{ code: "clinched", label: "晉級" }, { code: "out", label: "頭名" }], null).id, "none");
+  ok("進行中的再進一球不當成平局或輸球；未知出線狀態不標成無欲無求");
   assert.ok(/資料不足|沒有盤口資料/.test(v2Render(model, "market").textContent));
   ok("缺少盤口時顯示資料不足，不產生數字");
   model.home.score = "2";
