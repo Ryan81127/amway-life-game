@@ -30,8 +30,8 @@ function m2Grade(row, codes, zone) {
   if (row && row.rank <= 2 && codes.some((x) => (x.code === "winEnough" || x.code === "mustWin") && /頭名|冠軍|晉級|升級/.test(x.label))) {
     return { id: "title", label: "爭冠關鍵輪", why: "頭名或晉級仍要靠贏球。小組出線不等於聯賽爭冠，口播時請改成這項賽事的說法。" };
   }
-  const pressure = codes.length && typeof mvPressure === "function" ? mvPressure(codes.map((x) => x.code)) : null;
-  if (pressure === 0) {
+  const settled = codes.length > 0 && codes.every((x) => x.code === "clinched" || x.code === "out");
+  if (settled) {
     return { id: "none", label: "無欲無求輪", why: "已計算的目標都是「已確定」或「已無緣」，積分壓力是最低一級。這不代表場上一定不會拚。" };
   }
   return null;
@@ -58,18 +58,23 @@ function m2Ou(grade, codes, zone) {
   return null;
 }
 
+function m2Outcome(sc, side) {
+  const hs = Number(sc.hs);
+  const as = Number(sc.as);
+  if (!Number.isFinite(hs) || !Number.isFinite(as)) return null;
+  const result = hs === as ? "draw" : hs > as ? "home" : "away";
+  if (result === "draw") return "draw";
+  if (side === "home") return result === "home" ? "win" : "loss";
+  return result === "away" ? "win" : "loss";
+}
 function m2RankAfter(sit, teamId, side, kind) {
   if (!sit?.scenarios) return null;
-  const homeWin = /主勝|主隊再進/;
-  const awayWin = /客勝|客隊再進/;
-  const draw = /平局|維持目前/;
-  const re = side === "home"
-    ? { win: homeWin, draw, loss: awayWin }
-    : { win: awayWin, draw, loss: homeWin };
-  const sc = sit.scenarios.find((s) => re[kind].test(s.label));
-  if (!sc) return null;
-  const row = sc.rows.find((x) => x.id === teamId);
-  return row ? { rank: row.rank, label: sc.label } : null;
+  const matches = sit.scenarios.filter((sc) => m2Outcome(sc, side) === kind);
+  if (!matches.length) return null;
+  const ranks = matches.map((sc) => sc.rows.find((x) => x.id === teamId)?.rank).filter((n) => n != null);
+  if (!ranks.length || new Set(ranks).size !== 1) return null;
+  const label = matches.length === 1 ? matches[0].label : "這幾種比分都還是這個結果";
+  return { rank: ranks[0], label };
 }
 
 function m2Value(kind, codes, grade) {
@@ -261,7 +266,7 @@ function motive2View(model) {
     block.append(p.ou ? m2Tag("模型判斷", `${p.team.name}：${p.ou.text}`) : m2Tag("待主播判斷", `${p.team.name}：被迫冒險或拿一分達標，現有資料對不上，請主播選。`));
   }
   const rel = [home, away].find((p) => p.zone?.type === "relegation" || p.zone?.type === "relplayoff");
-  const cold = [home, away].find((p) => p.grade?.id === "none");
+  const cold = [home, away].find((p) => p !== rel && p.grade?.id === "none");
   block.append(rel && cold
     ? m2Tag("模型判斷", `修正參考：${rel.team.name}在保級區、${cold.team.name}積分壓力最低時，預期進球可以上調 0.2。這是模板係數，不是這場的預測進球。`)
     : m2Tag("待主播判斷", "「保級對無欲、進球預期 +0.2」這條，兩隊沒有同時對上，不套用。"));
