@@ -23,6 +23,7 @@ async function ensureTeamSchedule(model) {
       out[side] = {
         ok: !!(res || fix),
         last: past[0] || null,
+        past10: past.slice(0, 10).map((x) => x.m),
         restDays: past[0] ? Math.round((kick - new Date(past[0].m.date).getTime()) / day * 10) / 10 : null,
         next: next[0] || null,
         nextInDays: next[0] ? Math.round((new Date(next[0].m.date).getTime() - kick) / day * 10) / 10 : null,

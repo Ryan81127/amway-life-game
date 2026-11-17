@@ -253,6 +253,7 @@ function commentaryView(model) {
   const phase = model.minute.phase;
   block.append(h("p", { class: "faint" }, ui(`目前階段：${phase === "pre" ? "賽前" : phase === "ft" || model.minute.state === "post" ? "賽後" : "比賽中"}。文案由積分、規則與比賽資料套模板產生，沒有資料的段落不會出現；語言跟著上方「台灣用語／大陸用語」切換。`)));
   if (!sections.length) { block.append(h("p", { class: "muted" }, ui("資料不足：沒有可用的積分或比賽資料，無法產生口播。"))); return block; }
+  if (typeof cmAnalysisBlock === "function") block.append(cmAnalysisBlock(model));
   if (typeof aiSettings === "function") block.append(aiSettings());
   for (const sec of sections) {
     cm.per = cm.per || {};

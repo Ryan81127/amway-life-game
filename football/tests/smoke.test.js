@@ -117,6 +117,15 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     assert.ok(!/undefined|NaN/.test(page), (/.{30}(undefined|NaN).{30}/.exec(page) || [""])[0]);
     global.fetch = realFetch;
     localStorage.removeItem("fb-ai-endpoint");
+    await wait(30);
+    const p2 = v2Render(model, "script").textContent;
+    for (const k of ["近10場進球", "近10場丟球", "歷史交手", "盤口走勢", "贏盤率", "大小分", "資金走勢"]) assert.ok(p2.includes(k), k);
+    assert.ok(/南韓2場進/.test(p2) && /資料不足/.test(p2) && !/undefined|NaN/.test(p2), p2.slice(p2.indexOf("賽前條列"), p2.indexOf("賽前條列") + 400));
+    model.odds = { moneyline: {}, spread: { home: { close: { line: -0.25, decimal: 1.9 } }, away: { close: { line: 0.25, decimal: 1.9 } } }, total: { over: { close: { line: 2.5, decimal: 1.9 } }, under: { close: { line: 2.5, decimal: 1.9 } } } };
+    const p3 = v2Render(model, "script").textContent;
+    model.odds = null;
+    assert.ok(/回套近10場：南韓\d+%、葡萄牙\d+%/.test(p3) && /總進球大於 2.5/.test(p3) && !/undefined|NaN/.test(p3), p3.slice(p3.indexOf("賽前條列"), p3.indexOf("賽前條列") + 500));
+    ok("條列分析：近期進失球來自賽程，沒有盤口的項目標資料不足；有盤口時回套算贏盤率、大小走勢");
     ok("AI 改寫：前端再檢查一次數字，亂加的擋下、照抄的可複製；沒有任何 Key");
   }
   console.log(`\n全部通過：${n} 項`);

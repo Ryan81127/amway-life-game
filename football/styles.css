@@ -1135,3 +1135,11 @@ body.has-rail #app { padding-left: 64px; }
 .ai-ep{flex:1;min-width:200px;background:rgba(255,255,255,.06);color:inherit;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 8px;font-size:14px}
 .ai-out{margin-top:8px;padding:8px 10px;border-left:3px solid #8ab4ff;background:rgba(138,180,255,.07);border-radius:6px}
 .ai-out.bad{border-left-color:#ff7b7b;background:rgba(255,123,123,.07)}
+/* 條列分析 */
+.ca-list{margin:6px 0;padding-left:18px;line-height:1.6}
+.ca-list li{margin:3px 0}
+.ca-tag{font-size:11px;padding:1px 6px;border-radius:6px;white-space:nowrap}
+.ca-tag.fact{background:rgba(79,209,139,.15);color:#4fd18b}
+.ca-tag.calc{background:rgba(138,180,255,.15);color:#8ab4ff}
+.ca-tag.guess{background:rgba(240,195,106,.15);color:#f0c36a}
+.ca-tag.none{background:rgba(255,255,255,.08);color:rgba(255,255,255,.55)}
