@@ -27,22 +27,22 @@ function cmAnalysis(model) {
   const out = [];
   const add = (k, tag, text) => out.push({ k, tag, text });
   if (H.loading || A.loading) {
-    add("近10場", "讀取中", "讀取兩隊近期賽程中…");
+    add("近10場", "讀取中", "讀取賽程中…");
   } else {
     const sum = (t, key) => t.games.reduce((a, g) => a + g[key], 0);
-    const line = (name, t, key, word) => (t.games.length ? `${name}${t.games.length}場${word}${sum(t, key)}（場均${trimNum(Math.round(sum(t, key) / t.games.length * 10) / 10)}）` : `${name}資料不足`);
+    const line = (name, t, key) => (t.games.length ? `${name}${sum(t, key)}球${t.games.length < 10 ? `（${t.games.length}場）` : ""}，場均${trimNum(Math.round(sum(t, key) / t.games.length * 10) / 10)}` : `${name}資料不足`);
     const tagOf = H.games.length || A.games.length ? "事實" : "資料不足";
-    add("近10場進球", tagOf, `${line(hn, H, "gf", "進")}；${line(an, A, "gf", "進")}`);
-    add("近10場丟球", tagOf, `${line(hn, H, "ga", "失")}；${line(an, A, "ga", "失")}`);
+    add("近10場進球", tagOf, `${line(hn, H, "gf")}；${line(an, A, "gf")}`);
+    add("近10場丟球", tagOf, `${line(hn, H, "ga")}；${line(an, A, "ga")}`);
   }
   const hh = model.h2h || { games: [] };
   const n = hh.hw + hh.aw + hh.dr;
-  add("歷史交手", n ? "事實" : "資料不足", n ? `ESPN 列出 ${n} 次：${hn}${hh.hw}勝、和${hh.dr}、${an}${hh.aw}勝` : "ESPN 沒有提供兩隊交手紀錄");
+  add("歷史交手", n ? "事實" : "資料不足", n ? `近${n}次${hn}${hh.hw}勝${hh.dr}和${hh.aw}負` : "ESPN 無交手紀錄");
   const mv = typeof oddsMovement === "function" ? oddsMovement(model) : null;
   const L = caLines(model);
   if (!model.odds) add("盤口走勢", "資料不足", "本場沒有盤口資料");
-  else if (mv?.items?.length) add("盤口走勢", "事實", mv.items.slice(0, 2).map((x) => `${x.market} ${x.text}`).join("；"));
-  else add("盤口走勢", "事實", mv?.hasOpen ? "初盤到現在沒有明顯升降盤" : "ESPN 沒給初盤，無法比較走勢");
+  else if (mv?.items?.length) add("盤口走勢", "事實", (() => { const x = mv.items.find((i) => i.market !== "獨贏") || mv.items[0]; return `${x.market}${x.text.replace(/（.*?）/g, "")}`; })());
+  else add("盤口走勢", mv?.hasOpen ? "事實" : "資料不足", mv?.hasOpen ? "初盤至今無明顯升降" : "無初盤可比較");
   if (L.ah == null || H.loading || (!H.games?.length && !A.games?.length)) {
     add("贏盤率", "資料不足", L.ah == null ? "沒有讓球盤，無法計算" : "近期賽程不足，無法計算");
   } else {
@@ -52,7 +52,7 @@ function cmAnalysis(model) {
       const den = t.games.length - d;
       return den ? `${Math.round((w / den) * 100)}%` : "–";
     };
-    add("贏盤率", "計算", `用本場盤口 ${hn}${L.ah > 0 ? "+" : ""}${trimNum(L.ah)} 回套近10場：${hn}${rate(H, L.ah)}、${an}${rate(A, -L.ah)}（非當時實際盤口）`);
+    add("贏盤率", "計算", `以本場${L.ah > 0 ? "+" : ""}${Math.round(L.ah * 100) / 100}回套近況：${hn}${rate(H, L.ah)}、${an}${rate(A, -L.ah)}（非實際盤口）`);
   }
   if (L.ou == null || H.loading || (!H.games?.length && !A.games?.length)) {
     add("大小分", "資料不足", L.ou == null ? "沒有大小盤，無法比較" : "近期賽程不足");
@@ -60,15 +60,15 @@ function cmAnalysis(model) {
     const all = [...(H.games || []), ...(A.games || [])];
     const over = all.filter((g) => g.gf + g.ga > L.ou).length;
     const p = over / all.length;
-    add("大小分", "計算", `兩隊近期 ${all.length} 場有 ${over} 場總進球大於 ${trimNum(L.ou)}，${p >= 0.6 ? "走勢偏大" : p <= 0.4 ? "走勢偏小" : "大小接近"}`);
+    add("大小分", "計算", `近${all.length}場${over}場大於${Math.round(L.ou * 100) / 100}，${p >= 0.6 ? "偏大" : p <= 0.4 ? "偏小" : "大小接近"}`);
   }
   const sig = mv?.signal;
-  if (!model.odds || !mv?.hasOpen) add("資金走勢", "資料不足", "沒有投注量資料，也沒有初盤可比較");
+  if (!model.odds || !mv?.hasOpen) add("資金走勢", "資料不足", "無投注量與初盤資料");
   else if (sig?.side || sig?.total) {
     const side = sig.side === "home" ? hn : sig.side === "away" ? an : sig.side === "mixed" ? "兩邊拉鋸" : "";
     const tot = sig.total === "over" ? "偏大分" : sig.total === "under" ? "偏小分" : "";
-    add("資金走勢", "推測", `從賠率水位變化看，資金${[side ? `偏向${side}` : "", tot].filter(Boolean).join("、")}（非實際投注量）`);
-  } else add("資金走勢", "推測", "水位變化不大，看不出明顯資金方向（非實際投注量）");
+    add("資金走勢", "推測", `水位顯示${[side ? `偏${side}` : "", tot].filter(Boolean).join("、")}（非投注量）`);
+  } else add("資金走勢", "推測", "水位平穩，看不出方向（非投注量）");
   return out;
 }
 
