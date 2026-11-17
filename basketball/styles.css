@@ -995,3 +995,22 @@ body.has-rail #app { padding-left: 64px; }
 .bx-star img { width: 56px; height: 42px; object-fit: cover; border-radius: 8px; background: rgba(255,255,255,.05); }
 .coach-card { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin: 10px 0; background: rgba(255,255,255,.02); }
 .bx-venue-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; margin: 6px 0; }
+
+/* ---------- 比分卡：依卡片實際寬度縮放（扣掉左側導覽列後也不會擠壓） ---------- */
+.board { container-type: inline-size; }
+.board-grid { gap: 6px; }
+@supports (font-size: 1cqi) {
+  .scoreline .nums { font-size: clamp(38px, 14cqi, 104px); gap: 4px; }
+  .side .logo, .side .logo img, .side .abbr { width: clamp(40px, 15cqi, 72px); height: clamp(40px, 15cqi, 72px); }
+  .side .name { font-size: clamp(12.5px, 4.4cqi, 20px); }
+  .clock { font-size: clamp(16px, 5.6cqi, 20px); }
+}
+.side .name { line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere; }
+.side .rec { font-size: 12px; line-height: 1.45; white-space: nowrap; }
+.scoreline .nums span { opacity: .55; }
+/* 節次表的總分欄（不要套到綠色推薦框的 .best 樣式） */
+.board .ptable-wrap { margin-top: 12px; }
+.board .ptable th, .board .ptable td { padding: 7px 4px; text-align: center; }
+.board .ptable th:first-child, .board .ptable td:first-child { text-align: left; white-space: nowrap; font-weight: 700; }
+.ptable td.best { margin: 0; padding: 7px 6px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: rgba(240, 195, 106, 0.1); color: var(--gold); font-weight: 900; }
+.board .ptable tr:last-child td { border-bottom: 0; }

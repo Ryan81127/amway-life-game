@@ -378,7 +378,9 @@ function teamCol(t, tag) {
   const col = h("div", { class: "side" });
   const color = safeColor(t.color);
   if (color) col.style.borderTop = `3px solid ${color}`;
-  col.append(h("span", { class: "tag" }, ui(tag)), logoNode(t.logo, t.abbr), h("div", { class: "name" }, ui(t.name)), h("div", { class: "faint" }, ui([t.record, t.split ? `${tag === "主" ? "主場" : "客場"} ${t.split}` : ""].filter(Boolean).join(" · "))));
+  col.append(h("span", { class: "tag" }, ui(tag)), logoNode(t.logo, t.abbr), h("div", { class: "name" }, ui(t.name)),
+    t.record ? h("div", { class: "faint rec" }, ui(t.record)) : null,
+    t.split ? h("div", { class: "faint rec" }, ui(`${tag === "主" ? "主場" : "客場"} ${t.split}`)) : null);
   return col;
 }
 
