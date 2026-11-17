@@ -68,7 +68,10 @@ function logoNode(src, abbr) {
 }
 
 function footer() {
-  return h("footer", { class: "foot" }, ui("資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。"));
+  const uae = new URLSearchParams(location.search).get("league") === "uae.1";
+  return h("footer", { class: "foot" }, ui(uae
+    ? "資料來源：阿聯酋職業聯賽官方賽程快照（2026-11-17 18:20），比分不會自動更新，請說「更新阿聯酋超」重抓。其他聯賽來自 ESPN。時間為台北時間。"
+    : "資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。"));
 }
 
 function errorBox(retry) {
