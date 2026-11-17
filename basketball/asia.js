@@ -224,8 +224,8 @@ function seasonFromLog(log) {
   const lastRes = log[log.length - 1].result;
   for (let i = log.length - 1; i >= 0 && log[i].result === lastRes; i -= 1) streak += 1;
   return {
-    avgPoints: pf,
-    avgPointsAgainst: pa,
+    avgPoints: Math.round(pf * 10) / 10,
+    avgPointsAgainst: Math.round(pa * 10) / 10,
     streak: `${lastRes}${streak}`,
     "Last Ten Games": `${wins}-${last.length - wins}`
   };

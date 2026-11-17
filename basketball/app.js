@@ -424,7 +424,8 @@ function predSection(m) {
       predTable(["球員", "本季場均", "今晚預估", "參考線"], p.props.map((x) => ({ cells: [`${m[x.side].name} ${x.name}`, trimNum(x.avg), x.out ? "缺陣" : trimNum(x.proj), x.out ? "–" : `${trimNum(x.line)}`] }))),
       h("p", { class: "faint" }, ui("依本季場均、今晚預估節奏（總分）調整；沒有球員盤口賠率，只提供參考線。"))));
   }
-  sec.append(h("p", { class: "faint" }, ui(`模型：分差 = 市場 60% + 本季／近況數據 25% + ESPN BPI 15%（標準差 ${SIG_MARGIN} 分）；總分 = 市場 70% + 數據 30%（標準差 ${SIG_TOTAL} 分）。僅供參考，不構成投注建議。`)));
+  if (m.league) sec.append(h("p", { class: "faint" }, ui(`模型：這個聯賽沒有公開盤口與 BPI，分差與總分只用本季得失分、近況和主場優勢計算（標準差 ${SIG_MARGIN} 分／${SIG_TOTAL} 分）。僅供參考，不構成投注建議。`)));
+  else sec.append(h("p", { class: "faint" }, ui(`模型：分差 = 市場 60% + 本季／近況數據 25% + ESPN BPI 15%（標準差 ${SIG_MARGIN} 分）；總分 = 市場 70% + 數據 30%（標準差 ${SIG_TOTAL} 分）。僅供參考，不構成投注建議。`)));
   const lines = m.odds ? [
     `今晚 ${A} 作客 ${H}，盤口 ${H} ${fmtHandicap(p.line)}、大小分 ${trimNum(p.total)}。`,
     `我的模型看 ${fav} 贏 ${trimNum(Math.abs(p.mu))} 分左右，總分落在 ${Math.round(p.muT)} 附近。`,
