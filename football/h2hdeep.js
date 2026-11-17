@@ -1,6 +1,6 @@
 /* 兩隊歷史交手（多賽季）：ESPN 單場資料的交手紀錄常常只有本季一兩場，
    這裡改抓主隊在各賽事、近 9 個賽季的賽程，挑出對上客隊的已完賽比賽。
-   結果存在這台裝置 3 天。來源一律標示 ESPN。 */
+   再合併對話查證過的交手（cards/h2h/{小id}-{大id}.json）。結果存在這台裝置 3 天。 */
 
 const H2H_PREFIX = "fb-h2h-v1:";
 const h2hDeep = new Map();
@@ -53,8 +53,23 @@ async function ensureDeepH2H(model) {
       for (const e of j.events || []) take(e);
     }))));
   } catch { /* 下面依 ok 判斷 */ }
+  /* 對話查證過的交手（cards/h2h/），補上 ESPN 沒有的年份；同一天的比賽以 ESPN 為準 */
+  let curated = null;
+  try {
+    const idx = typeof cardIndex === "function" ? await cardIndex() : null;
+    const path = idx?.h2h?.[key];
+    curated = path ? await cardJson(path) : null;
+  } catch { curated = null; }
+  const days = new Set([...found.values()].map((g) => String(g.date).slice(0, 10)));
+  for (const g of curated?.games || []) {
+    const d = String(g.date).slice(0, 10);
+    if (days.has(d) || !Number.isFinite(Number(g.hs)) || !Number.isFinite(Number(g.as))) continue;
+    if (d >= String(model.kickoff || "").slice(0, 10) || new Date(d).getTime() > kick - 3600000) continue;
+    found.set("c" + d, { id: "c" + d, date: d, home: String(g.home), away: String(g.away), hs: Number(g.hs), as: Number(g.as), league: g.comp || "", src: "查證" });
+    ok = true;
+  }
   const games = [...found.values()].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const rec = { status: ok ? "ok" : "error", at: Date.now(), games, slugs: [...slugs] };
+  const rec = { status: ok ? "ok" : "error", at: Date.now(), games, slugs: [...slugs], curated: curated ? { checked: curated.checked, sources: curated.sources || [], notes: curated.notes || [] } : null };
   h2hDeep.set(key, rec);
   if (ok) try { localStorage.setItem(H2H_PREFIX + key, JSON.stringify(rec)); } catch { /* 略過 */ }
   if (state.model?.id === model.id) maybeRender({ soft: true });
@@ -76,6 +91,7 @@ function h2hSummary(model, max) {
     if (f + a > 2.5) s.over25 += 1;
   }
   s.total = rec.games.length;
+  s.curated = rec.curated;
   s.since = games.length ? games[games.length - 1].date : null;
   return s;
 }

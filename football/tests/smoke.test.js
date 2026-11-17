@@ -23,7 +23,9 @@ global.fetch = async (url) => {
   url = String(url);
   if (apiDown) throw new Error("network");
   let body = {};
-  if (url.includes("/standings")) body = STANDINGS;
+  if (url.includes("cards/index.json")) body = { teams: {}, h2h: { "KOR-POR": "h2h/KOR-POR.json" } };
+  else if (url.includes("cards/h2h/KOR-POR.json")) body = { checked: "2026-11-17", sources: [{ name: "雷速", url: "https://m.leisu.com/" }], games: [{ date: "2002-06-14", home: "POR", away: "KOR", hs: 0, as: 1, comp: "世界盃" }, { date: "2022-12-02", home: "KOR", away: "POR", hs: 9, as: 9 }], notes: ["2002 世界盃朴智星破門"] };
+  else if (url.includes("/standings")) body = STANDINGS;
   else if (url.includes("/schedule")) body = { events: url.includes("fixture=true") ? [] : EVENTS.filter((e) => e.competitions[0].competitors.some((c) => url.includes(`/teams/${c.id}/`))) };
   else if (url.includes("/scoreboard")) body = { events: EVENTS.filter((e) => e.competitions[0].status.type.state === "in") };
   return { ok: true, status: 200, json: async () => body, text: async () => "" };
@@ -32,9 +34,9 @@ global.fetch = async (url) => {
 const files = [...fs.readFileSync(path.join(dir, "index.html"), "utf8").matchAll(/src="([a-z0-9]+\.js)/g)].map((m) => m[1]).filter((f) => f !== "app.js");
 const appSrc = fs.readFileSync(path.join(dir, "app.js"), "utf8").replace(/\nboot\(\);?\s*$/, "\n");
 const src = files.map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n") + "\n" + appSrc + `
-;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock };`;
+;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock, ensureDeepH2H, h2hSummary, h2hBlock };`;
 (0, eval)(src);
-const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade, aiRewrite, aiBlock, cmFacts, motivation } = globalThis.__t;
+const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade, aiRewrite, aiBlock, cmFacts, motivation, ensureDeepH2H, h2hSummary, h2hBlock } = globalThis.__t;
 
 const model = { id: "E5", leagueSlug: "fifa.world", leagueName: "世界盃", kickoff: "2022-12-02T15:00Z", venue: "", city: "",
   home: { id: "KOR", name: "南韓", rawName: "South Korea", score: "1", linescores: [] }, away: { id: "POR", name: "葡萄牙", rawName: "Portugal", score: "1", linescores: [] },
@@ -125,6 +127,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const p3 = v2Render(model, "script").textContent;
     model.odds = null;
     assert.ok(/以本場-0.25回套近況：南韓\d+%、葡萄牙\d+%/.test(p3) && /場大於2.5/.test(p3) && !/undefined|NaN/.test(p3), p3.slice(p3.indexOf("賽前條列"), p3.indexOf("賽前條列") + 500));
+    await ensureDeepH2H(model);
+    const hs = h2hSummary(model, 10);
+    assert.strictEqual(hs.total, 1, "本場當天的資料不算進交手");
+    assert.ok(/近1次南韓1勝0和0負/.test(v2Render(model, "script").textContent));
+    assert.ok(/2002 世界盃朴智星破門/.test(h2hBlock(model).textContent) && /查證/.test(h2hBlock(model).textContent));
     ok("條列分析：近期進失球來自賽程，沒有盤口的項目標資料不足；有盤口時回套算贏盤率、大小走勢");
     ok("AI 改寫：前端再檢查一次數字，亂加的擋下、照抄的可複製；沒有任何 Key");
   }

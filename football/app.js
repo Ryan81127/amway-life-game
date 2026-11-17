@@ -1088,24 +1088,28 @@ function h2hBlock(model) {
   const block = h("section", { class: "block" }, h("h2", null, ui("對戰往績")));
   if (typeof ensureDeepH2H === "function") ensureDeepH2H(model);
   const deep = typeof h2hSummary === "function" ? h2hSummary(model, 10) : null;
-  if (deep?.status === "ok" && deep.n >= model.h2h.games.length && deep.n) {
+  const espnH2h = model.h2h || { games: [], hw: 0, aw: 0, dr: 0 };
+  if (deep?.status === "ok" && deep.n >= espnH2h.games.length && deep.n) {
     block.append(h("p", null, ui(`近 ${deep.n} 次交手（共查到 ${deep.total} 場）：${model.home.name} ${deep.w} 勝 ${deep.d} 和 ${deep.l} 負，進 ${deep.gf} 失 ${deep.ga}；總進球大於 2.5 有 ${deep.over25} 場。`)));
     for (const g of deep.games) {
       const hn = g.home === String(model.home.id) ? model.home.name : model.away.name;
       const an = g.home === String(model.home.id) ? model.away.name : model.home.name;
-      block.append(h("div", { class: "h2h" }, ui(`${shortDate(g.date)} ${new Date(g.date).getFullYear()} ${hn} ${g.hs} - ${g.as} ${an}`), g.league ? h("span", { class: "faint" }, ui(` ${g.league}`)) : null));
+      block.append(h("div", { class: "h2h" }, ui(`${shortDate(g.date)} ${new Date(g.date).getFullYear()} ${hn} ${g.hs} - ${g.as} ${an}`), g.league ? h("span", { class: "faint" }, ui(` ${g.league}${g.src ? "（查證）" : ""}`)) : null));
     }
-    block.append(h("p", { class: "faint" }, ui("來源：ESPN 各賽事近 9 季賽程。")));
+    const cur = deep.curated;
+    if (cur?.notes?.length) block.append(h("ul", { class: "v2-list" }, cur.notes.map((x) => h("li", null, ui(x)))));
+    block.append(h("p", { class: "faint" }, ui(`來源：ESPN 各賽事近 9 季賽程${cur ? `；另含查證資料（${cur.checked || ""}）` : ""}。`),
+      ...(cur?.sources || []).map((x) => h("a", { href: x.url, target: "_blank", rel: "noopener", style: "margin-left:6px" }, ui(x.name)))));
     return block;
   }
   if (deep?.status === "loading") block.append(h("p", { class: "faint" }, ui("正在查詢多賽季交手紀錄…")));
-  if (!model.h2h.games.length) {
+  if (!espnH2h.games.length) {
     block.append(h("p", null, ui(deep?.status === "ok" ? "ESPN 近 9 季查不到兩隊交手紀錄。" : "沒有對戰往績。")));
     return block;
   }
-  const decided = model.h2h.hw + model.h2h.aw + model.h2h.dr;
-  if (decided) block.append(h("p", null, `${model.home.name} ${model.h2h.hw} 勝，和局 ${model.h2h.dr}，${model.away.name} ${model.h2h.aw} 勝。`));
-  for (const game of model.h2h.games) {
+  const decided = espnH2h.hw + espnH2h.aw + espnH2h.dr;
+  if (decided) block.append(h("p", null, `${model.home.name} ${espnH2h.hw} 勝，和局 ${espnH2h.dr}，${model.away.name} ${espnH2h.aw} 勝。`));
+  for (const game of espnH2h.games) {
     const homeSide = game.teams.find((t) => t.homeAway === "home") || game.teams[0];
     const awaySide = game.teams.find((t) => t !== homeSide);
     block.append(h("div", { class: "h2h" }, `${shortDate(game.date)} ${homeSide?.name || ""} ${homeSide?.score ?? ""} - ${awaySide?.score ?? ""} ${awaySide?.name || ""}`));

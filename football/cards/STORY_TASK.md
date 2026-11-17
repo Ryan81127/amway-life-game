@@ -27,3 +27,21 @@
 ## 教練（每次製作故事卡時一併做）
 
 在球隊檔案最外層加 `coach`：`name`、`hook`（一句讓人想聽下去的介紹）、`achievements`（豐功偉業：冠軍、成名戰、紀錄）、`style`（戰術招牌、帶兵風格、換人習慣）、`quote`（名言）、`watch`（今晚看他什麼）、`sources`、`checked`。
+
+## 歷史交手（每次製作故事卡時一併做）
+
+看板會先用 ESPN 近 9 季賽程自動算交手；這裡補 ESPN 沒有的更早年份與交手故事。
+來源依序：雷速（m.leisu.com，用內建瀏覽器開，等 1–2 分鐘資料才會出現）、FootyStats、Transfermarkt、維基百科；至少兩個來源比分一致才寫。
+
+寫入 `cards/h2h/{小id}-{大id}.json`（兩隊 ESPN id 由小到大），並在 `cards/index.json` 加 `"h2h": { "小id-大id": "h2h/小id-大id.json" }`：
+
+```json
+{
+  "pair": ["359", "363"],
+  "checked": "2026-11-17",
+  "sources": [ { "name": "雷速", "url": "..." }, { "name": "Transfermarkt", "url": "..." } ],
+  "games": [ { "date": "2019-05-29", "home": "363", "away": "359", "hs": 4, "as": 1, "comp": "歐霸決賽" } ],
+  "notes": [ "2019 歐霸決賽在巴庫，切爾西 4:1 大勝" ]
+}
+```
+`home`/`away` 用 ESPN 隊伍 id、`hs`/`as` 為正規時間＋延長賽比分（PK 寫進 notes）。最多寫最近 20 場；notes 最多 3 條、每條一句。查不到可靠來源就不寫該場。

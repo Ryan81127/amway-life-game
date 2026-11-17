@@ -37,7 +37,7 @@ function cmAnalysis(model) {
   }
   const deep = typeof h2hSummary === "function" ? h2hSummary(model, 10) : null;
   const hh = model.h2h || { games: [] };
-  const n = hh.hw + hh.aw + hh.dr;
+  const n = (hh.hw || 0) + (hh.aw || 0) + (hh.dr || 0);
   if (deep?.status === "ok" && deep.n >= Math.max(1, n)) add("歷史交手", "事實", `近${deep.n}次${hn}${deep.w}勝${deep.d}和${deep.l}負，進${deep.gf}失${deep.ga}${deep.since ? `（${new Date(deep.since).getFullYear()}起）` : ""}`);
   else if (deep?.status === "loading" && !n) add("歷史交手", "讀取中", "查詢多賽季交手中…");
   else add("歷史交手", n ? "事實" : "資料不足", n ? `近${n}次${hn}${hh.hw}勝${hh.dr}和${hh.aw}負` : "ESPN 近 9 季無交手紀錄");
