@@ -5,7 +5,7 @@ const bxRoster = new Map();
 const bxWiki = new Map();
 const bxVenue = new Map();
 
-const POS_ZH = { G: "後衛", F: "前鋒", C: "中鋒", PG: "控球後衛", SG: "得分後衛", SF: "小前鋒", PF: "大前鋒", "G-F": "後衛／前鋒", "F-C": "前鋒／中鋒", "F-G": "前鋒／後衛", "C-F": "中鋒／前鋒" };
+const BX_POS = { G: "後衛", F: "前鋒", C: "中鋒", PG: "控球後衛", SG: "得分後衛", SF: "小前鋒", PF: "大前鋒", "G-F": "後衛／前鋒", "F-C": "前鋒／中鋒", "F-G": "前鋒／後衛", "C-F": "中鋒／前鋒" };
 const BX_TAG = { 事實: "fact", 計算: "calc", 推測: "guess", 資料不足: "none" };
 
 function bxTag(t) {
@@ -215,7 +215,7 @@ function bxStars(m) {
         a?.headshot?.href ? h("img", { src: a.headshot.href, alt: "", loading: "lazy" }) : null,
         h("div", null,
           h("b", null, ui(l.name)), a?.jersey ? h("span", { class: "faint" }, ` #${a.jersey}`) : null,
-          h("div", { class: "faint" }, ui([a?.position?.abbreviation ? POS_ZH[a.position.abbreviation] || a.position.abbreviation : "", a?.displayHeight || "", a?.age ? `${a.age} 歲` : "", a?.experience?.years != null ? `NBA 第 ${a.experience.years + 1} 年` : ""].filter(Boolean).join("｜"))),
+          h("div", { class: "faint" }, ui([a?.position?.abbreviation ? BX_POS[a.position.abbreviation] || a.position.abbreviation : "", a?.displayHeight || "", a?.age ? `${a.age} 歲` : "", a?.experience?.years != null ? `NBA 第 ${a.experience.years + 1} 年` : ""].filter(Boolean).join("｜"))),
           h("div", null, ui(stats)))));
     }
     sec.append(h("h3", null, ui(m[side].name)), ...cards);
@@ -328,7 +328,7 @@ function bxLineups(m) {
     const out = new Set((m.injuries?.[side] || []).filter((i) => /Out/i.test(i.status)).map((i) => i.en));
     sec.append(predTable(["#", "球員", "位置", "身高", "年齡"], r.athletes.map((a) => ({
       cls: out.has(a.displayName) ? "neg" : "",
-      cells: [a.jersey || "–", (typeof playerZh === "function" ? playerZh(a.displayName) : a.displayName) + (out.has(a.displayName) ? "（缺陣）" : ""), POS_ZH[a.position?.abbreviation] || a.position?.abbreviation || "–", a.displayHeight || "–", a.age ? String(a.age) : "–"]
+      cells: [a.jersey || "–", (typeof playerZh === "function" ? playerZh(a.displayName) : a.displayName) + (out.has(a.displayName) ? "（缺陣）" : ""), BX_POS[a.position?.abbreviation] || a.position?.abbreviation || "–", a.displayHeight || "–", a.age ? String(a.age) : "–"]
     }))));
   }
   sec.append(h("p", { class: "faint" }, ui("ESPN 球隊名單；先發要等開賽前才確定，請以官方公布為準。")));
