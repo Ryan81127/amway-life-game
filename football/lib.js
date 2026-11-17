@@ -10,12 +10,13 @@ const LEAGUES = [
   { slug: "ger.1", name: "德甲" },
   { slug: "fra.1", name: "法甲" },
   { slug: "uefa.champions", name: "歐冠" },
-  { slug: "uefa.europa", name: "歐霞" },
+  { slug: "uefa.europa", name: "歐霸" },
   { slug: "usa.1", name: "美職聯" },
   { slug: "jpn.1", name: "J1 聯賽" },
   { slug: "fifa.world", name: "世界盃" },
   { slug: "uefa.nations", name: "歐國聯" },
-  { slug: "fifa.friendly", name: "國際友誼賽" }
+  { slug: "fifa.friendly", name: "國際友誼賽" },
+  { slug: "uae.1", name: "阿聯酋超" }
 ];
 
 const STATUS_ZH = {
