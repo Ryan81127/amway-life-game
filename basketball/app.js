@@ -331,7 +331,7 @@ function renderMatch(app, route) {
       : live
         ? [["moments", "即時話術"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["cards", "知識卡"], ["inj", "傷兵"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
         : [["full", "全場覆盤"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["cards", "知識卡"], ["savedpred", "賽前預測"], ["links", "外部資訊"]];
-    requestAnimationFrame(() => sideRail(rail));
+    sideRail(rail);
   }
   app.dataset.view = "match";
   app.dataset.phase = phase;
