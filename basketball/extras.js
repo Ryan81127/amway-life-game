@@ -158,6 +158,13 @@ function bxInplay(m) {
     sec.append(h("p", { class: "muted" }, ui("資料不足：這台裝置沒有這場的賽前模型，無法推算滾球。")));
     return sec;
   }
+  if (m.status.phase !== "pre" && (m.home.score === "" || m.away.score === "" || (m.status.phase === "live" && !Number.isFinite(m.status.secLeft)))) {
+    sec.append(bxList([
+      ["計算", `賽前基準：${p.mu >= 0 ? m.home.name : m.away.name} 贏 ${bxNum(Math.abs(p.mu))} 分、總分 ${bxNum(p.muT, 0)}、主隊勝率 ${pct(p.pHome)}。`],
+      ["資料不足", "這個聯賽的來源沒有即時比分或比賽時間，無法推算滾球；請對照外部連結的即時比分。"]
+    ]));
+    return sec;
+  }
   const hs = Number(m.home.score) || 0;
   const as = Number(m.away.score) || 0;
   const { el, len, reg } = bxElapsed(m);
