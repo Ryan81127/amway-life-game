@@ -35,9 +35,12 @@ function cmAnalysis(model) {
     add("近10場進球", tagOf, `${line(hn, H, "gf")}；${line(an, A, "gf")}`);
     add("近10場丟球", tagOf, `${line(hn, H, "ga")}；${line(an, A, "ga")}`);
   }
+  const deep = typeof h2hSummary === "function" ? h2hSummary(model, 10) : null;
   const hh = model.h2h || { games: [] };
   const n = hh.hw + hh.aw + hh.dr;
-  add("歷史交手", n ? "事實" : "資料不足", n ? `近${n}次${hn}${hh.hw}勝${hh.dr}和${hh.aw}負` : "ESPN 無交手紀錄");
+  if (deep?.status === "ok" && deep.n >= Math.max(1, n)) add("歷史交手", "事實", `近${deep.n}次${hn}${deep.w}勝${deep.d}和${deep.l}負，進${deep.gf}失${deep.ga}${deep.since ? `（${new Date(deep.since).getFullYear()}起）` : ""}`);
+  else if (deep?.status === "loading" && !n) add("歷史交手", "讀取中", "查詢多賽季交手中…");
+  else add("歷史交手", n ? "事實" : "資料不足", n ? `近${n}次${hn}${hh.hw}勝${hh.dr}和${hh.aw}負` : "ESPN 近 9 季無交手紀錄");
   const mv = typeof oddsMovement === "function" ? oddsMovement(model) : null;
   const L = caLines(model);
   if (!model.odds) add("盤口走勢", "資料不足", "本場沒有盤口資料");
@@ -73,6 +76,7 @@ function cmAnalysis(model) {
 }
 
 function cmAnalysisBlock(model) {
+  if (typeof ensureDeepH2H === "function") ensureDeepH2H(model);
   if (typeof ensureTeamSchedule === "function" && typeof mvSched !== "undefined" && !mvSched.has(model.id)) ensureTeamSchedule(model);
   const items = cmAnalysis(model);
   const text = items.map((x) => `・${x.k}：${x.text}`).join("\n");

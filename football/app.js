@@ -1085,9 +1085,22 @@ function formBlock(model) {
 }
 
 function h2hBlock(model) {
-  const block = h("section", { class: "block" }, h("h2", null, "對戰往績"));
+  const block = h("section", { class: "block" }, h("h2", null, ui("對戰往績")));
+  if (typeof ensureDeepH2H === "function") ensureDeepH2H(model);
+  const deep = typeof h2hSummary === "function" ? h2hSummary(model, 10) : null;
+  if (deep?.status === "ok" && deep.n >= model.h2h.games.length && deep.n) {
+    block.append(h("p", null, ui(`近 ${deep.n} 次交手（共查到 ${deep.total} 場）：${model.home.name} ${deep.w} 勝 ${deep.d} 和 ${deep.l} 負，進 ${deep.gf} 失 ${deep.ga}；總進球大於 2.5 有 ${deep.over25} 場。`)));
+    for (const g of deep.games) {
+      const hn = g.home === String(model.home.id) ? model.home.name : model.away.name;
+      const an = g.home === String(model.home.id) ? model.away.name : model.home.name;
+      block.append(h("div", { class: "h2h" }, ui(`${shortDate(g.date)} ${new Date(g.date).getFullYear()} ${hn} ${g.hs} - ${g.as} ${an}`), g.league ? h("span", { class: "faint" }, ui(` ${g.league}`)) : null));
+    }
+    block.append(h("p", { class: "faint" }, ui("來源：ESPN 各賽事近 9 季賽程。")));
+    return block;
+  }
+  if (deep?.status === "loading") block.append(h("p", { class: "faint" }, ui("正在查詢多賽季交手紀錄…")));
   if (!model.h2h.games.length) {
-    block.append(h("p", null, "沒有對戰往績。"));
+    block.append(h("p", null, ui(deep?.status === "ok" ? "ESPN 近 9 季查不到兩隊交手紀錄。" : "沒有對戰往績。")));
     return block;
   }
   const decided = model.h2h.hw + model.h2h.aw + model.h2h.dr;
