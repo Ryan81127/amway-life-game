@@ -1143,3 +1143,6 @@ body.has-rail #app { padding-left: 64px; }
 .ca-tag.calc{background:rgba(138,180,255,.15);color:#8ab4ff}
 .ca-tag.guess{background:rgba(240,195,106,.15);color:#f0c36a}
 .ca-tag.none{background:rgba(255,255,255,.08);color:rgba(255,255,255,.55)}
+/* 先發點評 */
+.lt-take { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(240,195,106,.06); border: 1px solid rgba(240,195,106,.25); }
+.lt-sub { font-weight: 800; margin: 10px 0 4px; }

@@ -124,6 +124,7 @@ function pvTeamSection(model, side) {
   const story = (typeof storyOf === "function" ? storyOf(model) : null)?.[side]?.stories?.[0];
   const keys = pvKeys(model, side, pred, coach, opp);
   block.append(h("table", { class: "fact-table kv" }, h("tbody", null, rows.map(([k, v]) => h("tr", null, h("th", null, ui(k)), h("td", null, ui(v)))))));
+  if (typeof ltBlock === "function") block.append(ltBlock(model, side));
   if (keys.length) {
     block.append(h("div", { class: "st-label" }, ui("🔑 勝利關鍵")), h("ul", { class: "st-bullets" }, keys.map((k) => h("li", null, ui(k)))));
     say.push(`${name}今天的勝利關鍵：${keys[0]}`);

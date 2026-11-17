@@ -74,8 +74,10 @@ async function mvRotation(model, side, lastId) {
   try {
     const j = await stCached(`${ALL_API}/summary?event=${encodeURIComponent(lastId)}`, 3600000);
     const block = (j.rosters || []).find((r) => String(r.team?.id) === String(model[side].id));
-    const ids = new Set((block?.roster || []).filter((r) => r.starter).map((r) => String(r.athlete?.id || "")));
-    mvRot.set(key, { status: ids.size >= 11 ? "ok" : "none", ids });
+    const st = (block?.roster || []).filter((r) => r.starter);
+    const ids = new Set(st.map((r) => String(r.athlete?.id || "")));
+    const names = new Map(st.map((r) => [String(r.athlete?.id || ""), typeof playerZh === "function" ? playerZh(r.athlete?.displayName || "") : r.athlete?.displayName || ""]));
+    mvRot.set(key, { status: ids.size >= 11 ? "ok" : "none", ids, names, formation: block?.formation || "" });
   } catch { mvRot.set(key, { status: "none" }); }
   if (state.model?.id === model.id) maybeRender({ soft: true });
 }
