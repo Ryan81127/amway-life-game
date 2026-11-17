@@ -226,12 +226,12 @@ function motivationView(model) {
     const s = mot.sides[side];
     two.append(h("div", { class: "st-panel" }, h("h3", { class: "st-h" }, ui(`${side === "home" ? "🏠" : "✈️"} ${s.name}`)), list(s.items)));
   }
-  block.append(two,
+  block.append(...[two,
     h("h3", null, ui("戰意差異")), list(mot.diff),
     mot.tactics.length ? h("h3", null, ui("可能的戰術策略")) : null, mot.tactics.length ? list(mot.tactics) : null,
     h("h3", null, ui("需要持續觀察的訊號")), h("ul", { class: "v2-list" }, mot.signals.map((x) => h("li", null, ui(x)))),
     h("h3", null, ui("反向情境與不確定因素")), h("ul", { class: "v2-list" }, mot.counter.map((x) => h("li", null, ui(x)))),
-    h("h3", null, ui("資料完整度")), h("div", { class: "v2-chips" }, mot.completeness.map(([k, ok]) => h("span", { class: ok ? "pill v2-have" : "pill v2-miss" }, ui(`${ok ? "✓" : "✗"} ${k}`)))));
+    h("h3", null, ui("資料完整度")), h("div", { class: "v2-chips" }, mot.completeness.map(([k, ok]) => h("span", { class: ok ? "pill v2-have" : "pill v2-miss" }, ui(`${ok ? "✓" : "✗"} ${k}`))))].filter(Boolean));
   return block;
 }
 

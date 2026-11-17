@@ -222,7 +222,7 @@ function motivation(model, sit) {
       const t = [H, A].find((x) => x.codes.includes("drawEnough"));
       res.tactics.push({ tag: "推測", text: `${t.name}平局就夠，比賽後段可能偏保守；但「平局即可」不等於一開始就會守，仍以場上為準。` });
     }
-  } else {
+  } else if (!(H.friendly && A.friendly)) {
     res.diff.push({ tag: "資料不足", text: "缺少積分榜或規則資料，無法比較兩隊的積分壓力。" });
   }
   res.signals = [
@@ -232,6 +232,27 @@ function motivation(model, sit) {
     sit?.isLive || sit?.live?.length ? "同組另一場的比分變化（看板會自動重算）。" : "同組其他比賽是否同時開踢（最後一輪通常同時進行）。",
     "70 分鐘後的陣型變化：是否改三後衛、門將是否上前。"
   ];
+  if (H.friendly && A.friendly) {
+    res.signals = [
+      "先發名單：排名較高的一方有沒有派主力，還是大量給新人機會。",
+      "換人時機與人數：友誼賽換人名額多，下半場大量換人常讓比賽節奏改變。",
+      "排名較低的一方開場是否全力逼搶，想藉強敵證明自己。",
+      "領先方是否在下半場放慢節奏、以控球為主。"
+    ];
+    res.counter = [
+      "友誼賽也可能踢得很認真：新教練上任、球員爭取大賽名單時常常特別拚。",
+      "FIFA 排名差距大不代表比分一定懸殊，客場長途飛行與氣候也有影響。",
+      "教練賽前發言、球員俱樂部賽程與身體狀況，資料裡看不到。"
+    ];
+    res.completeness = [
+      ["FIFA 排名", !!(mvFifaOf(model.home) && mvFifaOf(model.away))],
+      ["休息天數與下一場", !!(sched?.home?.ok && sched?.away?.ok)],
+      ["先發名單", ["home", "away"].every((s) => (model.roster?.[s]?.players?.filter((p) => p.starter).length || 0) >= 11)],
+      ["先發與上一場比對", ["home", "away"].every((s) => mvRot.get(model.id + ":" + s)?.status === "ok")],
+      ["教練賽前發言", false]
+    ];
+    return res;
+  }
   res.counter = [
     "積分壓力大不代表踢得好：急躁反而容易失誤、被打反擊。",
     "已確定晉級或無緣的球隊，替補球員為了爭取位置有時反而更拚。",
