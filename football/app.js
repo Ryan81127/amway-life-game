@@ -235,6 +235,12 @@ function renderSchedule(app) {
   const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: () => manualRefresh() }, ui("重新整理"));
   app.append(headerBar("足球轉播看板", sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
   const wrap = h("div", { class: "wrap" });
+  if (new URLSearchParams(location.search).get("view") === "history" && typeof historyView === "function") {
+    wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./" }, "← ", ui("回賽程"))), historyView());
+    app.append(wrap, footer());
+    app.dataset.view = "history";
+    return;
+  }
   if (!state.matches.length && !state.scheduleError && !state.scheduleReady) {
     wrap.append(h("p", { class: "muted", id: "progress" }, "載入賽程中…"));
     app.append(wrap, footer());
@@ -249,7 +255,7 @@ function renderSchedule(app) {
   if (state.leagueErrors.length) {
     wrap.append(h("div", { class: "banner" }, `部分聯賽暫時無法取得：${state.leagueErrors.join("、")}。`));
   }
-  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 ", ui("籃球"))));
+  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 ", ui("籃球")), h("a", { href: "?view=history" }, "📊 ", ui("預測歷史"))));
   wrap.append(chipRow());
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 20 秒更新"))));
   const sections = [
@@ -395,6 +401,7 @@ function renderMatch(app, route) {
     if (typeof clearRail === "function") clearRail();
     if (typeof floatingSearch === "function") floatingSearch();
     if (typeof ledgerCapture === "function") ledgerCapture(model);
+    if (typeof histRemember === "function") histRemember(model);
     wrap.append(...[v2Render(model, view)].filter(Boolean));
     app.append(wrap, footer());
     app.dataset.ready = "1";
@@ -407,6 +414,7 @@ function renderMatch(app, route) {
   const done = phase === "ft" || model.minute.state === "post";
   const hasComm = commRich(model);
   if (typeof ledgerCapture === "function") ledgerCapture(model);
+    if (typeof histRemember === "function") histRemember(model);
   if (pre) {
     wrap.append(...[previewBlock(model), previewHomeBlock(model), previewAwayBlock(model), predSection(model), inplayBlock(model), cornerBlock(model), cardsBlock(model), injuryBlock(model), starsBlock(model), historyBlock(model), coachBlock(model), venueBlock(model), movementBlock(model), formBlock(model), h2hBlock(model), cheatBlock(model), statsBlock(model), formationBlock(model), lineupBlock(model), oddsBlock(model), linksBlock(model), glossaryBlock(model)].filter(Boolean));
   } else if (done) {
