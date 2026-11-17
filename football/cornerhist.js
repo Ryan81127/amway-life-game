@@ -171,6 +171,8 @@ function nbPmf(mu, k, ratio = 1.5) {
 }
 
 function nbOver(mu, line, ratio) {
+  /* 剩餘期望值為 0（比賽快結束）時，分佈退化：只要還差就不可能開大 */
+  if (!(mu > 1e-6)) return line < 0 ? 1 : 0;
   let c = 0;
   for (let k = 0; k <= Math.floor(line); k += 1) c += nbPmf(mu, k, ratio);
   return Math.max(0, Math.min(1, 1 - c));
