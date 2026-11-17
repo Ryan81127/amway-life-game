@@ -5,6 +5,8 @@
 .kit-sw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); cursor: pointer; font-weight: 700; }
 .kit-sw.on { outline: 3px solid #f0c36a; outline-offset: 1px; }
 .kit-row .chip.on { background: rgba(240,195,106,.25); border-color: #f0c36a; }
-.kit-field { display: flex; align-items: stretch; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,.25); margin: 8px 0; min-height: 54px; }
-.kit-half { flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; background: rgba(255,255,255,.06); text-align: center; padding: 6px; }
-.kit-mid { width: 2px; background: rgba(255,255,255,.6); }
+.kit-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0; }
+.kit-card { border-radius: 14px; padding: 12px; background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.25); text-align: center; }
+.kit-who { font-size: 13px; opacity: .85; }
+.kit-color { font-size: 22px; font-weight: 900; margin: 4px 0; }
+.kit-src { font-size: 11px; opacity: .75; }

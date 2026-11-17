@@ -6,7 +6,7 @@ const NAV_ICON = {
 };
 
 function navLabel(text) {
-  return String(text).replace("盤口預測", "預測").replace("盤口走勢", "盤口").replace("即時話術", "話術").replace("節次覆盤", "節次").replace("全場覆盤", "覆盤").replace("賽前預測", "對帳").replace("外部資訊", "外部").replace("球衣方向", "球衣").replace("整場前瞻", "前瞻").replace("主隊前瞻", "主隊").replace("客隊前瞻", "客隊").replace("兩隊故事", "故事");
+  return String(text).replace("盤口預測", "預測").replace("盤口走勢", "盤口").replace("即時話術", "話術").replace("節次覆盤", "節次").replace("全場覆盤", "覆盤").replace("賽前預測", "對帳").replace("外部資訊", "外部").replace("今日球衣", "球衣").replace("整場前瞻", "前瞻").replace("主隊前瞻", "主隊").replace("客隊前瞻", "客隊").replace("兩隊故事", "故事");
 }
 
 function sideRail(items) {
