@@ -114,7 +114,7 @@ async function uaeIntercept(url) {
           const f = me ? x.hs : x.as;
           const a = me ? x.as : x.hs;
           const opp = me ? x.away : x.home;
-          return { id: x.id, gameDate: x.date, gameResult: f > a ? "W" : f === a ? "D" : "L", score: `${x.hs}-${x.as}`, opponent: { id: "uae-" + opp, displayName: data.teams[opp].en }, competitionName: "UAE Pro League", homeTeamId: "uae-" + x.home, awayTeamId: "uae-" + x.away, homeTeamScore: String(x.hs), awayTeamScore: String(x.as), atVs: me ? "vs" : "@" };
+          return { id: x.id, gameDate: x.date, gameResult: f > a ? "W" : f === a ? "D" : "L", score: `${x.hs}-${x.as}`, opponent: { id: "uae-" + opp, displayName: data.teams[opp].en }, competitionName: "阿聯酋超", homeTeamId: "uae-" + x.home, awayTeamId: "uae-" + x.away, homeTeamScore: String(x.hs), awayTeamScore: String(x.as), atVs: me ? "vs" : "@" };
         })
     });
     const meet = data.games.filter((x) => x.hs != null && new Date(x.date) < new Date(g.date) && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
