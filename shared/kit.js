@@ -18,7 +18,15 @@ function kitWrite(sport, model, patch) {
   return cur;
 }
 function kitName(hex) {
-  return (KIT_COLORS.find(([, v]) => v === hex) || ["自訂"])[0];
+  const exact = KIT_COLORS.find(([, v]) => v === hex);
+  if (exact) return exact[0];
+  /* ESPN 給的色碼找最接近的顏色名稱 */
+  const rgb = (x) => { const n = parseInt(String(x).slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const [r, g, b] = rgb(hex);
+  let best = "自訂";
+  let d = Infinity;
+  for (const [n, v] of KIT_COLORS) { const [r2, g2, b2] = rgb(v); const dd = (r - r2) ** 2 + (g - g2) ** 2 + (b - b2) ** 2; if (dd < d) { d = dd; best = n; } }
+  return best;
 }
 function kitText(hex) {
   const n = parseInt(String(hex).slice(1), 16);
@@ -43,8 +51,17 @@ function kitHomeDir(sport, model, k) {
   return flip ? (k.dir === "L" ? "R" : "L") : k.dir;
 }
 
+/* 沒有手動設定時，用 ESPN 當場球衣資料（足球開賽後才有） */
+function kitAuto(model, side) {
+  const c = model[side]?.kit?.color;
+  return c && /^#[0-9a-f]{6}$/i.test(c) ? c.toLowerCase() : null;
+}
+
 function kitPanel(sport, model) {
-  const k = kitRead(sport, model);
+  const saved = kitRead(sport, model);
+  const auto = { home: kitAuto(model, "home"), away: kitAuto(model, "away") };
+  const k = { ...saved, home: saved.home || auto.home, away: saved.away || auto.away };
+  const autoUsed = (!saved.home && auto.home) || (!saved.away && auto.away);
   const set = (patch) => { kitWrite(sport, model, patch); maybeRender({ soft: true }); };
   const half = kitHalf(sport, model);
   const hd = kitHomeDir(sport, model, k);
@@ -63,7 +80,7 @@ function kitPanel(sport, model) {
     field = h("div", { class: "kit-field" }, half1(leftSide, "R"), h("div", { class: "kit-mid" }), half1(rightSide, "L"));
   }
   const status = !k.home || !k.away
-    ? "賽前選好兩隊今天的球衣顏色"
+    ? (sport === "football" ? "ESPN 通常開賽後才公布當場球衣，屆時會自動帶入；賽前也可以先手動選" : "賽前選好兩隊今天的球衣顏色")
     : !hd ? "開賽後點下面的按鈕標記進攻方向"
       : half === "2" ? "已自動換邊（下半場）" : half === "et" ? "延長賽：請重新確認方向" : "上半場方向";
   const swatches = (side) => h("div", { class: "kit-row" },
@@ -80,9 +97,10 @@ function kitPanel(sport, model) {
     half === "et" && k.dir ? h("button", { class: "chip", onclick: () => set({ etFlip: !k.etFlip }) }, ui("延長賽換邊")) : null);
   const links = [];
   if (sport === "basketball" && !model.league) links.push(h("a", { href: "https://lockervision.nba.com/", target: "_blank", rel: "noopener", class: "chip" }, ui("NBA 官方球衣排程（LockerVision）")));
-  return h("details", { class: "fold kit-panel", id: "kit", "data-k": "kit", open: !k.home || !k.away || !k.dir ? true : null },
+  return h("details", { class: "fold kit-panel", id: "kit", "data-k": "kit", open: (!k.home || !k.away || !k.dir) && model[sport === "football" ? "minute" : "status"]?.phase !== "ft" ? true : null },
     h("summary", null, h("span", null, ui("🎽 臨場設定：球衣與進攻方向")), " ", sideBadge("away"), " ", sideBadge("home")),
     field, h("p", { class: "faint" }, ui(status)),
+    autoUsed ? h("p", { class: "faint" }, ui("球衣顏色已依 ESPN 當場資料自動帶入；點色塊可以改。")) : null,
     swatches("away"), swatches("home"), dirBtns,
     links.length ? h("div", { class: "chips" }, links) : null,
     h("p", { class: "faint" }, ui(sport === "football"

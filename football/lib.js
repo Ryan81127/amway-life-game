@@ -952,6 +952,12 @@ function buildModel(data, leagueSlug) {
   const competitors = comp.competitors || [];
   const home = sideFrom(competitors.find((c) => c.homeAway === "home") || competitors[0]);
   const away = sideFrom(competitors.find((c) => c.homeAway === "away") || competitors[1]);
+  /* ESPN 開賽後才會在 boxscore 填入當場球衣（uniform），賽前多半是空的 */
+  for (const t of data?.boxscore?.teams || []) {
+    const u = t.team?.uniform;
+    const side = String(t.team?.id) === String(home.id) ? home : String(t.team?.id) === String(away.id) ? away : null;
+    if (side && u?.color) side.kit = { color: "#" + u.color, alt: u.alternateColor ? "#" + u.alternateColor : "", type: u.type || "" };
+  }
   const minute = readMinute(comp.status || {});
   const rosterSides = data.rosters || [];
   const roster = {
