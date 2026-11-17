@@ -301,6 +301,8 @@ function chipRow() {
       onclick: () => setFilter(league.slug)
     }, ui(league.name)));
   }
+  /* 澳女聯是籃球，資料放在籃球看板；這裡給一個捷徑直接跳過去 */
+  row.append(h("a", { class: "chip", href: "../basketball/?league=wnbl", title: "澳洲女子職業籃球聯賽（WNBL），在籃球看板" }, "🏀 ", ui("澳女聯")));
   return row;
 }
 

@@ -95,12 +95,12 @@ function leagueTitle() {
   const id = currentLeague();
   if (id === "kbl") return "韓籃甲轉播看板";
   if (id === "bj") return "日本B聯賽轉播看板";
-  if (id === "wnbl") return "澳洲女籃 WNBL 轉播看板";
+  if (id === "wnbl") return "澳女聯 WNBL 轉播看板";
   return "NBA 轉播看板";
 }
 function leaguePill() {
   const id = currentLeague();
-  return id === "kbl" ? "韓籃甲" : id === "bj" ? "日本B聯賽" : id === "wnbl" ? "澳洲女籃" : "NBA";
+  return id === "kbl" ? "韓籃甲" : id === "bj" ? "日本B聯賽" : id === "wnbl" ? "澳女聯" : "NBA";
 }
 function kblName(code, fallback) {
   return (KBL_TEAMS[String(code)] || [fallback || String(code)])[0];

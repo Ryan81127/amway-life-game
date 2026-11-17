@@ -70,7 +70,7 @@ function setLeague(id) {
 }
 function sportSwitch() {
   const league = currentLeague();
-  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"], ["wnbl", "澳洲女籃"]];
+  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"], ["wnbl", "澳女聯"]];
   return h("nav", { class: "sport-switch" },
     h("a", { href: "../football/" }, "⚽ ", ui("足球")),
     ...items.map(([id, label]) => h("a", {
@@ -224,7 +224,7 @@ function matchCard(m) {
   });
   card.append(
     h("div", { class: "card-top" },
-      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : m.league === "wnbl" ? "澳洲女籃" : "NBA")),
+      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : m.league === "wnbl" ? "澳女聯" : "NBA")),
       h("span", null, `${taipeiYmd(m.date) !== state.day ? shortDate(m.date) + " " : ""}${taipeiHM(m.date)} 台北`),
       h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(m.clock)] : ui(m.clock))
     ),
