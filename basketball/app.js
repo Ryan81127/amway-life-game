@@ -370,7 +370,8 @@ function scoreboard(m) {
       cells: [m[side].name, ...qs.map((q) => m[side].linescores[q - 1] ?? "–"), { node: String(m[side].score), cls: "best" }]
     }))));
   }
-  if (live) board.append(h("p", { class: "fresh", id: "fresh" }, ui(freshText())));
+  if (live && m.league === "wnbl") board.append(h("p", { class: "muted" }, ui("WNBL 沒有即時比分，請看 "), h("a", { href: "https://www.basketball.com.au/schedule/wnbl", target: "_blank", rel: "noopener" }, "basketball.com.au")));
+  else if (live) board.append(h("p", { class: "fresh", id: "fresh" }, ui(freshText())));
   return board;
 }
 
