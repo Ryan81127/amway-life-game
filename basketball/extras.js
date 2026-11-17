@@ -14,6 +14,14 @@ function bxTag(t) {
 function bxList(items) {
   return h("ul", { class: "bx-list" }, items.filter(Boolean).map(([tag, text]) => h("li", null, ui(text), " ", bxTag(tag))));
 }
+function bxUnit(key) {
+  return /point/i.test(key) ? " 分" : /rebound/i.test(key) ? " 籃板" : /assist/i.test(key) ? " 助攻" : /steal/i.test(key) ? " 抄截" : /block/i.test(key) ? " 火鍋" : "";
+}
+function bxSeries(m) {
+  const t = String(m.series?.summary || "");
+  if (/starts/i.test(t) || (!m.series?.games?.length && !/leads|tied/i.test(t))) return "本季首次交手";
+  return t.replace(/leads series/i, "系列賽領先").replace(/series tied/i, "系列賽打平") || `${m.series.total} 場`;
+}
 function bxNum(n, d = 1) {
   return Number.isFinite(n) ? String(Math.round(n * 10 ** d) / 10 ** d) : "–";
 }
@@ -79,7 +87,7 @@ function bxSideFacts(m, side) {
   const f = typeof formOf === "function" ? formOf(m, side) : null;
   if (f) out.push(["事實", `近 ${f.n} 場 ${f.w} 勝 ${f.n - f.w} 敗，平均分差 ${f.diff >= 0 ? "+" : ""}${bxNum(f.diff)}：${f.games.map((g) => (g.result === "W" ? "勝" : "負")).join("")}。`]);
   const lead = (m.leaders?.[side] || []).filter((l) => l.name);
-  if (lead.length) out.push(["事實", `數據領袖：${lead.slice(0, 3).map((l) => `${l.name} ${l.display}${l.key === "points" ? " 分" : l.key === "rebounds" ? " 籃板" : l.key === "assists" ? " 助攻" : ""}`).join("、")}。`]);
+  if (lead.length) out.push(["事實", `數據領袖：${lead.slice(0, 3).map((l) => `${l.name} ${l.display}${bxUnit(l.key)}`).join("、")}${m.status.phase === "pre" ? "（本季場均）" : "（本場）"}。`]);
   const inj = (m.injuries?.[side] || []).filter((i) => /Out|Doubtful/i.test(i.status));
   if (inj.length) out.push(["事實", `確定或可能缺陣：${inj.map((i) => `${i.name}（${i.statusZh}）`).join("、")}。`]);
   else if (!m.league) out.push(["事實", "ESPN 傷兵名單沒有確定缺陣的球員。"]);
@@ -103,7 +111,7 @@ function bxPreviewBlocks(m) {
   const p = state.pred && state.pred.id === m.id ? state.pred : loadPrediction(m.id);
   const whole = [];
   whole.push(["事實", `${m.away.name}（${m.away.record || "–"}）作客 ${m.home.name}（${m.home.record || "–"}），地點 ${m.venue || "資料不足"}。`]);
-  if (m.series?.summary || m.series?.total) whole.push(["事實", `本季交手：${String(m.series.summary || "").replace(/leads series/i, "系列賽領先").replace(/series tied/i, "系列賽打平") || `${m.series.total} 場`}。`]);
+  if (m.series?.summary || m.series?.total) whole.push(["事實", `本季交手：${bxSeries(m)}。`]);
   if (p && Number.isFinite(p.mu)) whole.push(["計算", `模型：${p.mu >= 0 ? m.home.name : m.away.name} 贏約 ${bxNum(Math.abs(p.mu))} 分，總分約 ${bxNum(p.muT, 0)}，主隊勝率 ${pct(p.pHome)}。`]);
   if (p && (Number.isFinite(p.line) || Number.isFinite(p.total))) whole.push(["事實", `盤口：${Number.isFinite(p.line) ? `${m.home.name} ${p.line > 0 ? "+" : ""}${p.line}` : ""}${Number.isFinite(p.total) ? `${Number.isFinite(p.line) ? "，" : ""}大小 ${p.total}` : ""}。`]);
   else if (typeof m.odds?.details === "string" && m.odds.details) whole.push(["事實", `盤口：${m.odds.details}${typeof m.odds.total === "number" ? `，大小 ${m.odds.total}` : ""}。`]);
@@ -211,7 +219,7 @@ function bxStars(m) {
       if (seen.has(l.en || l.name)) continue;
       seen.add(l.en || l.name);
       const a = (r?.athletes || []).find((x) => x.displayName === l.en);
-      const stats = list.filter((x) => (x.en || x.name) === (l.en || l.name)).map((x) => `${x.display}${x.key === "points" ? " 分" : x.key === "rebounds" ? " 籃板" : x.key === "assists" ? " 助攻" : ""}`).join("、");
+      const stats = list.filter((x) => (x.en || x.name) === (l.en || l.name)).map((x) => `${x.display}${bxUnit(x.key)}`).join("、");
       cards.push(h("div", { class: "bx-star" },
         a?.headshot?.href ? h("img", { src: a.headshot.href, alt: "", loading: "lazy" }) : null,
         h("div", null,
@@ -222,7 +230,7 @@ function bxStars(m) {
     sec.append(h("h3", null, ui(m[side].name)), ...cards);
   }
   if (!any) sec.append(h("p", { class: "muted" }, ui("資料不足：這個聯賽的來源沒有球員數據領袖。")));
-  sec.append(h("p", { class: "faint" }, ui(m.status.phase === "pre" ? "賽前顯示本季數據領袖（ESPN）。" : "顯示本場數據領袖。")));
+  sec.append(h("p", { class: "faint" }, ui(m.status.phase === "pre" ? "賽前顯示本季場均數據領袖（ESPN）。" : "顯示本場數據領袖。")));
   return sec;
 }
 
