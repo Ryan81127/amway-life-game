@@ -1,0 +1,1044 @@
+{
+"source": "WNBL 官方賽程（經 basketball.com.au 賽程頁讀取）",
+"fetched": "2026-11-17 14:40 台北",
+"season": "WNBL27 例行賽",
+"teams": {
+"TSV": {
+"en": "Townsville Fire",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/c4df209a6b7f436fac9737a6e73624f0?size=200&format=webp",
+"color": "#f97305"
+},
+"UCC": {
+"en": "UC Capitals",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/00d59cea7abb4b5c913d73de206a85b5?size=200&format=webp",
+"color": "#06c0f9"
+},
+"BEN": {
+"en": "Bendigo Spirit",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/fd49f5cfed5a42e6868dc1f96282afca?size=200&format=webp",
+"color": "#4d41f7"
+},
+"TAS": {
+"en": "Tasmania Jewels",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/b9a00be9f9e445488f17705c4512c6c8?size=200&format=webp",
+"color": "#8fe2b0"
+},
+"SMF": {
+"en": "Southside Melbourne Flyers",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/bcefec261d174b4ba37c203aabd0d08f?size=200&format=webp",
+"color": "#36bacb"
+},
+"ADL": {
+"en": "Adelaide Lightning",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/1d3ea23825a34276a294d6276022c7c3?size=200&format=webp",
+"color": "#7a1550"
+},
+"SYD": {
+"en": "Sydney Flames",
+"logo": "https://cdn.prod.website-files.com/686dbe5ad913853c01905dc9/6ad85636e37c75bd025da2be_Flames_Secondary_Wordmark_White_Black_Hot_Pink.png",
+"color": "#e6007e"
+},
+"GEE": {
+"en": "Geelong Venom",
+"logo": "https://images.dc.prod.cloud.atriumsports.com/b1jrd/30b366faf0244b9da79b37ffb5dc06eb?size=200&format=webp",
+"color": "#3e66c5"
+},
+"PER": {
+"en": "Perth Lynx",
+"logo": "https://cdn.prod.website-files.com/686b7413d55721115d6e0d55/689a7b6dc7d33f853eb1153c_lynx-icon-full-outline%402x.png",
+"color": "#fa0404"
+}
+},
+"games": [
+{
+"id": "69ae8846",
+"ts": 1792051200,
+"round": 1,
+"home": "TAS",
+"away": "GEE",
+"hs": 103,
+"as": 90,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "69dafb66",
+"ts": 1792137600,
+"round": 1,
+"home": "SMF",
+"away": "SYD",
+"hs": 73,
+"as": 77,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69dc1cce",
+"ts": 1792209600,
+"round": 1,
+"home": "UCC",
+"away": "BEN",
+"hs": 94,
+"as": 92,
+"venue": "AIS Arena"
+},
+{
+"id": "69badede",
+"ts": 1792224000,
+"round": 1,
+"home": "PER",
+"away": "TSV",
+"hs": 86,
+"as": 83,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69b992d1",
+"ts": 1792288800,
+"round": 1,
+"home": "SYD",
+"away": "ADL",
+"hs": 95,
+"as": 68,
+"venue": "Quaycentre"
+},
+{
+"id": "69ce1464",
+"ts": 1792483200,
+"round": 1,
+"home": "ADL",
+"away": "TSV",
+"hs": 68,
+"as": 86,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69f4f853",
+"ts": 1792656000,
+"round": 2,
+"home": "SMF",
+"away": "TAS",
+"hs": 91,
+"as": 77,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69e742bd",
+"ts": 1792742400,
+"round": 2,
+"home": "SYD",
+"away": "UCC",
+"hs": 82,
+"as": 70,
+"venue": "Quaycentre"
+},
+{
+"id": "6a023032",
+"ts": 1792814400,
+"round": 2,
+"home": "GEE",
+"away": "SMF",
+"hs": 74,
+"as": 69,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69d62580",
+"ts": 1792828800,
+"round": 2,
+"home": "ADL",
+"away": "PER",
+"hs": 82,
+"as": 90,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69d907b5",
+"ts": 1792900800,
+"round": 2,
+"home": "TSV",
+"away": "SYD",
+"hs": 77,
+"as": 90,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69e18c87",
+"ts": 1793088000,
+"round": 2,
+"home": "BEN",
+"away": "TSV",
+"hs": 68,
+"as": 91,
+"venue": "Red Energy Arena"
+},
+{
+"id": "69f4e88e",
+"ts": 1793419200,
+"round": 3,
+"home": "TAS",
+"away": "SYD",
+"hs": 93,
+"as": 85,
+"venue": "Silverdome"
+},
+{
+"id": "69dc2c13",
+"ts": 1793433600,
+"round": 3,
+"home": "GEE",
+"away": "UCC",
+"hs": 68,
+"as": 77,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69dd6fcd",
+"ts": 1793498400,
+"round": 3,
+"home": "SMF",
+"away": "ADL",
+"hs": 74,
+"as": 81,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69e3facf",
+"ts": 1793606400,
+"round": 3,
+"home": "BEN",
+"away": "GEE",
+"hs": 70,
+"as": 77,
+"venue": "Selkirk Stadium, Ballarat"
+},
+{
+"id": "6a0349e0",
+"ts": 1793692800,
+"round": 3,
+"home": "TSV",
+"away": "PER",
+"hs": 99,
+"as": 86,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69eb20e4",
+"ts": 1793865600,
+"round": 4,
+"home": "GEE",
+"away": "TSV",
+"hs": 67,
+"as": 80,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69da9853",
+"ts": 1794024000,
+"round": 4,
+"home": "ADL",
+"away": "TAS",
+"hs": 100,
+"as": 68,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69dbcb61",
+"ts": 1794038400,
+"round": 4,
+"home": "BEN",
+"away": "UCC",
+"hs": 83,
+"as": 97,
+"venue": "Red Energy Arena"
+},
+{
+"id": "69df68e0",
+"ts": 1794101400,
+"round": 4,
+"home": "SYD",
+"away": "SMF",
+"hs": 86,
+"as": 69,
+"venue": "Afterpay Arena"
+},
+{
+"id": "69dc4125",
+"ts": 1794304800,
+"round": 4,
+"home": "PER",
+"away": "BEN",
+"hs": 94,
+"as": 84,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69df72bf",
+"ts": 1794470400,
+"round": 5,
+"home": "TAS",
+"away": "SMF",
+"hs": 99,
+"as": 79,
+"venue": "Silverdome"
+},
+{
+"id": "69e83983",
+"ts": 1794556800,
+"round": 5,
+"home": "GEE",
+"away": "PER",
+"hs": 76,
+"as": 95,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69e60906",
+"ts": 1794628800,
+"round": 5,
+"home": "BEN",
+"away": "SYD",
+"hs": 97,
+"as": 70,
+"venue": "Red Energy Arena"
+},
+{
+"id": "6a0448e8",
+"ts": 1794708000,
+"round": 5,
+"home": "SMF",
+"away": "PER",
+"hs": 80,
+"as": 114,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69e98cd7",
+"ts": 1794715200,
+"round": 5,
+"home": "UCC",
+"away": "TSV",
+"hs": 78,
+"as": 85,
+"venue": "AIS Arena"
+},
+{
+"id": "69f153c0",
+"ts": 1794902400,
+"round": 5,
+"home": "ADL",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69ea3347",
+"ts": 1795233600,
+"round": 6,
+"home": "GEE",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69ead436",
+"ts": 1795248000,
+"round": 6,
+"home": "ADL",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69eda19c",
+"ts": 1795312800,
+"round": 6,
+"home": "UCC",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "69eb392f",
+"ts": 1795320000,
+"round": 6,
+"home": "TSV",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69eca873",
+"ts": 1795514400,
+"round": 6,
+"home": "PER",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69ec20ba",
+"ts": 1795680000,
+"round": 7,
+"home": "BEN",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Red Energy Arena"
+},
+{
+"id": "69ee61da",
+"ts": 1795766400,
+"round": 7,
+"home": "UCC",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "69ea4daa",
+"ts": 1795838400,
+"round": 7,
+"home": "SYD",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "Quaycentre"
+},
+{
+"id": "69ee16a4",
+"ts": 1795852800,
+"round": 7,
+"home": "PER",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69ee36b5",
+"ts": 1795917600,
+"round": 7,
+"home": "SMF",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "State Sport Centres, Parkville"
+},
+{
+"id": "69ee13b7",
+"ts": 1795924800,
+"round": 7,
+"home": "TAS",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "69f6a692",
+"ts": 1796112000,
+"round": 7,
+"home": "GEE",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69f7952f",
+"ts": 1796284800,
+"round": 8,
+"home": "ADL",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69f073b3",
+"ts": 1796371200,
+"round": 8,
+"home": "UCC",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "69eeda9f",
+"ts": 1796378400,
+"round": 8,
+"home": "PER",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "6a16a6d4",
+"ts": 1796457600,
+"round": 8,
+"home": "TSV",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69f6220c",
+"ts": 1796522400,
+"round": 8,
+"home": "SMF",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69eee7b5",
+"ts": 1796529600,
+"round": 8,
+"home": "GEE",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69ec9c69",
+"ts": 1796716800,
+"round": 8,
+"home": "BEN",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "Red Energy Arena"
+},
+{
+"id": "69f4e922",
+"ts": 1796968800,
+"round": 9,
+"home": "UCC",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "69f15d4c",
+"ts": 1796976000,
+"round": 9,
+"home": "TSV",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69f43fcf",
+"ts": 1797048000,
+"round": 9,
+"home": "BEN",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "Red Energy Arena"
+},
+{
+"id": "6a1b8fc7",
+"ts": 1797127200,
+"round": 9,
+"home": "SYD",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "Quaycentre"
+},
+{
+"id": "69fb67c9",
+"ts": 1797148800,
+"round": 9,
+"home": "PER",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69f72942",
+"ts": 1797321600,
+"round": 9,
+"home": "UCC",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "69fc9255",
+"ts": 1797501600,
+"round": 10,
+"home": "PER",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69f8fd51",
+"ts": 1797580800,
+"round": 10,
+"home": "BEN",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "Gippsland Regional Indoor Sports Stadium"
+},
+{
+"id": "69fb43a9",
+"ts": 1797652800,
+"round": 10,
+"home": "GEE",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "69ff76c6",
+"ts": 1797667200,
+"round": 10,
+"home": "TAS",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "Silverdome"
+},
+{
+"id": "6a203524",
+"ts": 1797732000,
+"round": 10,
+"home": "SYD",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "Quaycentre"
+},
+{
+"id": "69fff071",
+"ts": 1797840000,
+"round": 10,
+"home": "SMF",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "TBC"
+},
+{
+"id": "6a019c97",
+"ts": 1797926400,
+"round": 10,
+"home": "ADL",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69f9e635",
+"ts": 1798012800,
+"round": 10,
+"home": "TSV",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69fa03b8",
+"ts": 1798336800,
+"round": 11,
+"home": "TAS",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "69fb4744",
+"ts": 1798344000,
+"round": 11,
+"home": "ADL",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "69fbf75f",
+"ts": 1798524000,
+"round": 11,
+"home": "SYD",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Afterpay Arena"
+},
+{
+"id": "69f959e3",
+"ts": 1798531200,
+"round": 11,
+"home": "SMF",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "69fdab6c",
+"ts": 1798624800,
+"round": 11,
+"home": "PER",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "69f8902a",
+"ts": 1798704000,
+"round": 12,
+"home": "TSV",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "69fd9136",
+"ts": 1798862400,
+"round": 12,
+"home": "TAS",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "Silverdome"
+},
+{
+"id": "69ff692e",
+"ts": 1798876800,
+"round": 12,
+"home": "GEE",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "6a00c88b",
+"ts": 1798941600,
+"round": 12,
+"home": "UCC",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "6a24b594",
+"ts": 1798948800,
+"round": 12,
+"home": "ADL",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "6a035689",
+"ts": 1799136000,
+"round": 12,
+"home": "TSV",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "6a264b8d",
+"ts": 1799308800,
+"round": 13,
+"home": "TAS",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "6a072772",
+"ts": 1799395200,
+"round": 13,
+"home": "GEE",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "6a06b3fb",
+"ts": 1799402400,
+"round": 13,
+"home": "PER",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "6a0226a3",
+"ts": 1799467200,
+"round": 13,
+"home": "TAS",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Silverdome"
+},
+{
+"id": "6a070a99",
+"ts": 1799551800,
+"round": 13,
+"home": "SYD",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "Afterpay Arena"
+},
+{
+"id": "6a098ee2",
+"ts": 1799559000,
+"round": 13,
+"home": "ADL",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "6a0c0816",
+"ts": 1799654400,
+"round": 13,
+"home": "SMF",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "State Sport Centres, Parkville"
+},
+{
+"id": "6a06b00f",
+"ts": 1799740800,
+"round": 13,
+"home": "UCC",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "6a0a5666",
+"ts": 1799827200,
+"round": 14,
+"home": "PER",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "RAC Arena"
+},
+{
+"id": "6a0de58f",
+"ts": 1799913600,
+"round": 14,
+"home": "SMF",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "RAC Arena"
+},
+{
+"id": "6a0926f9",
+"ts": 1800000000,
+"round": 14,
+"home": "UCC",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "RAC Arena"
+},
+{
+"id": "6a0f4c97",
+"ts": 1800086400,
+"round": 14,
+"home": "GEE",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "RAC Arena"
+},
+{
+"id": "6a08b6ad",
+"ts": 1800156600,
+"round": 14,
+"home": "PER",
+"away": "BEN",
+"hs": null,
+"as": null,
+"venue": "RAC Arena"
+},
+{
+"id": "6a0ff2a0",
+"ts": 1800518400,
+"round": 15,
+"home": "TAS",
+"away": "TSV",
+"hs": null,
+"as": null,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "6a084015",
+"ts": 1800599400,
+"round": 15,
+"home": "BEN",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "Red Energy Arena"
+},
+{
+"id": "6a37342b",
+"ts": 1800606600,
+"round": 15,
+"home": "GEE",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "Microkeeper Arena"
+},
+{
+"id": "6a0d7f99",
+"ts": 1800676800,
+"round": 15,
+"home": "SYD",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "Quaycentre"
+},
+{
+"id": "6a0d5a75",
+"ts": 1800691200,
+"round": 15,
+"home": "TSV",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+},
+{
+"id": "6a10aa71",
+"ts": 1800766800,
+"round": 15,
+"home": "PER",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "Perth High Performance Centre"
+},
+{
+"id": "6a11800f",
+"ts": 1800858600,
+"round": 15,
+"home": "BEN",
+"away": "SMF",
+"hs": null,
+"as": null,
+"venue": "Selkirk Stadium, Ballarat"
+},
+{
+"id": "6a1513c5",
+"ts": 1800865800,
+"round": 15,
+"home": "TAS",
+"away": "SYD",
+"hs": null,
+"as": null,
+"venue": "MyState Bank Arena"
+},
+{
+"id": "6a11a9af",
+"ts": 1801123200,
+"round": 16,
+"home": "ADL",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "SA State Basketball Centre"
+},
+{
+"id": "6a147799",
+"ts": 1801209600,
+"round": 16,
+"home": "UCC",
+"away": "PER",
+"hs": null,
+"as": null,
+"venue": "AIS Arena"
+},
+{
+"id": "6a147032",
+"ts": 1801281600,
+"round": 16,
+"home": "SYD",
+"away": "GEE",
+"hs": null,
+"as": null,
+"venue": "Quaycentre"
+},
+{
+"id": "6a19272c",
+"ts": 1801296000,
+"round": 16,
+"home": "SMF",
+"away": "ADL",
+"hs": null,
+"as": null,
+"venue": "VIC State Basketball Centre"
+},
+{
+"id": "6a19252d",
+"ts": 1801360800,
+"round": 16,
+"home": "BEN",
+"away": "TAS",
+"hs": null,
+"as": null,
+"venue": "Gippsland Regional Indoor Sports Stadium"
+},
+{
+"id": "6a13f1c8",
+"ts": 1801368000,
+"round": 16,
+"home": "TSV",
+"away": "UCC",
+"hs": null,
+"as": null,
+"venue": "Townsville Entertainment & Convention Centre"
+}
+]
+}

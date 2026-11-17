@@ -70,7 +70,7 @@ function setLeague(id) {
 }
 function sportSwitch() {
   const league = currentLeague();
-  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"]];
+  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"], ["wnbl", "澳洲女籃"]];
   return h("nav", { class: "sport-switch" },
     h("a", { href: "../football/" }, "⚽ ", ui("足球")),
     ...items.map(([id, label]) => h("a", {
@@ -174,7 +174,7 @@ function renderSchedule(app) {
     app.append(wrap, footer());
     return;
   }
-  const pace = currentLeague() === "kbl" ? "比分來自 KBL 官方" : currentLeague() === "bj" ? "賽程是 2026-11-16 的官方快照" : "比賽中每 5 秒偵測比分";
+  const pace = currentLeague() === "kbl" ? "比分來自 KBL 官方" : currentLeague() === "bj" ? "賽程是 2026-11-16 的官方快照" : currentLeague() === "wnbl" ? "賽程比分是 2026-11-17 的官方快照" : "比賽中每 5 秒偵測比分";
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(` · 台北時間 · ${pace}`))));
   const sections = [["live", "進行中", "目前沒有進行中的比賽"], ["pre", "未開賽", "這天沒有還沒開始的比賽"], ["post", "已完賽", "這天還沒有完賽的比賽"]]
     .filter(([id]) => state.tab === "all" || state.tab === id);
@@ -223,7 +223,7 @@ function matchCard(m) {
   });
   card.append(
     h("div", { class: "card-top" },
-      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : "NBA")),
+      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : m.league === "wnbl" ? "澳洲女籃" : "NBA")),
       h("span", null, `${taipeiYmd(m.date) !== state.day ? shortDate(m.date) + " " : ""}${taipeiHM(m.date)} 台北`),
       h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(m.clock)] : ui(m.clock))
     ),
@@ -316,7 +316,7 @@ function renderMatch(app, route) {
   let blocks;
   if (pre) {
     ensurePrediction(m);
-    blocks = [scoreboard(m), predSection(m), movementBlock(m), injuryBlock(m), rosterBlock(m), formBlock(m), cardsBlock(m), newsBlock(m), linksBlock(m)];
+    blocks = [scoreboard(m), predSection(m), movementBlock(m), injuryBlock(m), rosterBlock(m), typeof wnblLadderBlock === "function" ? wnblLadderBlock(m) : null, formBlock(m), cardsBlock(m), newsBlock(m), linksBlock(m)];
   } else if (live) {
     blocks = [scoreboard(m), momentBlock(m), liveQuarterBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), cardsBlock(m), injuryBlock(m), savedPredBlock(m), linksBlock(m)];
   } else {
