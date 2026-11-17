@@ -105,8 +105,9 @@ function bxPreviewBlocks(m) {
   whole.push(["事實", `${m.away.name}（${m.away.record || "–"}）作客 ${m.home.name}（${m.home.record || "–"}），地點 ${m.venue || "資料不足"}。`]);
   if (m.series?.summary || m.series?.total) whole.push(["事實", `本季交手：${String(m.series.summary || "").replace(/leads series/i, "系列賽領先").replace(/series tied/i, "系列賽打平") || `${m.series.total} 場`}。`]);
   if (p && Number.isFinite(p.mu)) whole.push(["計算", `模型：${p.mu >= 0 ? m.home.name : m.away.name} 贏約 ${bxNum(Math.abs(p.mu))} 分，總分約 ${bxNum(p.muT, 0)}，主隊勝率 ${pct(p.pHome)}。`]);
-  if (m.odds?.details || m.odds?.spread != null) whole.push(["事實", `盤口：${m.odds.details || ""}${m.odds.total ? `，大小 ${m.odds.total}` : ""}。`]);
-  else whole.push(["資料不足", "這場沒有公開盤口。"]);
+  if (p && (Number.isFinite(p.line) || Number.isFinite(p.total))) whole.push(["事實", `盤口：${Number.isFinite(p.line) ? `${m.home.name} ${p.line > 0 ? "+" : ""}${p.line}` : ""}${Number.isFinite(p.total) ? `${Number.isFinite(p.line) ? "，" : ""}大小 ${p.total}` : ""}。`]);
+  else if (typeof m.odds?.details === "string" && m.odds.details) whole.push(["事實", `盤口：${m.odds.details}${typeof m.odds.total === "number" ? `，大小 ${m.odds.total}` : ""}。`]);
+  else whole.push(["資料不足", m.status.phase === "pre" ? "這場目前沒有公開盤口。" : "這台裝置沒有存到這場的賽前盤口。"]);
   const ah = typeof teamAvg === "function" ? teamAvg(m, "home") : null;
   const aa = typeof teamAvg === "function" ? teamAvg(m, "away") : null;
   if (ah && aa) {
