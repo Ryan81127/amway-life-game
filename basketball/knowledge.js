@@ -137,7 +137,12 @@ async function loadTeamFile(id) {
 }
 
 async function loadMatchCards(model) {
-  if (model.league && model.league !== "nba") return [];
+  if (model.league && model.league !== "nba") {
+    try {
+      const res = await fetch(`cards/matches/${model.league}-${model.id}.json`, { cache: "no-cache" });
+      return res.ok ? (await res.json()).cards || [] : [];
+    } catch { return []; }
+  }
   const [h, a] = await Promise.all([loadTeamFile(model.home.id), loadTeamFile(model.away.id)]);
   return [...h, ...a];
 }

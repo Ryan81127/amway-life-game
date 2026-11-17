@@ -251,8 +251,8 @@ function bxStory(m) {
     items.push(["事實", `本季已交手 ${m.series.games.length} 場：${m.home.name} ${w} 勝 ${m.series.games.length - w} 敗。`]);
     for (const g of m.series.games) items.push(["事實", `${shortDate(g.date)} ${m.home.name} ${g.mine} : ${g.opp} ${m.away.name}`]);
   } else items.push(["資料不足", "本季還沒交手，或來源沒有交手紀錄。"]);
-  const cards = (state.cards || []).filter((c) => /恩怨|宿敵|交手|對決|rival/i.test(`${c.title || ""}${c.fact || ""}`));
-  for (const c of cards.slice(0, 3)) items.push(["事實", `${c.title || ""}：${c.fact || c.say || ""}`]);
+  const cards = (state.cards || []).filter((c) => /恩怨|宿敵|交手|對決|名場面|對位|rival/i.test(`${c.title || ""}${c.fact || ""}`));
+  for (const c of cards.slice(0, 6)) items.push(["事實", `${c.title || ""}：${c.fact || c.say || ""}`]);
   sec.append(bxList(items));
   const req = `幫 ${m.away.name} 對 ${m.home.name}（${typeof leaguePill === "function" ? leaguePill() : "NBA"}，${shortDate(m.date || m.kickoff)}）做籃球故事卡：兩隊歷史交手、恩怨與名場面、球星對位、教練背景。`;
   const btn = h("button", { class: "copy" }, ui("📋 複製故事卡請求"));
