@@ -32,9 +32,9 @@ global.fetch = async (url) => {
 const files = [...fs.readFileSync(path.join(dir, "index.html"), "utf8").matchAll(/src="([a-z0-9]+\.js)/g)].map((m) => m[1]).filter((f) => f !== "app.js");
 const appSrc = fs.readFileSync(path.join(dir, "app.js"), "utf8").replace(/\nboot\(\);?\s*$/, "\n");
 const src = files.map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n") + "\n" + appSrc + `
-;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade };`;
+;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock };`;
 (0, eval)(src);
-const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade } = globalThis.__t;
+const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade, aiRewrite, aiBlock, cmFacts, motivation } = globalThis.__t;
 
 const model = { id: "E5", leagueSlug: "fifa.world", leagueName: "世界盃", kickoff: "2022-12-02T15:00Z", venue: "", city: "",
   home: { id: "KOR", name: "南韓", rawName: "South Korea", score: "1", linescores: [] }, away: { id: "POR", name: "葡萄牙", rawName: "Portugal", score: "1", linescores: [] },
@@ -97,6 +97,28 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   assert.strictEqual(v2Sit(m2).state, "error");
   assert.ok(v2Render(m2, "table").textContent.includes("資料不足"));
   ok("第一次就讀取失敗：顯示資料不足，不做判定");
+  {
+    apiDown = false; stCache.clear(); v2Store.clear(); state.model = model;
+    await loadV2(model, true);
+    localStorage.setItem("fb-ai-endpoint", "https://ai.test/");
+    const realFetch = global.fetch;
+    let reply = "南韓 1:1 葡萄牙，控球 62%";
+    global.fetch = async (url, init) => String(url).startsWith("https://ai.test") ? { ok: true, status: 200, json: async () => ({ ok: true, text: reply, model: "deepseek-chat" }) } : realFetch(url, init);
+    const sit2 = v2Sit(model);
+    const sec = cmFacts(model, sit2, motivation(model, sit2))[0];
+    const cm = { style: "mix", secs: 30 };
+    await aiRewrite(model, sec, cm);
+    assert.ok(/已擋下/.test(aiBlock(model, sec, cm).textContent), "多出來的數字要擋下");
+    reply = sec.facts[0];
+    await aiRewrite(model, sec, cm);
+    assert.ok(/複製 AI 稿/.test(aiBlock(model, sec, cm).textContent));
+    const page = v2Render(model, "script").textContent;
+    assert.ok(/AI 改寫/.test(page), page.slice(0, 300));
+    assert.ok(!/undefined|NaN/.test(page), (/.{30}(undefined|NaN).{30}/.exec(page) || [""])[0]);
+    global.fetch = realFetch;
+    localStorage.removeItem("fb-ai-endpoint");
+    ok("AI 改寫：前端再檢查一次數字，亂加的擋下、照抄的可複製；沒有任何 Key");
+  }
   console.log(`\n全部通過：${n} 項`);
   process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });

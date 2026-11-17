@@ -1,0 +1,13 @@
+name = "fb-commentary"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# 換服務只要改這兩行（任何 OpenAI 相容 API 都可以）
+AI_BASE_URL = "https://api.deepseek.com"
+AI_MODEL = "deepseek-chat"
+# 只允許你的看板網址呼叫，多個用逗號分隔
+ALLOWED_ORIGINS = "https://ryan81127.github.io"
+
+# API Key 不要寫在這裡，用指令設定成 Secret：
+#   npx wrangler secret put AI_KEY

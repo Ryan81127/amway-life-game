@@ -1131,3 +1131,7 @@ body.has-rail #app { padding-left: 64px; }
 .hist-kpi b{font-size:26px}
 .hist-kpi span{font-size:12px;color:rgba(255,255,255,.6)}
 .hist-match summary{display:flex;justify-content:space-between;gap:8px}
+/* AI 改寫 */
+.ai-ep{flex:1;min-width:200px;background:rgba(255,255,255,.06);color:inherit;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 8px;font-size:14px}
+.ai-out{margin-top:8px;padding:8px 10px;border-left:3px solid #8ab4ff;background:rgba(138,180,255,.07);border-radius:6px}
+.ai-out.bad{border-left-color:#ff7b7b;background:rgba(255,123,123,.07)}
