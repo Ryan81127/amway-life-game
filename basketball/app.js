@@ -149,6 +149,7 @@ function statusTabs(groups) {
 }
 
 function renderSchedule(app) {
+  if (typeof clearRail === "function") { clearRail(); floatingSearch(); }
   const bounds = windowBounds();
   const day = state.day && state.day >= bounds.start && state.day <= bounds.end ? state.day : bounds.today;
   state.day = day;
@@ -265,7 +266,7 @@ function linksBlock(model) {
     ["虎撲 NBA", "https://nba.hupu.com/"],
     ["Yahoo 奇摩運動", "https://tw.sports.yahoo.com/nba/"]
   ];
-  return h("details", { class: "fold", "data-k": "links" }, h("summary", null, ui("外部資訊站（交叉確認先發、傷兵、盤口）")),
+  return h("details", { class: "fold", id: "links", "data-k": "links" }, h("summary", null, ui("外部資訊站（交叉確認先發、傷兵、盤口）")),
     h("div", { class: "link-grid" }, items.map(([n, u]) => h("a", { href: u, target: "_blank", rel: "noopener" }, ui(n)))));
 }
 
@@ -324,6 +325,14 @@ function renderMatch(app, route) {
   }
   wrap.append(...blocks.filter(Boolean), langToggle());
   app.append(wrap, footer());
+  if (typeof sideRail === "function") {
+    const rail = pre
+      ? [["pred", "盤口預測"], ["moves", "盤口走勢"], ["inj", "傷兵"], ["roster", "名單"], ["ladder", "排名"], ["form", "近況"], ["cards", "知識卡"], ["news", "新聞"], ["links", "外部資訊"]]
+      : live
+        ? [["moments", "即時話術"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["cards", "知識卡"], ["inj", "傷兵"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
+        : [["full", "全場覆盤"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["cards", "知識卡"], ["savedpred", "賽前預測"], ["links", "外部資訊"]];
+    requestAnimationFrame(() => sideRail(rail));
+  }
   app.dataset.view = "match";
   app.dataset.phase = phase;
   if (!state.cards) loadMatchCards(m).then((c) => { state.cards = c; if (c.length) maybeRender({ soft: true }); });
@@ -489,7 +498,7 @@ function formBlock(m) {
 
 function newsBlock(m) {
   if (!m.news.length) return null;
-  return h("section", { class: "panel" }, h("h2", null, ui("賽前新聞（ESPN，英文原文）")),
+  return h("section", { class: "panel", id: "news" }, h("h2", null, ui("賽前新聞（ESPN，英文原文）")),
     h("ul", { class: "news" }, m.news.map((a) => h("li", null, h("a", { href: a.url, target: "_blank", rel: "noopener" }, a.title), a.at ? h("span", { class: "faint" }, ` · ${shortDate(a.at)}`) : null))));
 }
 
@@ -517,7 +526,7 @@ function liveQuarterBlock(m) {
   const q = m.status.period || 1;
   const rec = sliceRecap(m, [q], `${periodLabel(q)}（進行中）`);
   if (rec.empty) return null;
-  return h("section", { class: "panel" }, h("h2", null, ui(`${periodLabel(q)}即時數據`)), recapTable(m, rec), h("ul", { class: "reasons" }, rec.lines.map((l) => h("li", null, ui(l)))));
+  return h("section", { class: "panel", id: "qlive" }, h("h2", null, ui(`${periodLabel(q)}即時數據`)), recapTable(m, rec), h("ul", { class: "reasons" }, rec.lines.map((l) => h("li", null, ui(l)))));
 }
 
 function recapTable(m, rec) {
@@ -643,7 +652,7 @@ function savedPredBlock(m) {
   if (!p) return null;
   const H = m.home.name;
   const A = m.away.name;
-  return h("details", { class: "fold panel", "data-k": "savedpred" }, h("summary", null, ui("賽前預測（這台裝置存下的）")),
+  return h("details", { class: "fold panel", id: "savedpred", "data-k": "savedpred" }, h("summary", null, ui("賽前預測（這台裝置存下的）")),
     h("p", null, ui(`模型：${p.mu >= 0 ? H : A} 贏 ${trimNum(Math.abs(p.mu))}、總分 ${trimNum(p.muT)}、${H} 勝率 ${pct(p.pHome)}；盤口 ${H} ${fmtHandicap(p.line)}、大小 ${trimNum(p.total)}。`)),
     p.value?.length ? h("ul", null, p.value.map((v) => h("li", null, ui(`${v.group} ${v.label} @${fmtOdd(v.dec)}（期望值 ${evText(v.ev)}）`)))) : null);
 }

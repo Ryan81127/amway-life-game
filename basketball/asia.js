@@ -685,6 +685,6 @@ function asiaLinks(model) {
     : model.league === "wnbl"
     ? [["WNBL 官方", "https://www.wnbl.com.au/"], ["即時比分（basketball.com.au）", "https://www.basketball.com.au/schedule/wnbl"], ["排名", "https://www.basketball.com.au/standings/wnbl"], ["傷兵報告", "https://www.basketball.com.au/news/wnbl-injury-report"]]
     : [["B.League 官方", model.sourceUrl || "https://www.bleague.jp/schedule/?tab=1&year=2026"], ["B.League 排名", "https://www.bleague.jp/standings/?tab=1&year=2026"]];
-  return h("details", { class: "fold", "data-k": "links" }, h("summary", null, ui("官方出處")),
+  return h("details", { class: "fold", id: "links", "data-k": "links" }, h("summary", null, ui("官方出處")),
     h("div", { class: "link-grid" }, items.map(([n, u]) => h("a", { href: u, target: "_blank", rel: "noopener" }, n))));
 }
