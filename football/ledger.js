@@ -208,7 +208,7 @@ function ledgerCapture(model) {
   if (dirty) ledgerWrite(model.id, bag);
 }
 
-function scorePair(hs, as) {
+function ledgerScoreText(hs, as) {
   return `${hs}:${as}`;
 }
 
@@ -277,13 +277,13 @@ function gradeOne(item, model, snap) {
   const label = item.kind === "1x2" ? "勝平負" : item.kind === "ht" ? "半場勝平負" : item.kind === "ou" ? "大小球" : item.kind === "ht-ou" ? "半場大小" : item.kind === "ah" ? "讓球" : item.kind === "ah-rest" ? "滾球讓球" : item.kind === "btts" ? "雙方進球" : item.kind === "score" ? "比分" : item.kind === "next" ? "下一球" : item.kind === "corners-ou" ? "角球" : item.kind === "cards-ou" ? "黃牌" : "項目";
   const base = { cat: item.cat, kind: item.kind, label, pick: item.text, actual: "–", gap: "–", hit: "pend" };
   if (!A.scoresOk) return { ...base, hit: "na", actual: "比分未列" };
-  const cur = scorePair(A.hs, A.as);
+  const cur = ledgerScoreText(A.hs, A.as);
   const res = A.hs > A.as ? "home" : A.hs < A.as ? "away" : "draw";
   if (item.kind === "1x2" || item.kind === "ht") {
     if (item.kind === "ht") {
       if (!A.htOk) return { ...base, actual: "半場比分還沒有", hit: "pend" };
       const hr = A.htH > A.htA ? "home" : A.htH < A.htA ? "away" : "draw";
-      return { ...base, actual: `${resultName(hr)}（${scorePair(A.htH, A.htA)}）`, gap: `預測${item.text}，實際${resultName(hr)} ${scorePair(A.htH, A.htA)}`, hit: item.pick === hr };
+      return { ...base, actual: `${resultName(hr)}（${ledgerScoreText(A.htH, A.htA)}）`, gap: `預測${item.text}，實際${resultName(hr)} ${ledgerScoreText(A.htH, A.htA)}`, hit: item.pick === hr };
     }
     if (!A.final) return { ...base, actual: `目前 ${cur}`, gap: `預測${item.text}，目前 ${cur}`, hit: "pend" };
     return { ...base, actual: `${resultName(res)}（${cur}）`, gap: `預測${item.text}，實際${resultName(res)} ${cur}`, hit: item.pick === res };
@@ -301,7 +301,7 @@ function gradeOne(item, model, snap) {
     const as = item.kind === "ah-rest" ? A.as - (snap?.as || 0) : A.as;
     const margin = item.side === "home" ? hs - as : as - hs;
     const hit = ahSettle(margin, item.line);
-    return { ...base, actual: item.kind === "ah-rest" ? `之後 ${scorePair(hs, as)}` : cur, gap: `預測${item.text}，實際 ${cur}`, hit };
+    return { ...base, actual: item.kind === "ah-rest" ? `之後 ${ledgerScoreText(hs, as)}` : cur, gap: `預測${item.text}，實際 ${cur}`, hit };
   }
   if (item.kind === "btts") {
     const yes = A.hs > 0 && A.as > 0;

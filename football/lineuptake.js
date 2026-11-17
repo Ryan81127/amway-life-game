@@ -87,7 +87,8 @@ function ltTake(model, side) {
   if (sx?.stars?.length) {
     const on = sx.stars.filter((s) => starters.some((p) => p.en === s.en || p.name === s.name));
     const off = sx.stars.filter((s) => !on.includes(s));
-    if (on.length) add("陣容", "事實", `關鍵球員 ${on.map((s) => s.name).join("、")} 先發。`);
+    const nm = (s) => (starters.find((p) => p.en === s.en) || {}).name || s.name;
+    if (on.length) add("陣容", "事實", `關鍵球員 ${on.map(nm).join("、")} 先發。`);
     if (off.length) add("陣容", "事實", `關鍵球員 ${off.map((s) => s.name).join("、")} 沒有先發。`);
   }
 
@@ -96,10 +97,11 @@ function ltTake(model, side) {
     add("陣型", "事實", `排出 ${shape.name}${oppShape ? `，對手 ${opp.name} 是 ${oppShape.name}` : ""}。`);
     add("陣型", "推測", `${shape.name} 的特點：${shape.style}。`);
     if (L && OL) {
-      if (L.mid > OL.mid) add("陣型", "推測", `中場 ${L.mid} 人對 ${OL.mid} 人，有人數優勢，應該能掌握較多控球。`);
+      if (L.def >= 5) add("陣型", "推測", `五後衛擺法，中場 ${L.mid} 人也是以防守站位為主，看得出先求不失球。`);
+      else if (OL.def >= 5) add("陣型", "推測", `對手擺五後衛密集防守，${team.name}要有耐心破密集防線，邊路傳中與遠射會是主要武器。`);
+      else if (L.mid > OL.mid) add("陣型", "推測", `中場 ${L.mid} 人對 ${OL.mid} 人，有人數優勢，應該能掌握較多控球。`);
       else if (L.mid < OL.mid) add("陣型", "推測", `中場 ${L.mid} 人對 ${OL.mid} 人，人數吃虧，可能讓出控球、改打轉換。`);
       if (OL.fwd >= 3 && L.def === 4) add("陣型", "推測", `對手前場 ${OL.fwd} 人，${team.name}的邊後衛壓上要很小心。`);
-      if (L.def >= 5) add("陣型", "推測", "五後衛擺法，看得出先求不失球。");
     }
   } else add("陣型", "資料不足", "ESPN 沒有給陣型。");
 
@@ -125,6 +127,12 @@ function ltTake(model, side) {
   /* 5. 節奏 */
   let tempo = (shape?.tempo || 0) + (oppShape?.tempo || 0);
   if (pred) tempo += pred.lh + pred.la >= 3 ? 1 : pred.lh + pred.la <= 2.2 ? -1 : 0;
+  const oneWay = pred && Math.abs(pred.lh - pred.la) >= 1.2 && ((L && L.def >= 5) || (OL && OL.def >= 5));
+  if (oneWay) {
+    const strong = pred.lh > pred.la ? model.home.name : model.away.name;
+    add("節奏", "推測", `很可能是「一隊圍攻、一隊死守」的單向比賽：${strong}長時間控球推進，對手退守等反擊。若${strong}早早進球，比分可能拉開${pred ? `（模型預期總進球 ${fx(pred.lh + pred.la)}）` : ""}。`);
+    return out;
+  }
   add("節奏", "推測", `${tempo >= 2 ? "節奏偏快、來回攻防多，進球數可能偏多" : tempo <= -2 ? "節奏偏慢、以陣地戰與防守為主，可能是低比分" : "節奏中等，開場互相試探，先進球的一方會決定後面的走向"}${pred ? `（模型預期總進球 ${fx(pred.lh + pred.la)}）` : ""}。`);
   return out;
 }
