@@ -2,11 +2,11 @@
 
 const NAV_ICON = {
   pred: "🎯", moves: "📈", inj: "🩹", roster: "👥", ladder: "🏆", form: "📊", cards: "🗂️", news: "📰", links: "🔗",
-  moments: "💬", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
+  moments: "💬", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", inplay: "🎲", stars: "⭐", history: "📖", coaches: "👔", venue: "🏟️", lineups: "👥", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
 };
 
 function navLabel(text) {
-  return String(text).replace("盤口預測", "預測").replace("盤口走勢", "盤口").replace("即時話術", "話術").replace("節次覆盤", "節次").replace("全場覆盤", "覆盤").replace("賽前預測", "對帳").replace("外部資訊", "外部");
+  return String(text).replace("盤口預測", "預測").replace("盤口走勢", "盤口").replace("即時話術", "話術").replace("節次覆盤", "節次").replace("全場覆盤", "覆盤").replace("賽前預測", "對帳").replace("外部資訊", "外部").replace("整場前瞻", "前瞻").replace("主隊前瞻", "主隊").replace("客隊前瞻", "客隊").replace("兩隊故事", "故事");
 }
 
 function sideRail(items) {
