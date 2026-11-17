@@ -317,19 +317,19 @@ function renderMatch(app, route) {
   let blocks;
   if (pre) {
     ensurePrediction(m);
-    blocks = [scoreboard(m), ...bxPreviewBlocks(m), predSection(m), bxInplay(m), cardsBlock(m), injuryBlock(m) || bxInjEmpty(m), bxStars(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), movementBlock(m), formBlock(m), bxLineups(m), rosterBlock(m), typeof wnblLadderBlock === "function" ? wnblLadderBlock(m) : null, newsBlock(m), linksBlock(m)];
+    blocks = [scoreboard(m), typeof kitPanel === "function" ? kitPanel("basketball", m) : null, ...bxPreviewBlocks(m), predSection(m), bxInplay(m), cardsBlock(m), injuryBlock(m) || bxInjEmpty(m), bxStars(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), movementBlock(m), formBlock(m), bxLineups(m), rosterBlock(m), typeof wnblLadderBlock === "function" ? wnblLadderBlock(m) : null, newsBlock(m), linksBlock(m)];
   } else if (live) {
-    blocks = [scoreboard(m), momentBlock(m), bxInplay(m), liveQuarterBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), bxStars(m), cardsBlock(m), injuryBlock(m) || bxInjEmpty(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), ...bxPreviewBlocks(m), savedPredBlock(m), linksBlock(m)];
+    blocks = [scoreboard(m), typeof kitPanel === "function" ? kitPanel("basketball", m) : null, momentBlock(m), bxInplay(m), liveQuarterBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), bxStars(m), cardsBlock(m), injuryBlock(m) || bxInjEmpty(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), ...bxPreviewBlocks(m), savedPredBlock(m), linksBlock(m)];
   } else {
-    blocks = [scoreboard(m), fullRecapBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), bxStars(m), bxInplay(m), cardsBlock(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), ...bxPreviewBlocks(m), savedPredBlock(m), linksBlock(m)];
+    blocks = [scoreboard(m), typeof kitPanel === "function" ? kitPanel("basketball", m) : null, fullRecapBlock(m), recapBlock(m), teamStatsBlock(m), boxBlock(m), playsBlock(m), bxStars(m), bxInplay(m), cardsBlock(m), bxStory(m), bxCoaches(m), bxVenueBlock(m), ...bxPreviewBlocks(m), savedPredBlock(m), linksBlock(m)];
   }
   wrap.append(...blocks.filter(Boolean), langToggle());
   app.append(wrap, footer());
   if (typeof sideRail === "function") {
     const rail = pre
-      ? [["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["pred", "盤口預測"], ["inplay", "滾球"], ["cards", "知識卡"], ["inj", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["moves", "盤口走勢"], ["form", "近況"], ["lineups", "陣容"], ["roster", "名單"], ["ladder", "排名"], ["news", "新聞"], ["links", "外部資訊"]]
+      ? [["kit", "球衣方向"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["pred", "盤口預測"], ["inplay", "滾球"], ["cards", "知識卡"], ["inj", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["moves", "盤口走勢"], ["form", "近況"], ["lineups", "陣容"], ["roster", "名單"], ["ladder", "排名"], ["news", "新聞"], ["links", "外部資訊"]]
       : live
-        ? [["moments", "即時話術"], ["inplay", "滾球"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["cards", "知識卡"], ["inj", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
+        ? [["kit", "球衣方向"], ["moments", "即時話術"], ["inplay", "滾球"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["cards", "知識卡"], ["inj", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
         : [["full", "全場覆盤"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["inplay", "滾球"], ["cards", "知識卡"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]];
     sideRail(rail);
   }

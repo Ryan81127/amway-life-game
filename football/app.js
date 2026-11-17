@@ -396,7 +396,7 @@ function renderMatch(app, route) {
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
   /* 2.0 分頁：「看板」是原本的完整頁面，其餘分頁各自獨立渲染 */
   const view = typeof v2View === "function" ? v2View() : "board";
-  wrap.append(...[scoreboard(model), typeof viewTabs === "function" ? viewTabs() : null, typeof situationStrip === "function" ? situationStrip(model) : null].filter(Boolean));
+  wrap.append(...[scoreboard(model), typeof kitPanel === "function" ? kitPanel("football", model) : null, typeof viewTabs === "function" ? viewTabs() : null, typeof situationStrip === "function" ? situationStrip(model) : null].filter(Boolean));
   if (view !== "board") {
     if (typeof clearRail === "function") clearRail();
     if (typeof floatingSearch === "function") floatingSearch();
@@ -436,10 +436,10 @@ function matchNav(model) {
   const phase = model.minute.phase;
   const pre = phase === "pre";
   const items = pre
-    ? [["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["prediction", "盤口預測"], ["inplay", "滾球"], ["corners", "角球"], ["cards", "知識卡"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
-    : [...(phase === "ft" ? [] : [["mood", "此刻可以說"], ["inplay", "滾球"]]), ["recap", "復盤"], ["settle", "對帳"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "賽點"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
+    ? [["kit", "球衣方向"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["prediction", "盤口預測"], ["inplay", "滾球"], ["corners", "角球"], ["cards", "知識卡"], ["injuries", "傷兵"], ["stars", "球星"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["movement", "盤口異動"], ["form", "近況"], ["lineups", "陣容"], ["links", "外部資料"]]
+    : [...(phase === "ft" ? [] : [["kit", "球衣方向"], ["mood", "此刻可以說"], ["inplay", "滾球"]]), ["recap", "復盤"], ["settle", "對帳"], ["corners", "角球"], ["stats", "技術統計"], ["timeline", "賽點"], ...(phase === "ft" ? [] : [["live-analysis", "即時分析"]]), ["stars", "球星"], ["cards", "知識卡"], ["injuries", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["movement", "盤口異動"], ["prediction", "賽前預測"], ["links", "外部資料"]];
   /* 側欄按鈕順序跟頁面區塊分開。進行中：話術、預測、滾球、角球，再接復盤、對帳。 */
-  const railRank = { mood: 10, prediction: 20, inplay: 30, corners: 40, cards: 45, preview: 46, "preview-home": 47, "preview-away": 48, recap: 50, settle: 55, stats: 60, timeline: 70, "live-analysis": 80, stars: 90, injuries: 110, history: 120, coaches: 130, venue: 135, movement: 140, links: 150 };
+  const railRank = { kit: 5, mood: 10, prediction: 20, inplay: 30, corners: 40, cards: 45, preview: 46, "preview-home": 47, "preview-away": 48, recap: 50, settle: 55, stats: 60, timeline: 70, "live-analysis": 80, stars: 90, injuries: 110, history: 120, coaches: 130, venue: 135, movement: 140, links: 150 };
   const railItems = pre ? items : items.slice().sort((a, b) => (railRank[a[0]] ?? 500) - (railRank[b[0]] ?? 500));
   sideRail(railItems);
   return h("nav", { class: "chips match-nav", "aria-label": "本頁區塊" }, items.map(([id, label]) => h("a", { class: "chip", href: "#" + id, onclick: (event) => {
