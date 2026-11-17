@@ -35,6 +35,95 @@ async function ensureTeamSchedule(model) {
   if (state.model?.id === model.id) maybeRender({ soft: true });
 }
 
+/* ---------- 友誼賽：沒有積分榜，改看 FIFA 排名、正式賽程與先發輪換 ---------- */
+let mvFifa = null;
+const mvRot = new Map();
+const FIFA_ALIAS = { "United States": "USA", "South Korea": "Korea Republic", "Korea Republic": "Korea Republic", "Iran": "IR Iran", "Ivory Coast": "Côte d'Ivoire", "Cape Verde": "Cabo Verde", "Turkey": "Türkiye", "Czech Republic": "Czechia", "China": "China PR", "North Korea": "Korea DPR", "Curacao": "Curaçao", "DR Congo": "Congo DR", "Bosnia-Herzegovina": "Bosnia and Herzegovina", "Republic of Ireland": "Republic of Ireland", "Chinese Taipei": "Chinese Taipei", "Kyrgyzstan": "Kyrgyz Republic" };
+
+function mvIsFriendly(model) {
+  return /friendly/i.test(model.leagueSlug || "") || /友誼/.test(model.leagueName || "");
+}
+
+function mvFifaLoad() {
+  if (!mvFifa) {
+    mvFifa = { status: "loading" };
+    fetch("https://api.fifa.com/api/v3/rankings?gender=1&count=300").then((r) => r.json()).then((j) => {
+      const by = new Map();
+      for (const x of j.Results || []) {
+        by.set(String(x.TeamName?.[0]?.Description || "").toLowerCase(), x);
+        by.set(String(x.IdCountry || "").toLowerCase(), x);
+      }
+      mvFifa = { status: "ok", by, pub: (j.Results?.[0]?.PubDate || "").slice(0, 10) };
+    }).catch(() => { mvFifa = { status: "error" }; }).finally(() => { if (state.model) maybeRender({ soft: true }); });
+  }
+  return mvFifa;
+}
+
+function mvFifaOf(team) {
+  const f = mvFifaLoad();
+  if (f.status !== "ok") return null;
+  const name = String(team.rawName || "");
+  return f.by.get((FIFA_ALIAS[name] || name).toLowerCase()) || f.by.get(String(team.abbr || "").toLowerCase()) || null;
+}
+
+/* 先發輪換：本場先發 vs 這隊上一場先發 */
+async function mvRotation(model, side, lastId) {
+  const key = model.id + ":" + side;
+  if (mvRot.has(key)) return;
+  mvRot.set(key, { status: "loading" });
+  try {
+    const j = await stCached(`${ALL_API}/summary?event=${encodeURIComponent(lastId)}`, 3600000);
+    const block = (j.rosters || []).find((r) => String(r.team?.id) === String(model[side].id));
+    const ids = new Set((block?.roster || []).filter((r) => r.starter).map((r) => String(r.athlete?.id || "")));
+    mvRot.set(key, { status: ids.size >= 11 ? "ok" : "none", ids });
+  } catch { mvRot.set(key, { status: "none" }); }
+  if (state.model?.id === model.id) maybeRender({ soft: true });
+}
+
+function mvFriendlyItems(model, side, sched) {
+  const team = model[side];
+  const opp = model[side === "home" ? "away" : "home"];
+  const items = [{ tag: "事實", text: "這是國際友誼賽：沒有積分、晉級或降級，輸贏不影響任何排名表（FIFA 排名分數仍會小幅變動）。" }];
+  const f = mvFifaLoad();
+  const me = mvFifaOf(team);
+  const them = mvFifaOf(opp);
+  if (me) {
+    items.push({ tag: "事實", text: `FIFA 排名第 ${me.Rank}${them ? `，對手 ${opp.name} 第 ${them.Rank}` : ""}（FIFA ${mvFifa.pub} 公布）。` });
+    if (them) {
+      const gap = me.Rank - them.Rank;
+      if (Math.abs(gap) >= 30) items.push({ tag: "推測", text: gap < 0 ? `排名高出對手 ${-gap} 名，這種友誼賽常被拿來試新人或演練戰術。` : `排名落後對手 ${gap} 名，能跟強隊交手本身就是練兵機會，可能派出最強陣容爭取表現。` });
+    }
+  } else if (f.status === "loading") items.push({ tag: "資料不足", text: "讀取 FIFA 排名中…" });
+  else items.push({ tag: "資料不足", text: "FIFA 排名查不到這隊（名稱對不上或資料暫時拿不到）。" });
+  const sc = sched?.[side];
+  if (sc?.ok) {
+    const official = (x) => x && !/friendly|友誼/i.test(`${x.league} ${x.name}`);
+    if (sc.next) {
+      const nx = official(sc.next) ? sc.next : null;
+      items.push({ tag: "事實", text: `下一場：${sc.nextInDays} 天後的 ${sc.next.name}${sc.next.league ? `（${sc.next.league}）` : ""}。` });
+      if (nx && sc.nextInDays <= 45) items.push({ tag: "推測", text: `${sc.nextInDays} 天後就是正式比賽，這場很可能是熱身，教練會以調整陣容與避免受傷為優先。` });
+    } else items.push({ tag: "資料不足", text: "ESPN 還沒有這隊的下一場賽程，無法判斷是不是大賽前熱身。" });
+    if (sc.last) items.push({ tag: "事實", text: `上一場：${sc.last.name}${sc.last.league ? `（${sc.last.league}）` : ""}，距今 ${sc.restDays} 天。` });
+  }
+  const form = (model.form || []).find((b) => b.id === team.id);
+  if (form?.games?.length) {
+    const w = form.games.filter((g) => g.result === "W").length;
+    const d = form.games.filter((g) => g.result === "D").length;
+    items.push({ tag: "計算", text: `近 ${form.games.length} 場 ${w} 勝 ${d} 和 ${form.games.length - w - d} 負。` });
+  }
+  const starters = model.roster?.[side]?.players?.filter((p) => p.starter) || [];
+  if (starters.length >= 11 && sc?.last?.m?.id) {
+    const r = mvRot.get(model.id + ":" + side);
+    if (!r) mvRotation(model, side, sc.last.m.id);
+    if (r?.status === "ok") {
+      const same = starters.filter((p) => r.ids.has(String(p.id))).length;
+      items.push({ tag: "計算", text: `先發 11 人中有 ${same} 人是上一場的先發。` });
+      items.push({ tag: "推測", text: same >= 8 ? "先發變動很小，幾乎是主力陣容，對這場相當認真。" : same <= 5 ? "先發大幅更動，像是在試新人或給替補機會。" : "先發部分輪換，主力與新人混搭。" });
+    } else if (r?.status === "none") items.push({ tag: "資料不足", text: "拿不到上一場的先發名單，無法比較輪換幅度。" });
+  } else items.push({ tag: "資料不足", text: "先發名單公布後（通常開賽前約 1 小時），會自動比對上一場先發、判斷是不是主力出戰。" });
+  return items;
+}
+
 function mvStatusText(sit, k, id) {
   const s = sit.status?.get(k)?.get(id);
   if (!s) return null;
@@ -78,6 +167,10 @@ function motivation(model, sit) {
         const txt = sit.scenarios.map((sc) => { const r = sc.rows.find((x) => x.id === team.id); return `${sc.label}→第 ${r.rank}`; }).join("；");
         items.push({ tag: "計算", text: `本場結果對名次的影響（其他場次不變）：${txt}（目前第 ${base}）。` });
       }
+    } else if (mvIsFriendly(model)) {
+      items.push(...mvFriendlyItems(model, side, sched));
+      res.sides[side] = { name: team.name, items, codes, pressure: null, row: null, friendly: true };
+      continue;
     } else {
       items.push({ tag: "資料不足", text: sit?.why || "沒有積分榜資料，無法由積分判斷壓力。" });
     }
@@ -105,6 +198,15 @@ function motivation(model, sit) {
   }
   const H = res.sides.home;
   const A = res.sides.away;
+  if (H.friendly && A.friendly) {
+    const hr = mvFifaOf(model.home);
+    const ar = mvFifaOf(model.away);
+    if (hr && ar) {
+      const hi = hr.Rank < ar.Rank ? H : A;
+      res.diff.push({ tag: "計算", text: `FIFA 排名差 ${Math.abs(hr.Rank - ar.Rank)} 名，${hi.name} 排名較高。` });
+    }
+    res.diff.push({ tag: "推測", text: "友誼賽的戰意主要看三件事：是不是大賽前熱身、教練派不派主力、排名較低的一方想不想藉強敵證明自己。先發名單公布後再看一次最準。" });
+  }
   if (H.pressure != null && A.pressure != null) {
     const word = ["結果不影響主要目標", "有目標但壓力不大", "壓力明顯", "背水一戰"];
     res.diff.push({ tag: "計算", text: `積分壓力：${H.name}「${word[H.pressure]}」、${A.name}「${word[A.pressure]}」。` });
