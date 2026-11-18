@@ -16,10 +16,11 @@ function subRole(model, side, p, ti) {
   const games = ti?.[side]?.recent?.games || 0;
   if (u && games) {
     const ratio = u.starts / games;
+    if (ratio < 0.6 && p.starter) return { label: "今日獲先發", detail: `近 ${games} 場先發 ${u.starts} 次，平常不是固定先發`, level: 1 };
     const label = ratio >= 0.6 ? "主力" : u.starts >= 1 ? "輪換球員" : "替補";
     return { label, detail: `近 ${games} 場先發 ${u.starts} 次`, level: ratio >= 0.6 ? 2 : u.starts >= 1 ? 1 : 0 };
   }
-  if (games) return { label: "替補", detail: `近 ${games} 場沒有出場紀錄`, level: 0 };
+  if (games) return p.starter ? { label: "今日獲先發", detail: `近 ${games} 場沒有出場紀錄`, level: 1 } : { label: "替補", detail: `近 ${games} 場沒有出場紀錄`, level: 0 };
   return { label: p.starter ? "今日先發" : "今日替補", detail: "近期出場資料讀取中或不足", level: p.starter ? 2 : 0 };
 }
 
