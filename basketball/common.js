@@ -49,7 +49,8 @@ function scriptBlock(lines, label) {
   return h("div", { class: "script" },
     h("div", { class: "script-k" }, ui(label || "口播")),
     shown.map((line) => h("p", { class: "say" }, line)),
-    button
+    button,
+    typeof aiBlock === "function" && state.model ? aiBlock(state.model, { id: label || "script", title: label || "口播", facts: lines }, { style: "mix", secs: lines.join("").length > 140 ? 60 : 30 }) : null
   );
 }
 

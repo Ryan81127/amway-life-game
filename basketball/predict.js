@@ -282,7 +282,7 @@ function savePrediction(model, pred) {
   const key = "nba-pred-v1:" + model.id;
   try {
     const old = JSON.parse(localStorage.getItem(key) || "null");
-    const rec = { at: pred.at, mu: pred.mu, muT: pred.muT, pHome: pred.pHome, line: pred.line, total: pred.total, value: pred.value.slice(0, 4).map((v) => ({ group: v.group, label: v.label, dec: v.dec, p: v.p, ev: v.ev })), first: old?.first || { line: pred.line, total: pred.total, at: pred.at } };
+    const rec = { league: model.league || "nba", home: model.home.name, away: model.away.name, kickoff: model.kickoff || model.date || "", at: pred.at, mu: pred.mu, muT: pred.muT, pHome: pred.pHome, line: pred.line, total: pred.total, value: pred.value.slice(0, 4).map((v) => ({ group: v.group, label: v.label, dec: v.dec, p: v.p, ev: v.ev })), first: old?.first || { line: pred.line, total: pred.total, at: pred.at } };
     localStorage.setItem(key, JSON.stringify(rec));
   } catch { /* 略過 */ }
 }

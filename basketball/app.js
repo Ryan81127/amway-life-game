@@ -6,7 +6,7 @@ function maybeRender(options) {
   const sel = document.getSelection?.();
   const app = document.getElementById("app");
   const selecting = sel && !sel.isCollapsed && app && app.contains(sel.anchorNode);
-  const picking = document.activeElement?.tagName === "SELECT";
+  const picking = ["SELECT", "INPUT", "TEXTAREA"].includes(document.activeElement?.tagName);
   if (soft && (selecting || picking)) {
     pending = true;
     return;
@@ -82,7 +82,9 @@ function sportSwitch() {
         event.preventDefault();
         if (league !== id) setLeague(id);
       }
-    }, ui(label)))
+    }, ui(label))),
+    h("a", { href: "?view=history" }, "📊 ", ui("預測歷史")),
+    h("a", { href: "https://app.notion.com/p/diamondteam/40c71e16c0258132b8f7ec5751c312b0", target: "_blank", rel: "noopener", title: "Notion：大事件與熱門話題" }, "📒 ", ui("大事件與熱門話題"))
   );
 }
 
@@ -151,6 +153,13 @@ function statusTabs(groups) {
 
 function renderSchedule(app) {
   if (typeof clearRail === "function") { clearRail(); floatingSearch(); }
+  if (new URLSearchParams(location.search).get("view") === "history" && typeof historyView === "function") {
+    const wrap = h("div", { class: "wrap" });
+    wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./" }, "← ", ui("回賽程"))), historyView());
+    app.append(wrap, footer());
+    app.dataset.view = "history";
+    return;
+  }
   const bounds = windowBounds();
   const day = state.day && state.day >= bounds.start && state.day <= bounds.end ? state.day : bounds.today;
   state.day = day;
@@ -449,6 +458,7 @@ function predSection(m) {
     `以目前數據來看，模型看 ${fav} 贏 ${trimNum(Math.abs(p.mu))} 分左右，總分落在 ${Math.round(p.muT)} 附近。`,
     "這只是得失分模型，不是投注建議。你們看哪一邊？留言說，賽後一起對答案！"
   ];
+  if (typeof aiSettings === "function") sec.append(aiSettings());
   sec.append(scriptBlock(lines, "賽前口播"));
   return sec;
 }
@@ -554,6 +564,7 @@ function recapBlock(m) {
       h("summary", null, ui(`${it.label}覆盤 · ${m.away.name} ${rec.s.away.pts}：${rec.s.home.pts} ${m.home.name}`)),
       h("ul", { class: "reasons" }, rec.lines.map((l) => h("li", null, ui(l)))),
       recapTable(m, rec),
+      typeof aiSettings === "function" ? aiSettings() : null,
       scriptBlock(anchor.short, "口播（短版 15 秒）"),
       scriptBlock(anchor.long, "口播（長版 40 秒）"),
       mood.length ? h("div", null, h("h3", null, ui("幹話／吐槽／共鳴")), h("ul", { class: "banter" }, mood.map(([k, v]) => h("li", null, h("span", { class: "pill" }, ui(k)), " ", speak(v))))) : null));
@@ -580,6 +591,7 @@ function fullRecapBlock(m) {
     if (worst) sec.append(h("p", { class: "faint" }, ui(`今晚最想忘記的人：${worst.team} ${worst.name}（${worst.pts} 分、投籃 ${worst.fg.m}/${worst.fg.a}、失誤 ${worst.tov}）`)));
   }
   if (review) sec.append(h("h3", null, ui("賽前預測檢討")), h("ul", { class: "reasons" }, review.map((l) => h("li", null, ui(l)))));
+  if (typeof aiSettings === "function") sec.append(aiSettings());
   sec.append(scriptBlock(anchorFull(m, ratings), "賽後口播"));
   const mood = moodLines(m, rec);
   if (mood.length) sec.append(h("ul", { class: "banter" }, mood.map(([k, v]) => h("li", null, h("span", { class: "pill" }, ui(k)), " ", speak(v)))));
@@ -875,7 +887,7 @@ function boot() {
     if (pending && document.getSelection()?.isCollapsed && document.activeElement?.tagName !== "SELECT") maybeRender({ soft: true });
   });
   document.addEventListener("focusout", () => setTimeout(() => {
-    if (pending && document.activeElement?.tagName !== "SELECT") maybeRender({ soft: true });
+    if (pending && !["SELECT", "INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) maybeRender({ soft: true });
   }, 50));
   loadRoute().finally(() => armTimer());
 }
