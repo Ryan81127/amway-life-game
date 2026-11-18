@@ -20,14 +20,22 @@ function bsSubs(m) {
   const players = new Map();
   for (const side of ["home", "away"]) for (const p of m.box?.players?.[side] || []) players.set(p.id, { p, side });
   const subs = [];
+  /* 換人當下的個人得分與犯規（不是終場數字） */
+  const run = new Map();
+  const cur = (id) => { if (!run.has(id)) run.set(id, { pts: 0, pf: 0 }); return run.get(id); };
   for (const pl of m.plays || []) {
-    if (!pl.sub) continue;
+    if (!pl.sub) {
+      if (pl.playerId && pl.score && pl.value) cur(pl.playerId).pts += pl.value;
+      if (pl.playerId && pl.foul) cur(pl.playerId).pf += 1;
+      continue;
+    }
     const [inId, outId] = pl.ids || [];
     const a = players.get(inId);
     const b = players.get(outId);
     const side = pl.side || a?.side || b?.side;
     if (!side) continue;
-    subs.push({ side, period: pl.period, clock: pl.clock, t: pl.t, pin: a?.p || null, pout: b?.p || null, hs: pl.hs, as: pl.as, text: pl.text });
+    const snap = (p) => (p ? { ...p, pts: cur(p.id).pts, pf: cur(p.id).pf } : null);
+    subs.push({ side, period: pl.period, clock: pl.clock, t: pl.t, pin: snap(a?.p), pout: snap(b?.p), hs: pl.hs, as: pl.as, text: pl.text });
   }
   return subs;
 }
@@ -59,7 +67,7 @@ function bsNotes(m, s) {
     if (s.pout.starter && !s.pin.starter) notes.push(late ? "關鍵時刻先發換替補，可能是防守或犯規戰術的調整。" : "先發下場休息、替補上場，這段是板凳陣容的考驗。");
     if (!s.pout.starter && s.pin.starter) notes.push(late ? "先發回到場上，準備決戰。" : "先發主力回到場上。");
   }
-  if (s.pout?.pts >= 15) notes.push(`${s.pout.name} 已經拿 ${s.pout.pts} 分正有手感，換下會讓進攻少一個主要火力點。`);
+  if (s.pout?.pts >= (s.period <= 2 ? 10 : 15)) notes.push(`${s.pout.name} 這時已經拿 ${s.pout.pts} 分正有手感，換下會讓進攻少一個主要火力點。`);
   if (Number.isFinite(me) && Number.isFinite(opp) && late && Math.abs(me - opp) <= 6) notes.push(`第四節最後 5 分鐘、比分 ${me}:${opp} 只差 ${Math.abs(me - opp)} 分，這是關鍵時刻陣容的調整。`);
   if (!notes.length) notes.push("例行輪替，可以觀察接下來 2 分鐘的得分走勢。");
   return notes;
@@ -77,7 +85,7 @@ function bsWho(p) {
 
 function bsRow(m, s) {
   const notes = bsNotes(m, s);
-  const tag = (p) => p ? `${BS_POS[p.pos] || p.pos || "位置不明"}・${p.starter ? "先發" : "替補"}｜${p.pts} 分 ${p.pf} 犯` : "";
+  const tag = (p) => p ? `${BS_POS[p.pos] || p.pos || "位置不明"}・${p.starter ? "先發" : "替補"}｜換人時 ${p.pts} 分 ${p.pf} 犯` : "";
   const person = (p, cls, arrow) => h("div", { class: `sub-p ${cls}` }, h("div", { class: "sub-arrow" }, arrow),
     h("div", null,
       h("div", { class: "sub-name" }, p?.jersey ? h("span", { class: "sub-no" }, p.jersey) : null, ui(p?.name || "未列名")),
