@@ -1,6 +1,7 @@
 /* 輪換：每次換人「幾號誰 → 換成幾號誰」、是不是主力、位置、換人後場上可能的變數。
    名單與換人來自 ESPN；主力判斷看近 5 場先發次數（球星區同一份資料）；變數是規則式推測。 */
 
+const subPick = new Map();
 const SUB_GROUP_ZH = { gk: "門將", def: "後衛", mid: "中場", fwd: "前鋒" };
 
 function subName(p) {
@@ -133,11 +134,21 @@ function subsBlock(model) {
   }
   const ti = typeof teamInfo === "function" ? teamInfo(model) : null;
   const tiOk = ti?.status === "ok" ? ti : null;
-  for (const side of ["home", "away"]) {
-    const mine = list.filter((s) => s.side === side);
-    const used = mine.length;
-    block.append(h("h3", null, ui(`${side === "home" ? "🏠" : "✈️"} ${model[side].name}　已換 ${used} 人`)));
-    if (!mine.length) { block.append(h("p", { class: "faint" }, ui("還沒有換人。"))); continue; }
+  const live = phase !== "ft";
+  const pick = subPick.get(model.id) || "home";
+  const count = (side) => list.filter((s) => s.side === side).length;
+  const sel = h("select", { class: "sub-select", "aria-label": "選擇球隊", onchange: (e) => { subPick.set(model.id, e.target.value); e.target.blur(); maybeRender({ soft: true }); } },
+    [["home", `🏠 主隊 ${model.home.name}（已換 ${count("home")} 人）`], ["away", `✈️ 客隊 ${model.away.name}（已換 ${count("away")} 人）`], ["all", `兩隊全部（共 ${list.length} 次）`]]
+      .map(([v, t]) => h("option", { value: v, selected: pick === v }, ui(t))));
+  block.append(h("div", { class: "sub-bar" }, sel,
+    h("span", { class: `sub-live ${live ? "on" : ""}` }, ui(live ? "● 即時更新中" : "完賽紀錄"))));
+  if (live) block.append(h("p", { class: "faint" }, ui("比賽中跟著看板每 20 秒自動更新；ESPN 本身約比電視慢 30–90 秒。最新的換人排在最上面。")));
+  const sides = pick === "all" ? ["home", "away"] : [pick];
+  for (const side of sides) {
+    let mine = list.filter((s) => s.side === side);
+    if (live) mine = mine.slice().reverse();
+    if (pick === "all") block.append(h("h3", null, ui(`${side === "home" ? "🏠" : "✈️"} ${model[side].name}　已換 ${mine.length} 人`)));
+    if (!mine.length) { block.append(h("p", { class: "faint" }, ui(`${model[side].name}還沒有換人。`))); continue; }
     for (const s of mine) block.append(subCard(model, s, tiOk));
   }
   block.append(h("p", { class: "faint" }, ui(`主力判斷看近 5 場先發次數（先發 ≥ 6 成為主力）${tiOk ? "" : "，近期資料讀取中，暫以今天是否先發判斷"}。查不到中文譯名的球員先顯示英文原名，下方附系統音譯（未查證）。影響分析是依位置、比分、時間的推測。`)));

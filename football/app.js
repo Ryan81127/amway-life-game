@@ -91,7 +91,7 @@ function maybeRender(options) {
   const sel = document.getSelection?.();
   const app = document.getElementById("app");
   const selecting = sel && !sel.isCollapsed && app && app.contains(sel.anchorNode);
-  const typing = document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName);
+  const typing = document.activeElement && ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName);
   if (soft && (selecting || typing)) {
     pending = true;
     const stamp = document.getElementById("updated");
@@ -1497,7 +1497,7 @@ function boot() {
   });
   document.addEventListener("focusout", () => {
     setTimeout(() => {
-      if (pending && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+      if (pending && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) {
         pending = false;
         maybeRender({ soft: true });
       }

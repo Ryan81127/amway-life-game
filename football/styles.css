@@ -1166,3 +1166,9 @@ body.has-rail #app { padding-left: 64px; }
 .sub-role.lv1{background:rgba(138,180,255,.2);color:#8ab4ff}
 .sub-role.lv0{background:rgba(255,255,255,.1)}
 .sub-var ul{margin:4px 0;padding-left:18px;line-height:1.6}
+
+.sub-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 4px}
+.sub-select{flex:1;min-width:220px;font-size:16px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);color:inherit;border:1px solid rgba(240,195,106,.5)}
+.sub-select option{color:#111}
+.sub-live{font-size:13px;color:rgba(255,255,255,.6)}
+.sub-live.on{color:#4fd18b;font-weight:700}
