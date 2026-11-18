@@ -1146,3 +1146,4 @@ body.has-rail #app { padding-left: 64px; }
 /* 先發點評 */
 .lt-take { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(240,195,106,.06); border: 1px solid rgba(240,195,106,.25); }
 .lt-sub { font-weight: 800; margin: 10px 0 4px; }
+@media (max-width: 560px){.sport-switch{flex-wrap:wrap}.sport-switch a{flex:1 1 40%}}

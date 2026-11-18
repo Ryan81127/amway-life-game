@@ -258,7 +258,8 @@ function renderSchedule(app) {
   if (state.leagueErrors.length) {
     wrap.append(h("div", { class: "banner" }, `部分聯賽暫時無法取得：${state.leagueErrors.join("、")}。`));
   }
-  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 ", ui("籃球")), h("a", { href: "?view=history" }, "📊 ", ui("預測歷史"))));
+  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 ", ui("籃球")), h("a", { href: "?view=history" }, "📊 ", ui("預測歷史")),
+    h("a", { href: "https://app.notion.com/p/diamondteam/40c71e16c0258132b8f7ec5751c312b0", target: "_blank", rel: "noopener", title: "Notion：足球賽事規律與近況紀錄" }, "📒 ", ui("規律紀錄"))));
   wrap.append(chipRow());
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 20 秒更新"))));
   const sections = [
