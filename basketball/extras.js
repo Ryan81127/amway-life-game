@@ -125,10 +125,17 @@ function bxPreviewBlocks(m) {
   whole.push(["推測", "看點：開賽前 6 分鐘誰先打出小高潮、第三節的調整，以及關鍵時刻誰拿球。"]);
   const sec = (id, title, items) => h("section", { class: "panel", id }, h("h2", null, ui(title)), bxList(items),
     h("p", { class: "faint" }, ui("事實＝來源資料；計算＝用資料算出；推測＝依數據的看法，不是保證。")));
+  const side = (id, title, s) => {
+    const box = sec(id, title, bxSideFacts(m, s));
+    const take = typeof bxLineupTake === "function" ? bxLineupTake(m, s) : null;
+    box.insertBefore(h("div", { class: "lt-take" }, h("h3", null, ui("🎙️ 先發點評")),
+      take ? bxList(take) : h("p", { class: "faint" }, ui(m.league ? "資料不足：這個聯賽的來源沒有先發名單。" : "先發名單公布後（通常開賽前約 30 分鐘）會自動產生：陣容、體型、對位、戰術、戰意與節奏的點評。"))), box.lastChild);
+    return box;
+  };
   return [
     sec("preview", "整場前瞻", whole),
-    sec("preview-home", `主隊前瞻：${m.home.name}`, bxSideFacts(m, "home")),
-    sec("preview-away", `客隊前瞻：${m.away.name}`, bxSideFacts(m, "away"))
+    side("preview-home", `主隊前瞻：${m.home.name}`, "home"),
+    side("preview-away", `客隊前瞻：${m.away.name}`, "away")
   ];
 }
 
@@ -251,6 +258,16 @@ function bxStory(m) {
     items.push(["事實", `本季已交手 ${m.series.games.length} 場：${m.home.name} ${w} 勝 ${m.series.games.length - w} 敗。`]);
     for (const g of m.series.games) items.push(["事實", `${shortDate(g.date)} ${m.home.name} ${g.mine} : ${g.opp} ${m.away.name}`]);
   } else items.push(["資料不足", "本季還沒交手，或來源沒有交手紀錄。"]);
+  if (!m.league) {
+    ensureBxH2H(m);
+    const hh = bxH2H.get([m.home.id, m.away.id].sort().join("-"));
+    if (hh?.status === "ok" && hh.games.length) {
+      const g10 = hh.games.slice(0, 10);
+      const w = g10.filter((g) => g.mine > g.opp).length;
+      items.push(["計算", `近 ${g10.length} 次交手（近 6 季，含季後賽）：${m.home.name} ${w} 勝 ${g10.length - w} 敗，平均分差 ${bxNum(g10.reduce((a, g) => a + g.mine - g.opp, 0) / g10.length)}。`]);
+      for (const g of g10.slice(0, 6)) items.push(["事實", `${new Date(g.date).getFullYear()}/${shortDate(g.date)} ${m.home.name} ${g.mine} : ${g.opp} ${m.away.name}${/post/i.test(g.type) ? "（季後賽）" : ""}`]);
+    } else if (hh?.status === "loading") items.push(["事實", "查詢近 6 季交手中…"]);
+  }
   const cards = (state.cards || []).filter((c) => /恩怨|宿敵|交手|對決|名場面|對位|rival/i.test(`${c.title || ""}${c.fact || ""}`));
   for (const c of cards.slice(0, 6)) items.push(["事實", `${c.title || ""}：${c.fact || c.say || ""}`]);
   sec.append(bxList(items));
@@ -358,4 +375,99 @@ function bxInjEmpty(m) {
   if (m.league === "wnbl") sec.append(h("p", { class: "muted" }, ui("資料不足：WNBL 快照沒有傷兵資料。")), h("a", { href: "https://www.basketball.com.au/news/wnbl-injury-report", target: "_blank", rel: "noopener" }, ui("WNBL 傷兵報告（basketball.com.au）")));
   else sec.append(h("p", { class: "muted" }, ui(m.league ? "資料不足：這個聯賽的來源沒有傷兵資料。" : "ESPN 傷兵名單目前沒有任何球員。")));
   return sec;
+}
+
+/* ---------- 先發點評（比照足球）：陣容、體型、對位、戰術、戰意、節奏 ---------- */
+const bxLast = new Map();
+
+async function ensureBxLast(m, side) {
+  if (m.league) return;
+  const id = m[side].id;
+  if (bxLast.has(id)) return;
+  bxLast.set(id, { status: "loading" });
+  try {
+    const sc = await fetchJson(`${API}/teams/${id}/schedule`, new AbortController().signal);
+    const kick = new Date(m.kickoff || m.date || Date.now()).getTime();
+    const past = (sc.events || []).filter((e) => e.competitions?.[0]?.status?.type?.completed && new Date(e.date).getTime() < kick - 3600000).sort((a, b) => new Date(b.date) - new Date(a.date));
+    const last = past[0];
+    if (!last) { bxLast.set(id, { status: "none" }); return; }
+    const s = await fetchJson(`${API}/summary?event=${last.id}`, new AbortController().signal);
+    const blk = (s.boxscore?.players || []).find((b) => String(b.team?.id) === String(id));
+    const starters = (blk?.statistics?.[0]?.athletes || []).filter((a) => a.starter).map((a) => ({ id: String(a.athlete?.id || ""), name: playerZh(a.athlete?.displayName || ""), pos: a.athlete?.position?.abbreviation || "" }));
+    const restDays = Math.floor((kick - new Date(last.date).getTime()) / 86400000);
+    bxLast.set(id, { status: "ok", starters, restDays, name: last.shortName || last.name || "" });
+  } catch { bxLast.set(id, { status: "none" }); }
+  maybeRender({ soft: true });
+}
+
+function bxShape(list) {
+  const g = list.filter((p) => bsSize(p.pos) === 1).length;
+  const c = list.filter((p) => bsSize(p.pos) === 3).length;
+  const f = list.length - g - c;
+  const label = g >= 3 ? "三後衛小球陣容" : c >= 2 ? "雙中鋒大陣容" : g === 2 && c === 1 ? "傳統的雙後衛、雙前鋒、一中鋒" : c === 0 ? "無傳統中鋒的機動陣容" : "前場偏多的陣容";
+  return { g, f, c, label, size: list.reduce((a, p) => a + bsSize(p.pos), 0) };
+}
+
+function bxLineupTake(m, side) {
+  const oppSide = side === "home" ? "away" : "home";
+  const st = (m.box?.players?.[side] || []).filter((p) => p.starter);
+  const ost = (m.box?.players?.[oppSide] || []).filter((p) => p.starter);
+  if (st.length < 5) return null;
+  ensureBxLast(m, side);
+  const items = [];
+  const sh = bxShape(st);
+  items.push(["事實", `先發五人：${st.map((p) => `${p.jersey ? "#" + p.jersey + " " : ""}${p.name}（${BS_POS[p.pos] || p.pos || "?"}）`).join("、")}。`]);
+  const last = bxLast.get(m[side].id);
+  if (last?.status === "ok" && last.starters.length >= 5) {
+    const same = st.filter((p) => last.starters.some((q) => q.id === p.id)).length;
+    const outs = last.starters.filter((q) => !st.some((p) => p.id === q.id)).map((q) => q.name);
+    items.push(["計算", `跟上一場相比，先發有 ${same} 人相同${outs.length ? `；上一場先發但今天沒先發：${outs.join("、")}` : ""}。`]);
+    items.push(["推測", same === 5 ? "原班先發，默契沒問題。" : same >= 3 ? "先發小幅調整，可能是傷病或對位考量。" : "先發大換血，可能是輪休或傷兵，化學反應是今天的變數。"]);
+    if (last.restDays <= 1) items.push(["事實", `距離上一場只隔 ${last.restDays} 天（背靠背），體能是隱憂，第四節要看板凳深度。`]);
+  }
+  items.push(["推測", `體型：${sh.label}。`]);
+  if (ost.length >= 5) {
+    const os = bxShape(ost);
+    const d = sh.size - os.size;
+    items.push(["推測", d >= 2 ? `比對手高大，禁區、籃板和二次進攻是優勢，對手可能用速度和外線反制。` : d <= -2 ? `比對手矮小，籃板會吃虧，比較可能靠速度、換防和三分球。` : "兩隊先發體型接近，勝負看投籃手感與失誤。"]);
+  }
+  const avg = typeof teamAvg === "function" ? teamAvg(m, side) : null;
+  const oavg = typeof teamAvg === "function" ? teamAvg(m, oppSide) : null;
+  if (avg) items.push(["推測", `可能打法：${avg.pf >= (m.league ? 82 : 118) ? "進攻火力強、喜歡快打" : avg.pf <= (m.league ? 72 : 108) ? "進攻偏慢、靠防守拖節奏" : "攻守平衡"}${sh.g >= 3 ? "，多持球手、擋拆和外線" : sh.c >= 2 ? "，主打禁區和籃板" : ""}。`]);
+  const f = typeof formOf === "function" ? formOf(m, side) : null;
+  if (f) items.push(["推測", `戰意：近 ${f.n} 場 ${f.w} 勝 ${f.n - f.w} 敗，${f.w >= 4 ? "氣勢正旺" : f.w <= 1 ? "急需止敗" : "狀態普通"}${m.wnblRank ? `，排名第 ${m.wnblRank[side]}` : ""}。`]);
+  if (avg && oavg) {
+    const pace = (avg.pf + avg.pa + oavg.pf + oavg.pa) / 2;
+    items.push(["推測", `節奏：${pace >= (m.league ? 165 : 232) ? "兩隊都打得快，偏向高比分" : pace <= (m.league ? 150 : 218) ? "節奏偏慢，可能是低比分的防守戰" : "中等節奏"}（兩隊場均得失分合計約 ${Math.round(pace)}）。`]);
+  }
+  return items;
+}
+
+/* ---------- 多賽季交手（比照足球歷史交手）：NBA 近 5 季 ---------- */
+const bxH2H = new Map();
+async function ensureBxH2H(m) {
+  if (m.league) return;
+  const key = [m.home.id, m.away.id].sort().join("-");
+  if (bxH2H.has(key)) return;
+  bxH2H.set(key, { status: "loading" });
+  const year = new Date().getFullYear() + 1;
+  const kick = new Date(m.kickoff || Date.now()).getTime();
+  const found = new Map();
+  await Promise.all(Array.from({ length: 6 }, (_, i) => year - i).map(async (y) => {
+    try {
+      const j = await fetchJson(`${API}/teams/${m.home.id}/schedule?season=${y}`, new AbortController().signal);
+      for (const e of j.events || []) {
+        const c = e.competitions?.[0];
+        if (!c?.status?.type?.completed || new Date(e.date).getTime() >= kick - 3600000) continue;
+        const cs = c.competitors || [];
+        if (!cs.some((x) => String(x.id) === String(m.away.id))) continue;
+        const me = cs.find((x) => String(x.id) === String(m.home.id));
+        const op = cs.find((x) => String(x.id) === String(m.away.id));
+        found.set(e.id, { date: e.date, mine: Number(me?.score?.value ?? me?.score), opp: Number(op?.score?.value ?? op?.score), home: me?.homeAway === "home", type: e.seasonType?.name || "" });
+      }
+    } catch { /* 該季略過 */ }
+  }));
+  const games = [...found.values()].filter((g) => Number.isFinite(g.mine)).sort((a, b) => new Date(b.date) - new Date(a.date));
+  bxH2H.set(key, { status: "ok", games });
+  maybeRender({ soft: true });
 }

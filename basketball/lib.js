@@ -226,6 +226,8 @@ function parsePlays(raw, home, away, nameOf) {
       hs: Number(p.homeScore), as: Number(p.awayScore),
       player: ids[0] ? nameOf(ids[0]) || "" : "",
       playerId: ids[0] || "",
+      ids,
+      sub: /substitution/i.test(type) || /enters the game/i.test(text),
       assist: ast ? playerZh(ast[1]) : "",
       reb: /rebound/i.test(type), oreb: /offensive rebound/i.test(type),
       tov: /turnover/i.test(type),

@@ -2,7 +2,7 @@
 
 const NAV_ICON = {
   pred: "🎯", moves: "📈", inj: "🩹", roster: "👥", ladder: "🏆", form: "📊", cards: "🗂️", news: "📰", links: "🔗",
-  moments: "💬", kit: "🎽", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", inplay: "🎲", stars: "⭐", history: "📖", coaches: "👔", venue: "🏟️", lineups: "👥", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
+  moments: "💬", kit: "🎽", subs: "🔄", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", inplay: "🎲", stars: "⭐", history: "📖", coaches: "👔", venue: "🏟️", lineups: "👥", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
 };
 
 function navLabel(text) {
