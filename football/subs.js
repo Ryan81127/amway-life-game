@@ -60,16 +60,24 @@ function subList(model) {
   return out.sort((a, b) => a.base - b.base);
 }
 
+/* ESPN 給替補的位置常是 SUB；換上後的站位以被換下的人為準 */
+function subPos(s) {
+  const raw = String(s.pin?.posAbbr || "").toUpperCase();
+  if (s.pin && raw && raw !== "SUB" && !/替補/.test(s.pin.posZh || "")) return { abbr: s.pin.posAbbr, zh: s.pin.posZh, inherit: false };
+  return { abbr: s.pout?.posAbbr || "", zh: s.pout?.posZh || "", inherit: true };
+}
+
 function subVariables(model, s, ti) {
   const notes = [];
-  const gIn = s.pin ? ltGroup(s.pin.posAbbr) : null;
+  const pos = subPos(s);
+  const gIn = s.pin ? ltGroup(pos.abbr) : null;
   const gOut = s.pout ? ltGroup(s.pout.posAbbr) : null;
   const rIn = s.pin ? subRole(model, s.side, s.pin, ti) : null;
   const rOut = s.pout ? subRole(model, s.side, s.pout, ti) : null;
   const sc = subScoreAt(model, s.side, s.base);
   const team = model[s.side].name;
   const rank = { gk: 0, def: 1, mid: 2, fwd: 3 };
-  if (s.injury) notes.push(`${subName(s.pout).zh} 因傷退場，屬於被迫換人，不是戰術選擇。`);
+  if (s.injury) notes.push(`${subName(s.pout).phon ? subName(s.pout).en : subName(s.pout).zh} 因傷退場，屬於被迫換人，不是戰術選擇。`);
   if (gIn && gOut) {
     if (gIn === gOut) notes.push(`${SUB_GROUP_ZH[gOut]}換${SUB_GROUP_ZH[gIn]}，位置對位置，陣型與打法大致不變。`);
     else if (rank[gIn] > rank[gOut]) notes.push(`換下${SUB_GROUP_ZH[gOut]}、換上${SUB_GROUP_ZH[gIn]}，進攻人數增加，${team}要加強進攻。`);
@@ -79,7 +87,7 @@ function subVariables(model, s, ti) {
   else if (sc.me > sc.opp && gIn && gOut && rank[gIn] < rank[gOut]) notes.push(`換人時 ${sc.me}:${sc.opp} 領先，這是守成的換人，節奏可能放慢。`);
   else if (sc.me > sc.opp && s.base >= 75) notes.push(`${sc.me}:${sc.opp} 領先下的換人，也有拖延時間、打斷對手節奏的作用。`);
   if (rOut && rIn && rOut.level === 2 && rIn.level === 0) notes.push("主力換替補，個人能力有落差，對手可能針對這個位置施壓。");
-  if (rOut && rOut.level === 2 && s.pout?.yellowMins?.length) notes.push(`${subName(s.pout).zh} 身上已有黃牌，換下也是為了避免吃第二張黃牌。`);
+  if (rOut && rOut.level === 2 && s.pout?.yellowMins?.length) notes.push(`${subName(s.pout).phon ? subName(s.pout).en : subName(s.pout).zh} 身上已有黃牌，換下也是為了避免吃第二張黃牌。`);
   if (s.pout && (s.pout.goalMins?.length || s.pout.assistMins?.length)) notes.push(`換下的是本場有${s.pout.goalMins?.length ? "進球" : "助攻"}的球員，進攻少了一個已經找到手感的人。`);
   if (s.base >= 60 && gIn && (gIn === "fwd" || gIn === "mid")) notes.push("比賽後段換上新鮮的腿，對手防線體力下滑時，反擊與衝刺會更有威脅。");
   if (!notes.length) notes.push("資料不足以判斷這次換人的意圖，可以觀察接下來 5 分鐘站位有沒有改變。");
@@ -90,20 +98,22 @@ function subCard(model, s, ti) {
   const v = subVariables(model, s, ti);
   const nIn = subName(s.pin);
   const nOut = subName(s.pout);
-  const person = (p, n, role, g, cls, arrow) => h("div", { class: `sub-p ${cls}` },
+  const pos = subPos(s);
+  const person = (p, n, role, g, cls, arrow, posZh, inherit) => h("div", { class: `sub-p ${cls}` },
     h("div", { class: "sub-arrow" }, arrow),
     h("div", null,
-      h("div", { class: "sub-name" }, p?.jersey ? h("span", { class: "sub-no" }, `${p.jersey}`) : null, ui(n.zh), n.phon ? h("span", { class: "sub-phon" }, ui("音譯")) : null),
-      n.en ? h("div", { class: "faint" }, n.en) : null,
-      h("div", { class: "sub-meta" }, ui([g ? SUB_GROUP_ZH[g] : "", p?.posZh && p.posZh !== SUB_GROUP_ZH[g] ? p.posZh : ""].filter(Boolean).join("・") || "位置不明"),
+      h("div", { class: "sub-name" }, p?.jersey ? h("span", { class: "sub-no" }, `${p.jersey}`) : null, n.phon ? n.en : ui(n.zh)),
+      n.phon ? h("div", { class: "faint" }, ui(`音譯：${n.zh}（未查證）`)) : n.en ? h("div", { class: "faint" }, n.en) : null,
+      h("div", { class: "sub-meta" }, ui([g ? SUB_GROUP_ZH[g] : "", posZh && posZh !== SUB_GROUP_ZH[g] ? posZh : ""].filter(Boolean).join("・") + (inherit ? "（接替原位置）" : "") || "位置不明"),
         role ? h("span", { class: `sub-role lv${role.level}` }, ui(role.label)) : null),
       role ? h("div", { class: "faint" }, ui(role.detail)) : null));
-  const say = `${s.min ? s.min + " " : ""}${model[s.side].name}換人：${s.pout?.jersey ? s.pout.jersey + " 號" : ""}${nOut.zh}${v.rOut ? `（${v.rOut.label}${v.gOut ? "、" + SUB_GROUP_ZH[v.gOut] : ""}）` : ""}下場，換上 ${s.pin?.jersey ? s.pin.jersey + " 號" : ""}${nIn.zh}${v.rIn ? `（${v.rIn.label}${v.gIn ? "、" + SUB_GROUP_ZH[v.gIn] : ""}）` : ""}。${v.notes[0] || ""}`;
+  const spk = (n) => (n.phon ? n.en : n.zh);
+  const say = `${s.min ? s.min + " " : ""}${model[s.side].name}換人：${s.pout?.jersey ? s.pout.jersey + " 號" : ""}${spk(nOut)}${v.rOut ? `（${v.rOut.label}${v.gOut ? "、" + SUB_GROUP_ZH[v.gOut] : ""}）` : ""}下場，換上 ${s.pin?.jersey ? s.pin.jersey + " 號" : ""}${spk(nIn)}${v.rIn ? `（${v.rIn.label}${v.gIn ? "、" + SUB_GROUP_ZH[v.gIn] : ""}）` : ""}。${v.notes[0] || ""}`;
   const copy = h("button", { class: "copy" }, ui("複製口播"));
   copy.addEventListener("click", () => copyText(speak(say), copy));
   return h("div", { class: "sub-card" },
     h("div", { class: "sub-head" }, h("b", null, s.min || "–"), h("span", null, ui(model[s.side].name)), h("span", { class: "faint" }, ui(`比分 ${v.sc.me}:${v.sc.opp}`))),
-    h("div", { class: "sub-pair" }, person(s.pout, nOut, v.rOut, v.gOut, "out", "⬇"), person(s.pin, nIn, v.rIn, v.gIn, "in", "⬆")),
+    h("div", { class: "sub-pair" }, person(s.pout, nOut, v.rOut, v.gOut, "out", "⬇", s.pout?.posZh, false), person(s.pin, nIn, v.rIn, v.gIn, "in", "⬆", pos.zh, pos.inherit)),
     h("div", { class: "sub-var" }, h("div", { class: "st-label" }, ui("對場上的影響（推測）")), h("ul", null, v.notes.map((x) => h("li", null, ui(x))))),
     h("p", { class: "say" }, ui(say)), copy);
 }
@@ -129,6 +139,6 @@ function subsBlock(model) {
     if (!mine.length) { block.append(h("p", { class: "faint" }, ui("還沒有換人。"))); continue; }
     for (const s of mine) block.append(subCard(model, s, tiOk));
   }
-  block.append(h("p", { class: "faint" }, ui(`主力判斷看近 5 場先發次數（先發 ≥ 6 成為主力）${tiOk ? "" : "，近期資料讀取中，暫以今天是否先發判斷"}。中文名標「音譯」的是系統依讀音轉的，尚未查證。影響分析是依位置、比分、時間的推測。`)));
+  block.append(h("p", { class: "faint" }, ui(`主力判斷看近 5 場先發次數（先發 ≥ 6 成為主力）${tiOk ? "" : "，近期資料讀取中，暫以今天是否先發判斷"}。查不到中文譯名的球員先顯示英文原名，下方附系統音譯（未查證）。影響分析是依位置、比分、時間的推測。`)));
   return block;
 }
