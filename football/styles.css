@@ -1147,3 +1147,22 @@ body.has-rail #app { padding-left: 64px; }
 .lt-take { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(240,195,106,.06); border: 1px solid rgba(240,195,106,.25); }
 .lt-sub { font-weight: 800; margin: 10px 0 4px; }
 @media (max-width: 560px){.sport-switch{flex-wrap:wrap}.sport-switch a{flex:1 1 40%}}
+
+/* 輪換 */
+.sub-card{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin:10px 0;background:rgba(255,255,255,.03)}
+.sub-head{display:flex;gap:10px;align-items:baseline;margin-bottom:8px}
+.sub-head b{font-size:20px;color:#f0c36a}
+.sub-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sub-p{display:flex;gap:8px;padding:10px;border-radius:12px}
+.sub-p.out{background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35)}
+.sub-p.in{background:rgba(79,209,139,.10);border:1px solid rgba(79,209,139,.35)}
+.sub-arrow{font-size:20px}
+.sub-name{font-weight:900;font-size:17px}
+.sub-no{display:inline-block;min-width:26px;margin-right:6px;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.15);text-align:center}
+.sub-phon{font-size:11px;margin-left:6px;padding:0 5px;border-radius:5px;background:rgba(255,255,255,.1);font-weight:400}
+.sub-meta{margin-top:4px;font-size:13px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sub-role{padding:1px 7px;border-radius:999px;font-size:12px;font-weight:700}
+.sub-role.lv2{background:rgba(240,195,106,.25);color:#f0c36a}
+.sub-role.lv1{background:rgba(138,180,255,.2);color:#8ab4ff}
+.sub-role.lv0{background:rgba(255,255,255,.1)}
+.sub-var ul{margin:4px 0;padding-left:18px;line-height:1.6}

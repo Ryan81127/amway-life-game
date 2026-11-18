@@ -1,7 +1,7 @@
 /* 左側固定導覽列（跟著捲動）＋ 全頁搜尋（放大鏡）。 */
 
 const NAV_ICON = {
-  kit: "🎽", prediction: "🎯", injuries: "🩹", stars: "⭐", history: "📖", cards: "🗂️", movement: "📈", form: "📊", lineups: "👥", links: "🔗",
+  kit: "🎽", subs: "🔄", prediction: "🎯", injuries: "🩹", stars: "⭐", history: "📖", cards: "🗂️", movement: "📈", form: "📊", lineups: "👥", links: "🔗",
   recap: "📝", stats: "📊", timeline: "⏱️", "live-analysis": "⚡", corners: "⛳", mood: "💬", board: "🏟️", inplay: "🎲", coaches: "👔", venue: "🏟️", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", settle: "📒"
 };
 

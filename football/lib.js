@@ -754,6 +754,7 @@ function buildEvents(raw, home, away) {
       subOn,
       subOff,
       score,
+      raw: kind === "sub" ? String(ev.text || "") : "",
       fact: ""
     };
     item.fact = item.kind === "marker" ? markerLabel(ev) : factOf(item);
