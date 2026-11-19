@@ -1,0 +1,29 @@
+{
+ "teamId": "uae-HAT",
+ "name": "Hatta",
+ "cards": [],
+ "squad": {
+  "total": 1250000,
+  "count": null,
+  "checked": "2026-11-19",
+  "note": "總值來自 AiScore，該頁教練仍列舊任教練，數字可能是舊名單，僅供參考；個別球員來自 Soccerway／Flashscore。",
+  "source": {
+   "name": "AiScore（可能過時）",
+   "url": "https://www.aiscore.com/team-hatta/edq09im463a4qxg/squad"
+  },
+  "players": [
+   {
+    "name": "Tahnoon Al Zaabi",
+    "pos": "M",
+    "value": 220000,
+    "src": "Flashscore"
+   },
+   {
+    "name": "Doro Dabo",
+    "pos": "F",
+    "value": 190000,
+    "src": "Soccerway"
+   }
+  ]
+ }
+}

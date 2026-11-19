@@ -820,20 +820,21 @@ function valueStrip(model) {
     const players = (sq?.players || []).filter((p) => Number.isFinite(p.value)).sort((a, b) => b.value - a.value);
     const head = h("div", { class: "vs-team" }, ui(`${side === "home" ? "🏠 主隊" : "✈️ 客隊"} ${model[side].name}`));
     if (!ti) return h("div", { class: "vs-card" }, head, h("p", { class: "faint" }, ui("讀取中…")));
-    if (!players.length) {
+    if (!players.length && !sq?.total) {
       return h("div", { class: "vs-card none" }, head, h("div", { class: "vs-total" }, ui("尚未建檔")),
         h("p", { class: "faint" }, ui("ESPN 沒有身價資料，要查證 Transfermarkt。")));
     }
     const total = sq.total || players.reduce((a, p) => a + p.value, 0);
-    const avg = total / (sq.count || players.length);
+    const n = sq.count || (sq.total ? 0 : players.length);
     return h("div", { class: "vs-card" }, head,
       h("div", { class: "vs-total" }, ui(`總身價 ${fmtEuro(total)}`)),
-      h("div", { class: "faint" }, ui(`平均 ${fmtEuro(avg)}・${sq.count || players.length} 人・查證 ${sq.checked || "–"}`)),
-      h("ol", { class: "vs-top" }, players.slice(0, 3).map((p) => h("li", null, ui(`${playerZh(p.name)}${p.pos ? `（${posZh(p.pos) || p.pos}）` : ""}`), h("b", null, ui(fmtEuro(p.value)))))));
+      h("div", { class: "faint" }, ui(`${n ? `平均 ${fmtEuro(total / n)}・${n} 人・` : ""}來源 ${sq.source?.name || "Transfermarkt"}・查證 ${sq.checked || "–"}`)),
+      players.length ? h("ol", { class: "vs-top" }, players.slice(0, 3).map((p) => h("li", null, ui(`${playerZh(p.name)}${p.pos ? `（${posZh(p.pos) || p.pos}）` : ""}`), h("b", null, ui(fmtEuro(p.value)))))) : null,
+      sq.note ? h("p", { class: "faint" }, ui(`⚠️ ${sq.note}`)) : null);
   };
   const sqH = ti?.status === "ok" ? ti.home?.squad : null;
   const sqA = ti?.status === "ok" ? ti.away?.squad : null;
-  const tot = (sq) => (sq?.players || []).filter((p) => Number.isFinite(p.value)).reduce((a, p) => a + p.value, 0) || sq?.total || 0;
+  const tot = (sq) => sq?.total || (sq?.players || []).filter((p) => Number.isFinite(p.value)).reduce((a, p) => a + p.value, 0) || 0;
   box.append(h("h2", null, ui("💰 兩隊身價")), h("div", { class: "vs-grid" }, card("home"), card("away")));
   if (tot(sqH) && tot(sqA)) {
     const big = tot(sqH) >= tot(sqA) ? "home" : "away";
@@ -846,6 +847,6 @@ function valueStrip(model) {
     btn.addEventListener("click", () => copyText(req, btn));
     box.append(h("p", { class: "faint" }, ui("身價需要查證後建檔：按下方按鈕複製請求貼給 Claude，查好後重新整理就會出現。")), btn);
   }
-  box.append(h("p", { class: "faint" }, ui("完整名單在左側「球星」區。來源 Transfermarkt，數字是市場估值，不是薪資。")));
+  box.append(h("p", { class: "faint" }, ui("數字是市場估值，不是薪資；完整名單在左側「球星」區。")));
   return box;
 }

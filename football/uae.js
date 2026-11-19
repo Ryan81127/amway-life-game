@@ -50,7 +50,7 @@ function uaeComp(data, g) {
   const name = done ? "STATUS_FULL_TIME" : st === "in" ? "STATUS_IN_PROGRESS" : st === "post" ? "STATUS_FULL_TIME" : "STATUS_SCHEDULED";
   return {
     id: g.id, date: g.date,
-    status: { period: done ? 2 : st === "in" ? 1 : 0, displayClock: "", type: { name, state: st, completed: done, shortDetail: done ? "FT" : st === "post" ? "快照未更新比分" : "" } },
+    status: { period: done ? 2 : st === "in" ? 1 : 0, displayClock: st === "in" ? "快照無即時比分" : "", type: { name, state: st, completed: done, shortDetail: done ? "FT" : st === "post" ? "快照未更新比分" : "" } },
     venue: { fullName: g.venue, address: { city: "", country: "United Arab Emirates" } },
     competitors: [side(g.home, "home", g.hs), side(g.away, "away", g.as)]
   };

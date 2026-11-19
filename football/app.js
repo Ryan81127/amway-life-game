@@ -1371,6 +1371,7 @@ function freshText() {
   const at = state.pulseAt || state.summaryLoadedAt;
   if (!at) return "";
   const sec = Math.max(0, Math.round((Date.now() - at) / 1000));
+  if (state.model?.leagueSlug === "uae.1" || /^uae/.test(String(state.model?.id || ""))) return "● 阿聯酋超是官方賽程快照，沒有即時比分；比分請看轉播，賽後說「更新阿聯酋超」";
   return `● 即時偵測中・${sec} 秒前確認・ESPN 資料本身約比電視慢 30–90 秒`;
 }
 
