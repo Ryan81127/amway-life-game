@@ -195,14 +195,22 @@ function bnPanel(ctx, extraMood) {
     ...kinds.flatMap(([k, label]) => (mood[k].length ? [h("h4", null, ui(label)), ...mood[k].map((x) => h("p", null, ui(x)))] : [])),
     copyBtn(moodAll, "全部複製"));
   const r = bnRhyme(ctx, seeds.rhyme);
-  const rhymeAll = [...r.poem, ...r.singles.flatMap((s) => s.lines), ...(r.couplet || [])];
+  const usePm = typeof pmPoem === "function";
+  const poem = usePm ? pmPoem(ctx, seeds.rhyme) : null;
+  const pairs = usePm ? pmCouplets(ctx, seeds.rhyme) : r.singles;
+  const poemLines = usePm ? poem.lines.map((l) => l.text) : r.poem;
+  const rhymeAll = [...poemLines, ...pairs.flatMap((s) => s.lines), ...(r.couplet || [])];
   const rhymeBox = h("details", { class: "banter bn-box", open: seeds.open.rhyme ? true : null, ontoggle: (e) => { seeds.open.rhyme = e.target.open; } },
     h("summary", null, ui("🎤 押韻句與打油詩")),
-    h("div", { class: "bn-tools" }, h("button", { class: "chip bn-roll", onclick: () => reroll("rhyme") }, ui("🔄 重新生成")), h("span", { class: "faint" }, ui(`第 ${seeds.rhyme + 1} 版・每場、每次都不同`))),
-    h("h4", null, ui(`本場打油詩（${r.fam}）`)),
-    h("div", { class: "bn-poem" }, r.poem.map((x) => h("p", null, ui(x)))),
-    ...r.singles.flatMap((s) => [h("h4", null, ui(`押韻單句（${s.fam}）`)), ...s.lines.map((x) => h("p", null, ui(x)))]),
-    r.couplet ? h("h4", null, ui("對聯")) : null,
+    h("div", { class: "bn-tools" }, h("button", { class: "chip bn-roll", onclick: () => reroll("rhyme") }, ui("🔄 重新生成")), h("span", { class: "faint" }, ui(`第 ${seeds.rhyme + 1} 版・韻式、韻腳、五七言每次輪換`))),
+    h("h4", null, ui(usePm ? `本場打油詩（${poem.title}）` : `本場打油詩（${r.fam}）`)),
+    h("div", { class: "bn-poem" }, usePm
+      ? poem.lines.map((l) => h("p", null, ui(l.text), l.rhyme ? h("span", { class: "bn-rhyme" }, ui(` ← ${l.rhyme}`)) : null))
+      : poemLines.map((x) => h("p", null, ui(x)))),
+    usePm ? h("p", { class: "faint" }, ui(poem.note)) : null,
+    usePm ? h("details", { class: "bn-beat" }, h("summary", null, ui("看停頓節奏")), poem.lines.map((l) => h("p", null, ui(l.show)))) : null,
+    ...pairs.flatMap((s) => [h("h4", null, ui(`押韻口號（${s.fam}，上句仄收、下句平收）`)), ...s.lines.map((x) => h("p", null, ui(x)))]),
+    r.couplet ? h("h4", null, ui("對聯（套入本場隊名、球星、教練）")) : null,
     r.couplet ? h("div", { class: "bn-couplet" }, r.couplet.map((x) => h("p", null, ui(x)))) : null,
     copyBtn(rhymeAll, "全部複製"));
   return h("div", { class: "bn-panel" }, moodBox, rhymeBox);
