@@ -84,7 +84,7 @@ function sportSwitch() {
       }
     }, ui(label))),
     h("a", { href: "?view=history" }, "📊 ", ui("預測歷史")),
-    h("a", { href: "https://app.notion.com/p/diamondteam/40c71e16c0258132b8f7ec5751c312b0", target: "_blank", rel: "noopener", title: "Notion：大事件與熱門話題" }, "📒 ", ui("大事件與熱門話題"))
+    h("a", { href: "https://app.notion.com/p/diamondteam/40c71e16c02581eaa4c0cfaf7329c565", target: "_blank", rel: "noopener", title: "Notion：NBA 賽事規律與近況紀錄（大事件與熱門話題）" }, "📒 ", ui("大事件與熱門話題"))
   );
 }
 
