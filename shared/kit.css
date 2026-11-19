@@ -10,3 +10,11 @@
 .kit-who { font-size: 13px; opacity: .85; }
 .kit-color { font-size: 22px; font-weight: 900; margin: 4px 0; }
 .kit-src { font-size: 11px; opacity: .75; }
+/* 閒聊與押韻面板 */
+.bn-panel{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.bn-box>summary{font-size:17px;font-weight:800;padding:10px 4px;cursor:pointer}
+.bn-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
+.bn-roll{font-size:15px;padding:8px 14px;border:1px solid #f0c36a;color:#f0c36a}
+.bn-poem{padding:10px 14px;border-left:3px solid #f0c36a;background:rgba(240,195,106,.07);border-radius:8px;font-size:17px;line-height:1.8}
+.bn-poem p,.bn-couplet p{margin:2px 0}
+.bn-couplet{text-align:center;padding:8px;border:1px dashed rgba(255,255,255,.25);border-radius:10px;line-height:1.8}

@@ -471,3 +471,23 @@ async function ensureBxH2H(m) {
   bxH2H.set(key, { status: "ok", games });
   maybeRender({ soft: true });
 }
+
+/* ---------- 閒聊與押韻（比照足球「此刻可以說」） ---------- */
+function bxBanter(m) {
+  if (typeof bnPanel !== "function") return null;
+  const star = (side) => (m.leaders?.[side] || []).find((l) => l.name)?.name || "";
+  const coach = (side) => {
+    const r = typeof bxRoster !== "undefined" ? bxRoster.get(m[side].id) : null;
+    return r?.coach ? `${r.coach.firstName} ${r.coach.lastName}` : "";
+  };
+  const ph = m.status.phase === "pre" ? "pre" : m.status.phase === "ft" ? "ft" : "live";
+  const sec = h("section", { class: "panel", id: "banter" }, h("h2", null, ui("😆 此刻可以說：閒聊與押韻")),
+    h("p", { class: "faint" }, ui("不是正確解說，是陪觀眾一起看球的話。按「換一批」或「重新生成」就換新內容，句子都套入本場隊名、球星與比分。")));
+  sec.append(bnPanel({
+    id: "bk-" + m.id, sport: "basketball", phase: ph,
+    H: m.home.name, A: m.away.name, V: m.venue || "", city: m.city || "",
+    S1: star("home"), S2: star("away"), C1: coach("home"), C2: coach("away"), RH: m.home.record || "",
+    sh: m.home.score ?? "", sa: m.away.score ?? "", min: ph === "live" ? `${bsPeriodLabel(m, m.status.period || 1)} ${m.status.clock || ""}`.trim() : ""
+  }));
+  return sec;
+}
