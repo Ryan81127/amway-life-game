@@ -187,7 +187,7 @@ function bnPanel(ctx, extraMood) {
   const kinds = [["tucao", "吐槽"], ["mutter", "碎碎念"], ["self", "自我調侃"], ["chat", "無關嘮嗑"]];
   const gen = bnMood(ctx, seeds.mood);
   const mood = {};
-  for (const [k] of kinds) mood[k] = [...(extraMood?.[k] || []), ...gen[k]].slice(0, 3);
+  for (const [k] of kinds) mood[k] = [...gen[k], ...(extraMood?.[k] || []).slice(0, 1)];
   const moodAll = kinds.flatMap(([k]) => mood[k]);
   const moodBox = h("details", { class: "banter mood bn-box", open: seeds.open.mood ? true : null, ontoggle: (e) => { seeds.open.mood = e.target.open; } },
     h("summary", null, ui("😆 吐槽／碎碎念／自嘲／嘮嗑")),
