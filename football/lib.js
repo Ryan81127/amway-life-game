@@ -16,7 +16,8 @@ const LEAGUES = [
   { slug: "fifa.world", name: "世界盃" },
   { slug: "uefa.nations", name: "歐國聯" },
   { slug: "fifa.friendly", name: "國際友誼賽" },
-  { slug: "uae.1", name: "阿聯酋超" }
+  { slug: "uae.1", name: "阿聯酋超" },
+  { slug: "aus.w.1", name: "澳女足" }
 ];
 
 const STATUS_ZH = {
@@ -206,9 +207,23 @@ const state = {
   softScroll: 0
 };
 
+/* 澳洲女足聯賽（A-League Women）用英文隊名對照，ESPN 的隊伍 id 不固定 */
+const NAME_ZH = {
+  "adelaide united": "阿德萊德聯女足", "brisbane roar": "布里斯本獅吼女足", "canberra united": "坎培拉聯女足",
+  "central coast mariners": "中岸水手女足", "melbourne city": "墨爾本城女足", "melbourne victory": "墨爾本勝利女足",
+  "newcastle jets": "紐卡索噴射機女足", "perth glory": "伯斯光輝女足", "sydney fc": "雪梨FC女足", "sydney": "雪梨FC女足",
+  "western sydney wanderers": "西雪梨流浪者女足", "western sydney": "西雪梨流浪者女足", "wellington phoenix": "威靈頓鳳凰女足",
+  "auckland fc": "奧克蘭FC女足", "western united": "西部聯女足"
+};
+function nameZh(raw) {
+  if (!raw) return "";
+  const k = String(raw || "").toLowerCase().replace(/\b(fc )?women\b|\(w\)|\bw$/g, "").replace(/\s+/g, " ").trim();
+  return NAME_ZH[k] || NAME_ZH[k.replace(/ fc$/, "")] || "";
+}
+
 function teamZh(id, fallback) {
   const key = String(id || "");
-  const tw = TEAM_ZH[key];
+  const tw = TEAM_ZH[key] || nameZh(fallback);
   if (locale() === "cn") {
     if (TEAM_CN[key]) return TEAM_CN[key];
     if (tw) return han(tw);
