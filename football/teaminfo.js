@@ -810,3 +810,42 @@ function teamInfoCards(model) {
   }
   return cards;
 }
+
+/* 比賽頁最上方：兩隊身價速覽（總值、平均、前三高身價球員） */
+function valueStrip(model) {
+  const ti = teamInfo(model);
+  const box = h("section", { class: "block value-strip", id: "values" });
+  const card = (side) => {
+    const sq = ti?.status === "ok" ? ti[side]?.squad : null;
+    const players = (sq?.players || []).filter((p) => Number.isFinite(p.value)).sort((a, b) => b.value - a.value);
+    const head = h("div", { class: "vs-team" }, ui(`${side === "home" ? "🏠 主隊" : "✈️ 客隊"} ${model[side].name}`));
+    if (!ti) return h("div", { class: "vs-card" }, head, h("p", { class: "faint" }, ui("讀取中…")));
+    if (!players.length) {
+      return h("div", { class: "vs-card none" }, head, h("div", { class: "vs-total" }, ui("尚未建檔")),
+        h("p", { class: "faint" }, ui("ESPN 沒有身價資料，要查證 Transfermarkt。")));
+    }
+    const total = sq.total || players.reduce((a, p) => a + p.value, 0);
+    const avg = total / (sq.count || players.length);
+    return h("div", { class: "vs-card" }, head,
+      h("div", { class: "vs-total" }, ui(`總身價 ${fmtEuro(total)}`)),
+      h("div", { class: "faint" }, ui(`平均 ${fmtEuro(avg)}・${sq.count || players.length} 人・查證 ${sq.checked || "–"}`)),
+      h("ol", { class: "vs-top" }, players.slice(0, 3).map((p) => h("li", null, ui(`${playerZh(p.name)}${p.pos ? `（${posZh(p.pos) || p.pos}）` : ""}`), h("b", null, ui(fmtEuro(p.value)))))));
+  };
+  const sqH = ti?.status === "ok" ? ti.home?.squad : null;
+  const sqA = ti?.status === "ok" ? ti.away?.squad : null;
+  const tot = (sq) => (sq?.players || []).filter((p) => Number.isFinite(p.value)).reduce((a, p) => a + p.value, 0) || sq?.total || 0;
+  box.append(h("h2", null, ui("💰 兩隊身價")), h("div", { class: "vs-grid" }, card("home"), card("away")));
+  if (tot(sqH) && tot(sqA)) {
+    const big = tot(sqH) >= tot(sqA) ? "home" : "away";
+    const ratio = Math.max(tot(sqH), tot(sqA)) / Math.max(1, Math.min(tot(sqH), tot(sqA)));
+    box.append(h("p", { class: "say" }, ui(`身價上 ${model[big].name}是對手的 ${trimNum(Math.round(ratio * 10) / 10)} 倍${ratio >= 3 ? "，紙面實力差距明顯，但足球場上身價不會射門。" : ratio >= 1.5 ? "，有一定差距。" : "，兩隊身價相當。"}`)));
+  }
+  if (!tot(sqH) || !tot(sqA)) {
+    const req = `幫 ${model.home.name} 對 ${model.away.name} 查兩隊球員身價（Transfermarkt），寫進看板`;
+    const btn = h("button", { class: "copy" }, ui("📋 複製身價查詢請求"));
+    btn.addEventListener("click", () => copyText(req, btn));
+    box.append(h("p", { class: "faint" }, ui("身價需要查證後建檔：按下方按鈕複製請求貼給 Claude，查好後重新整理就會出現。")), btn);
+  }
+  box.append(h("p", { class: "faint" }, ui("完整名單在左側「球星」區。來源 Transfermarkt，數字是市場估值，不是薪資。")));
+  return box;
+}
