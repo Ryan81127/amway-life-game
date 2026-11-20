@@ -468,14 +468,14 @@ function savedPredSection(model) {
   const done = model.minute.phase === "ft" || model.minute.state === "post";
   if (p?.data && !done) {
     const box = h("details", { class: "block-details", id: "prediction" }, h("summary", null, ui(saved ? "賽前盤口預測（開賽前存檔，點開看）" : "賽前盤口預測（開賽後以賽前資料補算，點開看）")));
-    box.append(predictionBlock(model, p.data, { id: "prediction-inner", title: "賽前盤口預測", note: saved ? `存檔時間 ${taipeiClock(new Date(saved.at))}。` : "這個瀏覽器開賽前沒打開過本場，這份是用賽前盤與賽前近況補算的。" }));
+    box.append(predictionBlock(model, p.data, { id: "prediction-inner", title: "賽前盤口預測", note: saved ? `${saved.cloud ? "☁️ 雲端" : ""}存檔時間 ${taipeiClock(new Date(saved.at))}。` : "這個瀏覽器開賽前沒打開過本場，這份是用賽前盤與賽前近況補算的。" }));
     return box;
   }
   if (!saved) return done ? null : h("section", { class: "block", id: "prediction" }, h("h2", null, ui("賽前盤口預測")), h("p", { class: "muted" }, ui("計算中…")));
   const top = saved.top || {};
   return h("section", { class: "block", id: "prediction" },
     h("h2", null, ui("賽前盤口預測（存檔）")),
-    h("p", { class: "faint" }, ui(`存檔時間 ${taipeiClock(new Date(saved.at))}；預期進球 ${trimNum(saved.lh)} : ${trimNum(saved.la)}；主勝 ${pct(top.home || 0)}、和 ${pct(top.draw || 0)}、客勝 ${pct(top.away || 0)}。`)),
+    h("p", { class: "faint" }, ui(`${saved.cloud ? "☁️ 雲端" : ""}存檔時間 ${taipeiClock(new Date(saved.at))}；預期進球 ${trimNum(saved.lh)} : ${trimNum(saved.la)}；主勝 ${pct(top.home || 0)}、和 ${pct(top.draw || 0)}、客勝 ${pct(top.away || 0)}。`)),
     saved.best?.length ? h("ul", { class: "bullets" }, saved.best.map((b) => h("li", null, ui(`${b.market}｜${b.label}（${pct(b.p)}）`)))) : null,
     h("p", { class: "faint" }, ui("命中對照在上方「全場整體復盤」。"))
   );
@@ -1327,6 +1327,7 @@ async function loadMatch(league, id) {
     state.summaryError = false;
     maybeRender({ soft: !!same });
     showGoalFlash();
+    if (typeof cloudSeed === "function") cloudSeed(model).then((got) => { if (got && state.model?.id === model.id) maybeRender({ soft: true }); });
     ensurePrediction(model);
     ensureCards(model);
   } catch (err) {

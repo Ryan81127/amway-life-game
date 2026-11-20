@@ -1,0 +1,51 @@
+name: Football cloud snapshots
+
+# 每 10 分鐘把快開賽、進行中的比賽跑一遍，存賽前預測與滾球快照到 snap 分支。
+# GitHub 的排程常會延遲幾分鐘到十幾分鐘，滾球快照因此會比手機上稀疏。
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out snapshot branch
+        run: |
+          git fetch origin snap:snap || true
+          if git rev-parse --verify snap >/dev/null 2>&1; then
+            git worktree add snapdata snap
+          else
+            git worktree add --orphan -b snap snapdata
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install jsdom
+        run: npm i --no-save --no-package-lock jsdom@24
+
+      - name: Take snapshots
+        env:
+          TZ: Asia/Taipei
+        run: node football/tools/snapshot.js snapdata/snap
+
+      - name: Commit
+        working-directory: snapdata
+        run: |
+          git add -A
+          if git diff --cached --quiet; then echo "沒有變化"; exit 0; fi
+          git -c user.name="snapshot-bot" -c user.email="actions@users.noreply.github.com" commit -qm "cloud snapshots $(date -u +%FT%TZ)"
+          git push origin snap

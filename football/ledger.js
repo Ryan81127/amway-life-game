@@ -448,6 +448,46 @@ function settleBlock(model) {
   if (done && ledgerActual(model).scoresOk) bits.push(`終場 ${model.home.score} 比 ${model.away.score}。`);
   bits.push("理性購彩、未成年人不得購彩。");
   block.append(scriptBlock(bits, done ? "口播：完賽對帳" : "口播：即時對帳"));
-  block.append(h("p", { class: "faint" }, ui("快照存在這台裝置：開賽前打開過，才有賽前對帳；比賽進行中每 5 分鐘記一次滾球，記下來就不再改。沒有快照的項目不補算。實際比分、角球、黃牌用 ESPN 這場的技術統計。理性購彩、未成年人不得購彩。")));
+  block.append(h("p", { class: "faint" }, ui("快照有兩個來源：這台裝置（開賽前打開過、比賽中每 5 分鐘記一次）與雲端（系統每 10 分鐘自動替快開賽、進行中的比賽存一份，標「☁️」）。記下來就不再改，沒有快照的項目不補算。實際比分、角球、黃牌用 ESPN 這場的技術統計。理性購彩、未成年人不得購彩。")));
   return block;
+}
+
+/* 雲端快照：GitHub Actions 每 10 分鐘替快開賽、進行中的比賽存一份（snap 分支）。
+   這台裝置沒有的才補進來；賽前那份只收開賽前的時間戳，滾球只新增不覆寫。 */
+const CLOUD_SNAP = "https://raw.githubusercontent.com/Ryan81127/amway-life-game/snap/snap/";
+const cloudTried = new Map();
+
+async function cloudSeed(model) {
+  if (!model?.id) return false;
+  const last = cloudTried.get(model.id);
+  if (last && Date.now() - last < 3 * 60000) return false;
+  cloudTried.set(model.id, Date.now());
+  let snap;
+  try {
+    const r = await fetch(`${CLOUD_SNAP}${encodeURIComponent(model.id)}.json?t=${Math.floor(Date.now() / 120000)}`);
+    if (!r.ok) return false;
+    snap = await r.json();
+  } catch {
+    return false;
+  }
+  const ko = Date.parse(model.kickoff || snap.kickoff || "");
+  if (!Number.isFinite(ko)) return false;
+  let changed = false;
+  if (snap.pred && snap.pred.at < ko && typeof loadPrediction === "function" && !loadPrediction(model.id)) {
+    try { localStorage.setItem(PRED_PREFIX + model.id, JSON.stringify({ ...snap.pred, cloud: true })); changed = true; } catch { /* ignore */ }
+  }
+  const c = snap.ledger;
+  if (c) {
+    const bag = ledgerBag(model.id);
+    if (!bag.pre && c.pre && c.pre.at < ko) { bag.pre = { ...c.pre, cloud: true }; changed = true; }
+    if (!bag.corners && c.corners && c.corners.at < ko) { bag.corners = { ...c.corners, cloud: true }; changed = true; }
+    for (const key of ["live", "cornerLive"]) {
+      for (const x of c[key] || []) {
+        if (!bag[key].some((y) => y.minute === x.minute)) { bag[key].push({ ...x, cloud: true }); changed = true; }
+      }
+      bag[key].sort((a, b) => a.at - b.at);
+    }
+    if (changed) ledgerWrite(model.id, bag);
+  }
+  return changed;
 }
