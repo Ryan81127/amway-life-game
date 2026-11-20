@@ -454,7 +454,7 @@ function settleBlock(model) {
 
 /* 雲端快照：GitHub Actions 每 10 分鐘替快開賽、進行中的比賽存一份（snap 分支）。
    這台裝置沒有的才補進來；賽前那份只收開賽前的時間戳，滾球只新增不覆寫。 */
-const CLOUD_SNAP = "https://raw.githubusercontent.com/Ryan81127/amway-life-game/snap/snap/";
+const CLOUD_SNAP = "https://raw.githubusercontent.com/Ryan81127/amway-life-game/refs/heads/snap/snap/";
 const cloudTried = new Map();
 
 async function cloudSeed(model) {
