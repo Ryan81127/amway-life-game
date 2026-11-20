@@ -12,7 +12,7 @@ const LEAGUES = [
   { slug: "uefa.champions", name: "歐冠" },
   { slug: "uefa.europa", name: "歐霸" },
   { slug: "usa.1", name: "美職聯" },
-  { slug: "jpn.1", name: "J1 聯賽" },
+  { slug: "jpn.1", name: "日職聯" },
   { slug: "fifa.world", name: "世界盃" },
   { slug: "uefa.nations", name: "歐國聯" },
   { slug: "fifa.friendly", name: "國際友誼賽" },
@@ -609,6 +609,7 @@ async function probeRange(days) {
   }
 }
 
+const RANGE_BAD = new Set(["jpn.1"]);
 async function fetchLeague(slug, days) {
   if (state.rangeMode === "on") {
     if (state.rangeCache && state.rangeCache.slug === slug) {
@@ -616,8 +617,16 @@ async function fetchLeague(slug, days) {
       state.rangeCache = null;
       return cached;
     }
-    const data = await fetchJson(`${API}/${slug}/scoreboard?dates=${days[0].replaceAll("-", "")}-${days[days.length - 1].replaceAll("-", "")}`);
-    return data.events || [];
+    /* 有些聯賽（例如 J1）的 ESPN 端點不接受日期區間，會回 400；這時改成一天一天抓 */
+    if (!RANGE_BAD.has(slug)) {
+      try {
+        const data = await fetchJson(`${API}/${slug}/scoreboard?dates=${days[0].replaceAll("-", "")}-${days[days.length - 1].replaceAll("-", "")}`);
+        return data.events || [];
+      } catch (err) {
+        if (err.name === "AbortError") throw err;
+        RANGE_BAD.add(slug);
+      }
+    }
   }
   const chunks = await Promise.all(days.map((day) => limit(async () => {
     const key = `${slug}:${day}`;
