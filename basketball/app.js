@@ -668,7 +668,7 @@ function savedPredBlock(m) {
   if (!p) return null;
   const H = m.home.name;
   const A = m.away.name;
-  return h("details", { class: "fold panel", id: "savedpred", "data-k": "savedpred" }, h("summary", null, ui("賽前預測（這台裝置存下的）")),
+  return h("details", { class: "fold panel", id: "savedpred", "data-k": "savedpred" }, h("summary", null, ui(p.cloud ? "賽前預測（☁️ 雲端開賽前存下的）" : "賽前預測（這台裝置存下的）")),
     h("p", null, ui(`模型：${p.mu >= 0 ? H : A} 贏 ${trimNum(Math.abs(p.mu))}、總分 ${trimNum(p.muT)}、${H} 勝率 ${pct(p.pHome)}；盤口 ${H} ${fmtHandicap(p.line)}、大小 ${trimNum(p.total)}。`)),
     p.value?.length ? h("ul", null, p.value.map((v) => h("li", null, ui(`${v.group} ${v.label} @${fmtOdd(v.dec)}（期望值 ${evText(v.ev)}）`)))) : null);
 }
@@ -741,6 +741,7 @@ async function loadMatch(id) {
     state.model = model;
     state.summaryError = false;
     state.summaryLoadedAt = Date.now();
+    if (model.status.phase !== "pre" && typeof bbCloudSeed === "function") bbCloudSeed(model).then((got) => { if (got && state.model?.id === model.id) maybeRender({ soft: true }); });
   } catch (err) {
     if (!state.model) state.summaryError = true;
   } finally {

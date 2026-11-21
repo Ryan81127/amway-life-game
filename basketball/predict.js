@@ -291,6 +291,31 @@ function loadPrediction(id) {
   try { return JSON.parse(localStorage.getItem("nba-pred-v1:" + id) || "null"); } catch { return null; }
 }
 
+/* 雲端快照：GitHub Actions 每 10 分鐘替快開賽的 NBA 比賽存一份（snap 分支 bsnap/）。
+   這台裝置沒有的才補進來，而且只收開賽前的時間戳。 */
+const BB_CLOUD = "https://raw.githubusercontent.com/Ryan81127/amway-life-game/refs/heads/snap/bsnap/";
+const bbCloudTried = new Map();
+async function bbCloudSeed(model) {
+  if (!model?.id) return false;
+  const last = bbCloudTried.get(model.id);
+  if (last && Date.now() - last < 3 * 60000) return false;
+  bbCloudTried.set(model.id, Date.now());
+  let snap;
+  try {
+    const r = await fetch(`${BB_CLOUD}${encodeURIComponent(model.id)}.json?t=${Math.floor(Date.now() / 120000)}`);
+    if (!r.ok) return false;
+    snap = await r.json();
+  } catch { return false; }
+  const ko = Date.parse(model.kickoff || snap.kickoff || "");
+  if (!Number.isFinite(ko)) return false;
+  let changed = false;
+  try {
+    if (snap.pred && snap.pred.at < ko && !loadPrediction(model.id)) { localStorage.setItem("nba-pred-v1:" + model.id, JSON.stringify({ ...snap.pred, cloud: true })); changed = true; }
+    if (snap.odds && !loadOdds(model.id)) { localStorage.setItem("nba-odds-v1:" + model.id, JSON.stringify(snap.odds)); changed = true; }
+  } catch { /* 空間不足就略過 */ }
+  return changed;
+}
+
 /* ---------- 逐球統計 ---------- */
 
 function emptyStat() {

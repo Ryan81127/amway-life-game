@@ -40,7 +40,9 @@ jobs:
       - name: Take snapshots
         env:
           TZ: Asia/Taipei
-        run: node football/tools/snapshot.js snapdata/snap
+        run: |
+          node football/tools/snapshot.js snapdata/snap
+          node basketball/tools/snapshot.js snapdata/bsnap || echo "籃球快照失敗，足球不受影響"
 
       - name: Commit
         working-directory: snapdata
