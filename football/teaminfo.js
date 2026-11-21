@@ -688,8 +688,42 @@ function starCard(model, side, s, ti, index) {
   return card;
 }
 
+/* 本場出場名單：背號、中文名、英文原名（讀音對照）、位置、本場表現 */
+function onPitchTable(model) {
+  const wrap = h("div", { class: "onpitch" });
+  const lines = [];
+  for (const side of ["home", "away"]) {
+    const ps = (model.roster?.[side]?.players || []).filter((p) => p.starter || p.inFor);
+    wrap.append(h("h3", null, ui(`${model[side].name}・本場出場`)));
+    if (!ps.length) {
+      wrap.append(h("p", { class: "faint" }, typeof stTag === "function" ? stTag(typeof dataSource === "function" && dataSource(model).snapshot ? "missing" : "pending") : "", ui(" " + (typeof lineupMissingText === "function" ? lineupMissingText(model) : "先發名單待公布。"))));
+      continue;
+    }
+    const rows = ps.map((p) => {
+      const nm = typeof subName === "function" ? subName(p) : { zh: p.name, en: p.en, phon: false };
+      const did = [
+        p.goalMins?.length ? `進球 ${p.goalMins.join("、")}` : "",
+        p.assistMins?.length ? `助攻 ${p.assistMins.join("、")}` : "",
+        p.yellowMins?.length ? `黃牌 ${p.yellowMins.join("、")}` : "",
+        p.redPlay ? "紅牌" : "",
+        p.inFor ? `替補上場${p.outMin ? ` ${p.outMin}` : ""}` : p.outMin ? `${p.outMin} 被換下` : ""
+      ].filter(Boolean).join("，");
+      if (p.goalMins?.length) lines.push(`${model[side].name} ${p.jersey ? `${p.jersey} 號` : ""}${nm.zh}（${p.posZh || p.posAbbr || "位置未列"}），本場${did}。`);
+      return { cls: p.goalMins?.length ? "best" : "", cells: [p.jersey || "–", `${nm.zh}${nm.phon ? "（音譯）" : ""}${nm.en ? ` ${nm.en}` : ""}`, p.posZh || p.posAbbr || "–", did || (model.minute.phase === "pre" ? "先發" : "–")] };
+    });
+    wrap.append(predTable(["背號", "中文名／原名", "位置", "本場"], rows));
+  }
+  return { node: wrap, lines };
+}
+
 function starsBlock(model) {
-  const block = h("section", { class: "block", id: "stars" }, h("h2", null, ui("知名球員介紹")));
+  const block = h("section", { class: "block", id: "stars" }, h("h2", null, ui("球星與本場出場")));
+  const op = onPitchTable(model);
+  if (op.lines.length) {
+    const sb = scriptBlock(op.lines.slice(0, 3), "本場表現");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
+  block.append(op.node);
   const ti = teamInfo(model);
   if (!ti || ti.status === "loading") { block.append(h("p", { class: "muted" }, ui("讀取球員名單與近 5 場出場紀錄中…"))); return block; }
   if (ti.status !== "ok") { block.append(h("p", { class: "muted" }, ui("球員資料暫時無法取得。"))); return block; }
@@ -706,7 +740,11 @@ function starsBlock(model) {
     else block.append(h("p", { class: "faint" }, ui(`💰 ${model[side].name}的球員身價還沒建檔：按「兩隊故事」區的「📋 複製故事卡請求」，Claude 製作故事卡時會一併查 Transfermarkt 身價。`)));
     if (stars[0]) tops.push(`${model[side].name}先看 ${stars[0].name}`);
   }
-  if (tops.length) block.append(scriptBlock([`${tops.join("，")}。`, "你覺得今天誰會是場上最亮的那個人？留言說名字！"], "口播：點名"));
+  if (tops.length) {
+    const sb = scriptBlock([`${tops.join("，")}。`, "你覺得今天誰會是場上最亮的那個人？留言說名字！"], "口播：點名");
+    if (sb && !op.lines.length) sb.classList.add("lead");
+    block.append(sb);
+  }
   block.append(h("p", { class: "faint" }, ui("本季出場、進球、助攻、年齡、身高、頭像與俱樂部來自 ESPN。分鐘與趨勢是看板把近 5 場賽後名單加總（先發算到被換下、替補從上場算起，傷停補時不計）。資料庫只收附了來源的句子，沒有收錄的人不另編故事。")));
   return block;
 }

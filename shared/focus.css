@@ -68,3 +68,12 @@ body.focus-on .match-nav { display: none; }
 .bc-scene-out p { margin: 0 0 6px; line-height: 1.6; }
 .bc-scene-out .bc-k { margin-right: 6px; }
 .bc-status { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 12px; opacity: .9; }
+
+/* 角球三格、賽點篩選 */
+.corner-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+.ct-cell { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 10px; background: rgba(255,255,255,.05); text-align: center; }
+.ct-k { font-size: 12px; opacity: .75; }
+.ct-cell b { font-size: 20px; color: #ffc440; }
+.ct-sub { font-size: 11px; opacity: .65; }
+.tl-filter { margin: 6px 0 10px; flex-wrap: wrap; }
+.tl-filter .chip.on { background: #ffc440; color: #111; }

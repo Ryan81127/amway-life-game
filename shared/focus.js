@@ -19,7 +19,12 @@ function focusSave() {
 function focusTidy(el) {
   if (!el || el.dataset.tidy === "1" || el.tagName === "DETAILS") return;
   el.dataset.tidy = "1";
-  const scripts = [...el.querySelectorAll(".script")].filter((s) => !s.closest(".say-top") && s.closest("section, .block, .panel") === el);
+  let scripts = [...el.querySelectorAll(".script")].filter((s) => !s.closest(".say-top") && s.closest("section, .block, .panel") === el);
+  if (!scripts.length) return;
+  /* 區塊自己標了「lead」的口播優先（例如賽點的最新事件），避免把清單裡最舊的一筆拉上來 */
+  const leads = scripts.filter((s) => s.classList.contains("lead"));
+  if (leads.length) scripts = leads;
+  else scripts = scripts.filter((s) => !s.closest("li"));
   if (!scripts.length) return;
   const head = [...el.children].find((c) => /^H[1-3]$/.test(c.tagName));
   const top = document.createElement("div");

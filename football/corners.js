@@ -80,6 +80,18 @@ function cornerBlock(model) {
     block.append(h("div", { class: "corner-score" },
       h("span", null, ui(H)), h("b", null, `${d.totals.home} : ${d.totals.away}`), h("span", null, ui(A))),
       h("p", { class: "faint" }, ui(`來源：${CORNER_SRC[d.source]}${d.source === "manual" ? "（這場 ESPN 沒有角球資料）" : ""} · 共 ${tot} 角`)));
+    /* 首屏三格：總數、近 10 分鐘、最後一次（沒有逐筆時間就明說） */
+    {
+      const now = m.phase === "ft" || m.state === "post" ? 90 : m.phase === "ht" ? 45 : m.base || 0;
+      const timed = (d.log || []).filter((x) => Number.isFinite(x.base));
+      const recent = timed.filter((x) => now - x.base <= 10 && now - x.base >= 0);
+      const lastC = timed.slice().sort((x, y) => (x.period - y.period) || (x.base - y.base)).pop();
+      const cell = (k, v, sub) => h("div", { class: "ct-cell" }, h("span", { class: "ct-k" }, ui(k)), h("b", null, ui(v)), sub ? h("span", { class: "ct-sub" }, ui(sub)) : null);
+      block.append(h("div", { class: "corner-trio" },
+        cell("總數", `${d.totals.home} : ${d.totals.away}`, `共 ${tot} 角`),
+        timed.length ? cell("近 10 分鐘", `${recent.filter((x) => x.side === "home").length} : ${recent.filter((x) => x.side === "away").length}`, live ? `第 ${Math.max(0, now - 10)}–${now} 分鐘` : "比賽最後 10 分鐘") : cell("近 10 分鐘", "–", "來源未提供逐筆時間"),
+        lastC ? cell("最後一次", `${lastC.base}'`, lastC.side === "home" ? H : A) : cell("最後一次", "–", tot ? "來源未提供逐筆時間" : "還沒有角球")));
+    }
     if (d.log && d.log.length) {
       const halves = [1, 2].map((p) => ({ p, h: d.log.filter((x) => x.period === p && x.side === "home").length, a: d.log.filter((x) => x.period === p && x.side === "away").length }));
       const segRows = SEGMENTS.map((seg) => {
@@ -127,7 +139,8 @@ function cornerBlock(model) {
       tot >= 8 && live ? "角球已經這麼多了，下一個角球大家注意看，高球爭頂最容易出事。" : "",
       "下一個角球會不會直接變進球？會的扣 1！"
     ].filter(Boolean);
-    block.append(scriptBlock(say, "口播：角球"));
+    const sb = scriptBlock(say, "口播：角球");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
   } else {
     const lp = cornerLiveProjection(model, 0);
     if (lp) block.append(h("p", null, ui(`賽前歷史模型：上半場 ${trimNum(lp.cm.h1)}、下半場 ${trimNum(lp.cm.h2)}、全場 ${trimNum(lp.cm.mu)} 角。`)));

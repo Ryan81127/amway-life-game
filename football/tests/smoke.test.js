@@ -34,7 +34,7 @@ global.fetch = async (url) => {
 const files = [...fs.readFileSync(path.join(dir, "index.html"), "utf8").matchAll(/src="([a-z0-9]+\.js)/g)].map((m) => m[1]).filter((f) => f !== "app.js");
 const appSrc = fs.readFileSync(path.join(dir, "app.js"), "utf8").replace(/\nboot\(\);?\s*$/, "\n");
 const src = files.map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n") + "\n" + appSrc + `
-;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock, ensureDeepH2H, h2hSummary, h2hBlock, liveCard, stickyBar, bcLines, bcNodeCard, bcNodes, bcScene };`;
+;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock, ensureDeepH2H, h2hSummary, h2hBlock, liveCard, stickyBar, bcLines, bcNodeCard, bcNodes, bcScene, timeline, onPitchTable };`;
 (0, eval)(src);
 const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade, aiRewrite, aiBlock, cmFacts, motivation, ensureDeepH2H, h2hSummary, h2hBlock } = globalThis.__t;
 
@@ -72,6 +72,16 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const ftCard = T.liveCard({ ...goalModel, minute: { phase: "ft", state: "post", period: 2, base: 90, label: "完賽" } });
     assert.ok(!ftCard.querySelector(".bc-scenes") && /終場，南韓 和 葡萄牙 1 比 1/.test(ftCard.textContent));
     ok("即時口播卡：5 秒／15 秒、節點分段比分、手動場景；完賽不顯示場景鍵");
+    const ev = (id, kind, base, extra = {}) => ({ id, kind, base, period: base > 45 ? 2 : 1, minuteLabel: `${base}'`, teamId: "KOR", teamName: "南韓", playerNames: ["甲"], playerIds: [""], scorer: kind === "goal" ? "甲" : "", spoken: [`${base} 分鐘${kind}`], ...extra });
+    const tlModel = { ...goalModel, events: [ev("a", "yellow", 10), ev("b", "goal", 24), ev("c", "sub", 60), ev("d", "goal", 70, { isVar: true })] };
+    const tl = T.timeline(tlModel);
+    const mins = [...tl.querySelectorAll("li .min")].map((x) => x.textContent);
+    assert.deepStrictEqual(mins, ["70'", "60'", "24'", "10'"], "賽點要最新在上");
+    assert.ok(tl.querySelector(".script.lead").textContent.includes("70 分鐘goal"), "最新關鍵事件要放口播重點");
+    assert.ok([...tl.querySelectorAll(".tl-filter .chip")].map((b) => b.textContent).join(",").includes("VAR 1"));
+    const op = T.onPitchTable({ ...goalModel, roster: { home: { players: [{ id: "1", name: "孫興慜", en: "Son Heung-min", jersey: "7", posZh: "前鋒", starter: true, goalMins: ["24'"], assistMins: [], yellowMins: [] }] }, away: { players: [] } } });
+    assert.ok(/南韓 7 號孫興慜（前鋒），本場進球 24'/.test(op.lines[0]), op.lines[0]);
+    ok("賽點最新在上、可篩選；球星區列出本場出場者與表現");
   }
   for (const v of ["table", "motive", "motive2", "script", "market"]) {
     const node = v2Render(model, v);

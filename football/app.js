@@ -690,12 +690,38 @@ function checkpointCard(cp) {
   return card;
 }
 
+/* 賽點：最新的放最上面，可篩選進球、紅黃牌、VAR、換人 */
+const TL_FILTERS = [["all", "全部"], ["goal", "進球"], ["card", "紅黃牌"], ["var", "VAR"], ["sub", "換人"]];
+const tlFilter = new Map();
+function tlMatch(ev, f) {
+  if (f === "all") return true;
+  if (f === "goal") return ev.kind === "goal" || ev.kind === "miss";
+  if (f === "card") return ev.kind === "red" || ev.kind === "yellow";
+  if (f === "var") return !!ev.isVar;
+  if (f === "sub") return ev.kind === "sub";
+  return true;
+}
 function timeline(model) {
   const fresh = new Set((state.memory?.liveRead?.newEvents || []).map((ev) => ev.id));
-  const block = h("section", { class: "block", id: "timeline" }, h("h2", null, "事件時間軸"));
-  const list = model.events.filter((ev) => ev.kind !== "other" || ev.playerNames.length);
+  const block = h("section", { class: "block", id: "timeline" }, h("h2", null, ui("賽點（最新在上）")));
+  const all = model.events.filter((ev) => ev.kind !== "other" || ev.playerNames.length);
+  if (!all.length) {
+    const snap = typeof dataSource === "function" && dataSource(model).snapshot;
+    block.append(h("p", null, snap && typeof stTag === "function" ? stTag("missing") : "", ui(snap ? " 這個聯賽只有賽程快照，沒有事件紀錄。" : model.minute.phase === "pre" ? "比賽開始後，進球、紅黃牌、換人會依時間列在這裡。" : "目前沒有事件。")));
+    return block;
+  }
+  const key = (ev) => ["goal", "red", "miss"].includes(ev.kind) || ev.isVar;
+  const lead = all.filter(key).slice(-2).reverse();
+  if (lead.length) {
+    const s = scriptBlock(lead.map((ev) => ev.spoken?.[0] || `${ev.minuteLabel} ${eventTitle(ev)}`), "最新關鍵事件");
+    if (s) { s.classList.add("lead"); block.append(s); }
+  }
+  const f = tlFilter.get(model.id) || "all";
+  const count = (k) => all.filter((ev) => tlMatch(ev, k)).length;
+  block.append(h("div", { class: "chips tl-filter" }, TL_FILTERS.map(([k, label]) => h("button", { class: `chip${f === k ? " on" : ""}`, onclick: () => { tlFilter.set(model.id, k); maybeRender({ soft: true }); } }, ui(`${label} ${count(k)}`)))));
+  const list = all.filter((ev) => tlMatch(ev, f)).slice().reverse();
   if (!list.length) {
-    block.append(h("p", null, "目前沒有事件時間軸。"));
+    block.append(h("p", { class: "faint" }, typeof stTag === "function" ? stTag("zero") : "", ui(f === "var" ? " 目前沒有 VAR 紀錄（ESPN 不一定會標 VAR）。" : " 目前沒有這類事件。")));
     return block;
   }
   const ul = h("ul", { class: "tl" });
@@ -704,6 +730,7 @@ function timeline(model) {
       h("div", { class: "ev-top" },
         h("span", { class: "min" }, ev.minuteLabel || "–"),
         h("span", null, eventTitle(ev)),
+        ev.isVar ? h("span", { class: "new" }, "VAR") : null,
         fresh.has(ev.id) ? h("span", { class: "new" }, "新") : null
       ),
       h("div", { class: "fact" }, eventBody(ev)),
@@ -759,6 +786,26 @@ function statsBlock(model) {
   if (mode === "match" && model.minute.phase !== "pre" && espnStatsEmpty(model)) {
     block.append(h("p", { class: "muted" }, ui("這場 ESPN 沒有提供技術統計（數字全是 0，友誼賽與部分聯賽常見）。角球可以到「角球」區手動記錄。")));
     return block;
+  }
+  /* 首屏先講射門、射正、xG（ESPN 有給才放）、角球；控球率附畫面判讀提示；其他數據收進詳細資料 */
+  if (mode === "match" && model.minute.phase !== "pre") {
+    const H = model.home.name, A = model.away.name;
+    const sv = (k) => [model.stats.home[k], model.stats.away[k]];
+    const pair = (k, label) => { const [a, b] = sv(k); return typeof a === "number" && typeof b === "number" ? `${label} ${fmtStat(k, a)} 比 ${fmtStat(k, b)}` : ""; };
+    const xgKey = ["expectedGoals", "xG", "xg"].find((k) => typeof model.stats.home[k] === "number");
+    const core = [pair("totalShots", "射門"), pair("shotsOnTarget", "射正"), xgKey ? pair(xgKey, "xG") : "", pair("wonCorners", "角球")].filter(Boolean);
+    const lines = [];
+    if (core.length) lines.push(`${H} 對 ${A}：${core.join("，")}。`);
+    const [ph, pa] = sv("possessionPct");
+    if (typeof ph === "number" && typeof pa === "number") {
+      const more = ph >= pa ? H : A;
+      lines.push(`控球率 ${more} ${fmtStat("possessionPct", Math.max(ph, pa))}：看畫面是在對方半場持球，還是只在後場倒腳。`);
+    }
+    const q = state.memory?.liveRead?.quarter;
+    if (q?.sentence) lines.push(`近 ${q.mins} 分鐘：${q.sentence}`);
+    if (!xgKey) lines.push("xG：ESPN 這場沒有提供，不估算。");
+    const lead = scriptBlock(lines, "數據重點");
+    if (lead) { lead.classList.add("lead"); block.append(lead); }
   }
   let any = false;
   for (const [key, label] of rows) {
