@@ -439,7 +439,7 @@ function historyBlock(model) {
     ...st.cross, ...h2hLines(model), ...contrastLines(model, st)
   ];
   /* ⚔️ 兩隊之間：恩怨、交手、對比 */
-  const between = h("div", { class: "st-panel" }, h("h3", { class: "st-h" }, ui("⚔️ 兩隊之間")));
+  const between = h("div", { class: "st-panel" }, h("h3", { class: "st-h" }, ui("⚔️ 本場交手與恩怨")));
   if (cross.length) {
     between.append(h("div", { class: "st-list" }, cross.map((x) => {
       const m = /^([^：]{2,22})：([\s\S]+)$/.exec(x);
@@ -469,7 +469,7 @@ function historyBlock(model) {
   for (const side of ["home", "away"]) {
     const s = st[side];
     const name = model[side].name;
-    const col = h("div", { class: "st-panel st-team" }, h("h3", { class: "st-h" }, ui(`${side === "home" ? "🏠" : "✈️"} ${name}`)));
+    const col = h("div", { class: "st-panel st-team" }, h("h3", { class: "st-h" }, ui(`${side === "home" ? "🏠" : "✈️"} ${name}隊史`)));
     cols.append(col);
     if (!s) { col.append(h("p", { class: "muted" }, ui("維基百科沒有找到這支球隊。"))); continue; }
     const picks = cur.filter((c) => c.owner === name && c.topic !== "球員");
@@ -496,7 +496,24 @@ function historyBlock(model) {
     if (line) say.push(`${name}有什麼故事？${line.replace(/[。；]+$/, "")}。`.replace(/。；/g, "；"));
   }
   block.append(cols);
-  if (say.length) block.append(scriptBlock([...say, "這兩隊你比較想看誰寫下新故事？主隊扣 1、客隊扣 2！"], "口播：兩隊故事"));
+  if (say.length) block.append(scriptBlock(say, "口播：兩隊故事"));
+  /* 口播重點：本場交手 → 主隊隊史 → 客隊隊史；跟本場對手有關的故事優先 */
+  {
+    const lines = [];
+    if (cross.length) lines.push(`本場交手：${cross[0]}`);
+    for (const side of ["home", "away"]) {
+      const sd = st[side];
+      if (!sd) continue;
+      const opp = model[side === "home" ? "away" : "home"];
+      const picks = cur.filter((c) => c.owner === model[side].name && c.topic !== "球員");
+      const pool = [...picks.map((c) => `${c.title}：${c.fact}`), ...sd.stories];
+      const related = pool.find((x) => x.includes(opp.name) || (opp.rawName && x.includes(opp.rawName)));
+      const pick = related || pool.find((x) => x.length <= 110) || pool[0];
+      if (pick) lines.push(`${model[side].name}隊史${related ? "（跟本場對手有關）" : ""}：${pick}`);
+    }
+    const sb = scriptBlock(lines, "故事重點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   block.append(h("p", { class: "faint" }, ui("自動從維基百科繁體版挑出含「冠軍、首次、紀錄、德比、爆冷、衝突、綽號」等有梗的句子，以及兩隊條目中提到對方的段落。維基百科可公開編輯，數字播前請點連結確認。")));
   return block;
 }

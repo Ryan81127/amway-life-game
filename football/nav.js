@@ -66,7 +66,7 @@ function floatingSearch() {
 
 function openSearch() {
   closeSearch();
-  const input = h("input", { type: "search", class: "search-input", placeholder: ui("輸入球員、球隊、角球、口播、盤口…"), "aria-label": "搜尋本頁內容" });
+  const input = h("input", { type: "search", class: "search-input", placeholder: ui("背號、球員、分鐘（如 24'）、場景（反擊）、球隊…"), "aria-label": "搜尋本頁內容" });
   const results = h("div", { class: "search-results" });
   const panel = h("div", { class: "search-panel", id: "search-panel", role: "dialog", "aria-label": "搜尋" },
     h("div", { class: "search-top" }, h("span", null, "🔍"), input, h("button", { class: "icon-btn", onclick: closeSearch }, ui("關閉"))),
@@ -114,8 +114,18 @@ function runSearch(raw, box) {
   const q = String(raw || "").trim();
   state.lastSearch = q;
   box.replaceChildren();
-  if (!q) { box.append(h("p", { class: "faint" }, ui("可以搜：球員名、球隊、角球、黃牌、讓球、大小、口播、知識卡、冷知識…"))); return; }
+  if (!q) { box.append(h("p", { class: "faint" }, ui("可以搜：背號（7 號）、球員中英文名、事件分鐘（24'）、場景詞（帶球、反擊、VAR）、球隊、角球、知識卡…"))); return; }
   const vs = searchVariants(q);
+  /* 先給本場可念句：背號、球員、事件分鐘、場景詞 */
+  const quick = searchQuick(q, vs);
+  if (quick.length) {
+    box.append(h("p", { class: "faint" }, ui("本場可念句")));
+    for (const r of quick.slice(0, 8)) {
+      const b = h("button", { class: "search-hit sh-quick", onclick: () => { if (r.copy) copyText(speak(r.copy), b); if (r.jump) { const el = document.getElementById(r.jump); if (el) jumpTo(el); } } },
+        h("span", { class: "sh-sec" }, ui(r.tag)), h("span", { class: "sh-txt" }, ui(r.text)));
+      box.append(b);
+    }
+  }
   const app = document.getElementById("app");
   const nodes = [...app.querySelectorAll("h2, h3, p, li, tr, summary, .stat, .kc-head, .pill")];
   const hits = nodes.filter((n) => {
@@ -138,8 +148,47 @@ function runSearch(raw, box) {
   }
 }
 
+function searchQuick(q, vs) {
+  const m = state.model;
+  if (!m?.home) return [];
+  const out = [];
+  const num = q.match(/^#?(\d{1,3})\s*(號|号|分鐘|分钟|分|')?$/);
+  const players = ["home", "away"].flatMap((side) => (m.roster?.[side]?.players || []).map((p) => ({ p, side })));
+  const pLine = ({ p, side }) => {
+    const nm = typeof subName === "function" ? subName(p) : { zh: p.name, en: p.en };
+    const did = [p.goalMins?.length ? `進球 ${p.goalMins.join("、")}` : "", p.yellowMins?.length ? `黃牌 ${p.yellowMins.join("、")}` : "", p.redPlay ? "紅牌" : "", p.starter ? "先發" : p.inFor ? "替補上場" : "替補"].filter(Boolean).join("，");
+    return { tag: `${m[side].name}・球員`, text: `${p.jersey ? `${p.jersey} 號 ` : ""}${nm.zh}${nm.en ? `（${nm.en}）` : ""}・${p.posZh || p.posAbbr || "位置未列"}・${did}`, copy: `${m[side].name}${p.jersey ? ` ${p.jersey} 號` : ""}${nm.zh}`, jump: "stars" };
+  };
+  if (num && num[2] !== "分鐘" && num[2] !== "分钟" && num[2] !== "分" && num[2] !== "'") {
+    for (const x of players.filter((x) => String(x.p.jersey) === num[1])) out.push(pLine(x));
+  }
+  if (num && num[2] !== "號" && num[2] !== "号") {
+    const min = Number(num[1]);
+    for (const ev of (m.events || []).filter((e) => Math.abs((e.base || 0) - min) <= 1 && e.kind !== "other" && e.kind !== "marker")) {
+      out.push({ tag: `${ev.minuteLabel} 事件`, text: ev.spoken?.[0] || `${ev.minuteLabel} ${ev.teamName || ""}`, copy: ev.spoken?.[0], jump: "timeline" });
+    }
+  }
+  if (!num) {
+    for (const x of players.filter(({ p }) => vs.some((v) => `${p.name} ${p.en}`.toLowerCase().includes(v)))) out.push(pLine(x));
+    if (typeof BC_SCENES !== "undefined" && typeof bcScene === "function") {
+      for (const [k, label] of BC_SCENES.filter(([, label]) => vs.some((v) => label.toLowerCase().includes(v) || v.includes(label.toLowerCase())))) {
+        for (const side of ["home", "away"]) {
+          const [now, later] = bcScene(m, k, side);
+          out.push({ tag: `場景・${label}`, text: `${now}　${later}`, copy: `${now}\n${later}` });
+        }
+      }
+    }
+  }
+  return out;
+}
+
 function jumpTo(node) {
   closeSearch();
+  /* 直播模式只顯示一區：先切到那一區 */
+  if (typeof focusState !== "undefined" && focusState.on) {
+    const sec = focusState.ids.map((id) => document.getElementById(id)).find((el) => el && el.contains(node));
+    if (sec && typeof focusGo === "function") focusGo(sec.id);
+  }
   let d = node.parentElement?.closest("details");
   while (d) { d.open = true; d = d.parentElement?.closest("details"); }
   if (node.tagName === "SUMMARY") node.parentElement.open = true;

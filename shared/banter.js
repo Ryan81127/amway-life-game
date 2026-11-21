@@ -194,6 +194,24 @@ function bnPanel(ctx, extraMood) {
     h("div", { class: "bn-tools" }, h("button", { class: "chip bn-roll", onclick: () => reroll("mood") }, ui("🔄 換一批")), h("span", { class: "faint" }, ui(`第 ${seeds.mood + 1} 批・依本場隊名、球星、比分生成`))),
     ...kinds.flatMap(([k, label]) => (mood[k].length ? [h("h4", null, ui(label)), ...mood[k].map((x) => h("p", null, ui(x)))] : [])),
     copyBtn(moodAll, "全部複製"));
+  /* 押韻依情境分類：開場、進球、僵局、終場（進球句要放在球員、動作、比分講完之後） */
+  const H = ctx.H || "主隊", A = ctx.A || "客隊";
+  const sh = Number(ctx.sh), sa = Number(ctx.sa);
+  const hasScore = Number.isFinite(sh) && Number.isFinite(sa) && ctx.sh !== "" && ctx.sa !== "";
+  const W = hasScore && sh !== sa ? (sh > sa ? H : A) : "";
+  const SCENE = {
+    "開場": [`${H}主場燈光亮，${A}遠道來較量。`, "哨聲一響開戰場，九十分鐘看誰強。", `${A}踏進客場來，${H}要把門守好來。`],
+    "進球": [`${H}這球進得妙，全場跟著跳！`, `${A}這球進得妙，客隊球迷跟著跳！`, "球進網裡晃，氣勢一下漲！"],
+    "僵局": ["比分還在膠著，誰先破門誰快活。", "你來我往不鬆手，就等一腳定春秋。", "零比零也有戲，耐心看到底。"],
+    "終場": W ? [`終場哨聲響，${W}把三分帶回家鄉。`, `九十分鐘拚到底，${W}今晚寫勝利。`] : ["握手言和各一分，下回再來論輸贏。", "九十分鐘拚到底，平手收場也是戲。"]
+  };
+  const autoScene = ctx.phase === "pre" ? "開場" : ctx.phase === "ft" ? "終場" : hasScore && sh === sa ? "僵局" : "進球";
+  if (!seeds.scene) seeds.scene = autoScene;
+  const sceneBox = h("div", { class: "bn-scene" },
+    h("div", { class: "chips" }, Object.keys(SCENE).map((k) => h("button", { class: `chip${seeds.scene === k ? " on" : ""}`, onclick: () => { seeds.scene = k; maybeRender({ soft: true }); } }, ui(k)))),
+    seeds.scene === "進球" ? h("p", { class: "faint" }, ui("先講完球員、動作、比分，再接這句。")) : null,
+    ...SCENE[seeds.scene].map((x) => h("p", { class: "say" }, ui(x))),
+    copyBtn(SCENE[seeds.scene], "複製這組"));
   const r = bnRhyme(ctx, seeds.rhyme);
   const usePm = typeof pmPoem === "function";
   const poem = usePm ? pmPoem(ctx, seeds.rhyme) : null;
@@ -214,5 +232,5 @@ function bnPanel(ctx, extraMood) {
     r.couplet ? h("div", { class: "bn-couplet" }, r.couplet.map((x) => h("p", null, ui(x)))) : null,
     copyBtn(rhymeAll, "全部複製"));
   /* 吐槽／碎碎念／嘮嗑已移除（內容重複、幫助不大），只留押韻句與打油詩 */
-  return h("div", { class: "bn-panel" }, rhymeBox);
+  return h("div", { class: "bn-panel" }, h("h4", null, ui("情境押韻（開場／進球／僵局／終場）")), sceneBox, rhymeBox);
 }

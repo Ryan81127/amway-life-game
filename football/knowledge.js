@@ -2,7 +2,11 @@
    每張卡：主題、50–100 字事實（附來源與查證日期）、20–40 秒口語稿、兩種強度的幽默、互動問題、使用時機、資料狀態。 */
 
 const CARD_GOAL = { team: 5, player: 5, place: 5, ask: 10 };
-const CARD_WHEN = ["開場", "暫停", "中場", "冷場", "賽後"];
+const CARD_WHEN = ["開場", "死球", "中場", "冷場", "賽後"];
+/* 舊卡片用「暫停」，現在統一叫「死球」（定位球、傷停、換人的空檔） */
+const cardWhen = (c) => (c.when || []).map((w) => (w === "暫停" ? "死球" : w));
+/* 口播秒數：中文約每秒 4.5 字 */
+const cardSecs = (text) => Math.max(5, Math.round(String(text || "").replace(/\s/g, "").length / 4.5 / 5) * 5);
 const CARD_TOPICS = ["球隊", "球員", "城市", "國家", "文化", "趣聞"];
 const CARD_VER = "20261113c";
 
@@ -163,7 +167,9 @@ function cardArticle(card) {
       h("span", { class: "pill" }, ui(card.topic)),
       card.auto ? h("span", { class: "pill" }, ui("自動")) : null,
       cardStatusTag(card.eff),
-      h("span", { class: "faint" }, ui(card.owner || ""))
+      h("span", { class: "faint" }, ui(card.owner ? (card.topic === "球隊" ? `${card.owner}隊史` : card.owner) : "")),
+      h("span", { class: "pill kc-secs" }, ui(`⏱️ 約 ${cardSecs(card.say)} 秒`)),
+      cardWhen(card).length ? h("span", { class: "faint" }, ui(`適合：${cardWhen(card).join("、")}`)) : null
     ),
     h("h3", null, ui(card.title)),
     h("p", { class: "kc-fact" }, ui(card.fact)),
@@ -174,7 +180,7 @@ function cardArticle(card) {
   if (card.eff.status === "不可當成事實播報") {
     art.append(h("p", { class: "warn" }, ui("此卡不可當成事實播報，只能當作「傳聞／待證實」提及。")));
   }
-  art.append(scriptBlock([card.say], "口語版（20–40 秒）"));
+  art.append(scriptBlock([card.say], `口語版（約 ${cardSecs(card.say)} 秒）`));
   if (card.humor) {
     art.append(h("div", { class: "kc-humor" },
       h("p", null, h("b", null, ui("輕鬆：")), ui(card.humor.light || "")),
@@ -183,7 +189,7 @@ function cardArticle(card) {
   }
   art.append(
     h("p", null, h("b", null, ui("互動：")), ui(card.ask || "")),
-    h("div", { class: "chips kc-when" }, (card.when || []).map((w) => h("span", { class: "pill" }, ui(w))))
+    h("div", { class: "chips kc-when" }, cardWhen(card).map((w) => h("span", { class: "pill" }, ui(w))))
   );
   return box;
 }
@@ -211,6 +217,18 @@ function cardsBlock(model) {
   if (g.team < CARD_GOAL.team) gaps.push(`球隊故事還缺 ${CARD_GOAL.team - g.team} 張`);
   if (g.player < CARD_GOAL.player) gaps.push(`球員故事還缺 ${CARD_GOAL.player - g.player} 張`);
   if (g.place < CARD_GOAL.place) gaps.push(`城市／國家冷知識還缺 ${CARD_GOAL.place - g.place} 張`);
+  /* 口播重點：依比賽階段挑兩張已查證、適合現在講的卡 */
+  {
+    const ph = model.minute?.phase;
+    const nowWhen = ph === "pre" ? "開場" : ph === "ht" ? "中場" : ph === "ft" || model.minute?.state === "post" ? "賽後" : "死球";
+    const ok = cards.filter((c) => c.eff.status === "已查證" && c.say);
+    const fit = ok.filter((c) => cardWhen(c).includes(nowWhen));
+    const picks = (fit.length ? fit : ok).slice(0, 2);
+    if (picks.length) {
+      const sb = scriptBlock(picks.map((c) => `【${c.title}・約 ${cardSecs(c.say)} 秒】${c.say}`), `現在適合（${nowWhen}）`);
+      if (sb) { sb.classList.add("lead"); block.append(sb); }
+    }
+  }
   if (!st.data.hasFiles) block.append(h("p", { class: "faint" }, ui("這兩隊還沒有建立知識卡，目前只有 ESPN 自動卡。跟 Claude 說「幫○○對○○做知識卡」就會查證後建立，之後遇到同一隊可直接重複使用。")));
   if (gaps.length) block.append(h("p", { class: "faint" }, ui(`本場準備清單：${gaps.join("、")}。`)));
   if (need.length) block.append(h("p", { class: "warn" }, ui(`播報前需更新 ${need.length} 張（多半是球員名單、教練或近期事件），卡片上有標示原因。`)));
@@ -222,7 +240,7 @@ function cardsBlock(model) {
     onclick: () => { state.cardFilter = { ...f, [key]: v }; maybeRender({ soft: true }); }
   }, ui(v))));
   block.append(h("p", { class: "faint" }, ui("使用時機：")), chipRow(CARD_WHEN, "when"), h("p", { class: "faint" }, ui("主題：")), chipRow(CARD_TOPICS, "topic"));
-  const shown = cards.filter((c) => (f.when === "全部" || (c.when || []).includes(f.when)) && (f.topic === "全部" || c.topic === f.topic));
+  const shown = cards.filter((c) => (f.when === "全部" || cardWhen(c).includes(f.when)) && (f.topic === "全部" || c.topic === f.topic));
   const order = { "已查證": 0, "需更新": 1, "不可當成事實播報": 2 };
   shown.sort((a, b) => (order[a.eff.status] ?? 3) - (order[b.eff.status] ?? 3));
   if (!shown.length) block.append(h("p", { class: "muted" }, ui("這個篩選條件下沒有卡片。")));

@@ -77,3 +77,10 @@ body.focus-on .match-nav { display: none; }
 .ct-sub { font-size: 11px; opacity: .65; }
 .tl-filter { margin: 6px 0 10px; flex-wrap: wrap; }
 .tl-filter .chip.on { background: #ffc440; color: #111; }
+
+/* 搜尋的本場可念句、押韻情境、知識卡秒數 */
+.search-hit.sh-quick { border-left: 3px solid #ffc440; }
+.bn-scene .chips { margin: 4px 0 8px; }
+.bn-scene .chip.on { background: #ffc440; color: #111; }
+.bn-scene .say { font-size: 16px; line-height: 1.6; margin: 0 0 4px; }
+.kc-secs { background: rgba(255,196,64,.15); }
