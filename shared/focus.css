@@ -1,0 +1,21 @@
+/* 單區模式與口播重點（足球、籃球共用） */
+.focus-hide { display: none !important; }
+body.focus-on .match-nav { display: none; }
+
+.say-top { margin: 8px 0 12px; padding: 12px 14px; border-radius: 14px; background: linear-gradient(180deg, rgba(255,196,64,.12), rgba(255,196,64,.04)); border: 1px solid rgba(255,196,64,.45); }
+.say-top-k { font-weight: 900; font-size: 15px; color: #ffc440; margin-bottom: 6px; letter-spacing: .5px; }
+.say-top .script { margin: 0; padding: 0; background: none; border: 0; }
+.say-top .script + .script { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,196,64,.3); }
+.say-top .script-k { font-size: 12px; opacity: .75; margin-bottom: 4px; }
+.say-top .say { font-size: 17px; line-height: 1.65; margin: 0 0 6px; padding-left: 14px; position: relative; }
+.say-top .say::before { content: "•"; position: absolute; left: 0; color: #ffc440; }
+.say-top .copy { margin-top: 6px; }
+
+.focus-more { margin-top: 6px; border-top: 1px solid var(--line, #2a3242); }
+.focus-more > summary { cursor: pointer; padding: 10px 2px; font-weight: 700; color: var(--muted, #9aa6b8); list-style: none; }
+.focus-more > summary::-webkit-details-marker { display: none; }
+.focus-more > summary::before { content: "▸ "; }
+.focus-more[open] > summary::before { content: "▾ "; }
+
+.rail-btn.rail-focus { border-bottom: 1px solid var(--line, #2a3242); margin-bottom: 4px; padding-bottom: 6px; }
+.rail-btn.rail-focus.on { background: rgba(255,196,64,.18); }

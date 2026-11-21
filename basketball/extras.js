@@ -481,8 +481,8 @@ function bxBanter(m) {
     return r?.coach ? `${r.coach.firstName} ${r.coach.lastName}` : "";
   };
   const ph = m.status.phase === "pre" ? "pre" : m.status.phase === "ft" ? "ft" : "live";
-  const sec = h("section", { class: "panel", id: "banter" }, h("h2", null, ui("😆 此刻可以說：閒聊與押韻")),
-    h("p", { class: "faint" }, ui("不是正確解說，是陪觀眾一起看球的話。按「換一批」或「重新生成」就換新內容，句子都套入本場隊名、球星與比分。")));
+  const sec = h("section", { class: "panel", id: "banter" }, h("h2", null, ui("🎤 押韻句與打油詩")),
+    h("p", { class: "faint" }, ui("套入本場隊名、球星與比分；按「重新生成」換一版。")));
   sec.append(bnPanel({
     id: "bk-" + m.id, sport: "basketball", phase: ph,
     H: m.home.name, A: m.away.name, V: m.venue || "", city: m.city || "",

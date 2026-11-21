@@ -2,7 +2,7 @@
 
 const NAV_ICON = {
   pred: "🎯", moves: "📈", inj: "🩹", roster: "👥", ladder: "🏆", form: "📊", cards: "🗂️", news: "📰", links: "🔗",
-  moments: "💬", kit: "🎽", banter: "😆", subs: "🔄", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", inplay: "🎲", stars: "⭐", history: "📖", coaches: "👔", venue: "🏟️", lineups: "👥", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
+  moments: "💬", kit: "🎽", banter: "🎤", subs: "🔄", preview: "🔭", "preview-home": "🏠", "preview-away": "✈️", inplay: "🎲", stars: "⭐", history: "📖", coaches: "👔", venue: "🏟️", lineups: "👥", qlive: "⏱️", recap: "📝", tstats: "📊", box: "🏀", plays: "🎬", savedpred: "📒", full: "🧾"
 };
 
 function navLabel(text) {
@@ -17,6 +17,7 @@ function sideRail(items) {
     const target = document.getElementById(id);
     if (!target) return;
     if (target.tagName === "DETAILS") target.open = true;
+    if (typeof focusGo === "function" && focusGo(id)) return;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   rail.append(
@@ -27,8 +28,11 @@ function sideRail(items) {
     rail.append(h("button", { class: "rail-btn", "data-target": id, title: ui(label), onclick: () => go(id) },
       h("span", { class: "ri" }, NAV_ICON[id] || "•"), h("span", { class: "rl" }, ui(navLabel(label)))));
   }
+  if (typeof focusToggleButton === "function") rail.firstChild.after(focusToggleButton());
   document.body.append(rail);
   document.body.classList.add("has-rail");
+  /* 畫面組好之後（同一輪結束）套用單區模式 */
+  if (typeof focusApply === "function") Promise.resolve().then(() => focusApply(items.map(([id]) => id)));
   watchRail(items.map(([id]) => id));
 }
 

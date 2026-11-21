@@ -337,10 +337,10 @@ function renderMatch(app, route) {
   app.append(wrap, footer());
   if (typeof sideRail === "function") {
     const rail = pre
-      ? [["kit", "今日球衣"], ["banter", "此刻可以說"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["pred", "盤口預測"], ["inplay", "滾球"], ["cards", "知識卡"], ["inj", "傷兵"], ["stars", "球星"], ["subs", "輪換"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["moves", "盤口走勢"], ["form", "近況"], ["lineups", "陣容"], ["roster", "名單"], ["ladder", "排名"], ["news", "新聞"], ["links", "外部資訊"]]
+      ? [["kit", "今日球衣"], ["banter", "押韻"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["pred", "盤口預測"], ["inplay", "滾球"], ["cards", "知識卡"], ["inj", "傷兵"], ["stars", "球星"], ["subs", "輪換"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["moves", "盤口走勢"], ["form", "近況"], ["lineups", "陣容"], ["roster", "名單"], ["ladder", "排名"], ["news", "新聞"], ["links", "外部資訊"]]
       : live
-        ? [["kit", "今日球衣"], ["banter", "此刻可以說"], ["moments", "即時話術"], ["inplay", "滾球"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["subs", "輪換"], ["cards", "知識卡"], ["inj", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
-        : [["full", "全場覆盤"], ["banter", "此刻可以說"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["subs", "輪換"], ["inplay", "滾球"], ["cards", "知識卡"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]];
+        ? [["kit", "今日球衣"], ["banter", "押韻"], ["moments", "即時話術"], ["inplay", "滾球"], ["qlive", "本節數據"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["subs", "輪換"], ["cards", "知識卡"], ["inj", "傷兵"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]]
+        : [["full", "全場覆盤"], ["banter", "押韻"], ["recap", "節次覆盤"], ["tstats", "數據"], ["box", "球員"], ["plays", "逐球"], ["stars", "球星"], ["subs", "輪換"], ["inplay", "滾球"], ["cards", "知識卡"], ["history", "兩隊故事"], ["coaches", "教練"], ["venue", "體育館"], ["preview", "整場前瞻"], ["preview-home", "主隊前瞻"], ["preview-away", "客隊前瞻"], ["savedpred", "賽前預測"], ["links", "外部資訊"]];
     sideRail(rail);
   }
   app.dataset.view = "match";

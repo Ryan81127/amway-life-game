@@ -176,7 +176,7 @@ function bnRhyme(ctx, seed) {
 /* 面板：兩個可展開的區塊，各自有「換一批」與複製 */
 function bnPanel(ctx, extraMood) {
   const key = ctx.id;
-  const seeds = bnSeed.get(key) || { mood: 0, rhyme: 0, open: { mood: true, rhyme: false } };
+  const seeds = bnSeed.get(key) || { mood: 0, rhyme: 0, open: { mood: false, rhyme: true } };
   bnSeed.set(key, seeds);
   const reroll = (k) => { seeds[k] += 1; seeds.open[k] = true; maybeRender({ soft: true }); };
   const copyBtn = (lines, label) => {
@@ -213,5 +213,6 @@ function bnPanel(ctx, extraMood) {
     r.couplet ? h("h4", null, ui("對聯（套入本場隊名、球星、教練）")) : null,
     r.couplet ? h("div", { class: "bn-couplet" }, r.couplet.map((x) => h("p", null, ui(x)))) : null,
     copyBtn(rhymeAll, "全部複製"));
-  return h("div", { class: "bn-panel" }, moodBox, rhymeBox);
+  /* 吐槽／碎碎念／嘮嗑已移除（內容重複、幫助不大），只留押韻句與打油詩 */
+  return h("div", { class: "bn-panel" }, rhymeBox);
 }

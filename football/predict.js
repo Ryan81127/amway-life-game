@@ -1984,10 +1984,10 @@ function moodNowBlock(model) {
   const seedNo = typeof bnSeed !== "undefined" ? bnSeed.get("fb-" + model.id)?.mood || 0 : 0;
   const mood = moodLines(model, { goals, cards, t, salt: `${m.period}-${Math.floor((m.base || 0) / 3)}-${seedNo}` });
   const block = h("section", { class: "block mood-now", id: "mood" },
-    h("h2", null, ui("此刻可以說（觀眾心聲）")),
-    h("p", { class: "faint" }, ui("不是正確解說，是觀眾心裡想說的話：先把情緒說出來，大家就會覺得你跟他們一起看球。依比賽狀態自動更換。"))
+    h("h2", null, ui("🎤 押韻句與打油詩")),
+    h("p", { class: "faint" }, ui("套入本場隊名、球星與比分；按「重新生成」換一版。"))
   );
-  block.append(momentBlock(model));
+  if (detectMoments(model).length) block.append(momentBlock(model));
   if (typeof bnPanel === "function") {
     const star = (side) => (typeof pvStars === "function" ? pvStars(model, side)?.stars?.[0]?.name : "") || "";
     const coach = (side) => (typeof pvCoach === "function" ? pvCoach(model, side)?.name : "") || "";
@@ -1997,7 +1997,7 @@ function moodNowBlock(model) {
       S1: star("home"), S2: star("away"), C1: coach("home"), C2: coach("away"), RH: model.home.record || "",
       sh: model.home.score ?? "", sa: model.away.score ?? "", min: m.phase === "pre" ? "" : m.label || ""
     }, mood));
-  } else block.append(moodSection(mood, "吐槽／碎碎念／自嘲／嘮嗑", m.phase === "pre" || !detectMoments(model).length));
+  }
   return block;
 }
 
