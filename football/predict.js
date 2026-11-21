@@ -1363,6 +1363,30 @@ function predictionBlock(model, pred, opts = {}) {
     block.append(h("p", { class: "muted" }, ui(opts.loading ? "正在抓兩隊近 5 場的角球、牌、射門與半場比分…" : "預測資料暫時無法取得。")));
     return block;
   }
+  /* 口播重點：原判斷 → 依據 → 開場驗證點；並標明有沒有賽前存檔 */
+  {
+    const t = pred.top;
+    const H = model.home.name, A = model.away.name;
+    const fav = t.home >= t.away ? H : A;
+    const favP = Math.max(t.home, t.away);
+    const tot = pred.lh + pred.la;
+    const check = favP >= 0.5
+      ? `開場驗證：前 15 分鐘看${fav}能不能持續把球帶進禁區、射門比對手多；做不到，這個判斷就要打折。`
+      : tot >= 2.8 ? "開場驗證：前 20 分鐘有沒有出現射正，雙方是不是都敢往前壓；悶住的話，大球判斷要打折。"
+        : "開場驗證：前 30 分鐘雙方射正都少，就是模型預期的低比分劇本；早早進球就要重看。";
+    const lines = [
+      `原判斷：${H}勝 ${pct(t.home)}、和局 ${pct(t.draw)}、${A}勝 ${pct(t.away)}；預期進球 ${trimNum(pred.lh)} 比 ${trimNum(pred.la)}。`,
+      `依據：${(pred.basis || []).slice(0, 2).join("；") || "兩隊本季與近 5 場攻守，結合盤口反推"}`,
+      check
+    ];
+    const sb = scriptBlock(lines, "賽前判斷");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+    const saved = typeof loadPrediction === "function" ? loadPrediction(model.id) : null;
+    const at = saved?.at ? new Date(saved.at).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Taipei" }) : "";
+    block.append(h("p", { class: "faint" }, ui("賽前存檔："), saved
+      ? h("span", null, typeof stTag === "function" ? stTag("ok", saved.cloud ? "☁️ 雲端已存" : "這台裝置已存") : "", ui(` ${at}，賽後對帳會用這一份，不會被改寫。`))
+      : h("span", null, typeof stTag === "function" ? stTag(model.minute?.phase === "pre" ? "pending" : "missing", model.minute?.phase === "pre" ? "存檔中" : "沒有賽前快照") : "", ui(model.minute?.phase === "pre" ? " 開賽前會自動存檔（雲端每 10 分鐘也會存一份）。" : " 這場開賽前沒有存檔，賽後不補算。"))));
+  }
   const bestBox = h("div", { class: "best" }, h("h3", null, ui("對買方較有利的選項")));
   if (pred.best.length) {
     bestBox.append(h("ol", { class: "best-list" }, pred.best.map((p) => h("li", { class: p.wild ? "wild" : null },

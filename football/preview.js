@@ -48,6 +48,15 @@ function pvForm(model, side) {
   };
 }
 
+/* 教練名：英文名補中文譯名（查不到的標音譯） */
+function pvCoachZh(name) {
+  if (!name) return "";
+  if (/[\u3400-\u9fff]/.test(name)) return name;
+  const info = typeof nameInfo === "function" ? nameInfo(name) : null;
+  if (!info?.zh || info.zh === name) return name;
+  return `${info.zh}${info.source === "phon" ? "（音譯）" : ""}（${name}）`;
+}
+
 function pvCoach(model, side) {
   const st = coachStore.get(`${model.home.id}-${model.away.id}`);
   const c = st?.[side];
@@ -109,7 +118,7 @@ function pvTeamSection(model, side) {
   }
   if (coach.name) {
     const tags = coach.prof?.tags?.slice(0, 2).join("；") || "";
-    rows.push(["👔 教練", `${coach.name}${coach.tenure ? `（任內 ${coach.tenure.w} 勝 ${coach.tenure.d} 和 ${coach.tenure.l} 負）` : ""}${coach.style ? `：${coach.style}` : ""}`]);
+    rows.push(["👔 教練", `${pvCoachZh(coach.name)}${coach.tenure ? `（任內 ${coach.tenure.w} 勝 ${coach.tenure.d} 和 ${coach.tenure.l} 負）` : ""}${coach.style ? `：${coach.style}` : ""}`]);
     if (tags) rows.push(["🧠 打法", tags]);
     if (coach.prof?.form) rows.push(["🧩 預計陣型", coach.prof.form]);
   }
@@ -123,6 +132,21 @@ function pvTeamSection(model, side) {
   if (cm) rows.push(["⛳ 角球", `預估本場 ${trimNum(side === "home" ? cm.muH : cm.muA)} 角`]);
   const story = (typeof storyOf === "function" ? storyOf(model) : null)?.[side]?.stories?.[0];
   const keys = pvKeys(model, side, pred, coach, opp);
+  /* 口播重點：主客隊欄位一致——陣容、陣型、進攻路線、缺陣影響，各配一個畫面觀察點 */
+  {
+    const starters = (model.roster?.[side]?.players || []).filter((p) => p.starter);
+    const shape = typeof ltShape === "function" ? ltShape(model.roster?.[side]?.formation) : null;
+    const fwd = starters.filter((p) => typeof ltGroup === "function" && ltGroup(p.posAbbr) === "fwd").map((p) => p.name);
+    const missing = typeof lineupMissingText === "function" ? lineupMissingText(model) : "先發名單待公布。";
+    const lines = [
+      `陣容：${starters.length >= 11 ? `已確認先發，前場 ${fwd.join("、") || "–"}。` : missing}　👀 畫面：開場站位跟名單一不一致。`,
+      `陣型：${shape ? `${shape.name}（已確認）` : coach.prof?.form ? `預計 ${coach.prof.form}（依近期場次推測）` : "來源未提供"}。　👀 畫面：防守時後防線站幾個人。`,
+      `進攻路線：${coach.prof?.tags?.[0] || (shape ? shape.tactic : "") || "資料不足，開場後看畫面判斷"}。　👀 畫面：前 15 分鐘球多從哪一路推進。`,
+      `缺陣影響：${sx.out.length ? `${sx.out.map((x) => `${x.name}（${x.status}）`).join("、")}，看頂替的人表現` : sx.ti ? "目前沒有查到主力缺陣" : "名單讀取中"}。　👀 畫面：頂替位置有沒有被對手針對。`
+    ];
+    const sb = scriptBlock(lines, `${side === "home" ? "主隊" : "客隊"}四件事`);
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   block.append(h("table", { class: "fact-table kv" }, h("tbody", null, rows.map(([k, v]) => h("tr", null, h("th", null, ui(k)), h("td", null, ui(v)))))));
   if (typeof ltBlock === "function") block.append(ltBlock(model, side));
   if (keys.length) {
@@ -196,7 +220,7 @@ function previewBlock(model) {
   }
   const outs = [...sh.out.map((x) => `${H} ${x.name}`), ...sa.out.map((x) => `${A} ${x.name}`)];
   if (outs.length) points.push(`缺陣影響：${outs.slice(0, 3).join("、")}，輪換深度會被考驗。`);
-  if (ch.name && ca.name) points.push(`場邊鬥智：${ch.name} 對 ${ca.name}${ch.tenure && ca.tenure ? `（任內勝率 ${pct(ch.tenure.w / ch.tenure.n)} vs ${pct(ca.tenure.w / ca.tenure.n)}）` : ""}。`);
+  if (ch.name && ca.name) points.push(`場邊鬥智：${pvCoachZh(ch.name)} 對 ${pvCoachZh(ca.name)}${ch.tenure && ca.tenure ? `（任內勝率 ${pct(ch.tenure.w / ch.tenure.n)} vs ${pct(ca.tenure.w / ca.tenure.n)}）` : ""}。`);
   if (ven?.weather) {
     const imp = weatherImpact(ven.weather)[0];
     if (!/正常/.test(imp)) points.push(`天氣變數：${imp}`);
@@ -205,6 +229,11 @@ function previewBlock(model) {
   const crossLine = st?.cross?.[0] || (typeof h2hLines === "function" ? h2hLines(model)[0] : "");
   if (crossLine) points.push(`兩隊淵源：${crossLine}`);
   if (points.length) {
+    /* 口播重點：三個本場看點，各附畫面驗證點 */
+    const CHECK = { "戰術對決": "前 10 分鐘看控球方是在哪個半場持球。", "關鍵對位": "看兩人第一次拿球的位置、有沒有被包夾。", "氣勢": "開場 10 分鐘內誰先射門。", "缺陣影響": "看替補頂上的人站什麼位置、有沒有被針對。", "場邊鬥智": "落後的一方第一次換人在第幾分鐘。", "天氣變數": "長傳落點、滑倒次數。", "兩隊淵源": "背景故事，開場或死球時講。" };
+    const top3 = points.slice(0, 3).map((x, i) => { const k = (x.match(/^([^：]+)：/) || [])[1] || ""; return `看點 ${i + 1}｜${x}${CHECK[k] ? `　👀 畫面：${CHECK[k]}` : ""}`; });
+    const sb = scriptBlock(top3, "本場三個看點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
     block.append(h("div", { class: "st-label" }, ui("👀 本場看點")), h("ol", { class: "st-bullets" }, points.slice(0, 5).map((x) => h("li", null, ui(x)))));
     say.push(`今天有幾個看點：${points.slice(0, 3).map((x) => x.replace(/^[^：]+：/, "")).join("")}`);
   }

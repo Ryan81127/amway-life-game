@@ -412,10 +412,39 @@ function settleBlock(model) {
     pending ? `另有 ${pending} 項還沒定案` : "",
     pushes ? `走水 ${pushes} 項` : ""
   ].filter(Boolean).join("，");
+  /* 口播重點與並排表：賽前判斷｜實際發展｜下次修正 */
+  {
+    const preRows = rows.filter((r) => ledgerGroup(r.cat) === "pre" || r.cat === "pre");
+    const pick = (k) => preRows.find((r) => r.kind === k);
+    const keyRows = ["1x2", "ou", "score", "btts"].map(pick).filter(Boolean);
+    const fix = (r) => {
+      if (r.hit === true) return "判斷成立，維持";
+      if (r.hit === "push") return "走水，不調整";
+      if (r.hit === "pend") return "還沒定案";
+      if (r.hit === "na") return "無法判定";
+      if (r.kind === "ou") return /大於/.test(r.pick) ? "高估進球：遇到防守型對手要保守" : "低估進球：對攻型比賽要往上調";
+      if (r.kind === "1x2") return "勝負沒中：回頭看換人、紅牌或戰意（模型不知道）";
+      if (r.kind === "btts") return "雙方進球判斷沒中：看弱隊的反擊效率";
+      return "沒中：看復盤找原因";
+    };
+    const lines = [];
+    if (!bag?.pre) lines.push("沒有留存賽前快照（開賽前沒打開、雲端也沒存到），賽前判斷不對帳、不補算。");
+    else {
+      const k1 = pick("1x2") || keyRows[0];
+      if (k1) lines.push(`賽前判斷：${k1.label} ${k1.pick}；實際：${k1.actual}；${markText(k1.hit)}。`);
+      const miss = keyRows.find((r) => r.hit === false);
+      lines.push(miss ? `下次修正：${miss.label}${fix(miss)}。` : keyRows.some((r) => r.hit === true) ? "下次修正：主要判斷都成立，維持同樣的看法。" : "下次修正：主要項目還沒定案。");
+    }
+    const sb = scriptBlock(lines, "對帳重點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+    if (keyRows.length) block.append(predTable(["項目", "賽前判斷", "實際發展", "下次修正"], keyRows.map((r) => ({
+      cells: [r.label, r.pick, r.actual, { node: h("span", { class: markClass(r.hit) }, ui(fix(r))) }]
+    }))));
+  }
   block.append(h("p", { class: "settle-sum" }, ui(head + (tail ? tail + "。" : ""))));
   if (typeof settleVisual === "function") block.append(settleVisual(model, rows, by, bag));
   else block.append(h("p", null, ui(`賽前 ${by.pre.h}/${by.pre.n}，滾球 ${by.live.h}/${by.live.n}，角球 ${by.corner.h}/${by.corner.n}。`)));
-  if (!bag?.pre) block.append(h("p", { class: "muted" }, ui("沒有賽前快照，無法對帳。")));
+  if (!bag?.pre) block.append(h("p", { class: "muted" }, typeof stTag === "function" ? stTag("missing", "沒有賽前快照") : "", ui(" 開賽前沒有存檔，賽前判斷不補算。")));
   if (!bag?.live?.length) block.append(h("p", { class: "muted" }, ui("沒有滾球快照，無法對帳。")));
   if (!bag?.corners && !(bag?.cornerLive || []).length && !bag?.pre?.items?.some((x) => x.kind === "corners-ou" || x.kind === "cards-ou")) {
     block.append(h("p", { class: "muted" }, ui("沒有角球快照，無法對帳。")));
