@@ -1,6 +1,6 @@
 {
  "source": "韓聯社賽果（2026-11-21 15:57 KST）＋Flashscore 交叉確認",
- "fetched": "2026-11-21 15:10 台北",
+ "fetched": "2026-11-21 21:00 台北",
  "season": "2026 K League 1",
  "partial": true,
  "note": "ESPN 沒有收錄韓K聯，只放已查證的場次；積分榜與近況不完整，顯示資料不足。",
@@ -15,6 +15,18 @@
    "en": "FC Seoul",
    "zh": "首爾FC",
    "venue": "Seoul World Cup Stadium",
+   "logo": ""
+  },
+  "GIM": {
+   "en": "Gimcheon Sangmu",
+   "zh": "金泉尚武",
+   "venue": "Gimcheon Sports Complex",
+   "logo": ""
+  },
+  "JEJ": {
+   "en": "Jeju SK",
+   "zh": "濟州SK",
+   "venue": "Jeju World Cup Stadium",
    "logo": ""
   }
  },
@@ -40,6 +52,17 @@
      "note": "本季第 4 球"
     }
    ]
+  },
+  {
+   "id": "kor261122GIMJEJ",
+   "week": 36,
+   "date": "2026-11-22T05:00Z",
+   "home": "GIM",
+   "away": "JEJ",
+   "hs": null,
+   "as": null,
+   "venue": "Gimcheon Sports Complex",
+   "stage": "終局分組 B 組"
   }
  ]
 }
