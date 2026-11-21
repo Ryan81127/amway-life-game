@@ -17,7 +17,8 @@ const LEAGUES = [
   { slug: "uefa.nations", name: "歐國聯" },
   { slug: "fifa.friendly", name: "國際友誼賽" },
   { slug: "uae.1", name: "阿聯酋超" },
-  { slug: "aus.w.1", name: "澳女足" }
+  { slug: "aus.w.1", name: "澳女足" },
+  { slug: "kor.1", name: "韓K聯" }
 ];
 
 const STATUS_ZH = {

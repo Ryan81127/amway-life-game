@@ -1,0 +1,34 @@
+{
+ "source": "Sofascore／FotMob／365Scores 賽程（ESPN 沒有韓K聯）",
+ "fetched": "2026-11-21 12:30 台北",
+ "season": "2026 K League 1",
+ "partial": true,
+ "note": "ESPN 沒有收錄韓K聯，只放已查證的場次；積分榜與近況不完整，顯示資料不足。",
+ "teams": {
+  "JBK": {
+   "en": "Jeonbuk Hyundai Motors",
+   "zh": "全北現代",
+   "venue": "Jeonju World Cup Stadium",
+   "logo": ""
+  },
+  "SEO": {
+   "en": "FC Seoul",
+   "zh": "首爾FC",
+   "venue": "Seoul World Cup Stadium",
+   "logo": ""
+  }
+ },
+ "games": [
+  {
+   "id": "kor261121JBKSEO",
+   "week": 36,
+   "date": "2026-11-21T05:00Z",
+   "home": "JBK",
+   "away": "SEO",
+   "hs": null,
+   "as": null,
+   "venue": "Jeonju World Cup Stadium",
+   "stage": "終局分組 A 組"
+  }
+ ]
+}

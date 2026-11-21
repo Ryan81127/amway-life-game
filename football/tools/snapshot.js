@@ -19,7 +19,7 @@ const ymd = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
 
 async function listTargets() {
   const lib = fs.readFileSync(path.join(DIR, "lib.js"), "utf8");
-  const slugs = [...lib.slice(0, lib.indexOf("];")).matchAll(/slug: "([^"]+)"/g)].map((m) => m[1]).filter((s) => s !== "uae.1");
+  const slugs = [...lib.slice(0, lib.indexOf("];")).matchAll(/slug: "([^"]+)"/g)].map((m) => m[1]).filter((s) => !["uae.1", "kor.1"].includes(s));
   const now = Date.now();
   const days = [...new Set([0, AHEAD_H].map((h) => ymd(new Date(now + h * 3600e3))).concat(ymd(new Date(now - 3 * 3600e3))))];
   const out = [];

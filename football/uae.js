@@ -1,17 +1,29 @@
-/* 阿聯酋職業足球聯賽（ADNOC Pro League）：ESPN 沒有這個聯賽，官方網站又不讓其他網站讀，
-   所以用官方賽程快照 data/uae.json。這裡把快照轉成 ESPN 的資料格式，看板其他功能就能照常運作；
-   ESPN 獨有的資料（陣容、技術統計、盤口）會顯示資料不足。比分不會即時更新，要請 Claude 重抓快照。 */
+/* 快照聯賽：ESPN 沒有收錄的聯賽改用賽程快照（data/*.json），在這裡轉成 ESPN 的資料格式，
+   看板其他功能就能照常運作；ESPN 獨有的資料（陣容、技術統計、盤口）會顯示資料不足。
+   比分不會即時更新，要請 Claude 重抓快照。
+   - 阿聯酋職業足球聯賽（uae.1）：官方賽程 uaeproleague.ae
+   - 韓國 K 聯賽 1（kor.1）：ESPN 沒有，只收錄已查證的場次 */
 
+const SNAP_LEAGUES = {
+  "uae.1": { slug: "uae.1", prefix: "uae", file: "data/uae.json", name: "UAE Pro League", zh: "阿聯酋超", country: data.L.country },
+  "kor.1": { slug: "kor.1", prefix: "kor", file: "data/kor.json", name: "K League 1", zh: "韓K聯", country: "South Korea" }
+};
 const UAE_SLUG = "uae.1";
-let uaePack = null;
+const snapPacks = {};
 
-async function uaeLoad() {
-  if (uaePack) return uaePack;
-  const res = await fetch("data/uae.json", { cache: "no-cache" });
-  if (!res.ok) throw new Error("UAE 賽程檔讀不到");
+function snapLeagueOf(x) {
+  const s = String(x || "");
+  return Object.values(SNAP_LEAGUES).find((L) => s === L.slug || s.startsWith(L.prefix)) || null;
+}
+
+async function uaeLoad(L = SNAP_LEAGUES[UAE_SLUG]) {
+  if (snapPacks[L.slug]) return snapPacks[L.slug];
+  const res = await fetch(L.file, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`${L.zh} 賽程檔讀不到`);
   const data = await res.json();
-  for (const [code, t] of Object.entries(data.teams)) TEAM_ZH["uae-" + code] = t.zh;
-  uaePack = data;
+  data.L = L;
+  for (const [code, t] of Object.entries(data.teams)) TEAM_ZH[L.prefix + "-" + code] = t.zh;
+  snapPacks[L.slug] = data;
   return data;
 }
 
@@ -41,8 +53,8 @@ function uaeComp(data, g) {
   const side = (code, ha, score) => {
     const t = data.teams[code];
     return {
-      id: "uae-" + code, homeAway: ha,
-      team: { id: "uae-" + code, displayName: t.en, shortDisplayName: t.en, abbreviation: code, logo: t.logo },
+      id: data.L.prefix + "-" + code, homeAway: ha,
+      team: { id: data.L.prefix + "-" + code, displayName: t.en, shortDisplayName: t.en, abbreviation: code, logo: t.logo },
       score: st === "pre" || score == null ? undefined : String(score),
       records: [{ type: "total", summary: uaeRecord(data, code, new Date(g.date)) }]
     };
@@ -51,16 +63,18 @@ function uaeComp(data, g) {
   return {
     id: g.id, date: g.date,
     status: { period: done ? 2 : st === "in" ? 1 : 0, displayClock: st === "in" ? "快照無即時比分" : "", type: { name, state: st, completed: done, shortDetail: done ? "FT" : st === "post" ? "快照未更新比分" : "" } },
-    venue: { fullName: g.venue, address: { city: "", country: "United Arab Emirates" } },
+    venue: { fullName: g.venue, address: { city: "", country: data.L.country } },
     competitors: [side(g.home, "home", g.hs), side(g.away, "away", g.as)]
   };
 }
 
 function uaeEvent(data, g) {
-  return { id: g.id, date: g.date, name: `${data.teams[g.away].en} at ${data.teams[g.home].en}`, league: { slug: UAE_SLUG, name: "UAE Pro League" }, season: { year: 2027 }, competitions: [uaeComp(data, g)] };
+  return { id: g.id, date: g.date, name: `${data.teams[g.away].en} at ${data.teams[g.home].en}`, league: { slug: data.L.slug, name: data.L.name }, season: { year: 2027 }, competitions: [uaeComp(data, g)] };
 }
 
 function uaeStandings(data) {
+  /* 快照不完整時不自己算積分榜，避免顯示錯誤的排名 */
+  if (data.partial) return { season: { year: 2026 }, children: [] };
   const rows = new Map(Object.keys(data.teams).map((c) => [c, { c, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 }]));
   for (const g of data.games) {
     if (g.hs == null) continue;
@@ -75,11 +89,11 @@ function uaeStandings(data) {
   return {
     season: { year: 2027, displayName: "2026/27" },
     children: [{
-      name: "ADNOC Pro League",
+      name: data.L.name,
       standings: {
         season: 2027, seasonDisplayName: "2026/27",
         entries: list.map((r, i) => ({
-          team: { id: "uae-" + r.c, displayName: data.teams[r.c].en, logos: [{ href: data.teams[r.c].logo }] },
+          team: { id: data.L.prefix + "-" + r.c, displayName: data.teams[r.c].en, logos: [{ href: data.teams[r.c].logo }] },
           stats: [["rank", i + 1], ["gamesPlayed", r.p], ["wins", r.w], ["ties", r.d], ["losses", r.l], ["pointsFor", r.gf], ["pointsAgainst", r.ga], ["pointDifferential", r.gd], ["points", r.pts]].map(([name, value]) => ({ name, value })),
           note: i === 0 ? { description: "冠軍" } : i >= list.length - 2 ? { description: "降級區" } : undefined
         }))
@@ -91,42 +105,42 @@ function uaeStandings(data) {
 /* 攔截 ESPN 網址：只處理阿聯酋聯賽，其他回傳 null 照常走 ESPN */
 async function uaeIntercept(url) {
   const u = String(url);
-  const isUae = u.includes(`/${UAE_SLUG}/`) || /[?&]event=uae\d/.test(u) || /\/teams\/uae-/.test(u);
-  if (!isUae) return null;
-  const data = await uaeLoad();
+  const L = Object.values(SNAP_LEAGUES).find((x) => u.includes(`/${x.slug}/`) || new RegExp(`[?&]event=${x.prefix}\\d`).test(u) || u.includes(`/teams/${x.prefix}-`));
+  if (!L) return null;
+  const data = await uaeLoad(L);
   if (u.includes("/standings")) return uaeStandings(data);
-  const team = u.match(/\/teams\/uae-([A-Z]+)\/schedule/);
+  const team = u.match(new RegExp(`/teams/${L.prefix}-([A-Z]+)/schedule`));
   if (team) {
     const fixtures = /fixture=true/.test(u);
     const events = data.games.filter((g) => (g.home === team[1] || g.away === team[1]) && (fixtures ? g.hs == null : g.hs != null)).map((g) => uaeEvent(data, g));
-    return { events, team: { id: "uae-" + team[1], displayName: data.teams[team[1]].en } };
+    return { events, team: { id: data.L.prefix + "-" + team[1], displayName: data.teams[team[1]].en } };
   }
-  const ev = u.match(/[?&]event=(uae[^&]+)/);
+  const ev = u.match(new RegExp(`[?&]event=(${L.prefix}[^&]+)`));
   if (ev) {
     const g = data.games.find((x) => x.id === decodeURIComponent(ev[1]));
     if (!g) throw new Error("找不到這場");
     const comp = uaeComp(data, g);
     const lastFive = (code) => ({
-      team: { id: "uae-" + code, displayName: data.teams[code].en },
+      team: { id: data.L.prefix + "-" + code, displayName: data.teams[code].en },
       events: data.games.filter((x) => x.hs != null && (x.home === code || x.away === code) && new Date(x.date) < new Date(g.date))
         .slice(-5).reverse().map((x) => {
           const me = x.home === code;
           const f = me ? x.hs : x.as;
           const a = me ? x.as : x.hs;
           const opp = me ? x.away : x.home;
-          return { id: x.id, gameDate: x.date, gameResult: f > a ? "W" : f === a ? "D" : "L", score: `${x.hs}-${x.as}`, opponent: { id: "uae-" + opp, displayName: data.teams[opp].en }, competitionName: "阿聯酋超", homeTeamId: "uae-" + x.home, awayTeamId: "uae-" + x.away, homeTeamScore: String(x.hs), awayTeamScore: String(x.as), atVs: me ? "vs" : "@" };
+          return { id: x.id, gameDate: x.date, gameResult: f > a ? "W" : f === a ? "D" : "L", score: `${x.hs}-${x.as}`, opponent: { id: data.L.prefix + "-" + opp, displayName: data.teams[opp].en }, competitionName: data.L.zh, homeTeamId: data.L.prefix + "-" + x.home, awayTeamId: data.L.prefix + "-" + x.away, homeTeamScore: String(x.hs), awayTeamScore: String(x.as), atVs: me ? "vs" : "@" };
         })
     });
     const meet = data.games.filter((x) => x.hs != null && new Date(x.date) < new Date(g.date) && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
     return {
       lastFiveGames: [lastFive(g.home), lastFive(g.away)],
-      seasonseries: meet.length ? [{ events: meet.map((x) => ({ id: x.id, date: x.date, competitors: [{ id: "uae-" + x.home, homeAway: "home", score: String(x.hs), team: { id: "uae-" + x.home, displayName: data.teams[x.home].en } }, { id: "uae-" + x.away, homeAway: "away", score: String(x.as), team: { id: "uae-" + x.away, displayName: data.teams[x.away].en } }] })) }] : [],
-      header: { id: g.id, competitions: [comp], league: { slug: UAE_SLUG, name: "UAE Pro League" }, season: { year: 2027 } },
+      seasonseries: meet.length ? [{ events: meet.map((x) => ({ id: x.id, date: x.date, competitors: [{ id: data.L.prefix + "-" + x.home, homeAway: "home", score: String(x.hs), team: { id: data.L.prefix + "-" + x.home, displayName: data.teams[x.home].en } }, { id: data.L.prefix + "-" + x.away, homeAway: "away", score: String(x.as), team: { id: data.L.prefix + "-" + x.away, displayName: data.teams[x.away].en } }] })) }] : [],
+      header: { id: g.id, competitions: [comp], league: { slug: data.L.slug, name: data.L.name }, season: { year: 2027 } },
       gameInfo: { venue: comp.venue },
       boxscore: { teams: [], players: [] },
       rosters: [], keyEvents: [], commentary: [], news: { articles: [] },
       standings: { groups: [] },
-      meta: { source: "uae-snapshot", fetched: data.fetched, week: g.week }
+      meta: { source: data.L.prefix + "-snapshot", fetched: data.fetched, week: g.week }
     };
   }
   if (u.includes("/scoreboard")) {
@@ -135,7 +149,7 @@ async function uaeIntercept(url) {
     let from = -Infinity, to = Infinity;
     if (m) { from = new Date(iso(m[1]) + "T00:00:00Z").getTime() - 86400000; to = new Date(iso(m[2] || m[1]) + "T23:59:59Z").getTime() + 86400000; }
     const events = data.games.filter((g) => { const t = new Date(g.date).getTime(); return t >= from && t <= to; }).map((g) => uaeEvent(data, g));
-    return { events, leagues: [{ slug: UAE_SLUG, name: "UAE Pro League" }] };
+    return { events, leagues: [{ slug: data.L.slug, name: data.L.name }] };
   }
   return { events: [] };
 }
