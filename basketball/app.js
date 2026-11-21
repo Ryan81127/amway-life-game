@@ -171,7 +171,7 @@ function renderSchedule(app) {
     post: list.filter((m) => bucketOf(m) === "post").sort(byTime)
   };
   const sub = state.scheduleLoadedAt ? `更新於 ${taipeiClock(new Date(state.scheduleLoadedAt))}` : "台北時間";
-  const refresh = h("button", { class: "icon-btn", onclick: () => manualRefresh() }, ui("重新整理"));
+  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: (e) => manualRefresh(e.currentTarget) }, ui("重新整理"));
   app.append(headerBar(leagueTitle(), sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
   const wrap = h("div", { class: "wrap" });
   wrap.append(sportSwitch());
@@ -311,7 +311,7 @@ function goSchedule() {
 function renderMatch(app, route) {
   const m = state.model;
   const back = h("button", { class: "icon-btn", onclick: goSchedule }, ui("← 賽程"));
-  const refresh = h("button", { class: "icon-btn", onclick: () => manualRefresh() }, ui("重新整理"));
+  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: (e) => manualRefresh(e.currentTarget) }, ui("重新整理"));
   const sub = state.summaryLoadedAt ? `更新於 ${taipeiClock(new Date(state.summaryLoadedAt))}` : "";
   if (!m || m.id !== route.event) {
     app.append(headerBar(leagueTitle(), sub, [back, refresh]));
@@ -766,11 +766,17 @@ async function loadRoute() {
   }
 }
 
-async function manualRefresh() {
-  const route = readRoute();
-  if (route.event) await loadMatch(route.event);
-  else await loadSchedule("near");
-  armTimer();
+async function manualRefresh(btn) {
+  const work = async () => {
+    if (typeof dayCache !== "undefined") dayCache.clear();
+    if (typeof bbCloudTried !== "undefined") bbCloudTried.clear();
+    const route = readRoute();
+    if (route.event) await loadMatch(route.event);
+    else await loadSchedule("near");
+    armTimer();
+  };
+  if (typeof runRefresh === "function" && btn) return runRefresh(btn, work);
+  return work();
 }
 
 /* ---------- 即時偵測：每 5 秒打比分端點，有變化立刻抓完整資料 ---------- */

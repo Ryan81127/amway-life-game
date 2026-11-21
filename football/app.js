@@ -237,7 +237,7 @@ function renderSchedule(app) {
     post: list.filter((match) => bucketOf(match) === "post").sort((a, b) => sortMatch(b, a))
   };
   const sub = state.scheduleLoadedAt ? `更新於 ${taipeiClock(new Date(state.scheduleLoadedAt))}` : "台北時間";
-  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: () => manualRefresh() }, ui("重新整理"));
+  const refresh = h("button", { class: "icon-btn", id: "refresh", onclick: (e) => manualRefresh(e.currentTarget) }, ui("重新整理"));
   app.append(headerBar("足球轉播看板", sub, [refresh], [dateStrip(bounds, day), statusTabs(groups)]));
   const wrap = h("div", { class: "wrap" });
   if (new URLSearchParams(location.search).get("view") === "history" && typeof historyView === "function") {
@@ -376,7 +376,7 @@ function renderMatch(app, route) {
   const refresh = h("button", {
     class: state.summaryLoading ? "icon-btn busy" : "icon-btn",
     id: "refresh",
-    onclick: () => manualRefresh()
+    onclick: (e) => manualRefresh(e.currentTarget)
   }, ui("重新整理"));
   const sub = state.summaryLoadedAt ? `更新於 ${taipeiClock(new Date(state.summaryLoadedAt))}` : "讀取比賽";
   app.append(headerBar(
@@ -1360,12 +1360,21 @@ async function loadRoute() {
   }
 }
 
-async function manualRefresh() {
-  clearTimeout(state.timer);
-  const route = readRoute();
-  if (route.event && route.league) await loadMatch(route.league, route.event);
-  else await loadSchedule(anyLive() ? "live" : "today");
-  armTimer();
+async function manualRefresh(btn) {
+  const work = async () => {
+    clearTimeout(state.timer);
+    /* 手動按就不要用暫存：賽程、快照聯賽（阿聯酋超、韓K聯）、雲端快照都重抓 */
+    if (typeof dayCache !== "undefined") dayCache.clear();
+    if (typeof snapPacks !== "undefined") for (const k of Object.keys(snapPacks)) delete snapPacks[k];
+    if (typeof cloudTried !== "undefined") cloudTried.clear();
+    state.rangeCache = null;
+    const route = readRoute();
+    if (route.event && route.league) await loadMatch(route.league, route.event);
+    else await loadSchedule(anyLive() ? "live" : "today");
+    armTimer();
+  };
+  if (typeof runRefresh === "function" && btn) return runRefresh(btn, work);
+  return work();
 }
 
 /* ---------- 即時偵測：每 5 秒打一次輕量的比分端點，有變化就立刻抓完整資料 ---------- */
