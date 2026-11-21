@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch:
+    inputs:
+      bball_ahead:
+        description: "籃球往後看幾小時（測試用）"
+        required: false
+        default: "6"
 
 permissions:
   contents: write
@@ -42,7 +47,7 @@ jobs:
           TZ: Asia/Taipei
         run: |
           node football/tools/snapshot.js snapdata/snap
-          node basketball/tools/snapshot.js snapdata/bsnap || echo "籃球快照失敗，足球不受影響"
+          SNAP_AHEAD_H="${{ inputs.bball_ahead || 6 }}" node basketball/tools/snapshot.js snapdata/bsnap || echo "籃球快照失敗，足球不受影響"
 
       - name: Commit
         working-directory: snapdata
