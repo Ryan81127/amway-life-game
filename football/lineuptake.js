@@ -141,7 +141,7 @@ function ltBlock(model, side) {
   const t = ltTake(model, side);
   const wrap = h("div", { class: "lt-take" }, h("div", { class: "st-label" }, ui("🎙️ 先發點評")));
   if (!t.ready) {
-    wrap.append(h("p", { class: "faint" }, ui("先發名單公布後（通常開賽前約 1 小時）會自動產生：陣容、陣型、可能戰術、戰意與節奏的點評。")));
+    wrap.append(h("p", { class: "faint" }, ui(typeof lineupMissingText === "function" && model.minute?.phase !== "pre" ? `${lineupMissingText(model)}有先發名單時會自動產生陣容、陣型、戰術、戰意與節奏的點評。` : "先發名單公布後（通常開賽前約 1 小時）會自動產生：陣容、陣型、可能戰術、戰意與節奏的點評。")));
     return wrap;
   }
   const tagCls = { 事實: "fact", 計算: "calc", 推測: "guess", 資料不足: "none" };

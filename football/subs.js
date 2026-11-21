@@ -129,7 +129,10 @@ function subsBlock(model) {
   }
   const list = subList(model);
   if (!list.length) {
-    block.append(h("p", { class: "muted" }, ui("目前兩隊都還沒有換人。")));
+    const snap = typeof dataSource === "function" && dataSource(model).snapshot;
+    block.append(snap
+      ? h("p", { class: "muted" }, typeof stTag === "function" ? stTag("missing") : "", ui(" 換人紀錄未收錄：這個聯賽只有賽程快照，沒有換人資料。"))
+      : h("p", { class: "muted" }, typeof stTag === "function" ? stTag("zero") : "", ui(" 目前兩隊都還沒有換人（ESPN 即時資料）。")));
     return block;
   }
   const ti = typeof teamInfo === "function" ? teamInfo(model) : null;

@@ -34,7 +34,7 @@ global.fetch = async (url) => {
 const files = [...fs.readFileSync(path.join(dir, "index.html"), "utf8").matchAll(/src="([a-z0-9]+\.js)/g)].map((m) => m[1]).filter((f) => f !== "app.js");
 const appSrc = fs.readFileSync(path.join(dir, "app.js"), "utf8").replace(/\nboot\(\);?\s*$/, "\n");
 const src = files.map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("\n") + "\n" + appSrc + `
-;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock, ensureDeepH2H, h2hSummary, h2hBlock };`;
+;globalThis.__t = { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, mvSched, motivation, cmFacts, marketPanel, m2RankAfter, m2Grade, aiRewrite, aiBlock, ensureDeepH2H, h2hSummary, h2hBlock, liveCard, stickyBar, bcLines, bcNodeCard, bcNodes, bcScene };`;
 (0, eval)(src);
 const { state, v2Render, situationStrip, v2Sit, v2Store, loadV2, simWrite, simKey, v2Ctx, stCache, m2RankAfter, m2Grade, aiRewrite, aiBlock, cmFacts, motivation, ensureDeepH2H, h2hSummary, h2hBlock } = globalThis.__t;
 
@@ -56,6 +56,23 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   ok("同組另一場自動識別、即時積分榜：烏拉圭 2:0 時暫居第二");
   assert.ok(sit.nextGoal.some((g) => g.scorer === "KOR" && g.changes.some((c) => c.id === "URU" && c.drops)));
   ok("下一球：韓國進球會讓烏拉圭掉出晉級區");
+  {
+    const T = globalThis.__t;
+    const goalModel = { ...model, minute: { phase: "live", state: "in", period: 2, base: 72, label: "72'" }, home: { ...model.home, score: "1" }, away: { ...model.away, score: "1" },
+      events: [{ id: "g1", kind: "goal", base: 24, period: 1, teamId: "KOR", teamName: "南韓", scorer: "孫興慜", style: "頭槌" }, { id: "g2", kind: "goal", base: 70, period: 2, teamId: "POR", teamName: "葡萄牙", scorer: "C 羅", style: "" }] };
+    const L = T.bcLines(goalModel);
+    assert.ok(/第 70 分鐘，葡萄牙的C 羅破門！現在 一 比 一/.test(L.quick), L.quick);
+    assert.ok(/第 24 分鐘，南韓的孫興慜頭球破門/.test(L.longer), L.longer);
+    const card = T.liveCard(goalModel);
+    assert.ok(card.querySelector(".bc-scenes"), "進行中要有手動場景按鈕");
+    assert.ok(T.stickyBar(goalModel).textContent.includes("1 : 1"));
+    const n = T.bcNodeCard(goalModel, T.bcNodes().find((x) => x.id === "ht"));
+    assert.ok(/到第 45 分鐘：南韓 1 比 0 領先/.test(n.textContent), n.textContent);
+    assert.ok(/比分待確認：南韓 2 比 1 葡萄牙/.test(T.bcScene(goalModel, "goal", "home")[1]));
+    const ftCard = T.liveCard({ ...goalModel, minute: { phase: "ft", state: "post", period: 2, base: 90, label: "完賽" } });
+    assert.ok(!ftCard.querySelector(".bc-scenes") && /終場，南韓 和 葡萄牙 1 比 1/.test(ftCard.textContent));
+    ok("即時口播卡：5 秒／15 秒、節點分段比分、手動場景；完賽不顯示場景鍵");
+  }
   for (const v of ["table", "motive", "motive2", "script", "market"]) {
     const node = v2Render(model, v);
     assert.ok(node && node.textContent.length > 100, v);

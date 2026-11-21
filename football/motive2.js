@@ -154,7 +154,7 @@ function m2Rotation(model, side) {
     dense
       ? h("li", null, m2Tag("模型判斷", `賽程偏密：距離上一場 ${sched.restDays == null ? "X" : sched.restDays} 天，近 14 天 ${sched.in14 == null ? "X" : sched.in14} 場。可能以控制節奏為主，進球預期下修；角球要看是倒腳控場還是圍攻打不穿。`))
       : h("li", null, m2Tag(sched?.ok ? "模型判斷" : "待主播判斷", sched?.ok ? `休息 ${sched.restDays == null ? "X" : sched.restDays} 天、近 14 天 ${sched.in14 == null ? "X" : sched.in14} 場，還不到「密集到必須留力」的門檻。` : "拿不到賽程，密集賽程這項無法計算。")),
-    h("li", null, starters >= 11 ? m2Tag("事實", "先發已公布，輪換請直接對照陣容，不要用這張表代替名單。") : m2Tag("待主播判斷", "先發還沒公布，輪換先不要下結論。")));
+    h("li", null, starters >= 11 ? m2Tag("事實", "先發已公布，輪換請直接對照陣容，不要用這張表代替名單。") : m2Tag("待主播判斷", typeof lineupMissingText === "function" ? lineupMissingText(model) : "先發還沒公布，輪換先不要下結論。")));
 }
 
 const M2_SCENES = [

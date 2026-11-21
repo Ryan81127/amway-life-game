@@ -138,7 +138,10 @@ async function uaeIntercept(url) {
       header: { id: g.id, competitions: [comp], league: { slug: data.L.slug, name: data.L.name }, season: { year: 2027 } },
       gameInfo: { venue: comp.venue },
       boxscore: { teams: [], players: [] },
-      rosters: [], keyEvents: [], commentary: [], news: { articles: [] },
+      rosters: [],
+      /* 快照有記進球（例如韓K聯）就轉成 ESPN 的關鍵事件格式 */
+      keyEvents: (g.events || []).map((e, i) => ({ id: `${g.id}-e${i}`, type: { text: e.type === "goal" ? (e.og ? "Own Goal" : e.pen ? "Penalty - Scored" : "Goal") : e.type === "red" ? "Red Card" : e.type === "yellow" ? "Yellow Card" : "Substitution" }, scoringPlay: e.type === "goal", clock: { displayValue: `${e.min}'` }, period: { number: e.min > 45 ? 2 : 1 }, team: { id: data.L.prefix + "-" + e.team }, participants: [{ athlete: { displayName: e.zh || e.player } }], text: "" })),
+      commentary: [], news: { articles: [] },
       standings: { groups: [] },
       meta: { source: data.L.prefix + "-snapshot", fetched: data.fetched, week: g.week }
     };

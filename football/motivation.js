@@ -122,7 +122,7 @@ function mvFriendlyItems(model, side, sched) {
       items.push({ tag: "計算", text: `先發 11 人中有 ${same} 人是上一場的先發。` });
       items.push({ tag: "推測", text: same >= 8 ? "先發變動很小，幾乎是主力陣容，對這場相當認真。" : same <= 5 ? "先發大幅更動，像是在試新人或給替補機會。" : "先發部分輪換，主力與新人混搭。" });
     } else if (r?.status === "none") items.push({ tag: "資料不足", text: "拿不到上一場的先發名單，無法比較輪換幅度。" });
-  } else items.push({ tag: "資料不足", text: "先發名單公布後（通常開賽前約 1 小時），會自動比對上一場先發、判斷是不是主力出戰。" });
+  } else items.push({ tag: "資料不足", text: typeof lineupMissingText === "function" && model.minute?.phase !== "pre" ? lineupMissingText(model) : "先發名單公布後（通常開賽前約 1 小時），會自動比對上一場先發、判斷是不是主力出戰。" });
   return items;
 }
 
@@ -195,7 +195,7 @@ function motivation(model, sit) {
       items.push({ tag: "資料不足", text: "傷停與停賽：ESPN 多數賽事沒有提供，需以先發名單或可信報導為準。" });
     }
     const starters = model.roster?.[side]?.players?.filter((p) => p.starter).length || 0;
-    items.push(starters >= 11 ? { tag: "事實", text: "先發名單已公布，是否輪換可直接對照陣容區。" } : { tag: "資料不足", text: "先發名單尚未公布，無法確認是否輪換。" });
+    items.push(starters >= 11 ? { tag: "事實", text: "先發名單已公布，是否輪換可直接對照陣容區。" } : { tag: "資料不足", text: typeof lineupMissingText === "function" ? lineupMissingText(model) : "先發名單尚未公布，無法確認是否輪換。" });
     res.sides[side] = { name: team.name, items, codes, pressure: codes.length ? mvPressure(codes) : null, row };
   }
   const H = res.sides.home;

@@ -6,7 +6,7 @@
 const FOCUS_KEY = "focus-v1";
 /* 球衣、身價固定放在最上方，永遠顯示 */
 const FOCUS_PIN = new Set(["kit", "values"]);
-const focusState = { on: true, id: null, ids: [], open: new Set() };
+const focusState = { on: true, id: null, prev: null, ids: [], open: new Set() };
 try {
   const saved = JSON.parse(localStorage.getItem(FOCUS_KEY) || "{}");
   if (saved.on === false) focusState.on = false;
@@ -72,14 +72,16 @@ function focusApply(ids) {
   const all = document.getElementById("focus-toggle");
   if (all) {
     all.classList.toggle("on", !focusState.on);
-    all.querySelector(".rl").textContent = typeof ui === "function" ? ui(focusState.on ? "全部" : "單區") : focusState.on ? "全部" : "單區";
-    all.querySelector(".ri").textContent = focusState.on ? "📚" : "🎯";
+    /* 顯示目前模式：直播模式（一次一區）／完整資料（整頁） */
+    all.querySelector(".rl").textContent = typeof ui === "function" ? ui(focusState.on ? "直播模式" : "完整資料") : focusState.on ? "直播模式" : "完整資料";
+    all.querySelector(".ri").textContent = focusState.on ? "🎯" : "📚";
   }
 }
 
 /* 側欄按鈕：單區模式下切換區塊，回傳 true 表示已處理 */
 function focusGo(id) {
   if (!focusState.on || FOCUS_PIN.has(id) || !document.getElementById(id)) return false;
+  if (focusState.id && focusState.id !== id) focusState.prev = focusState.id;
   focusState.id = id;
   focusApply();
   const el = document.getElementById(id);
@@ -92,7 +94,7 @@ function focusToggleButton() {
   const b = document.createElement("button");
   b.className = "rail-btn rail-focus";
   b.id = "focus-toggle";
-  b.title = "切換：只看一區／整頁全部";
+  b.title = "目前模式；按一下切換：直播模式（一次一區）／完整資料（整頁）";
   const ri = document.createElement("span"); ri.className = "ri";
   const rl = document.createElement("span"); rl.className = "rl";
   b.append(ri, rl);
@@ -102,4 +104,11 @@ function focusToggleButton() {
     focusApply();
   });
   return b;
+}
+
+/* 回上一段：回到剛剛看的那一區 */
+function focusBack() {
+  if (focusState.on && focusState.prev && document.getElementById(focusState.prev)) return focusGo(focusState.prev);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  return true;
 }

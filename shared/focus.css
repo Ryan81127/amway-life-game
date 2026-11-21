@@ -19,3 +19,52 @@ body.focus-on .match-nav { display: none; }
 
 .rail-btn.rail-focus { border-bottom: 1px solid var(--line, #2a3242); margin-bottom: 4px; padding-bottom: 6px; }
 .rail-btn.rail-focus.on { background: rgba(255,196,64,.18); }
+
+/* 頂部固定比分列（足球） */
+.sticky-bar { position: sticky; top: 0; z-index: 50; margin: 0 -4px 8px; padding: 6px 10px; background: rgba(10,14,22,.96); border-bottom: 1px solid var(--line, #2a3242); backdrop-filter: blur(6px); }
+.sb-main { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.sb-team { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-team:last-of-type { text-align: right; }
+.sb-score { font-size: 20px; color: #ffc440; white-space: nowrap; }
+.sb-clock { font-size: 12px; padding: 1px 6px; border-radius: 8px; background: rgba(255,255,255,.08); white-space: nowrap; }
+.sb-clock.live { background: rgba(255,70,70,.25); color: #ff8a8a; }
+.sb-src { font-size: 11px; opacity: .7; margin-top: 2px; }
+.sb-src.snap { color: #ffb86b; opacity: .95; }
+
+/* 資料狀態標籤 */
+.st-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; vertical-align: 1px; }
+.st-ok { background: rgba(80,200,120,.18); color: #7fe0a0; }
+.st-zero { background: rgba(80,160,255,.18); color: #8ec5ff; }
+.st-missing { background: rgba(255,150,60,.18); color: #ffb86b; }
+.st-pending { background: rgba(255,220,80,.18); color: #ffe27a; }
+.st-na { background: rgba(160,160,160,.18); color: #bbb; }
+
+/* 即時口播卡 */
+.bc-card { margin: 10px 0 14px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,196,64,.5); background: linear-gradient(180deg, rgba(255,196,64,.10), rgba(255,196,64,.02)); }
+.bc-title { font-weight: 900; color: #ffc440; font-size: 16px; margin-bottom: 8px; }
+.bc-row { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; align-items: start; padding: 8px 0; border-top: 1px dashed rgba(255,196,64,.25); }
+.bc-row p { margin: 0; line-height: 1.6; font-size: 16px; }
+.bc-row p.bc-quick { font-size: 19px; font-weight: 800; }
+.bc-k { font-size: 12px; font-weight: 700; color: #ffc440; opacity: .9; }
+.copy.mini { padding: 3px 8px; font-size: 12px; }
+.bc-nodes { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.bc-nodes::-webkit-scrollbar { display: none; }
+.bc-node { white-space: nowrap; font-size: 13px; opacity: .6; }
+.bc-node.done { opacity: 1; }
+.bc-node.on { background: #ffc440; color: #111; opacity: 1; }
+.bc-cfg-box { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
+.bc-cfg-box label { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+.bc-cfg-box input { width: 56px; padding: 4px; border-radius: 6px; border: 1px solid var(--line, #2a3242); background: transparent; color: inherit; }
+.bc-node-card { margin: 4px 0 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.04); }
+.bc-node-card h4 { margin: 0 0 6px; }
+.bc-node-card .say { margin: 0 0 4px; line-height: 1.6; }
+.bc-scenes { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,196,64,.3); }
+.bc-scene-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.bc-side { display: flex; gap: 4px; }
+.bc-side .chip.on, .bc-scene.on { background: #ffc440; color: #111; }
+.bc-scene-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.bc-scene { justify-content: center; text-align: center; padding: 10px 4px; font-size: 15px; font-weight: 700; }
+.bc-scene-out { margin-top: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.bc-scene-out p { margin: 0 0 6px; line-height: 1.6; }
+.bc-scene-out .bc-k { margin-right: 6px; }
+.bc-status { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 12px; opacity: .9; }

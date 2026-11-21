@@ -159,7 +159,10 @@ function simKey(ctx) {
 function situation(model, ctx) {
   if (!ctx || ctx.status === "loading") return { state: "loading" };
   if (ctx.status === "error") return { state: "error", why: "積分榜讀取失敗（ESPN 沒有回應）" };
-  if (!ctx.group) return { state: "none", why: "這項賽事沒有積分榜（例如友誼賽或淘汰賽階段）" };
+  if (!ctx.group) {
+    if (typeof dataSource === "function" && dataSource(model).snapshot) return { state: "none", why: "來源未提供積分榜：這個聯賽只有部分場次的賽程快照，算出來的排名會不正確，所以不顯示。" };
+    return { state: "none", why: "這項賽事沒有積分榜（例如友誼賽或淘汰賽階段）" };
+  }
   const rules = ctx.rules;
   const rows = ctx.group.rows;
   const n = rows.length;

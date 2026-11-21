@@ -22,7 +22,8 @@ function sideRail(items) {
   };
   rail.append(
     h("button", { class: "rail-btn rail-search", title: "搜尋", onclick: () => openSearch() }, h("span", { class: "ri" }, "🔍"), h("span", { class: "rl" }, ui("搜尋"))),
-    h("button", { class: "rail-btn", title: "回到頂端", onclick: () => window.scrollTo({ top: 0, behavior: "smooth" }) }, h("span", { class: "ri" }, "⬆️"), h("span", { class: "rl" }, ui("頂端")))
+    h("button", { class: "rail-btn", title: "回頂端比分區", onclick: () => window.scrollTo({ top: 0, behavior: "smooth" }) }, h("span", { class: "ri" }, "⬆️"), h("span", { class: "rl" }, ui("頂端"))),
+    h("button", { class: "rail-btn", title: "回到剛剛看的那一區", onclick: () => (typeof focusBack === "function" ? focusBack() : window.history.back()) }, h("span", { class: "ri" }, "↩️"), h("span", { class: "rl" }, ui("上一段")))
   );
   for (const [id, label] of items) {
     rail.append(h("button", { class: "rail-btn", "data-target": id, title: ui(label), onclick: () => go(id) },

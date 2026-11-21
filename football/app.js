@@ -404,7 +404,7 @@ function renderMatch(app, route) {
   document.title = `${model.home.name} 對 ${model.away.name}｜足球轉播看板`;
   /* 2.0 分頁：「看板」是原本的完整頁面，其餘分頁各自獨立渲染 */
   const view = typeof v2View === "function" ? v2View() : "board";
-  wrap.append(...[scoreboard(model), typeof kitPanel === "function" ? kitPanel("football", model) : null, typeof valueStrip === "function" && (new URLSearchParams(location.search).get("view") || "board") === "board" ? valueStrip(model) : null, typeof viewTabs === "function" ? viewTabs() : null, typeof situationStrip === "function" ? situationStrip(model) : null].filter(Boolean));
+  wrap.append(...[typeof stickyBar === "function" ? stickyBar(model) : null, scoreboard(model), typeof kitPanel === "function" ? kitPanel("football", model) : null, typeof valueStrip === "function" && (new URLSearchParams(location.search).get("view") || "board") === "board" ? valueStrip(model) : null, typeof viewTabs === "function" ? viewTabs() : null, typeof situationStrip === "function" ? situationStrip(model) : null, view === "board" && typeof liveCard === "function" ? liveCard(model) : null].filter(Boolean));
   if (view !== "board") {
     if (typeof clearRail === "function") clearRail();
     if (typeof floatingSearch === "function") floatingSearch();
