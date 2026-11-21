@@ -236,6 +236,26 @@ function coachBlock(model) {
   cornerHist(model);
   const block = h("section", { class: "block", id: "coaches" }, h("h2", null, ui("兩隊教練：誰在場邊下棋")));
   if (!st || st.status === "loading") { block.append(h("p", { class: "muted" }, ui("整理兩隊教練的戰績、榮譽與戰術特色中…"))); return block; }
+  /* 口播重點：可在畫面上核對的調度看點（履歷留到中場講） */
+  {
+    const hs = Number(model.home.score) || 0, as = Number(model.away.score) || 0;
+    const ph = model.minute?.phase;
+    const lines = [];
+    for (const side of ["home", "away"]) {
+      const nm = st[side]?.name || st.cur?.[side]?.name || "";
+      const who = nm ? (typeof pvCoachZh === "function" ? pvCoachZh(nm) : nm) : `${model[side].name}教練`;
+      const my = side === "home" ? hs : as, op = side === "home" ? as : hs;
+      let watch;
+      if (ph === "pre") watch = `${who}：先看先發有沒有輪換；落後時第一次換人會在第幾分鐘、會不會加第二名前鋒。`;
+      else if (ph === "ft" || model.minute?.state === "post") watch = `${who}：回顧換人時間點，是不是改變了比賽。`;
+      else if (my < op) watch = `${who}（落後）：看會不會加第二名前鋒、把邊後衛壓上，換人在第幾分鐘。`;
+      else if (my > op) watch = `${who}（領先）：看會不會換上防守型中場、改成五後衛收縮。`;
+      else watch = `${who}（平手）：誰先換上進攻球員，誰就先表態要贏。`;
+      lines.push(watch);
+    }
+    const sb = scriptBlock(lines, "調度看點（看畫面核對）");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   const say = [];
   const profs = {};
   for (const side of ["home", "away"]) {

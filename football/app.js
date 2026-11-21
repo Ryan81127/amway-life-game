@@ -970,11 +970,13 @@ function pitchCard(model, side) {
   );
   const pitch = h("div", { class: "pitch", "aria-label": ui("陣型圖") });
   const spots = pitchPlayers(roster, model.events, team.id);
+  const shirt = typeof kitShirt === "function" ? kitShirt("football", model, side) : "";
+  const dotStyle = shirt ? `;background:${shirt};color:${typeof kitText === "function" ? kitText(shirt) : "#fff"}` : "";
   for (const spot of spots) {
     const last = spot.chain[spot.chain.length - 1];
     pitch.append(h("button", {
       class: `dot${spot.sent ? " sent" : ""}${spot.chain.length ? " swapped" : ""}`,
-      style: `left:${spot.x}%;top:${spot.y}%`,
+      style: `left:${spot.x}%;top:${spot.y}%${dotStyle}`,
       onclick: () => spot.player.id && openPlayer(spot.player.id)
     },
       h("span", { class: "num" }, String(spot.player.jersey || "").trim()),

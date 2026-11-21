@@ -872,11 +872,20 @@ function valueStrip(model) {
     }
     const total = sq.total || players.reduce((a, p) => a + p.value, 0);
     const n = sq.count || (sq.total ? 0 : players.length);
+    /* 首屏：總估值、日期、幣別、已確認出場的代表球員；明細與來源收起來 */
+    const norm = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
+    const starters = (model.roster?.[side]?.players || []).filter((p) => p.starter || p.inFor);
+    const onKeys = new Set(starters.map((p) => norm(p.en)));
+    const rep = players.find((p) => onKeys.has(norm(p.name)));
+    const repText = !starters.length ? "代表球員：先發未公布" : rep ? `本場出場代表：${playerZh(rep.name)} ${fmtEuro(rep.value)}` : "本場出場球員不在身價名單內";
     return h("div", { class: "vs-card" }, head,
       h("div", { class: "vs-total" }, ui(`總身價 ${fmtEuro(total)}`)),
-      h("div", { class: "faint" }, ui(`${n ? `平均 ${fmtEuro(total / n)}・${n} 人・` : ""}來源 ${sq.source?.name || "Transfermarkt"}・查證 ${sq.checked || "–"}`)),
-      players.length ? h("ol", { class: "vs-top" }, players.slice(0, 3).map((p) => h("li", null, ui(`${playerZh(p.name)}${p.pos ? `（${posZh(p.pos) || p.pos}）` : ""}`), h("b", null, ui(fmtEuro(p.value)))))) : null,
-      sq.note ? h("p", { class: "faint" }, ui(`⚠️ ${sq.note}`)) : null);
+      h("div", { class: "faint" }, ui(`幣別：歐元・查證日期 ${sq.checked || "–"}`)),
+      h("div", { class: "vs-rep" }, ui(repText)),
+      h("details", { class: "fold vs-more" }, h("summary", null, ui("明細與來源")),
+        h("div", { class: "faint" }, ui(`${n ? `平均 ${fmtEuro(total / n)}・${n} 人・` : ""}來源 ${sq.source?.name || "Transfermarkt"}`)),
+        players.length ? h("ol", { class: "vs-top" }, players.slice(0, 3).map((p) => h("li", null, ui(`${playerZh(p.name)}${p.pos ? `（${posZh(p.pos) || p.pos}）` : ""}`), h("b", null, ui(fmtEuro(p.value)))))) : null,
+        sq.note ? h("p", { class: "faint" }, ui(`⚠️ ${sq.note}`)) : null));
   };
   const sqH = ti?.status === "ok" ? ti.home?.squad : null;
   const sqA = ti?.status === "ok" ? ti.away?.squad : null;

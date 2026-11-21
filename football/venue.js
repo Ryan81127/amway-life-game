@@ -322,7 +322,19 @@ function venueBlock(model) {
     cp.append(h("p", { class: "muted" }, ui("找不到主辦國家的資料。")));
   }
   block.append(cp);
-  if (say.length) block.append(scriptBlock([...say, "你有去過這個國家或這座球場嗎？留言分享！"], "口播：場地與天氣"));
+  if (say.length) block.append(scriptBlock(say, "口播：場地與天氣"));
+  /* 口播重點：中文場名、城市、可驗證的現場條件、一條足球故事；天氣影響要畫面或數據支持 */
+  {
+    const lines = [`${s?.title || model.venue}${model.city ? `，在${model.city}` : ""}${s?.facts?.cap ? `，可容納 ${s.facts.cap.split("；")[0]} 人` : ""}。`];
+    if (w && w.temp != null) {
+      const imp = weatherImpact(w)[0] || "";
+      lines.push(`現場條件（預報，以轉播畫面為準）：${w.desc || WMO_ZH[w.code] || ""} ${Math.round(w.temp)} 度${w.pop != null ? `、降雨機率 ${w.pop}%` : ""}${w.wind >= 25 ? `、風速 ${Math.round(w.wind)} km/h` : ""}。`);
+      if (imp && !/正常/.test(imp)) lines.push(`天氣影響（畫面看到積水、大風再講）：${imp}`);
+    } else lines.push("現場條件：還沒有逐時預報，看轉播畫面再說。");
+    if (s?.stories?.[0]) lines.push(`球場故事：${s.stories[0]}`);
+    const sb = scriptBlock(lines, "場地重點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   block.append(h("button", { class: "chip", onclick: () => { venueStore.delete(model.id); ensureVenue(model); maybeRender({ soft: true }); } }, ui("🔄 重新整理天氣")));
   return block;
 }

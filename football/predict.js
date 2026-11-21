@@ -474,11 +474,31 @@ function movementBlock(model) {
   } else {
     block.append(h("p", null, ui(mv.hasOpen ? "初盤到現在沒有明顯異動（盤口沒升降、水位變動不到 0.1）。" : "ESPN 沒有提供初盤，只能從下方走勢表看這個瀏覽器記下的變化。")));
   }
+  /* 同分鐘事件：只並列，不解讀成因果 */
+  const evAt = (label) => {
+    const n = parseInt(String(label || ""), 10);
+    if (!Number.isFinite(n)) return "";
+    return (model.events || []).filter((e) => ["goal", "red", "sub", "yellow"].includes(e.kind) && Math.abs((e.base || 0) - n) <= 2)
+      .map((e) => `${e.minuteLabel} ${e.kind === "goal" ? "進球" : e.kind === "red" ? "紅牌" : e.kind === "yellow" ? "黃牌" : "換人"}`).join("、");
+  };
   if (hist.length >= 1) {
     block.append(h("p", { class: "faint" }, ui(`本機走勢紀錄（${hist.length} 筆，最新在上）：`)));
-    block.append(predTable(["時間", "主/和/客", "讓球（主）", "大小"], [...hist].reverse().slice(0, 10).map((x) => ({
-      cells: [`${taipeiClock(new Date(x.t)).slice(0, 5)} ${x.m}`, x.ml.map(fmtOdd).join(" / "), x.ah[0] != null ? `${fmtHandicap(x.ah[0])} @ ${fmtOdd(x.ah[1])}/${fmtOdd(x.ah[2])}` : "–", x.ou[0] != null ? `${num2(x.ou[0])} @ ${fmtOdd(x.ou[1])}/${fmtOdd(x.ou[2])}` : "–"]
+    block.append(predTable(["時間", "主/和/客", "讓球（主）", "大小", "同分鐘事件"], [...hist].reverse().slice(0, 10).map((x) => ({
+      cells: [`${taipeiClock(new Date(x.t)).slice(0, 5)} ${x.m}`, x.ml.map(fmtOdd).join(" / "), x.ah[0] != null ? `${fmtHandicap(x.ah[0])} @ ${fmtOdd(x.ah[1])}/${fmtOdd(x.ah[2])}` : "–", x.ou[0] != null ? `${num2(x.ou[0])} @ ${fmtOdd(x.ou[1])}/${fmtOdd(x.ou[2])}` : "–", evAt(x.m) || "–"]
     }))));
+    block.append(h("p", { class: "faint" }, ui("同分鐘事件只是並列對照：時間相近不代表是那個事件讓盤口變動。")));
+  }
+  /* 口播重點：來源、初盤→目前盤、記錄時間範圍與當時比分 */
+  {
+    const lines = [`來源：ESPN（DraftKings）。${mv.hasOpen ? "有初盤可比較。" : "ESPN 沒有給初盤。"}`];
+    if (mv.items.length) lines.push(...mv.items.slice(0, 2).map((it) => `${it.market}：${it.text}`));
+    else if (mv.hasOpen) lines.push("初盤到現在沒有明顯異動。");
+    if (hist.length) {
+      const a = hist[0], b = hist[hist.length - 1];
+      lines.push(`這台裝置記錄時間：${taipeiClock(new Date(a.t)).slice(0, 5)}–${taipeiClock(new Date(b.t)).slice(0, 5)}（${a.m || "賽前"} 到 ${b.m || "賽前"}），共 ${hist.length} 筆；現在比分 ${model.home.score ?? "–"}:${model.away.score ?? "–"}。`);
+    } else lines.push("這台裝置還沒有走勢紀錄（要開著頁面才會記）。");
+    const sb = scriptBlock(lines, "盤口重點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
   }
   return block;
 }
@@ -1567,34 +1587,47 @@ function recapBlock(model) {
 /* ---------- 外部資料站（這些網站不開放資料給其他網頁讀取，所以用搜尋連結直達） ---------- */
 
 function linksBlock(model) {
+  /* 依用途排列：先發 → 即時事件 → 傷停 → 盤口；ESPN 本場是直達頁，其他是帶日期與聯賽的搜尋 */
+  const day = typeof taipeiYmd === "function" ? taipeiYmd(model.kickoff) : String(model.kickoff || "").slice(0, 10);
+  const lg = model.leagueName || "";
   const en = `${model.home.rawName} vs ${model.away.rawName}`;
   const zh = `${model.home.name} ${model.away.name}`;
-  const g = (q) => "https://www.google.com/search?q=" + encodeURIComponent(q);
+  const g = (q) => "https://www.google.com/search?q=" + encodeURIComponent(`${q} ${day}`);
+  const snap = typeof dataSource === "function" && dataSource(model).snapshot;
+  const espn = snap ? null : `https://www.espn.com/soccer/match/_/gameId/${model.id}`;
   const big5 = ["eng.1", "esp.1", "ita.1", "ger.1", "fra.1"].includes(model.leagueSlug);
   const groups = [
-    ["亞洲盤口", [
-      ["球探體育", "百家歐亞賠率即時比較、盤口歷史變化", g(`球探體育 ${zh} 亞盤`)],
-      ["捷報比分", "比分＋亞盤歐賠＋資料庫", g(`捷報比分 ${zh}`)]
+    ["👥 先發陣容", [
+      ...(espn ? [["ESPN 本場陣容", "直達本場頁", `https://www.espn.com/soccer/lineups/_/gameId/${model.id}`, true]] : []),
+      ["FotMob", `搜尋：${lg} ${day}`, g(`site:fotmob.com ${en} ${lg}`)],
+      ["Sofascore", `搜尋：${lg} ${day}`, g(`site:sofascore.com ${en}`)]
     ]],
-    ["歐美賠率比較", [
-      ["Oddschecker", "各家博彩公司同一盤口報價", g(`site:oddschecker.com ${en}`)],
-      ["Action Network", "免費比價與最佳盤口", g(`site:actionnetwork.com ${en} odds`)]
+    ["⏱️ 即時事件", [
+      ...(espn ? [["ESPN 本場", "直達本場頁（比分、事件、文字轉播）", espn, true]] : []),
+      ["Sofascore", "即時視圖、球員評分", g(`site:sofascore.com ${en}`)],
+      ["捷報比分", `搜尋：${zh}`, g(`捷報比分 ${zh}`)]
     ]],
-    ["球隊與球員分析", [
-      ["Sofascore", "即時視圖、熱圖、球員評分", g(`site:sofascore.com ${en}`)],
-      ["FotMob", "輕量比分、陣容、隊訊", g(`site:fotmob.com ${en}`)],
+    ["🩹 傷停", [
+      ["Transfermarkt", "傷兵、停賽名單", g(`site:transfermarkt.com ${model.home.rawName} ${model.away.rawName} injuries`)],
+      ["賽前隊伍消息", `搜尋：${lg}`, g(`${en} team news ${lg}`)]
+    ]],
+    ["💹 盤口", [
+      ["球探體育", "百家歐亞賠率、盤口歷史", g(`球探體育 ${zh} 亞盤`)],
+      ["Oddschecker", "各家同一盤口報價", g(`site:oddschecker.com ${en}`)]
+    ]],
+    ["📊 進階分析（中場、賽後用）", [
       ["WhoScored", "球員評分、位置熱圖", g(`site:whoscored.com ${en}`)],
-      ["FootyStats", "角球、牌數等細節統計", g(`site:footystats.org ${en}`)],
+      ["FootyStats", "角球、牌數細節", g(`site:footystats.org ${en}`)],
       ...(big5 ? [["Understat", "五大聯賽 xG", g(`site:understat.com ${model.home.rawName}`)]] : []),
       ["FBref", "歷史賽季與基礎數據", g(`site:fbref.com ${model.home.rawName}`)]
     ]]
   ];
-  const block = h("section", { class: "block", id: "links" }, h("h2", null, ui("外部資料站")));
-  block.append(h("p", { class: "faint" }, ui("這些網站不開放資料給其他網頁直接讀取，看板沒辦法把它們的數字抓進來；點下去會用 Google 搜尋直達本場頁面，方便交叉比對。")));
+  const block = h("section", { class: "block", id: "links" }, h("h2", null, ui("外部資料（依用途排列）")));
+  block.append(h("p", { class: "faint" }, ui(`標「直達」的是本場頁面；其他是 Google 搜尋，已帶上日期 ${day}${lg ? ` 與 ${lg}` : ""}，點第一個結果前先確認對手與日期。`)));
   for (const [title, list] of groups) {
     block.append(h("p", { class: "rate-team" }, ui(title)));
-    block.append(h("div", { class: "link-grid" }, list.map(([name, desc, href]) => h("a", { class: "ext", href, target: "_blank", rel: "noopener noreferrer" },
-      h("b", null, name), h("span", { class: "faint" }, ui(desc))
+    block.append(h("div", { class: "link-grid" }, list.map(([name, desc, href, direct]) => h("a", { class: "ext", href, target: "_blank", rel: "noopener noreferrer" },
+      h("b", null, name, direct ? h("span", { class: "st-tag st-ok" }, ui(" 直達")) : null), h("span", { class: "faint" }, ui(desc))
     ))));
   }
   return block;
