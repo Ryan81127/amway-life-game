@@ -17,6 +17,7 @@ const LEAGUES = [
   { slug: "uefa.nations", name: "歐國聯" },
   { slug: "fifa.friendly", name: "國際友誼賽" },
   { slug: "uae.1", name: "阿聯酋超" },
+  { slug: "aus.1", name: "澳超" },
   { slug: "aus.w.1", name: "澳女足" },
   { slug: "kor.1", name: "韓K聯" }
 ];
@@ -208,23 +209,32 @@ const state = {
   softScroll: 0
 };
 
-/* 澳洲女足聯賽（A-League Women）用英文隊名對照，ESPN 的隊伍 id 不固定 */
+/* 澳超（A-League Men）與澳女足（A-League Women）用英文隊名對照；女足加「女足」。
+   隊伍屬於哪個聯賽，由讀到的賽程記下（AUS_SIDE），讀不到時看名稱有沒有 Women。 */
+const AUS_SIDE = new Map();
+let ZH_LEAGUE = "";
 const NAME_ZH = {
-  "adelaide united": "阿德萊德聯女足", "brisbane roar": "布里斯本獅吼女足", "canberra united": "坎培拉聯女足",
-  "central coast mariners": "中岸水手女足", "melbourne city": "墨爾本城女足", "melbourne victory": "墨爾本勝利女足",
-  "newcastle jets": "紐卡索噴射機女足", "perth glory": "伯斯光輝女足", "sydney fc": "雪梨FC女足", "sydney": "雪梨FC女足",
-  "western sydney wanderers": "西雪梨流浪者女足", "western sydney": "西雪梨流浪者女足", "wellington phoenix": "威靈頓鳳凰女足",
-  "auckland fc": "奧克蘭FC女足", "western united": "西部聯女足"
+  "adelaide united": "阿德萊德聯", "brisbane roar": "布里斯本獅吼", "canberra united": "坎培拉聯",
+  "central coast mariners": "中岸水手", "melbourne city": "墨爾本城", "melbourne victory": "墨爾本勝利",
+  "newcastle jets": "紐卡索噴射機", "perth glory": "伯斯光輝", "sydney fc": "雪梨FC", "sydney": "雪梨FC",
+  "western sydney wanderers": "西雪梨流浪者", "western sydney": "西雪梨流浪者", "wellington phoenix": "威靈頓鳳凰",
+  "auckland fc": "奧克蘭FC", "western united": "西部聯", "macarthur": "麥克阿瑟FC", "macarthur fc": "麥克阿瑟FC"
 };
-function nameZh(raw) {
+function nameZh(raw, id) {
   if (!raw) return "";
+  const women = /women|\(w\)|\bw$/i.test(String(raw));
   const k = String(raw || "").toLowerCase().replace(/\b(fc )?women\b|\(w\)|\bw$/g, "").replace(/\s+/g, " ").trim();
-  return NAME_ZH[k] || NAME_ZH[k.replace(/ fc$/, "")] || "";
+  const base = NAME_ZH[k] || NAME_ZH[k.replace(/ fc$/, "")] || "";
+  if (!base) return "";
+  const lg = AUS_SIDE.get(String(id || "")) || ZH_LEAGUE;
+  if (lg === "aus.1") return base;
+  if (lg === "aus.w.1" || women) return `${base}女足`;
+  return base;
 }
 
 function teamZh(id, fallback) {
   const key = String(id || "");
-  const tw = TEAM_ZH[key] || nameZh(fallback);
+  const tw = TEAM_ZH[key] || nameZh(fallback, key);
   if (locale() === "cn") {
     if (TEAM_CN[key]) return TEAM_CN[key];
     if (tw) return han(tw);
@@ -533,6 +543,7 @@ function readNumbers(list, percentNames) {
 function sideFrom(c) {
   const team = c?.team || {};
   const id = String(c?.id || team.id || "");
+  if (id && /^aus\./.test(ZH_LEAGUE)) AUS_SIDE.set(id, ZH_LEAGUE);
   return {
     id,
     name: teamZh(id, team.displayName || team.name || ""),
@@ -546,6 +557,7 @@ function sideFrom(c) {
 }
 
 function normalizeEvent(ev, league) {
+  ZH_LEAGUE = typeof league === "string" ? league : league?.slug || "";
   const comp = (ev.competitions || [])[0];
   if (!comp) return null;
   const teams = {};
@@ -973,6 +985,7 @@ function teamStats(data, home, away) {
 }
 
 function buildModel(data, leagueSlug) {
+  ZH_LEAGUE = leagueSlug || "";
   const comp = data?.header?.competitions?.[0];
   if (!comp) throw new Error("no competition");
   const league = LEAGUES.find((item) => item.slug === leagueSlug) || { slug: leagueSlug, name: leagueSlug };
