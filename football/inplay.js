@@ -114,6 +114,24 @@ function inplayBlock(model) {
   const mk = inplayMarkets(st);
   const H = model.home.name;
   const A = model.away.name;
+  /* 先講局勢變化、判斷依據、修正條件；機率附計算時間與當時比分 */
+  {
+    const now = new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Taipei" });
+    const minNow = m.phase === "ht" ? 45 : Math.round(m.base || 0);
+    const recent = (model.events || []).filter((e) => minNow - (e.base || 0) <= 2 && minNow - (e.base || 0) >= 0);
+    const pending = recent.some((e) => e.isVar) ? "VAR" : recent.some((e) => e.kind === "goal") ? "進球" : recent.some((e) => e.kind === "red") ? "紅牌" : "";
+    const fav = mk.win >= mk.lose ? H : A;
+    const favP = Math.max(mk.win, mk.lose);
+    const lines = [
+      `局勢：${st.hs === st.as ? `${st.hs} 比 ${st.as} 平手` : `${st.hs > st.as ? H : A} 領先 ${Math.abs(st.hs - st.as)} 球`}，模型看 ${fav} 拿下的機率 ${pct(favP)}，和局 ${pct(mk.draw)}。`,
+      `依據：${st.reasons.slice(0, 2).join("；") || "賽前模型加上目前比分與剩餘時間"}`,
+      "修正條件：有進球、紅牌或換上前鋒，這組機率就要重算；畫面看到再對照。"
+    ];
+    const sb = scriptBlock(lines, "局勢判讀");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+    block.append(h("p", { class: "faint" }, ui(`計算時間 ${now}（台北）・當時比分 ${st.hs}:${st.as}・第 ${minNow} 分鐘`),
+      pending ? h("span", null, " ", typeof stTag === "function" ? stTag("pending", `${pending}待確認：機率可能還沒反映`) : "") : null));
+  }
   block.append(h("p", { class: "lean" }, ui(`剩餘時間預期進球：${H} ${fx(st.lh)}、${A} ${fx(st.la)}；目前比分 ${st.hs}:${st.as}。`)));
   block.append(h("h3", null, ui("勝平負（以目前比分繼續）")), predTable(["選項", "機率", "合理賠率"], [
     { cells: [`${H} 勝`, pct(mk.win), fairText(mk.win)] },

@@ -797,15 +797,23 @@ function injuryBlock(model) {
   for (const side of ["home", "away"]) {
     const list = absenceList(model, side, ti);
     block.append(h("h3", null, ui(model[side].name)));
-    if (!list.length) { block.append(h("p", { class: "faint" }, ui("目前沒有查到缺陣或停賽風險。"))); continue; }
-    block.append(predTable(["球員", "狀態", "說明", "來源"], list.map((x) => ({
+    if (!list.length) { block.append(h("p", { class: "faint" }, typeof stTag === "function" ? stTag("pending") : "", ui(" 目前沒有查到缺陣或停賽風險（ESPN 多數聯賽不提供傷兵，請賽前再核對）。"))); continue; }
+    /* 分三類：官宣傷停／停賽、未進名單原因待核對、停賽風險；附確認時間 */
+    const kindLabel = (x) => x.kind === "infer" ? "未進名單・原因待核對" : x.kind === "risk" ? "停賽風險" : /停賽|suspend/i.test(x.status) ? "官宣停賽" : "官宣傷停";
+    const checkedAt = new Date().toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Taipei" });
+    block.append(predTable(["球員", "類別", "說明", "來源／確認時間"], list.map((x) => ({
       cls: x.kind === "infer" || x.kind === "risk" ? "" : "best",
-      cells: [x.name, x.status, [x.detail, x.ret ? `預計 ${x.ret.slice(5, 10).replace("-", "/")} 回歸` : ""].filter(Boolean).join("，") || "–", x.src + (x.checked ? ` ${x.checked}` : "")]
+      cells: [x.name, kindLabel(x), [x.status, x.detail, x.ret ? `預計 ${x.ret.slice(5, 10).replace("-", "/")} 回歸` : ""].filter(Boolean).join("，") || "–", `${x.src}・${x.checked || `看板讀取 ${checkedAt}`}`]
     }))));
-    const main = list.filter((x) => x.kind !== "risk").slice(0, 3);
-    if (main.length) say.push(`${model[side].name}這邊，${main.map((x) => `${x.name}${x.status}`).join("、")}，這會影響今天的輪換。`);
+    const conf = list.filter((x) => x.kind === "espn" || x.kind === "manual").slice(0, 3);
+    const inf = list.filter((x) => x.kind === "infer").slice(0, 2);
+    if (conf.length) say.push(`${model[side].name}確定缺陣：${conf.map((x) => `${x.name}（${x.status}）`).join("、")}。`);
+    if (inf.length) say.push(`${model[side].name}另外${inf.map((x) => x.name).join("、")}${inf[0].status}，原因還要核對，先不要說是傷停。`);
   }
-  if (say.length) block.append(scriptBlock([...say, "名單少了人，看的就是板凳深度。你覺得誰影響最大？"], "口播：傷兵與缺陣"));
+  if (say.length) {
+    const sb = scriptBlock(say, "口播：傷兵與缺陣");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   block.append(h("p", { class: "faint" }, ui("ESPN 足球多數聯賽不提供傷兵資料，所以這裡分三種：ESPN 有標示的傷停、看板用近 5 場與今日名單比對推測的缺陣（需再確認），以及你在知識卡檔案裡手動補的傷兵。開賽前請用下方連結交叉確認。")));
   const q = `${model.home.rawName} ${model.away.rawName}`;
   block.append(h("div", { class: "link-grid" },

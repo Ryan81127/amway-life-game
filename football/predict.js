@@ -1409,6 +1409,27 @@ function recapBlock(model) {
     block.append(h("p", null, ui("開賽後，每 15 分鐘、上半場、下半場與全場結束都會自動產生復盤（數據、兩隊表現、球員表現）。")));
     return block;
   }
+  /* 口播重點：比分 → 轉折 → 後續調整；只有比分時標「可確認賽果」，其餘待補 */
+  {
+    const hs = Number(model.home.score) || 0, as = Number(model.away.score) || 0;
+    const ftNow = minute.phase === "ft" || minute.state === "post";
+    const goals = typeof bcGoals === "function" ? bcGoals(model) : [];
+    const lines = [`${ftNow ? "終場" : minute.phase === "ht" ? "中場" : `第 ${minute.base || 0} 分鐘`}：${typeof bcScoreText === "function" ? bcScoreText(model, hs, as) : `${hs} 比 ${as}`}。`];
+    if (goals.length) {
+      lines.push(`轉折：${goals.map((g) => bcGoalLine(model, g)).join("；")}。`);
+      const lastG = goals[goals.length - 1];
+      const trail = hs === as ? null : hs > as ? "away" : "home";
+      const adj = (model.events || []).filter((e) => e.kind === "sub" && (e.base || 0) >= (lastG.base || 0) && (!trail || e.teamId === model[trail].id));
+      const red = (model.events || []).find((e) => e.kind === "red");
+      if (red) lines.push(`後續調整：第 ${red.base} 分鐘${red.teamName}吃紅牌，人數改變了後面的場面。`);
+      else if (adj.length) lines.push(`後續調整：最後一球之後，${trail ? model[trail].name : "雙方"}換了 ${adj.length} 人${adj[0].subOn ? `，最先換上 ${adj[0].subOn}` : ""}。`);
+    } else if (hs + as > 0) {
+      lines[0] = `可確認賽果：${lines[0]}`;
+      lines.push("進球者、分鐘與過程：待補（來源沒有提供事件紀錄）。");
+    } else if (minute.phase !== "pre") lines.push("到目前為止雙方都沒有進球。");
+    const sb = scriptBlock(lines, "復盤重點");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   const hasComm = commRich(model);
   if (!hasComm) block.append(h("p", { class: "faint" }, ui("這場 ESPN 沒有完整文字轉播，分段數據只能用進球、牌與換人；全場數據等終場技術統計。")));
   const nav = h("div", { class: "chips recap-nav" });

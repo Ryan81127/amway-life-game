@@ -70,7 +70,7 @@ function bcScoreAt(model, minute) {
   }
   return [hs, as];
 }
-const bcScoreText = (model, hs, as) => (hs === as ? `${hs} 比 ${as} 平手` : `${hs > as ? model.home.name : model.away.name} ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 領先`);
+const bcScoreText = (model, hs, as) => (hs === as ? `${model.home.name} 和 ${model.away.name} ${hs} 比 ${as} 平手` : `${hs > as ? model.home.name : model.away.name} ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 領先`);
 const bcNum = (n) => ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n] ?? String(n);
 function bcGoalLine(model, g) {
   const team = g.teamName || (goalSide(g, model) === "home" ? model.home.name : model.away.name);

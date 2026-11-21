@@ -146,6 +146,21 @@ function subsBlock(model) {
   block.append(h("div", { class: "sub-bar" }, sel,
     h("span", { class: `sub-live ${live ? "on" : ""}` }, ui(live ? "● 即時更新中" : "完賽紀錄"))));
   if (live) block.append(h("p", { class: "faint" }, ui("比賽中跟著看板每 20 秒自動更新；ESPN 本身約比電視慢 30–90 秒。最新的換人排在最上面。")));
+  /* 口播重點：最新兩次換人（兩隊合併），分鐘、誰下誰上、位置變化；影響是推測，另外標示 */
+  {
+    const latest = list.slice(-2).reverse();
+    const nm = (p) => { const n = subName(p); return `${p?.jersey ? p.jersey + " 號" : ""}${n.phon ? n.en : n.zh}`; };
+    const lines = latest.map((x) => {
+      const pos = subPos(x);
+      const posOut = x.pout?.posZh || "";
+      const change = posOut && pos.zh && posOut !== pos.zh ? `位置由${posOut}換成${pos.zh}` : pos.zh ? `同位置換人（${pos.zh}）` : "";
+      return `${x.min || "–"} ${model[x.side].name}：${nm(x.pout)}下，${nm(x.pin)}上${change ? `，${change}` : ""}。`;
+    });
+    const v = latest[0] ? subVariables(model, latest[0], tiOk) : null;
+    if (v?.notes?.[0]) lines.push(`（推測）${v.notes[0]}`);
+    const sb = scriptBlock(lines, "最新換人");
+    if (sb) { sb.classList.add("lead"); block.append(sb); }
+  }
   const sides = pick === "all" ? ["home", "away"] : [pick];
   for (const side of sides) {
     let mine = list.filter((s) => s.side === side);
