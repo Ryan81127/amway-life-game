@@ -72,6 +72,8 @@ function footer() {
   const league = typeof currentLeague === "function" ? currentLeague() : "nba";
   const src = league === "kbl"
     ? "資料來源：KBL 官方，比分會更新。這聯賽沒有接公開盤口。"
+    : league === "fiba"
+      ? "資料來源：FIBA 國家隊賽程快照（世界盃亞洲區資格賽、亞洲盃資格賽；ESPN 沒有收錄）。比分不會自動刷新，賽後說「更新 FIBA」重抓。"
     : league === "wnbl"
       ? "資料來源：WNBL 官方賽程快照（2026-11-17 14:40）。官方資料只開放給自家網站，比分不會自動刷新；直播中請看 basketball.com.au。"
     : league === "bj"

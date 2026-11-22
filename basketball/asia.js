@@ -72,6 +72,12 @@ function scheduleFresh(token) {
 let kblPack = null;
 let bjPack = null;
 let wnblPack = null;
+/* FIBA 國家隊賽事（世界盃亞洲區資格賽、亞洲盃資格賽）：ESPN 沒有，fiba.json 是查證過的賽程快照 */
+let fibaPack = null;
+const SNAP_BB = {
+  wnbl: { file: "wnbl.json", src: "WNBL 官方", url: "https://www.basketball.com.au/schedule/wnbl" },
+  fiba: { file: "fiba.json", src: "FIBA 官方賽程", url: "https://www.fiba.basketball/" }
+};
 let kblRoster = null;
 
 function currentLeague() {
@@ -80,8 +86,8 @@ function currentLeague() {
 function asiaWindow() {
   const today = taipeiYmd(new Date());
   const league = currentLeague();
-  if (league !== "kbl" && league !== "bj" && league !== "wnbl") return null;
-  const season = league === "kbl" ? ["2026-10-03", "2027-04-11"] : league === "wnbl" ? ["2026-10-15", "2027-03-15"] : ["2026-09-20", "2027-05-15"];
+  if (!["kbl", "bj", "wnbl", "fiba"].includes(league)) return null;
+  const season = league === "kbl" ? ["2026-10-03", "2027-04-11"] : league === "wnbl" ? ["2026-10-15", "2027-03-15"] : league === "fiba" ? ["2026-11-01", "2027-03-31"] : ["2026-09-20", "2027-05-15"];
   let start = addDays(today, -14);
   let end = addDays(today, 21);
   const picked = typeof readRoute === "function" ? readRoute().day : "";
@@ -96,11 +102,12 @@ function leagueTitle() {
   if (id === "kbl") return "韓籃甲轉播看板";
   if (id === "bj") return "日本B聯賽轉播看板";
   if (id === "wnbl") return "澳女聯 WNBL 轉播看板";
+  if (id === "fiba") return "FIBA 國家隊（世亞預／亞杯預）轉播看板";
   return "NBA 轉播看板";
 }
 function leaguePill() {
   const id = currentLeague();
-  return id === "kbl" ? "韓籃甲" : id === "bj" ? "日本B聯賽" : id === "wnbl" ? "澳女聯" : "NBA";
+  return id === "kbl" ? "韓籃甲" : id === "bj" ? "日本B聯賽" : id === "wnbl" ? "澳女聯" : id === "fiba" ? "FIBA 國家隊" : "NBA";
 }
 function kblName(code, fallback) {
   return (KBL_TEAMS[String(code)] || [fallback || String(code)])[0];
@@ -487,7 +494,7 @@ async function loadBjMatch(id) {
 
 /* ---------- 澳洲女籃 WNBL：官方資料只允許自家網站讀，wnbl.json 是快照（含已完賽比分） ---------- */
 function wnblName(code) {
-  return (WNBL_TEAMS[code] || [code])[0];
+  return WNBL_TEAMS[code]?.[0] || fibaPack?.data?.teams?.[code]?.zh || code;
 }
 function wnblState(g) {
   if (g.hs != null && g.as != null) return "post";
@@ -503,7 +510,7 @@ function wnblClock(g) {
   if (g.hs == null) return "已結束（快照還沒更新比分）";
   return "終場";
 }
-function wnblCard(g, teams) {
+function wnblCard(g, teams, league = "wnbl") {
   const st = wnblState(g);
   const side = (code, score) => ({
     id: code, name: wnblName(code), rawName: teams[code]?.en || code, abbr: code, logo: teams[code]?.logo || "",
@@ -511,7 +518,8 @@ function wnblCard(g, teams) {
   });
   return {
     id: String(g.id),
-    league: "wnbl",
+    league,
+    comp: g.comp || "",
     date: new Date(Number(g.ts) * 1000).toISOString(),
     state: st,
     status: { state: st, phase: st === "post" ? "ft" : st === "in" ? "live" : "pre", period: st === "post" ? 4 : st === "in" ? 1 : 0, label: wnblClock(g) },
@@ -524,10 +532,11 @@ function wnblCard(g, teams) {
     broadcast: ""
   };
 }
-async function loadWnblPack() {
-  if (wnblPack) return wnblPack;
-  const res = await fetch("wnbl.json", { cache: "no-cache" });
-  if (!res.ok) throw new Error("WNBL 賽程檔讀不到");
+async function loadWnblPack(league = "wnbl") {
+  if (league === "wnbl" && wnblPack) return wnblPack;
+  if (league === "fiba" && fibaPack) return fibaPack;
+  const res = await fetch(SNAP_BB[league].file, { cache: "no-cache" });
+  if (!res.ok) throw new Error(`${league === "fiba" ? "FIBA" : "WNBL"} 賽程檔讀不到`);
   const data = await res.json();
   const games = data.games || [];
   const tally = new Map();
@@ -542,7 +551,8 @@ async function loadWnblPack() {
       });
     }
   }
-  const cards = games.map((g) => wnblCard(g, data.teams || {}));
+  if (league === "fiba") fibaPack = { data };
+  const cards = games.map((g) => wnblCard(g, data.teams || {}, league));
   for (const m of cards) {
     for (const side of ["home", "away"]) {
       const log = tally.get(m[side].id) || [];
@@ -556,14 +566,15 @@ async function loadWnblPack() {
     const diff = log.reduce((a, x) => a + x.pf - x.pa, 0);
     return { id, w, l: log.length - w, pct: w / log.length, diff };
   }).sort((a, b) => b.pct - a.pct || b.diff - a.diff);
-  wnblPack = { games, cards, tally, ladder, data };
-  return wnblPack;
+  const pack = { games, cards, tally, ladder, data };
+  if (league === "fiba") fibaPack = pack; else wnblPack = pack;
+  return pack;
 }
-async function loadWnblMatch(id) {
-  const pack = await loadWnblPack();
+async function loadWnblMatch(id, league = "wnbl") {
+  const pack = await loadWnblPack(league);
   const g = pack.games.find((row) => String(row.id) === String(id));
   if (!g) throw new Error("找不到這場");
-  const card = wnblCard(g, pack.data.teams || {});
+  const card = wnblCard(g, pack.data.teams || {}, league);
   const before = (code) => (pack.tally.get(code) || []).filter((x) => new Date(x.date) < new Date(card.date));
   const homeLog = before(card.home.id);
   const awayLog = before(card.away.id);
@@ -583,10 +594,11 @@ async function loadWnblMatch(id) {
     ],
     standings: {},
     series: h2h.length ? { summary: `本季 ${card.home.name} ${hw} 勝、${card.away.name} ${h2h.length - hw} 勝`, total: h2h.length, games: [] } : null,
-    sourceName: "WNBL 官方",
-    sourceUrl: "https://www.basketball.com.au/schedule/wnbl"
+    sourceName: SNAP_BB[league].src,
+    sourceUrl: SNAP_BB[league].url
   });
-  model.wnblRank = { home: rank(card.home.id), away: rank(card.away.id) };
+  if (league === "wnbl") model.wnblRank = { home: rank(card.home.id), away: rank(card.away.id) };
+  else model.fibaNote = g.note || "";
   model.round = g.round;
   return model;
 }
@@ -631,7 +643,7 @@ function finishModel(card, extra) {
 async function loadAsiaSchedule() {
   const league = currentLeague();
   const token = scheduleToken;
-  const pack = league === "kbl" ? await loadKblPack() : league === "wnbl" ? await loadWnblPack() : await loadBjPack();
+  const pack = league === "kbl" ? await loadKblPack() : league === "wnbl" || league === "fiba" ? await loadWnblPack(league) : await loadBjPack();
   if (!scheduleFresh(token) || currentLeague() !== league) return;
   state.matches = pack.cards;
   state.news = [];
@@ -645,7 +657,7 @@ async function loadAsiaSchedule() {
 async function loadAsiaMatch(id) {
   const league = currentLeague();
   const token = scheduleToken;
-  const model = league === "kbl" ? await loadKblMatch(id) : league === "wnbl" ? await loadWnblMatch(id) : await loadBjMatch(id);
+  const model = league === "kbl" ? await loadKblMatch(id) : league === "wnbl" || league === "fiba" ? await loadWnblMatch(id, league) : await loadBjMatch(id);
   if (!scheduleFresh(token) || currentLeague() !== league || readRoute().event !== String(id)) return;
   if (model.status.phase === "pre") state.pred = null;
   state.model = model;
@@ -682,6 +694,8 @@ function asiaLinks(model) {
   if (!model?.league) return null;
   const items = model.league === "kbl"
     ? [["KBL 官方", model.sourceUrl || "https://www.kbl.or.kr/"], ["KBL 賽程", "https://www.kbl.or.kr/schedule"]]
+    : model.league === "fiba"
+    ? [["FIBA 世界盃亞洲區資格賽", "https://www.fiba.basketball/en/events/fiba-basketball-world-cup-2027-asian-qualifiers"], ["FIBA 亞洲盃資格賽", "https://www.fiba.basketball/en/events/fiba-asia-cup-2029-pre-qualifiers"]]
     : model.league === "wnbl"
     ? [["WNBL 官方", "https://www.wnbl.com.au/"], ["即時比分（basketball.com.au）", "https://www.basketball.com.au/schedule/wnbl"], ["排名", "https://www.basketball.com.au/standings/wnbl"], ["傷兵報告", "https://www.basketball.com.au/news/wnbl-injury-report"]]
     : [["B.League 官方", model.sourceUrl || "https://www.bleague.jp/schedule/?tab=1&year=2026"], ["B.League 排名", "https://www.bleague.jp/standings/?tab=1&year=2026"]];

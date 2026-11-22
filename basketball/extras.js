@@ -372,6 +372,7 @@ function bxLineups(m) {
 
 function bxInjEmpty(m) {
   const sec = h("section", { class: "panel", id: "inj" }, h("h2", null, ui("傷兵名單")));
+  if (m.league === "fiba") sec.append(h("p", { class: "muted" }, ui("來源未提供：FIBA 快照沒有傷兵資料，請看 FIBA 官網的最終 12 人名單。")));
   if (m.league === "wnbl") sec.append(h("p", { class: "muted" }, ui("資料不足：WNBL 快照沒有傷兵資料。")), h("a", { href: "https://www.basketball.com.au/news/wnbl-injury-report", target: "_blank", rel: "noopener" }, ui("WNBL 傷兵報告（basketball.com.au）")));
   else sec.append(h("p", { class: "muted" }, ui(m.league ? "資料不足：這個聯賽的來源沒有傷兵資料。" : "ESPN 傷兵名單目前沒有任何球員。")));
   return sec;

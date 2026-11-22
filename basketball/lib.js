@@ -482,7 +482,7 @@ function readRoute() {
   const event = q.get("event") || "";
   let league = q.get("league") || "";
   if (!league && /^S\d+G\d+N\d+$/i.test(event)) league = "kbl";
-  if (!["kbl", "bj", "wnbl"].includes(league)) league = "nba";
+  if (!["kbl", "bj", "wnbl", "fiba"].includes(league)) league = "nba";
   return { event, day: q.get("day") || "", tab: q.get("tab") || "", league };
 }
 

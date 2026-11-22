@@ -1,0 +1,69 @@
+{
+ "source": "FIBA 官方賽程（維基百科轉錄、各國籃協新聞交叉確認）",
+ "fetched": "2026-11-22 20:20 台北",
+ "season": "FIBA 2026 年 11 月國際窗口",
+ "teams": {
+  "JOR": {
+   "en": "Jordan",
+   "zh": "約旦男籃"
+  },
+  "NZL": {
+   "en": "New Zealand",
+   "zh": "紐西蘭男籃"
+  },
+  "IRI": {
+   "en": "Iran",
+   "zh": "伊朗男籃"
+  },
+  "PHI": {
+   "en": "Philippines",
+   "zh": "菲律賓男籃"
+  },
+  "FIJ": {
+   "en": "Fiji",
+   "zh": "斐濟男籃"
+  },
+  "HKG": {
+   "en": "Hong Kong",
+   "zh": "中國香港男籃"
+  }
+ },
+ "games": [
+  {
+   "id": "fiba261126FIJHKG",
+   "ts": 1795669200,
+   "round": 1,
+   "home": "FIJ",
+   "away": "HKG",
+   "hs": null,
+   "as": null,
+   "venue": "MBank Arena（蒙古烏蘭巴托）",
+   "comp": "亞杯預",
+   "note": "2029 亞洲盃資格賽第二輪預選 F 組。開賽時間依主播排程；各比分網時間不一致，以官方為準。"
+  },
+  {
+   "id": "fiba261127JORNZL",
+   "ts": 1795759200,
+   "round": 5,
+   "home": "JOR",
+   "away": "NZL",
+   "hs": null,
+   "as": null,
+   "venue": "Karisma Arena（馬來西亞芙蓉）",
+   "comp": "世亞預",
+   "note": "2027 世界盃亞洲區資格賽第二輪 E 組，第五窗口，中立場。"
+  },
+  {
+   "id": "fiba261129IRIPHI",
+   "ts": 1795942800,
+   "round": 5,
+   "home": "IRI",
+   "away": "PHI",
+   "hs": null,
+   "as": null,
+   "venue": "Karisma Arena（馬來西亞芙蓉）",
+   "comp": "世亞預",
+   "note": "2027 世界盃亞洲區資格賽第二輪 E 組，第五窗口，中立場；FIBA 官方列伊朗為主隊。"
+  }
+ ]
+}

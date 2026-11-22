@@ -71,7 +71,7 @@ function setLeague(id) {
 }
 function sportSwitch() {
   const league = currentLeague();
-  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"], ["wnbl", "澳女聯"]];
+  const items = [["nba", "NBA"], ["kbl", "韓籃甲"], ["bj", "日本B聯賽"], ["wnbl", "澳女聯"], ["fiba", "FIBA 國家隊"]];
   return h("nav", { class: "sport-switch" },
     h("a", { href: "../football/" }, "⚽ ", ui("足球")),
     ...items.map(([id, label]) => h("a", {
@@ -185,7 +185,7 @@ function renderSchedule(app) {
     app.append(wrap, footer());
     return;
   }
-  const pace = currentLeague() === "kbl" ? "比分來自 KBL 官方" : currentLeague() === "bj" ? "賽程是 2026-11-16 的官方快照" : currentLeague() === "wnbl" ? "賽程比分是 2026-11-17 的官方快照" : "比賽中每 5 秒偵測比分";
+  const pace = currentLeague() === "kbl" ? "比分來自 KBL 官方" : currentLeague() === "bj" ? "賽程是 2026-11-16 的官方快照" : currentLeague() === "wnbl" ? "賽程比分是 2026-11-17 的官方快照" : currentLeague() === "fiba" ? "FIBA 賽程快照（沒有即時比分）" : "比賽中每 5 秒偵測比分";
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(` · 台北時間 · ${pace}`))));
   const sections = [["live", "進行中", "目前沒有進行中的比賽"], ["pre", "未開賽", "這天沒有還沒開始的比賽"], ["post", "已完賽", "這天還沒有完賽的比賽"]]
     .filter(([id]) => state.tab === "all" || state.tab === id);
@@ -234,7 +234,7 @@ function matchCard(m) {
   });
   card.append(
     h("div", { class: "card-top" },
-      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : m.league === "wnbl" ? "澳女聯" : "NBA")),
+      h("span", { class: "pill" }, ui(m.league === "kbl" ? "韓籃甲" : m.league === "bj" ? "日本B聯賽" : m.league === "wnbl" ? "澳女聯" : m.league === "fiba" ? (m.comp || "FIBA") : "NBA")),
       h("span", null, `${taipeiYmd(m.date) !== state.day ? shortDate(m.date) + " " : ""}${taipeiHM(m.date)} 台北`),
       h("span", { class: "pill" }, live ? [h("span", { class: "live-dot" }), ui(m.clock)] : ui(m.clock))
     ),
@@ -380,6 +380,7 @@ function scoreboard(m) {
       cells: [m[side].name, ...qs.map((q) => m[side].linescores[q - 1] ?? "–"), { node: String(m[side].score), cls: "best" }]
     }))));
   }
+  if (live && m.league === "fiba") board.append(h("p", { class: "muted" }, ui("FIBA 快照沒有即時比分，請看 "), h("a", { href: "https://www.fiba.basketball/", target: "_blank", rel: "noopener" }, "FIBA 官網")));
   if (live && m.league === "wnbl") board.append(h("p", { class: "muted" }, ui("WNBL 沒有即時比分，請看 "), h("a", { href: "https://www.basketball.com.au/schedule/wnbl", target: "_blank", rel: "noopener" }, "basketball.com.au")));
   else if (live) board.append(h("p", { class: "fresh", id: "fresh" }, ui(freshText())));
   return board;

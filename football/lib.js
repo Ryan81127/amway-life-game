@@ -11,6 +11,7 @@ const LEAGUES = [
   { slug: "fra.1", name: "法甲" },
   { slug: "uefa.champions", name: "歐冠" },
   { slug: "uefa.europa", name: "歐霸" },
+  { slug: "afc.champions", name: "亞冠" },
   { slug: "usa.1", name: "美職聯" },
   { slug: "jpn.1", name: "日職聯" },
   { slug: "fifa.world", name: "世界盃" },
@@ -20,7 +21,8 @@ const LEAGUES = [
   { slug: "aus.1", name: "澳超" },
   { slug: "aus.w.1", name: "澳女足" },
   { slug: "kor.1", name: "韓K聯" },
-  { slug: "idn.1", name: "印尼超" }
+  { slug: "idn.1", name: "印尼超" },
+  { slug: "jpn.w.1", name: "日女職" }
 ];
 
 const STATUS_ZH = {
@@ -623,7 +625,7 @@ async function probeRange(days) {
   }
 }
 
-const RANGE_BAD = new Set(["jpn.1"]);
+const RANGE_BAD = new Set(["jpn.1", "afc.champions"]);
 async function fetchLeague(slug, days) {
   if (state.rangeMode === "on") {
     if (state.rangeCache && state.rangeCache.slug === slug) {

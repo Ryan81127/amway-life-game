@@ -60,6 +60,7 @@ async function bhModel(id, league) {
   if (league === "kbl") return loadKblMatch(id);
   if (league === "bj") return loadBjMatch(id);
   if (league === "wnbl") return loadWnblMatch(id);
+  if (league === "fiba") return loadWnblMatch(id, "fiba");
   return buildModel(await fetchJson(`${API}/summary?event=${encodeURIComponent(id)}`, new AbortController().signal));
 }
 
