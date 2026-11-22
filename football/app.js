@@ -71,6 +71,7 @@ function footer() {
   const lg = new URLSearchParams(location.search).get("league");
   const note = {
     "uae.1": "資料來源：阿聯酋職業聯賽官方賽程快照（2026-11-17 18:20），比分不會自動更新，請說「更新阿聯酋超」重抓。其他聯賽來自 ESPN。時間為台北時間。",
+    "idn.1": "資料來源：印尼超賽程快照（ESPN 沒有收錄，只放已查證的場次），比分不會自動更新，請說「更新印尼超」重抓。其他聯賽來自 ESPN。時間為台北時間。",
     "kor.1": "資料來源：韓K聯賽程快照（ESPN 沒有收錄，只放已查證的場次），比分不會自動更新，請說「更新韓K聯」重抓。其他聯賽來自 ESPN。時間為台北時間。"
   }[lg];
   return h("footer", { class: "foot" }, ui(note || "資料來源：ESPN。時間為台北時間。口播只依畫面上的數據，預測句會標明「以目前數據來看」。"));

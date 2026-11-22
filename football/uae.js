@@ -6,7 +6,8 @@
 
 const SNAP_LEAGUES = {
   "uae.1": { slug: "uae.1", prefix: "uae", file: "data/uae.json", name: "UAE Pro League", zh: "阿聯酋超", country: "United Arab Emirates" },
-  "kor.1": { slug: "kor.1", prefix: "kor", file: "data/kor.json", name: "K League 1", zh: "韓K聯", country: "South Korea" }
+  "kor.1": { slug: "kor.1", prefix: "kor", file: "data/kor.json", name: "K League 1", zh: "韓K聯", country: "South Korea" },
+  "idn.1": { slug: "idn.1", prefix: "idn", file: "data/idn.json", name: "BRI Super League", zh: "印尼超", country: "Indonesia" }
 };
 const UAE_SLUG = "uae.1";
 const snapPacks = {};

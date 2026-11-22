@@ -19,7 +19,8 @@ const LEAGUES = [
   { slug: "uae.1", name: "阿聯酋超" },
   { slug: "aus.1", name: "澳超" },
   { slug: "aus.w.1", name: "澳女足" },
-  { slug: "kor.1", name: "韓K聯" }
+  { slug: "kor.1", name: "韓K聯" },
+  { slug: "idn.1", name: "印尼超" }
 ];
 
 const STATUS_ZH = {

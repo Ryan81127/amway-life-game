@@ -1,0 +1,57 @@
+{
+ "source": "印尼超官方賽程（Borneo FC 官網、Medcom、JawaPos 交叉確認；ESPN 沒有收錄）",
+ "fetched": "2026-11-22 12:00 台北",
+ "season": "2026/27 BRI Super League",
+ "partial": true,
+ "note": "ESPN 沒有收錄印尼超，只放已查證的場次；積分榜與近況不完整，顯示資料不足。",
+ "teams": {
+  "ISK": {
+   "en": "Isenmulang Kalteng FC",
+   "zh": "伊森穆朗",
+   "venue": "Stadion Tuah Pahoe",
+   "logo": ""
+  },
+  "BOR": {
+   "en": "Borneo FC Samarinda",
+   "zh": "婆羅洲FC",
+   "venue": "Stadion Segiri",
+   "logo": ""
+  },
+  "PSB": {
+   "en": "Persib Bandung",
+   "zh": "萬隆",
+   "venue": "Gelora Bandung Lautan Api",
+   "logo": ""
+  },
+  "BAL": {
+   "en": "Bali United",
+   "zh": "峇里聯",
+   "venue": "Kapten I Wayan Dipta Stadium",
+   "logo": ""
+  }
+ },
+ "games": [
+  {
+   "id": "idn261122ISKBOR",
+   "week": 10,
+   "date": "2026-11-22T08:30Z",
+   "home": "ISK",
+   "away": "BOR",
+   "hs": null,
+   "as": null,
+   "venue": "Stadion Tuah Pahoe, Palangka Raya",
+   "stage": "第 10 輪・加里曼丹德比"
+  },
+  {
+   "id": "idn261122PSBBAL",
+   "week": 10,
+   "date": "2026-11-22T12:00Z",
+   "home": "PSB",
+   "away": "BAL",
+   "hs": null,
+   "as": null,
+   "venue": "Gelora Bandung Lautan Api",
+   "stage": "第 10 輪"
+  }
+ ]
+}
