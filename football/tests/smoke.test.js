@@ -93,6 +93,8 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       const X = new Function(src + "; return { extParse };")();
       assert.deepStrictEqual(X.extParse("https://www.flashscore.com/match/abc/#/match-summary"), { site: "flashscore", url: "https://www.flashscore.com/match/abc/#/match-summary" });
       assert.strictEqual(X.extParse('<iframe id="sofa" src="https://widgets.sofascore.com/embed/lineups?id=123&widgetTheme=dark" frameborder="0"></iframe>').widget, "https://widgets.sofascore.com/embed/lineups?id=123&widgetTheme=dark");
+      assert.strictEqual(X.extParse('<iframe src="https://www.sofascore.com/event/7713313/lineups/embed" frameborder="0"></iframe>').widget, "https://www.sofascore.com/event/7713313/lineups/embed");
+      assert.strictEqual(X.extParse("https://www.sofascore.com/football/match/a-b/xyz").url, "https://www.sofascore.com/football/match/a-b/xyz");
       assert.strictEqual(X.extParse("https://evil.example/x"), null);
       assert.strictEqual(X.extParse("http://www.fotmob.com/x"), null);
       ok("三平台：辨識本場網址與 Sofascore 嵌入代碼，拒絕其他網站");

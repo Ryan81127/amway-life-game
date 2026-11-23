@@ -26,7 +26,9 @@ function extParse(text) {
   let u;
   try { u = new URL(candidate); } catch { return null; }
   if (u.protocol !== "https:") return null;
+  /* Sofascore 官方嵌入有兩種網址：widgets.sofascore.com/…，或 www.sofascore.com/event/<id>/<種類>/embed */
   if (u.hostname === "widgets.sofascore.com") return { site: "sofascore", widget: u.href };
+  if (/(^|\.)sofascore\.com$/.test(u.hostname) && /\/embed\/?$/.test(u.pathname)) return { site: "sofascore", widget: u.href };
   const site = EXT_SITES.find((s) => s.hosts.some((h) => u.hostname.includes(h)));
   return site ? { site: site.id, url: u.href } : null;
 }
