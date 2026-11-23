@@ -88,6 +88,15 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const rc2 = T.recapBlock({ ...goalModel, events: [], minute: { phase: "ft", state: "post", period: 2, base: 90, label: "完賽" } });
     assert.ok(/可確認賽果/.test(rc2.textContent) && /待補/.test(rc2.textContent));
     ok("復盤：比分→轉折→調整；只有比分時標可確認賽果、其餘待補");
+    {
+      const src = require("fs").readFileSync(require("path").join(__dirname, "../../shared/extlive.js"), "utf8");
+      const X = new Function(src + "; return { extParse };")();
+      assert.deepStrictEqual(X.extParse("https://www.flashscore.com/match/abc/#/match-summary"), { site: "flashscore", url: "https://www.flashscore.com/match/abc/#/match-summary" });
+      assert.strictEqual(X.extParse('<iframe id="sofa" src="https://widgets.sofascore.com/embed/lineups?id=123&widgetTheme=dark" frameborder="0"></iframe>').widget, "https://widgets.sofascore.com/embed/lineups?id=123&widgetTheme=dark");
+      assert.strictEqual(X.extParse("https://evil.example/x"), null);
+      assert.strictEqual(X.extParse("http://www.fotmob.com/x"), null);
+      ok("三平台：辨識本場網址與 Sofascore 嵌入代碼，拒絕其他網站");
+    }
   }
   for (const v of ["table", "motive", "motive2", "script", "market"]) {
     const node = v2Render(model, v);

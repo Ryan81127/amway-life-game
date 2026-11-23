@@ -84,3 +84,13 @@ body.focus-on .match-nav { display: none; }
 .bn-scene .chip.on { background: #ffc440; color: #111; }
 .bn-scene .say { font-size: 16px; line-height: 1.6; margin: 0 0 4px; }
 .kc-secs { background: rgba(255,196,64,.15); }
+
+/* 三平台跟播 */
+.ext-live { margin: 8px 0; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.04); }
+.ext-live > summary { cursor: pointer; font-weight: 700; }
+.ext-btns { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.ext-btn { text-decoration: none; }
+.ext-btn.direct { border-color: #7fe0a0; }
+.ext-row { display: flex; gap: 6px; }
+.ext-input { flex: 1; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line, #2a3242); background: transparent; color: inherit; font-size: 14px; }
+.ext-widget { width: 100%; height: 420px; border: 0; border-radius: 10px; margin-top: 8px; background: #fff; }

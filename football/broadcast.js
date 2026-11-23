@@ -264,6 +264,7 @@ function liveCard(model) {
     row("下一眼看點", next));
   const done = model.minute.phase === "ft" || model.minute.state === "post";
   if (model.minute.phase !== "pre" && !done) card.append(bcSceneBox(model));
+  if (typeof extPanel === "function") card.append(extPanel(model, "football"));
   const src = dataSource(model);
   if (src.snapshot) {
     const goalsKnown = bcGoals(model).length > 0 || (Number(model.home.score) || 0) + (Number(model.away.score) || 0) === 0;
