@@ -52,11 +52,27 @@ function stickyBar(model) {
     : `來源：ESPN・${fmtAgo(src.at) || "讀取中"}更新・約比電視慢 30–90 秒`;
   return h("div", { class: "sticky-bar", id: "sticky-bar" },
     h("div", { class: "sb-main" },
-      h("span", { class: "sb-team" }, model.home.name),
+      h("span", { class: "sb-team" }, model.home.name, model.home.rawName && model.home.rawName !== model.home.name ? h("small", null, model.home.rawName) : null),
       h("b", { class: "sb-score" }, score),
-      h("span", { class: "sb-team" }, model.away.name),
+      h("span", { class: "sb-team" }, model.away.name, model.away.rawName && model.away.rawName !== model.away.name ? h("small", null, model.away.rawName) : null),
       clock ? h("span", { class: `sb-clock${model.minute.state === "in" ? " live" : ""}` }, ui(clock)) : null),
     h("div", { class: `sb-src${src.snapshot ? " snap" : ""}` }, ui(srcText)));
+}
+
+/* ---------- 共用：中文＋英文＋背號 ---------- */
+/* 球隊：中文（英文），英文跟中文一樣就只寫一次 */
+function bcTeam(model, side) {
+  const t = model[side] || {};
+  return t.rawName && t.rawName !== t.name ? `${t.name}（${t.rawName}）` : t.name || "";
+}
+/* 球員：背號 中文（英文），從本場名單找；找不到就只寫原本的名字 */
+function bcPlayer(model, zh) {
+  if (!zh) return "";
+  for (const side of ["home", "away"]) {
+    const p = (model.roster?.[side]?.players || []).find((x) => x.name === zh || x.en === zh);
+    if (p) return `${p.jersey ? `${p.jersey} 號 ` : ""}${p.name}${p.en && p.en !== p.name ? `（${p.en}）` : ""}`;
+  }
+  return zh;
 }
 
 /* ---------- 共用：比分與事件 ---------- */
@@ -70,19 +86,20 @@ function bcScoreAt(model, minute) {
   }
   return [hs, as];
 }
-const bcScoreText = (model, hs, as) => (hs === as ? `${model.home.name} 和 ${model.away.name} ${hs} 比 ${as} 平手` : `${hs > as ? model.home.name : model.away.name} ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 領先`);
+const bcScoreText = (model, hs, as) => (hs === as ? `${bcTeam(model, "home")} 和 ${bcTeam(model, "away")} ${hs} 比 ${as} 平手` : `${bcTeam(model, hs > as ? "home" : "away")} ${Math.max(hs, as)} 比 ${Math.min(hs, as)} 領先`);
 const bcNum = (n) => ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n] ?? String(n);
 function bcGoalLine(model, g) {
-  const team = g.teamName || (goalSide(g, model) === "home" ? model.home.name : model.away.name);
+  const side = goalSide(g, model);
+  const team = side === "home" || side === "away" ? bcTeam(model, side) : g.teamName || "";
   const how = g.style === "頭槌" ? "頭球破門" : g.style === "點球" ? "點球命中" : g.style === "烏龍" ? "對手烏龍球" : "破門";
-  const who = g.scorer ? `${team}的${g.scorer}` : team;
+  const who = g.scorer ? `${team}的${bcPlayer(model, g.scorer)}` : team;
   return `第 ${g.base || "?"} 分鐘，${who}${how}`;
 }
 const bcMin = (model) => (model.minute.phase === "pre" ? 0 : model.minute.phase === "ht" ? 45 : model.minute.phase === "ft" || model.minute.state === "post" ? 90 : model.minute.base || 0);
 
 /* ---------- 即時口播：5 秒／15 秒／下一眼 ---------- */
 function bcLines(model) {
-  const H = model.home.name, A = model.away.name;
+  const H = bcTeam(model, "home"), A = bcTeam(model, "away");
   const ph = model.minute.phase;
   const done = ph === "ft" || model.minute.state === "post";
   const hs = Number(model.home.score) || 0, as = Number(model.away.score) || 0;
@@ -110,7 +127,7 @@ function bcLines(model) {
     next = hs !== as ? `下半場開始留意${hs > as ? A : H}的邊路站位：邊路壓上，身後空間會不會給對手反擊？` : "下半場開始看哪一隊先提高壓迫位置。";
   } else {
     if (last && now - (last.base || 0) <= 5) quick = `${bcGoalLine(model, last)}！${scoreNow}。`;
-    else if (recentRed) quick = `第 ${recentRed.base} 分鐘，${recentRed.teamName || ""}${recentRed.playerNames?.[0] ? `的${recentRed.playerNames[0]}` : ""}吃到紅牌！${scoreNow}。`;
+    else if (recentRed) quick = `第 ${recentRed.base} 分鐘，${recentRed.teamName || ""}${recentRed.playerNames?.[0] ? `的${bcPlayer(model, recentRed.playerNames[0])}` : ""}吃到紅牌！${scoreNow}。`;
     else quick = `第 ${now} 分鐘，${hs === as ? `雙方 ${hs} 比 ${as}` : bcScoreText(model, hs, as)}。`;
     const how = goals.length ? `比分怎麼來：${goals.map((g) => bcGoalLine(model, g)).join("；")}。` : "";
     const stat = typeof gapLines === "function" ? gapLines(model)[0] || "" : "";
@@ -167,7 +184,7 @@ function bcNodeCard(model, node) {
   const seg = (model.events || []).filter((e) => ["goal", "red", "yellow", "sub"].includes(e.kind) && (e.base || 0) > node.from && (e.base || 0) <= node.to);
   const src = dataSource(model);
   const lines = [`到第 ${node.to} 分鐘：${bcScoreText(model, hs, as)}。`];
-  if (seg.length) lines.push(`這段關鍵事件：${seg.slice(0, 4).map((e) => e.kind === "goal" ? bcGoalLine(model, e) : e.kind === "sub" ? `${e.base}' ${e.teamName}換人${e.subOn ? `（${e.subOn} 上）` : ""}` : `${e.base}' ${e.teamName}${e.kind === "red" ? "紅牌" : "黃牌"}`).join("；")}。`);
+  if (seg.length) lines.push(`這段關鍵事件：${seg.slice(0, 4).map((e) => e.kind === "goal" ? bcGoalLine(model, e) : e.kind === "sub" ? `${e.base}' ${e.teamName}換人${e.subOn ? `（${bcPlayer(model, e.subOn)} 上）` : ""}` : `${e.base}' ${e.teamName}${e.kind === "red" ? "紅牌" : "黃牌"}`).join("；")}。`);
   else if (src.snapshot) lines.push("這段的事件：來源只記錄進球，其他事件未收錄。");
   else lines.push("這段沒有進球、紅牌或換人。");
   lines.push(hs === ps && as === pa ? "上一段判斷：比分沒有變化，場面要看誰先改變節奏。" : `上一段判斷：比分從 ${ps} 比 ${pa} 變成 ${hs} 比 ${as}，場面已經改變。`);

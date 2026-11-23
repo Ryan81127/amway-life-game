@@ -149,7 +149,7 @@ function subsBlock(model) {
   /* 口播重點：最新兩次換人（兩隊合併），分鐘、誰下誰上、位置變化；影響是推測，另外標示 */
   {
     const latest = list.slice(-2).reverse();
-    const nm = (p) => { const n = subName(p); return `${p?.jersey ? p.jersey + " 號" : ""}${n.phon ? n.en : n.zh}`; };
+    const nm = (p) => { const n = subName(p); return `${p?.jersey ? p.jersey + " 號 " : ""}${n.zh}${n.en && n.en !== n.zh ? `（${n.en}）` : ""}`; };
     const lines = latest.map((x) => {
       const pos = subPos(x);
       const posOut = x.pout?.posZh || "";

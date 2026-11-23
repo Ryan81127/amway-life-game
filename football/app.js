@@ -565,7 +565,7 @@ function teamCol(team, tag) {
   const col = h("div", { class: "side" });
   const color = safeColor(team.color);
   if (color) col.style.borderTop = `3px solid ${color}`;
-  col.append(h("span", { class: "tag" }, tag), logoNode(team.logo, team.abbr), h("div", { class: "name" }, team.name));
+  col.append(h("span", { class: "tag" }, tag), logoNode(team.logo, team.abbr), h("div", { class: "name" }, team.name), team.rawName && team.rawName !== team.name ? h("div", { class: "name-en" }, team.rawName) : null);
   return col;
 }
 
