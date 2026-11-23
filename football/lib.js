@@ -235,9 +235,55 @@ function nameZh(raw, id) {
   return base;
 }
 
+/* 沒有建檔的球隊（例如亞冠西亞球隊）：先查常用譯名表，再查維基百科中文條目（本機快取 30 天）。
+   都查不到才顯示英文，不自己音譯隊名。 */
+const TEAM_NAME_ZH = {
+  "al ain": "艾因", "esteghlal": "德黑蘭獨立", "esteghlal fc": "德黑蘭獨立", "al-shamal": "沙馬爾", "al shamal": "沙馬爾",
+  "al ahli": "吉達國民", "al-ahli": "吉達國民", "al hilal": "利雅德新月", "al-hilal": "利雅德新月", "al nassr": "利雅德勝利", "al-nassr": "利雅德勝利",
+  "al sadd": "薩德", "al-sadd": "薩德", "al qadsiah": "卡迪西亞", "al-qadsiah": "卡迪西亞", "shabab al ahli": "迪拜青年國民", "shabab al-ahli": "迪拜青年國民",
+  "al wahda": "阿布達比瓦赫達", "al-wahda": "阿布達比瓦赫達", "sharjah": "沙迦", "sharjah fc": "沙迦", "al gharafa": "卡拉法", "al-gharafa": "卡拉法",
+  "al duhail": "杜海勒", "al-duhail": "杜海勒", "tractor": "拖拉機", "tractor sc": "拖拉機", "traktor sazi fc": "拖拉機", "sepahan": "塞帕罕", "persepolis": "波斯波利斯",
+  "al shorta": "警察", "al-shorta": "警察", "al-quwa al-jawiya": "空軍", "al quwa al jawiya": "空軍", "nasaf": "納薩夫", "nasaf qarshi": "納薩夫", "pakhtakor": "棉農",
+  "al wasl": "瓦斯爾", "al-wasl": "瓦斯爾", "al rayyan": "賴揚", "al-rayyan": "賴揚", "al ittihad": "吉達聯合", "al-ittihad": "吉達聯合",
+  "shanghai port": "上海海港", "shanghai port fc": "上海海港", "shanghai shenhua": "上海申花", "beijing guoan": "北京國安", "chengdu rongcheng": "成都蓉城", "shandong taishan": "山東泰山",
+  "buriram united": "武里南聯", "johor darul ta'zim": "柔佛新山", "johor darul tazim": "柔佛新山", "ratchaburi fc": "叻丕", "ratchaburi": "叻丕", "cong an ha noi": "河內公安", "cong an hanoi": "河內公安",
+  "port fc": "曼谷港口", "bangkok united": "曼谷聯", "lion city sailors": "獅城水手", "tai po fc": "大埔", "tai po": "大埔",
+  "ulsan hd": "蔚山 HD", "ulsan hyundai": "蔚山現代", "pohang steelers": "浦項制鐵", "daejeon hana citizen fc": "大田韓亞市民", "daejeon hana citizen": "大田韓亞市民",
+  "gangwon fc": "江原", "jeonbuk hyundai motors": "全北現代", "fc seoul": "首爾FC", "gwangju fc": "光州FC"
+};
+const TEAM_WIKI = "fb-tname-v1:";
+const teamWikiFlight = new Set();
+function teamDictZh(raw) {
+  const k = String(raw || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+  return TEAM_NAME_ZH[k] || TEAM_NAME_ZH[k.replace(/ (fc|sc|club)$/, "")] || "";
+}
+function teamWikiZh(raw) {
+  const name = String(raw || "").trim();
+  if (!name || /[\u3400-\u9fff]/.test(name)) return "";
+  try {
+    const hit = JSON.parse(localStorage.getItem(TEAM_WIKI + name.toLowerCase()) || "null");
+    if (hit && Date.now() - hit.t < (hit.zh ? 30 : 1) * 86400000) return hit.zh || "";
+  } catch { /* 讀不到就重查 */ }
+  if (teamWikiFlight.has(name) || teamWikiFlight.size >= 6 || typeof fetch !== "function") return "";
+  teamWikiFlight.add(name);
+  const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&generator=search&gsrsearch=${encodeURIComponent(name + " football club")}&gsrlimit=1&prop=langlinks&lllang=zh`;
+  fetch(url).then((r) => (r.ok ? r.json() : null)).then((data) => {
+    const page = data?.query?.pages ? Object.values(data.query.pages)[0] : null;
+    let zh = page?.langlinks?.[0]?.["*"] || "";
+    /* 條目名稱要跟隊名對得上，避免抓錯 */
+    const words = name.toLowerCase().replace(/^al[- ]/, "").split(/[^a-z]+/).filter((w) => w.length > 2 && !["club", "fc"].includes(w));
+    if (!page || !words.some((w) => page.title.toLowerCase().includes(w))) zh = "";
+    zh = zh.replace(/(足球|體育|体育)?(俱樂部|俱乐部|會|会)$/, "").replace(/足球隊$|足球队$/, "");
+    if (zh && typeof toTw === "function") zh = toTw(zh);
+    try { localStorage.setItem(TEAM_WIKI + name.toLowerCase(), JSON.stringify({ zh, t: Date.now() })); } catch { /* ignore */ }
+    if (zh && typeof relabelNames === "function") { relabelNames(); if (typeof maybeRender === "function") maybeRender({ soft: true }); }
+  }).catch(() => {}).finally(() => teamWikiFlight.delete(name));
+  return "";
+}
+
 function teamZh(id, fallback) {
   const key = String(id || "");
-  const tw = TEAM_ZH[key] || nameZh(fallback, key);
+  const tw = TEAM_ZH[key] || nameZh(fallback, key) || teamDictZh(fallback) || teamWikiZh(fallback);
   if (locale() === "cn") {
     if (TEAM_CN[key]) return TEAM_CN[key];
     if (tw) return han(tw);
