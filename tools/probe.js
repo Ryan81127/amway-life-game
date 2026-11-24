@@ -8,7 +8,7 @@ const list = String(process.argv[2] || "").split(",").filter(Boolean);
     try {
       const r = await fetch(url);
       const j = r.ok ? await r.json() : {};
-      const ev = (j.events || []).map((e) => `${e.date} ${e.name} [${e.id}]`);
+      const ev = (j.events || []).map((e) => `${e.date} ${e.name} [${e.id}] ${(e.competitions?.[0]?.competitors || []).map((c) => `${c.homeAway}:${c.team?.id}:${c.team?.displayName}`).join(" ")}`);
       console.log(`== ${path} ${dates || ""} → ${r.status} ${j.leagues?.[0]?.name || ""}`);
       for (const x of ev) console.log("   " + x);
     } catch (err) {
