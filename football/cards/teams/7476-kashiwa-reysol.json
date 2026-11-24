@@ -1,0 +1,84 @@
+{
+ "teamId": "7476",
+ "name": "Kashiwa Reysol",
+ "cards": [],
+ "squad": {
+  "total": 17850000,
+  "count": 37,
+  "checked": "2026-11-24",
+  "note": "總值取自 AiScore 2026/27 名單頁（第三方估值，與 Transfermarkt 可能有落差）；Transfermarkt 擋自動讀取，未能直接對照。各站同一球員數字不同，例：細谷真大 AiScore €1.5M／Soccerway €1.7M／FotMob €1.3M。",
+  "source": {
+   "name": "AiScore（2026/27 名單）",
+   "url": "https://www.aiscore.com/team-kashiwa-reysol/r8lk2dil0xa3736/squad"
+  },
+  "players": [
+   {
+    "name": "Mao Hosoya",
+    "pos": "F",
+    "value": 1500000,
+    "num": 9,
+    "src": "AiScore"
+   },
+   {
+    "name": "Ryosuke Kojima",
+    "pos": "G",
+    "value": 1100000,
+    "src": "Soccerway"
+   },
+   {
+    "name": "Yoshio Koizumi",
+    "pos": "M",
+    "value": 1000000,
+    "num": 8,
+    "src": "AiScore"
+   },
+   {
+    "name": "Tojiro Kubo",
+    "pos": "M",
+    "value": 900000,
+    "num": 24,
+    "src": "AiScore"
+   },
+   {
+    "name": "Makoto Mitsuta",
+    "pos": "M",
+    "value": 800000,
+    "src": "AiScore"
+   },
+   {
+    "name": "Yuto Yamada",
+    "pos": "M",
+    "value": 700000,
+    "num": 6,
+    "src": "AiScore"
+   },
+   {
+    "name": "Nobuteru Nakagawa",
+    "pos": "M",
+    "value": 650000,
+    "num": 39,
+    "src": "AiScore"
+   },
+   {
+    "name": "Yuki Kakita",
+    "pos": "F",
+    "value": 600000,
+    "num": 18,
+    "src": "AiScore"
+   },
+   {
+    "name": "Keita Endo",
+    "pos": "F",
+    "value": 600000,
+    "src": "AiScore"
+   },
+   {
+    "name": "Yusuke Segawa",
+    "pos": "F",
+    "value": 450000,
+    "num": 20,
+    "src": "AiScore"
+   }
+  ]
+ }
+}
