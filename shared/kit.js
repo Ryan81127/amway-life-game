@@ -1,4 +1,4 @@
-/* 今日球衣：足球開賽後自動帶入 ESPN 當場球衣顏色；沒有資料時可手動選（足球、籃球共用）。資料只存在這台裝置。 */
+/* 今日球衣：足球開賽後自動帶入 ESPN 當場球衣顏色；沒有資料時可手動選（足球看板共用）。資料只存在這台裝置。 */
 
 const KIT_COLORS = [
   ["白", "#f5f5f5"], ["黑", "#1a1a1a"], ["紅", "#d62828"], ["酒紅", "#7a1f2b"], ["橘", "#f77f00"], ["黃", "#ffd60a"],
@@ -67,12 +67,11 @@ function kitPanel(sport, model) {
     }));
   const note = sport === "football"
     ? "ESPN 開賽後才公布兩隊當場穿的球衣，看板會自動帶入；開賽前顯示「尚未公布」，開賽後重新整理即可。"
-    : model.league ? "這個聯賽的來源沒有球衣資料。" : "ESPN 的籃球資料沒有當場球衣；NBA 可點下方官方球衣排程查詢。";
+    : "這個聯賽的來源沒有球衣資料。";
   return h("section", { class: "panel kit-panel", id: "kit" },
     h("h2", null, ui("🎽 今日球衣")),
     h("div", { class: "kit-cards" }, card("away"), card("home")),
     h("p", { class: "faint" }, ui(note)),
-    sport === "basketball" && !model.league ? h("a", { href: "https://lockervision.nba.com/", target: "_blank", rel: "noopener", class: "chip" }, ui("NBA 官方球衣排程（LockerVision）")) : null,
     h("details", { class: "fold", "data-k": "kit-edit" }, h("summary", null, ui("手動修改顏色（看畫面確認）")), swatches("away"), swatches("away", "Shorts"), swatches("home"), swatches("home", "Shorts"),
       h("p", { class: "faint" }, ui("再點一次同一色塊可取消手動設定，改回自動。只存在這台裝置；上衣顏色會同步到陣型圖的球員圓點。"))));
 }
