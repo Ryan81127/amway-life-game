@@ -10,7 +10,7 @@
 | `city/` | 升級城（俠盜獵車手風格的 Amway 遊戲） | `/city/` |
 | `src/`、根目錄 `index.html`、`build.sh` | 原版「人生升級：安麗闖關」 | `/` |
 | `life/`、`sky/`、`plaza/` | 其他 Amway 小遊戲與人脈廣場 | 各自的資料夾 |
-| `football/`、`shared/`、`tools/probe.js`、`.github/workflows/snapshot.yml`、`.github/workflows/probe.yml` | 足球轉播看板（**正在搬到獨立專案，搬完後這裡只留轉址頁**） | `/football/` |
+| `football/index.html` | **只是轉址頁。** 足球轉播看板已經搬到獨立專案 `Ryan81127/football-board`（網址 `https://ryan81127.github.io/football-board/football/`）。**足球看板的修改一律到那個專案做，不要在這裡加回足球或籃球的檔案。** | `/football/` |
 
 ## 二、改動範圍
 
