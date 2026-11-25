@@ -330,6 +330,7 @@ const CFG=window.AMWAY_GAME_CONFIG;
 const KEY="amway-city-v1";
 let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 S=Object.assign({done:{},cards:[],gems:[],exp:0,branches:[],found:[],mute:false,team:[],opp:{talks:0,dist:0,mem:0,fri:0,rej:0,streak:0},day:1,clock:480,sales:0,bv:0,today:{sales:0,bv:0,join:0},why:"",easy:false,playT:0,pname:""},S||{});
+function gfxHi(){return S.gfx!="lo"}
 S.opp=Object.assign({talks:0,dist:0,mem:0,fri:0,rej:0,streak:0,sat:0,rep:0,spades:0,since:0},S.opp||{});S.today=Object.assign({sales:0,bv:0,join:0,sat:0,flips:0,spades:0,sv:[]},S.today||{});if(!S.mo)S.mo={k:Math.floor(((S.day||1)-1)/30),own:S.today.bv||0,pb:{},last:0};S.mo=Object.assign({own:0,pb:{},last:0},S.mo);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=s=>document.querySelector(s);
@@ -948,13 +949,14 @@ function render(){
   if(q.sayT>0){ctx.font="700 16px 'Noto Sans TC',sans-serif";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.strokeStyle="#000";ctx.lineWidth=4;ctx.strokeText(q.say,q.x,q.y-30);ctx.fillText(q.say,q.x,q.y-30)}}
  // cars
  const drawCar=(c,o={})=>{if(!inView(c.x,c.y,60))return;if(c.kind=="bike"||c.kind=="scooter"){drawTwo(c,c===PL.car||c.dir!==undefined);return}ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);const L=c.L||54,Wd=c.Wd||28;
-  ctx.fillStyle="#0002";rr(-L/2+1,-Wd/2+2,L+8,Wd+8,11);ctx.fill();ctx.fillStyle="#0003";rr(-L/2+3,-Wd/2+4,L+2,Wd+2,8);ctx.fill();
+  if(gfxHi()){ctx.shadowColor="rgba(0,0,0,.45)";ctx.shadowBlur=10;ctx.shadowOffsetX=3;ctx.shadowOffsetY=5}
+  ctx.fillStyle="#0002";rr(-L/2+1,-Wd/2+2,L+8,Wd+8,11);ctx.fill();ctx.fillStyle="#0003";rr(-L/2+3,-Wd/2+4,L+2,Wd+2,8);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
   ctx.fillStyle=c.color;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();ctx.strokeStyle="#0008";ctx.lineWidth=2;ctx.stroke();
   if(c.truck){ctx.fillStyle="#ddd";ctx.fillRect(-L/2+2,-Wd/2+2,L*.62,Wd-4);ctx.fillStyle="#1d2a38";ctx.fillRect(L*.2,-Wd/2+4,7,Wd-8)}
   else{ctx.fillStyle="#1d2a38";rr(L*.08,-Wd/2+4,L*.2,Wd-8,3);ctx.fill();rr(-L*.36,-Wd/2+5,L*.14,Wd-10,3);ctx.fill();ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",1.18);rr(-L*.2,-Wd/2+4,L*.27,Wd-8,3);ctx.fill()}
   ctx.fillStyle="#fff7b0";ctx.fillRect(L/2-4,-Wd/2+3,4,6);ctx.fillRect(L/2-4,Wd/2-9,4,6);
   ctx.fillStyle=c.brake?"#ff2d2d":"#8a1a1a";ctx.fillRect(-L/2,-Wd/2+3,3,6);ctx.fillRect(-L/2,Wd/2-9,3,6);
-  {const gl=ctx.createLinearGradient(0,-Wd/2,0,Wd/2);gl.addColorStop(0,"rgba(255,255,255,.35)");gl.addColorStop(.45,"rgba(255,255,255,0)");gl.addColorStop(1,"rgba(0,0,0,.18)");ctx.fillStyle=gl;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",.7);ctx.fillRect(L*.12,-Wd/2-3,5,3);ctx.fillRect(L*.12,Wd/2,5,3)}
+  {const gl=ctx.createLinearGradient(0,-Wd/2,0,Wd/2);gl.addColorStop(0,"rgba(255,255,255,.42)");gl.addColorStop(.42,"rgba(255,255,255,0)");gl.addColorStop(1,"rgba(0,0,0,.22)");ctx.fillStyle=gl;rr(-L/2,-Wd/2,L,Wd,7);ctx.fill();if(gfxHi()&&!c.truck){const wg=ctx.createLinearGradient(L*.02,0,L*.2,0);wg.addColorStop(0,"rgba(120,190,255,.0)");wg.addColorStop(.5,"rgba(160,215,255,.55)");wg.addColorStop(1,"rgba(120,190,255,.0)");ctx.fillStyle=wg;rr(L*.02,-Wd/2+3,L*.18,Wd-6,4);ctx.fill();ctx.fillStyle="rgba(255,255,255,.5)";ctx.fillRect(L*.06,-Wd/2+4,2,Wd-8)}ctx.fillStyle=shade(c.color.length==7?c.color:"#888888",.7);ctx.fillRect(L*.12,-Wd/2-3,5,3);ctx.fillRect(L*.12,Wd/2,5,3)}
   if(c.taxi){ctx.fillStyle="#fff";ctx.fillRect(-6,-6,10,12);ctx.fillStyle="#111";ctx.fillRect(-4,-4,6,8)}
   if(c.share){ctx.fillStyle="#57ff8a";ctx.fillRect(-4,-Wd/2,8,Wd)}
   if(c.ai){ctx.fillStyle=Math.sin(TIME*12)>0?"#ff2d55":"#3d7dff";ctx.fillRect(-6,-8,12,16)}
@@ -1087,7 +1089,7 @@ function renderPhone(){const el=$("#phBody");const nm=nextMission();
  if(phTab=="r"){el.innerHTML=roadmap();rmCalc()}
  if(phTab=="t"){el.innerHTML=teamTab()}
  if(phTab=="k"){el.innerHTML=AREAS.map(a=>`<h3 style="margin:10px 0 4px">${a.ic} ${a.ch}</h3>`+a.cards.map(c=>S.cards.includes(c[0])?`<div class="kc"><b>${c[0]}</b><br>${c[1]}</div>`:`<div class="kc lock">🔒 ${c[0]}</div>`).join("")).join("")+`<p class="disc">${DISC}</p>`}
- if(phTab=="s"){el.innerHTML=`<p>輕鬆模式：<button class="btn ${S.easy?"gr":"dk"}" id="sEasy">${S.easy?"✅ 已開啟":"⬜ 已關閉"}</button><br><small style="color:#aaa">開啟後：點任務就傳送過去；畫面下方出現「🚀 傳送到目標」。答題路口的答案還是要自己選。</small></p>
+ if(phTab=="s"){el.innerHTML=`<p>畫質：<button class="btn dk" id="sGfx">${gfxHi()?"✨ 高畫質（陰影、光影、天空）":"⚡ 省電（關閉特效）"}</button></p><p>輕鬆模式：<button class="btn ${S.easy?"gr":"dk"}" id="sEasy">${S.easy?"✅ 已開啟":"⬜ 已關閉"}</button><br><small style="color:#aaa">開啟後：點任務就傳送過去；畫面下方出現「🚀 傳送到目標」。答題路口的答案還是要自己選。</small></p>
   <p style="margin-bottom:4px">快速傳送（已解鎖的地點）：</p><div style="display:flex;flex-wrap:wrap;gap:6px">${warpPlaces().map((w,i)=>`<button class="btn dk wp" data-i="${i}" style="font-size:13px;padding:6px 10px">${w[0]}</button>`).join("")}</div>
   <p>音效：<button class="btn dk" id="sMute">${S.mute?"🔇 已關閉":"🔊 已開啟"}</button></p><p>傳送回起點：<button class="btn dk" id="sHome">回初始村</button></p><p>清除全部進度：<button class="btn pk" id="sReset">重置</button></p><p style="font-size:13px;color:#aaa">原版闖關遊戲：<a href="../" style="color:var(--cyan)">人生升級：安麗闖關</a></p>`;
   $("#sMute").onclick=()=>{S.mute=!S.mute;save();if(S.mute&&ENG)ENG.g.gain.value=0;renderPhone()};$("#sEasy").onclick=()=>{S.easy=!S.easy;save();updWarp();renderPhone()};el.querySelectorAll(".wp").forEach(b=>b.onclick=()=>{const w=warpPlaces()[+b.dataset.i];if(MS)endMission();warpTo(w[1],false)});$("#sHome").onclick=()=>{if(MS)endMission();if(PL.car)exitCar();PL.x=START.x;PL.y=START.y;closeOv("phone")};$("#sReset").onclick=()=>{if(confirm("確定清除全部進度？")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}}}}
@@ -1460,7 +1462,14 @@ function renderFP(){
  const car=PL.car,a=car?car.a:PL.a,eye=car?22:18,f=Math.min(bw,bh)*.85,hor=Math.round(bh*(VW<VH?.5:.45));
  const cx=(car||PL).x,cy=(car||PL).y,fx=Math.cos(a),fy=Math.sin(a),rx=-fy,ry=fx;CAM.x=cx;CAM.y=cy;
  const SK=[190,215,235],FOG=2600;
- for(let y=0;y<=hor&&y<bh;y++){const t=y/hor,r=lerp(80,SK[0],t)|0,g=lerp(140,SK[1],t)|0,b=lerp(215,SK[2],t)|0,c=(255<<24)|(b<<16)|(g<<8)|r;buf.fill(c,y*bw,y*bw+bw)}
+ const DIs=dayInfo(),night=DIs.dark>.5,hi=gfxHi(),ang=DIs.h<6||DIs.h>18?-1:(DIs.h-6)/12*Math.PI;
+ const TOP=night?[6,12,36]:[64,122,206],MID=night?[22,36,80]:[146,198,240],HZ=night?[58,68,108]:[222,238,248];
+ for(let y=0;y<=hor&&y<bh;y++){const k=y/hor,u=k*k;let r,g,b;if(u<.55){const v=u/.55;r=lerp(TOP[0],MID[0],v);g=lerp(TOP[1],MID[1],v);b=lerp(TOP[2],MID[2],v)}else{const v=(u-.55)/.45;r=lerp(MID[0],HZ[0],v);g=lerp(MID[1],HZ[1],v);b=lerp(MID[2],HZ[2],v)}
+  const o=y*bw;for(let x=0;x<bw;x++)buf[o+x]=(255<<24)|((b|0)<<16)|((g|0)<<8)|(r|0)}
+ if(hi&&ang>=0){const sxp=bw*(.5-Math.cos(ang)*.42),syp=hor*(.95-Math.sin(ang)*.85),R=bw*.28;
+  for(let y=Math.max(0,Math.floor(syp-R));y<=Math.min(hor,Math.ceil(syp+R));y++){const dy=y-syp;for(let x=Math.max(0,Math.floor(sxp-R));x<=Math.min(bw-1,Math.ceil(sxp+R));x++){const dx=x-sxp,d=Math.sqrt(dx*dx+dy*dy)/R;if(d>1)continue;const gl=Math.pow(1-d,1.8)*1.05,o=y*bw+x,c=buf[o];let r=c&255,g=(c>>8)&255,b=(c>>16)&255;
+   r=Math.min(255,r+(255-r)*gl);g=Math.min(255,g+(246-g)*gl);b=Math.min(255,b+(214-b)*gl*.9);buf[o]=(255<<24)|((b|0)<<16)|((g|0)<<8)|(r|0)}}}
+ if(night&&hi){const R2=rng(4242);ctx.fillStyle="#fff";for(let i=0;i<140;i++){const x=(R2()*bw)|0,y=(R2()*hor*.72)|0,tw=.55+.45*Math.sin(TIME*2+i);if(y<0||y>=bh)continue;const o=y*bw+x,c=buf[o],b=(c>>16)&255,gg=(c>>8)&255,rr2=c&255;const v=Math.round(160*tw);buf[o]=(255<<24)|(Math.min(255,b+v)<<16)|(Math.min(255,gg+v)<<8)|Math.min(255,rr2+v)}}
  for(let y=hor+1;y<bh;y++){const rd=eye*f/(y-hor),fog=Math.min(1,rd/FOG),dxs=rx*rd/f,dys=ry*rd/f;let wx=cx+fx*rd-dxs*bw/2,wy=cy+fy*rd-dys*bw/2;const o=y*bw;
   for(let x=0;x<bw;x++){gcol(wx,wy);const r=GR+(SK[0]-GR)*fog|0,g=GG+(SK[1]-GG)*fog|0,b=GB+(SK[2]-GB)*fog|0;buf[o+x]=(255<<24)|(b<<16)|(g<<8)|r;wx+=dxs;wy+=dys}}
  ZB.fill(1e9);const near=BLD.filter(b=>Math.hypot(b.x+b.w/2-cx,b.y+b.h/2-cy)<FOG+400);const hits=[];
@@ -1538,6 +1547,7 @@ window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=
  CARS:()=>CARS,KINDS,BLD:()=>BLD,RU:()=>RU,NPC:()=>NPC,mk:(x,y,a)=>mkCar(x,y,a,"#d63a3a"),
  next:()=>nextStep(),cut:()=>cutNext(),start:id=>startMission(MDEF.find(m=>m.id==id)),ending:()=>ending(),obj:()=>objTarget(),step:()=>{const c=curStep();return c?c.t:null},pass:()=>passMission(),missions:MDEF};
 </script>
+<script src="gfx.js"></script>
 <script src="scenery.js"></script>
 <script src="firebase-config.js"></script>
 <script src="net.js"></script>
