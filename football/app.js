@@ -262,7 +262,7 @@ function renderSchedule(app) {
   if (state.leagueErrors.length) {
     wrap.append(h("div", { class: "banner" }, `部分聯賽暫時無法取得：${state.leagueErrors.join("、")}。`));
   }
-  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "../basketball/" }, "🏀 ", ui("籃球")), h("a", { href: "?view=history" }, "📊 ", ui("預測歷史")),
+  wrap.append(h("nav", { class: "sport-switch" }, h("a", { href: "./", "aria-current": "page" }, "⚽ ", ui("足球")), h("a", { href: "?view=history" }, "📊 ", ui("預測歷史")),
     h("a", { href: "https://app.notion.com/p/diamondteam/40c71e16c0258132b8f7ec5751c312b0", target: "_blank", rel: "noopener", title: "Notion：大事件與熱門話題" }, "📒 ", ui("大事件與熱門話題"))));
   wrap.append(chipRow());
   wrap.append(h("div", { class: "day-h" }, dayTitle(day, bounds.today), h("span", { class: "faint" }, ui(" · 台北時間 · 比賽中每 20 秒更新"))));
@@ -306,8 +306,6 @@ function chipRow() {
       onclick: () => setFilter(league.slug)
     }, ui(league.name)));
   }
-  /* 澳女聯是籃球，資料放在籃球看板；這裡給一個捷徑直接跳過去 */
-  row.append(h("a", { class: "chip", href: "../basketball/?league=wnbl", title: "澳洲女子職業籃球聯賽（WNBL），在籃球看板" }, "🏀 ", ui("澳女聯")));
   return row;
 }
 
