@@ -1,5 +1,7 @@
 # 專案規則（每個工作階段開始前必讀）
 
+> 本檔與 `CLAUDE.md`／`AGENTS.md` 內容相同（`CLAUDE.md` 給 Claude、`AGENTS.md` 給 Cursor 等其他 AI 工具），修改時兩份要一起改。
+
 這個專案是 Ryan 的 Amway 相關遊戲與工具，透過 GitHub Pages 發佈：`https://ryan81127.github.io/amway-life-game/`。
 推上 `main` 就會自動上線，所以改錯一個檔案，所有網站都會一起受影響。
 
