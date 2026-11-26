@@ -10,12 +10,12 @@
 | `city/` | 升級城（俠盜獵車手風格的 Amway 遊戲） | `/city/` |
 | `src/`、根目錄 `index.html`、`build.sh` | 原版「人生升級：安麗闖關」 | `/` |
 | `life/`、`sky/`、`plaza/` | 其他 Amway 小遊戲與人脈廣場 | 各自的資料夾 |
-| `football/index.html` | **只是轉址頁。** 足球轉播看板已經搬到獨立專案 `Ryan81127/football-board`（網址 `https://ryan81127.github.io/football-board/football/`）。**足球看板的修改一律到那個專案做，不要在這裡加回足球或籃球的檔案。** | `/football/` |
+| `football/index.html` | **只是轉址頁。** 運動轉播看板（足球、籃球）已經搬到獨立專案 `Ryan81127/football-board`（足球 `https://ryan81127.github.io/football-board/football/`、籃球 `https://ryan81127.github.io/football-board/basketball/`）。**足球、籃球看板的修改一律到那個專案做，不要在這裡加回足球或籃球的檔案。** | `/football/` |
 
 ## 二、改動範圍
 
 1. **只改這次任務負責的資料夾。** 改升級城就只動 `city/`；改足球看板就只動足球的檔案。不確定某個檔案屬於誰，先問 Ryan。
-2. **Amway 遊戲裡不能出現籃球或任何運動看板的內容。** 籃球看板已經整個移除，不要再加回來。
+2. **Amway 遊戲裡不能出現籃球或任何運動看板的內容。** 籃球、足球看板都在 `football-board` 專案，不要加回這裡。
 3. 不要刪除或改寫別的工作階段做的東西。合併 `main` 時如果有衝突，停下來告訴 Ryan，不要自己挑一邊蓋掉。
 
 ## 三、PR 與合併（最重要）
