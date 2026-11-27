@@ -2,7 +2,7 @@
 window.PLAZA_CONFIG = {
   // 貼上 Apps Script「公開 API」網址後，網站會讀取已核准的真實成員，表單也會寫進你的 Google Sheet。
   // 留空 = Demo 模式：使用下方範例資料，送出的表單只存在這台瀏覽器，可在 admin.html 看到。
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbxYpEQH0vBeCCja6QK7l7hgzYNbusc-KmM4wekQBzvmoDbry7ApcPH6vorTqeX3wFy-FA/exec',
   OWNER_NAME: 'Ryan',
   COLORS: {
     水電: '#2b6cb0', 消防: '#c8352b', 律師: '#4a3b8f', 會計: '#2f855a', 旅宿: '#b7791f', 餐飲: '#dd6b20',
