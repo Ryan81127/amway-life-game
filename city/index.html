@@ -254,6 +254,8 @@ body.cut #inc,body.hideinc #inc,body:has(#tip.on) #inc{visibility:hidden}
 #inc.col{opacity:0;transform:scale(.25);pointer-events:none}
 #incBtn{position:fixed;left:12px;top:calc(204px + env(safe-area-inset-top));z-index:12;width:46px;height:46px;border-radius:12px;border:3px solid #111;background:linear-gradient(#3a3f4a,#16181d);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:opacity .3s}
 #incBtn.hid{opacity:0;pointer-events:none}
+#incBtn{top:calc(150px + env(safe-area-inset-top))!important;left:116px!important}
+body:has(#quiz:not(.hide)) #inc{visibility:hidden}
 #incBtn.pulse{animation:incBtnP 1.2s ease-out 2}@keyframes incBtnP{0%{box-shadow:0 0 0 0 #57ff8acc}70%{box-shadow:0 0 0 14px #57ff8a00}100%{box-shadow:0 0 0 0 #57ff8a00}}
 body.cut #incBtn{visibility:hidden}
 #askBtn{background:linear-gradient(135deg,#14e0c8,#8b5cf6 60%,#d946ef)!important;border:2px solid #fff!important;border-radius:999px!important;padding:6px 14px 6px 6px!important;display:flex;align-items:center;gap:6px;font-size:15px!important;color:#fff;text-shadow:0 1px 2px #0007;box-shadow:0 0 14px #8b5cf6aa,0 0 4px #14e0c8;animation:askGlow 2.4s ease-in-out infinite}
@@ -1388,7 +1390,7 @@ function tickClock(dt){S.clock+=dt*6;
  for(const e of SCHED){if(e.done||S.clock<e.at)continue;e.done=1;e.m.sales+=e.amt;e.m.bv+=e.bv;e.m.buys=(e.m.buys||0)+1;S.sales+=e.amt;S.bv+=e.bv;S.today.sales+=e.amt;S.today.bv+=e.bv;monthCheck();if(e.m.spade){const pk=e.m.n+"#"+e.m.d;S.mo.pb[pk]=(S.mo.pb[pk]||0)+e.bv}else S.mo.own=(S.mo.own||0)+e.bv;S.today.sv=S.today.sv||[];if(!S.today.sv.includes(e.m.n+"#"+e.m.d))S.today.sv.push(e.m.n+"#"+e.m.d);updInc(true);{const ib=$("#incBtn");ib.classList.remove("pulse");void ib.offsetWidth;ib.classList.add("pulse");if($("#inc").classList.contains("col"))incShow(4000)}const rep=e.m.buys>1;if(rep)S.opp.rep=(S.opp.rep||0)+1;save();tone(1046,.08,"triangle",.04);
   const lab=e.m.spade?"🦅 夥伴團隊訂單":rep?(e.m.t=="生活會員"?"🔁 長客續訂":"🔁 顧客回購"):"🛒 顧客購買";
   feed(`${lab}：${e.m.av} ${e.m.n}（${e.m.t}）NT$<b>${fmt(e.amt)}</b>｜BV（示意）${fmt(e.bv)}`)}
- if(S.clock>=1440){const t=S.today;S.clock-=1440;S.day++;{const c=incNow();RECAP={mk:S.mo.k,day:S.day-1,flips:t.flips||0,served:(t.sv||[]).length,grp:c.grp,pct:c.pct,ded:c.ded,bonus:c.bonus,prev:S.mo.last||0};S.mo.last=c.bonus;if(monthCheck()){RECAP.reset=1;RECAP.bonusNew=0}updInc(false)}S.lastDayBV=t.bv;S.today={sales:0,bv:0,join:0,sat:0,flips:0,spades:0,sv:[]};scheduleDay(0);save()}
+ if(S.clock>=1440){const t=S.today;S.clock-=1440;S.day++;{const c=incNow();{const add=Math.max(0,Math.round(c.bonus-(S.mo.last||0)));if(add>0){S.wallet=(S.wallet||0)+add;setTimeout(()=>feed("💰 今日示範獎金 <b>$"+fmt(add)+"</b> 存進遊戲錢包（共 $"+fmt(S.wallet)+"）"),1500)}}RECAP={mk:S.mo.k,day:S.day-1,flips:t.flips||0,served:(t.sv||[]).length,grp:c.grp,pct:c.pct,ded:c.ded,bonus:c.bonus,prev:S.mo.last||0};S.mo.last=c.bonus;if(monthCheck()){RECAP.reset=1;RECAP.bonusNew=0}updInc(false)}S.lastDayBV=t.bv;S.today={sales:0,bv:0,join:0,sat:0,flips:0,spades:0,sv:[]};scheduleDay(0);save()}
  clockSave+=dt;if(clockSave>6){clockSave=0;save()}}
 function feed(html){const el=document.createElement("div");el.className="fi";el.innerHTML=html;const f=$("#feed");f.prepend(el);while(f.children.length>4)f.lastChild.remove();setTimeout(()=>el.classList.add("out"),5500);setTimeout(()=>el.remove(),6100)}
 
@@ -1582,5 +1584,6 @@ window.__city={S:()=>S,MS:()=>MS,QZ:()=>QZ,PL,tp:(x,y)=>{const o=PL.car||PL;o.x=
 <script src="scenery.js"></script>
 <script src="firebase-config.js"></script>
 <script src="net.js"></script>
+<script src="air.js"></script>
 </body>
 </html>
