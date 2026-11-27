@@ -58,16 +58,27 @@
     const contact = m => [m.phone && `📱 ${esc(m.phone)}`, m.line_id && `LINE ${esc(m.line_id)}`, m.email && `✉️ ${esc(m.email)}`].filter(Boolean).join(' · ') || '<span class="muted">未留聯絡方式</span>';
     const noteBox = (kind, x) => `<textarea class="ad-note" data-note="${kind}" data-id="${esc(x.id)}" rows="1" placeholder="備註（例：已傳 LINE、約週三見面）">${esc(x.note || '')}</textarea>`;
 
+    const okUrl = u => typeof u === 'string' && /^https?:\/\/[^\s"'<>]+$/i.test(u);
+    const okImg = u => okUrl(u) || (typeof u === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u));
+    const arr = v => { if (Array.isArray(v)) return v; try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+    function extras(m) {
+      const links = arr(m.links).filter(l => l && okUrl(l.url));
+      if (okUrl(m.profile_url)) links.unshift({ label: '介紹連結', url: m.profile_url });
+      const works = arr(m.works).filter(w => w && w.title);
+      if (!links.length && !works.length) return '<dt>一頁式</dt><dd class="muted">沒有填連結或作品</dd>';
+      return (links.length ? `<dt>連結</dt><dd>${links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>`).join(' · ')}</dd>` : '') +
+        (works.length ? `<dt>作品</dt><dd><div class="ad-works">${works.map(w => `<span>${okImg(w.img) ? `<img src="${esc(w.img)}" alt="" loading="lazy">` : ''}${esc(w.title)}</span>`).join('')}</div></dd>` : '');
+    }
     function memberCard(m) {
-      const av = g.Avatar ? g.Avatar.render(m.avatar || g.Avatar.randomFor(m.id, null, m.industry)) : '';
+      const av = okImg(m.photo) ? `<img src="${esc(m.photo)}" alt="${esc(m.name)} 的照片" loading="lazy">` : g.Avatar ? g.Avatar.render(m.avatar || g.Avatar.randomFor(m.id, null, m.industry)) : '';
       const isLive = yes(m.approved);
-      return `<article class="ad-card mem"><div class="ad-por">${av}</div><div class="ad-body">
+      return `<article class="ad-card mem"><div class="ad-por${okImg(m.photo) ? ' photo' : ''}">${av}</div><div class="ad-body">
         <div class="ad-row"><b class="ad-name">${esc(m.name)}</b><span class="tagx">${esc(m.industry)}</span><span class="muted">${esc(m.title)}${m.city ? ' · ' + esc(m.city) : ''}</span><span class="muted ad-time">${fmt(m.created_at)}</span></div>
         <p>${esc(m.short_intro)}</p>
         <dl><dt>服務</dt><dd>${esc(m.services)}</dd>${m.can_help_with ? `<dt>可協助</dt><dd>${esc(m.can_help_with)}</dd>` : ''}<dt>想認識</dt><dd>${esc(m.looking_for)}</dd>
-        <dt>私人聯絡</dt><dd>${contact(m)}</dd><dt>來源</dt><dd>${esc(m.source_circle || '—')}${m.profile_url ? ` · <a href="${esc(m.profile_url)}" target="_blank" rel="noopener">介紹連結</a>` : ''}</dd></dl>
+        <dt>私人聯絡</dt><dd>${contact(m)}</dd><dt>來源</dt><dd>${esc(m.source_circle || '—')}</dd>${extras(m)}</dl>
         ${noteBox('member', m)}
-        <div class="ad-acts">${isLive ? `<button class="btn ghost sm" data-act="hide" data-id="${esc(m.id)}">下架</button>` : `<button class="btn red sm" data-act="approve" data-id="${esc(m.id)}">核准上架</button><button class="btn ghost sm" data-act="reject" data-id="${esc(m.id)}">不通過</button>`}</div>
+        <div class="ad-acts">${isLive ? `<a class="btn ghost sm" href="${esc((ad.siteUrl || './') + 'profile.html?id=' + encodeURIComponent(m.id))}" target="_blank" rel="noopener">看一頁式介紹</a><button class="btn ghost sm" data-act="hide" data-id="${esc(m.id)}">下架</button>` : `<button class="btn red sm" data-act="approve" data-id="${esc(m.id)}">核准上架</button><button class="btn ghost sm" data-act="reject" data-id="${esc(m.id)}">不通過</button>`}</div>
       </div></article>`;
     }
     const sel = (kind, x) => `<select class="ad-sel st-${STATUS[kind].indexOf(x.status)}" data-status="${kind}" data-id="${esc(x.id)}">${STATUS[kind].map(s => `<option${s === x.status ? ' selected' : ''}>${s}</option>`).join('')}</select>`;

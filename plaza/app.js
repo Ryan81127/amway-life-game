@@ -15,32 +15,22 @@
   const colorOf = ind => C.COLORS[ind] || '#718096';
   $$('.owner').forEach(e => e.textContent = C.OWNER_NAME);
 
-  let people = [], nodes = [], me = null, summon = null, W = 0, H = 0, last = performance.now(), chatClock = 0;
+  let people = [], shown = [], nodes = [], me = null, summon = null, W = 0, H = 0, last = performance.now(), chatClock = 0, crowd = 1;
+  const view = { z: 1, x: 0, y: 0 };
 
   /* ---------- 幾何 ---------- */
   const FT = () => H * (isMobile() ? .6 : .615), FB = () => H - (isMobile() ? 150 : 135);
   const FW = () => W - (isMobile() ? 48 : 90);
   const pos = n => ({ x: (isMobile() ? 24 : 45) + n.fx * FW(), y: FT() + n.fy * (FB() - FT()) });
-  const scaleOf = n => (isMobile() ? .74 : 1) * (.78 + .36 * n.fy) * (n.me ? 1.08 : 1);
+  const scaleOf = n => (isMobile() ? .74 : 1) * (.78 + .36 * n.fy) * (n.me ? 1.08 : 1) * crowd;
   function measure() { W = stage.clientWidth; H = stage.clientHeight; }
 
   /* ---------- 資料 ---------- */
   function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 3400); }
   function stateMsg(t) { const s = $('#state'); s.textContent = t || ''; s.classList.toggle('on', !!t); }
 
-  async function loadPeople() {
-    if (C.API_URL) {
-      const r = await fetch(C.API_URL + (C.API_URL.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now());
-      if (!r.ok) throw new Error('load');
-      const j = await r.json();
-      return (j.people || []).map(p => ({ ...p, avatar: p.avatar ? A.normalize(p.avatar) : A.randomFor(p.id, null, p.industry) }));
-    }
-    const seed = window.PLAZA_SEED.map(p => ({ ...p, avatar: A.randomFor(p.id, p.g, p.industry) }));
-    // Demo:這台瀏覽器送出的加入申請（審核中 / Demo 後台核准後正常顯示）
-    const mine = LS.get('plaza_demo_db', []).filter(x => x.kind === 'join' && x.active !== false)
-      .map(x => ({ ...x, avatar: A.normalize(x.avatar), pending: !x.approved }));
-    return seed.concat(mine);
-  }
+  const K = window.PlazaKit;
+  const loadPeople = K.loadPeople;
 
   /* ---------- 角色節點 ---------- */
   function makeNode(p, o = {}) {
@@ -62,18 +52,26 @@
   }
 
   function build() {
+    const keep = {}; nodes.forEach(n => { keep[n.me ? '__me' : n.p.id] = n; });
+    release(true); closeDrawer(); hideHover();
     floor.innerHTML = ''; nodes = [];
-    const vis = isMobile() ? people.slice(0, 10) : people;
-    const meCfg = A.normalize(LS.get('plaza_me', A.PRESETS[0]));
-    me = makeNode({ industry: '你', avatar: meCfg }, { me: true, fx: .5, fy: .5 });
+    shown = people.filter(matchFilter);
+    const vis = shown.slice(0, isMobile() ? 60 : 200);
+    crowd = clamp(Math.sqrt(26 / Math.max(1, vis.length)), .56, 1);
+    const meCfg = A.normalize(LS.get('plaza_me', A.PRESETS[0])), km = keep.__me;
+    me = makeNode({ industry: '你', avatar: meCfg }, { me: true, fx: km ? km.fx : .5, fy: km ? km.fy : .5 });
     me.face = 1; nodes.push(me);
+    const gx = .07 * crowd, gy = .2 * crowd;
     vis.forEach(p => {
+      const k = keep[p.id];
+      if (k) { nodes.push(makeNode(p, { fx: k.fx, fy: k.fy })); return; }
       let fx, fy, tries = 0;
-      do { fx = Math.random(); fy = Math.random(); tries++; } while (tries < 20 && nodes.some(m => Math.abs(m.fx - fx) < .07 && Math.abs(m.fy - fy) < .2));
+      do { fx = Math.random(); fy = Math.random(); tries++; } while (tries < 20 && nodes.some(m => Math.abs(m.fx - fx) < gx && Math.abs(m.fy - fy) < gy));
       nodes.push(makeNode(p, { fx, fy }));
     });
-    $('#cnt').textContent = people.length;
-    buildDirectory(); buildChips();
+    $('#cnt').textContent = shown.length;
+    if (people.length) stateMsg(shown.length ? '' : '這個篩選條件下還沒有成員。換個縣市或產業試試，或按「清除篩選」。');
+    buildDirectory(); buildChips(); paintFilters();
   }
 
   function refreshMe(cfg) {
@@ -136,8 +134,9 @@
     for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
       const a = nodes[i], b = nodes[j];
       const dx = (a.fx - b.fx) * fw, dy = (a.fy - b.fy) * fh * 1.6, d = Math.hypot(dx, dy);
-      if (d > 0 && d < 34) {
-        const push = (34 - d) / 34 * 0.6 / fw, ux = dx / d;
+      const R = 34 * crowd;
+      if (d > 0 && d < R) {
+        const push = (R - d) / R * 0.6 / fw, ux = dx / d;
         const free = n => n.state === 'walk' || n.state === 'idle';
         if (free(a) && !a.me) a.fx = clamp(a.fx + ux * push, 0, 1);
         if (free(b) && !b.me) b.fx = clamp(b.fx - ux * push, 0, 1);
@@ -151,15 +150,16 @@
       const free = chatting >= (isMobile() ? 1 : 2) ? [] : nodes.filter(n => !n.me && (n.state === 'walk' || n.state === 'idle') && now > n.cool);
       outer: for (let i = 0; i < free.length; i++) for (let j = i + 1; j < free.length; j++) {
         const a = free[i], b = free[j];
-        if (Math.hypot((a.fx - b.fx) * fw, (a.fy - b.fy) * fh) < 64) { startChat(a, b); break outer; }
+        if (Math.hypot((a.fx - b.fx) * fw, (a.fy - b.fy) * fh) < 64 * crowd) { startChat(a, b); break outer; }
       }
     }
-    // 繪製
+    // 繪製（標籤與泡泡另外縮放：人多時變小、放大時只稍微變大，避免疊成一團）
+    const T = Math.min(1, Math.max(.6, crowd) * Math.sqrt(view.z));
     for (const n of nodes) {
-      const P = pos(n), s = scaleOf(n);
+      const P = pos(n), s = scaleOf(n), inv = T / (s * view.z);
       n.el.style.transform = `translate3d(${(P.x - 28).toFixed(1)}px,${(P.y - 124).toFixed(1)}px,0) scale(${s.toFixed(3)})`;
       n.el.style.zIndex = Math.round(P.y) + (n.me ? 1 : 0);
-      if (Math.abs(n.s - s) > .01) { n.s = s; n.el.style.setProperty('--inv', (1 / s).toFixed(3)); }
+      if (Math.abs(n.s - inv) > .01) { n.s = inv; n.el.style.setProperty('--inv', inv.toFixed(3)); }
       const moving = n.state === 'walk' || n.state === 'run';
       const cls = (moving ? 'walking' : 'idle') + (n.state === 'run' ? ' running' : '') + (n.face < 0 ? ' flip' : '');
       if (cls !== n.cls) {
@@ -178,8 +178,8 @@
 
   /* ---------- 點地板移動自己 ---------- */
   stage.addEventListener('click', e => {
-    if (e.target.closest('.av,.needbar,.drawer,.theme-btn,.hovercard')) return;
-    const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    if (e.target.closest('.av,.needbar,.drawer,.theme-btn,.hovercard,.zoom')) return;
+    const r = stage.getBoundingClientRect(), x = (e.clientX - r.left - view.x) / view.z, y = (e.clientY - r.top - view.y) / view.z;
     if (y < FT() - 30 || y > FB() + 40) return;
     me.tx = clamp((x - (isMobile() ? 24 : 45)) / FW(), 0, 1);
     me.ty = clamp((y - FT()) / (FB() - FT()), 0, 1);
@@ -198,7 +198,7 @@
   }
   function hideHover() { hover.node = null; hover.classList.remove('on'); }
   function placeHover(n) {
-    const P = pos(n); let x = P.x + 34, y = P.y - 150;
+    const Q = pos(n), P = { x: view.x + Q.x * view.z, y: view.y + Q.y * view.z }; let x = P.x + 34, y = P.y - 150;
     if (x + 260 > W) x = P.x - 284;
     hover.style.left = clamp(x, 8, W - 258) + 'px'; hover.style.top = clamp(y, 8, H - 200) + 'px';
   }
@@ -231,6 +231,7 @@
       setTimeout(() => showUnmet(q, res), 1300);
       return;
     }
+    if (view.z > 1.05) centerOn(me);
     const list = res.list.slice(0, isMobile() ? 4 : 6);
     summon = { q, label: res.label, inds: res.inds, list, all: res.list, at: performance.now(), shown: false };
     const fw = FW(), fh = FB() - FT(), rx = isMobile() ? 70 : 120, ry = isMobile() ? 32 : 50, k = list.length;
@@ -298,21 +299,128 @@
   $('#needForm').addEventListener('submit', e => { e.preventDefault(); callFor($('#needInput').value); $('#needInput').blur(); });
 
   function buildChips() {
-    const inds = [...new Set(people.map(p => p.industry))];
+    const inds = [...new Set(shown.map(p => p.industry))];
     $('#chips').innerHTML = inds.map(i => `<button type="button" class="chip" style="--c:${colorOf(i)}" data-i="${esc(i)}"><i></i>${esc(i)}</button>`).join('');
     $$('#chips .chip').forEach(b => b.onclick = () => { $('#needInput').value = b.dataset.i; callFor(b.dataset.i); });
   }
   function buildDirectory() {
-    const m = {}; people.forEach(p => (m[p.industry] = m[p.industry] || []).push(p));
+    const m = {}; shown.forEach(p => (m[p.industry] = m[p.industry] || []).push(p));
     const keys = Object.keys(m);
-    $('#dirTotal').textContent = `${people.length} 位 · ${keys.length} 個產業`;
+    $('#dirTotal').textContent = `${filter.city ? filter.city + ' · ' : ''}${shown.length} 位 · ${keys.length} 個產業`;
     $('#dirGrid').innerHTML = keys.map(k => `<button class="dcard" style="--c:${colorOf(k)}" data-i="${esc(k)}"><span><span class="pill" style="--c:${colorOf(k)}"><i></i>${esc(k)}</span><b>${m[k].length} 位</b><small>點我，請他們跑過來</small></span>
       <span class="stack">${m[k].slice(0, 3).map(p => `<span>${A.render(p.avatar)}</span>`).join('')}</span></button>`).join('');
+    if (!keys.length) $('#dirGrid').innerHTML = '<p class="muted">這個篩選條件下還沒有成員。</p>';
     $$('#dirGrid .dcard').forEach(b => b.onclick = () => {
       stage.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
       $('#needInput').value = b.dataset.i; setTimeout(() => callFor(b.dataset.i), reduce ? 0 : 450);
     });
   }
+
+  /* ---------- 縣市・產業・關鍵字篩選 ---------- */
+  const COUNTIES = ['台北', '新北', '基隆', '桃園', '新竹', '苗栗', '台中', '彰化', '南投', '雲林', '嘉義', '台南', '高雄', '屏東', '宜蘭', '花蓮', '台東', '澎湖', '金門', '連江'];
+  function cityOf(p) {
+    const s = String(p.city || '').trim().replace(/臺/g, '台');
+    if (!s) return '';
+    return COUNTIES.find(c => s.indexOf(c) === 0) || s.replace(/[市縣]$/, '');
+  }
+  const filter = { city: LS.get('plaza_city', ''), ind: '', q: '' };
+  function matchFilter(p) {
+    if (filter.city && cityOf(p) !== filter.city) return false;
+    if (filter.ind && p.industry !== filter.ind) return false;
+    if (filter.q) {
+      const hay = [p.name, p.industry, p.title, p.city, p.services, p.can_help_with, p.looking_for, p.short_intro].join(' ').toLowerCase();
+      if (filter.q.toLowerCase().split(/\s+/).some(w => w && hay.indexOf(w) < 0)) return false;
+    }
+    return true;
+  }
+  function paintFilters() {
+    const cc = {}; people.forEach(p => { const c = cityOf(p); if (c) cc[c] = (cc[c] || 0) + 1; });
+    const cities = Object.keys(cc).sort((a, b) => (COUNTIES.indexOf(a) + 1 || 99) - (COUNTIES.indexOf(b) + 1 || 99));
+    if (filter.city && !cc[filter.city]) cities.unshift(filter.city);
+    $('#fCity').innerHTML = `<option value="">全部縣市</option>` + cities.map(c => `<option value="${esc(c)}"${c === filter.city ? ' selected' : ''}>${esc(c)}（${cc[c] || 0}）</option>`).join('');
+    const pool = people.filter(p => !filter.city || cityOf(p) === filter.city), ic = {};
+    pool.forEach(p => { ic[p.industry] = (ic[p.industry] || 0) + 1; });
+    const inds = Object.keys(ic); if (filter.ind && !ic[filter.ind]) inds.unshift(filter.ind);
+    $('#fInd').innerHTML = `<option value="">全部產業</option>` + inds.map(i => `<option value="${esc(i)}"${i === filter.ind ? ' selected' : ''}>${esc(i)}（${ic[i] || 0}）</option>`).join('');
+    const on = !!(filter.city || filter.ind || filter.q);
+    $('#fClear').hidden = !on;
+    $('#fCount').textContent = on ? `顯示 ${shown.length} / ${people.length} 位` : `共 ${people.length} 位`;
+    stage.classList.toggle('filtered', on);
+  }
+  $('#fCity').onchange = e => { filter.city = e.target.value; filter.ind = ''; LS.set('plaza_city', filter.city); build(); };
+  $('#fInd').onchange = e => { filter.ind = e.target.value; build(); };
+  let fqT; $('#fQ').oninput = e => { clearTimeout(fqT); fqT = setTimeout(() => { filter.q = e.target.value.trim().slice(0, 40); build(); }, 250); };
+  $('#fClear').onclick = () => { filter.city = filter.ind = filter.q = ''; $('#fQ').value = ''; LS.set('plaza_city', ''); build(); };
+
+  /* ---------- 縮放與拖曳 ---------- */
+  const ZMAX = 3.2, scene = $('#scene');
+  function applyView() {
+    view.z = clamp(view.z, 1, ZMAX);
+    view.x = clamp(view.x, W - W * view.z, 0); view.y = clamp(view.y, H - H * view.z, 0);
+    const t = `translate(${view.x.toFixed(1)}px,${view.y.toFixed(1)}px) scale(${view.z.toFixed(3)})`;
+    floor.style.transform = scene.style.transform = t;
+    stage.classList.toggle('zoomed', view.z > 1.02);
+    $('#zPct').textContent = Math.round(view.z * 100) + '%';
+    if (hover.node) placeHover(hover.node);
+  }
+  function zoomAt(z, cx, cy) {
+    const nz = clamp(z, 1, ZMAX);
+    view.x = cx - (cx - view.x) * nz / view.z; view.y = cy - (cy - view.y) * nz / view.z; view.z = nz; applyView();
+  }
+  function animateTo(tz, tx, ty) {
+    const fz = view.z, fx = view.x, fy = view.y, t0 = performance.now(), d = reduce ? 1 : 320;
+    const step = now => { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3);
+      view.z = fz + (tz - fz) * e; view.x = fx + (tx - fx) * e; view.y = fy + (ty - fy) * e; applyView(); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  function zoomBy(f) { const nz = clamp(view.z * f, 1, ZMAX), cx = W / 2, cy = (FT() + FB()) / 2 * view.z + view.y; animateTo(nz, cx - (cx - view.x) * nz / view.z, cy - (cy - view.y) * nz / view.z); }
+  function centerOn(n) { const P = pos(n); animateTo(view.z, W / 2 - P.x * view.z, H * .55 - P.y * view.z); }
+  $('#zIn').onclick = () => zoomBy(1.45);
+  $('#zOut').onclick = () => zoomBy(1 / 1.45);
+  $('#zFit').onclick = () => animateTo(1, 0, 0);
+  // 觸控板捏合會送出 ctrl + 滾輪；一般滾輪仍然捲動網頁
+  stage.addEventListener('wheel', e => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const r = stage.getBoundingClientRect(); zoomAt(view.z * Math.exp(-e.deltaY * .01), e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  // 單指拖曳平移（放大後）、雙指捏合縮放
+  const pts = new Map(); let drag = null, moved = false;
+  const UI = '.needbar,.drawer,.theme-btn,.hovercard,.zoom';
+  stage.addEventListener('pointerdown', e => {
+    if (e.target.closest(UI) || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) { drag = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y }; moved = false; }
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; drag = { pinch: Math.hypot(a.x - b.x, a.y - b.y), z: view.z, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, vx: view.x, vy: view.y }; moved = true; }
+  });
+  addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId) || !drag) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const r = stage.getBoundingClientRect();
+    if (pts.size >= 2 && drag.pinch) {
+      const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const nz = clamp(drag.z * d / drag.pinch, 1, ZMAX), cx = drag.mx - r.left, cy = drag.my - r.top;
+      view.z = nz; view.x = cx - (cx - drag.vx) * nz / drag.z + (mx - drag.mx); view.y = cy - (cy - drag.vy) * nz / drag.z + (my - drag.my);
+      applyView(); hideHover();
+    } else if (pts.size === 1 && view.z > 1.02) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!moved && Math.hypot(dx, dy) > 6) { moved = true; stage.classList.add('dragging'); hideHover(); }
+      if (moved) { view.x = drag.vx + dx; view.y = drag.vy + dy; applyView(); }
+    }
+  });
+  const endPt = e => {
+    if (!pts.delete(e.pointerId)) return;
+    if (pts.size === 1) { const [a] = [...pts.values()]; drag = { x: a.x, y: a.y, vx: view.x, vy: view.y }; }
+    if (!pts.size) { drag = null; stage.classList.remove('dragging'); setTimeout(() => { moved = false; }, 0); }
+  };
+  addEventListener('pointerup', endPt); addEventListener('pointercancel', endPt);
+  // 拖曳結束時不要當成點擊（不移動角色、不開介紹）
+  stage.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+  stage.addEventListener('dblclick', e => {
+    if (e.target.closest(UI + ',.av')) return;
+    const r = stage.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
+    if (view.z > 2.4) animateTo(1, 0, 0); else { const nz = view.z * 1.6; animateTo(nz, cx - (cx - view.x) * nz / view.z, cy - (cy - view.y) * nz / view.z); }
+  });
 
   /* ---------- 時段 ---------- */
   const THEMES = [['t-dusk', '黃昏'], ['t-night', '夜晚'], ['t-day', '白天']];
@@ -338,13 +446,13 @@
   function openProfile(p) {
     if (!p) return; hideHover();
     const sh = openModal(head(esc(p.name), `<span class="pill" style="--c:${colorOf(p.industry)}"><i></i>${esc(p.industry)}</span> ${esc(p.title)}${p.city ? ' · ' + esc(p.city) : ''}`) +
-      `<div class="prof"><div class="portrait">${A.render(p.avatar)}</div><dl>
+      `<div class="prof"><div class="portrait${K.photo(p) ? ' photo' : ''}">${K.photo(p) ? `<img src="${esc(K.photo(p))}" alt="${esc(p.name)} 的照片">` : A.render(p.avatar)}</div><dl>
         <dd style="margin:0">${esc(p.short_intro)}</dd>
         <dt>產品/服務</dt><dd>${esc(p.services)}</dd>
         ${p.can_help_with ? `<dt>可以協助的資源</dt><dd>${esc(p.can_help_with)}</dd>` : ''}
         <dt>目前想認識</dt><dd>${esc(p.looking_for)}</dd></dl></div>
       <div class="acts-row">${p.pending ? '<span class="note">這筆資料正在等候審核，通過後才會公開。</span>' : `<button class="btn red" id="goIntro">請幫我介紹</button>`}
-      ${/^https?:\/\//.test(p.profile_url || '') ? `<a class="btn ghost" href="${esc(p.profile_url)}" target="_blank" rel="noopener">看一頁式介紹</a>` : ''}</div>
+      <a class="btn ghost" href="profile.html?id=${encodeURIComponent(p.id)}">看一頁式介紹</a></div>
       <p class="note">為保護隱私，不公開聯絡方式。送出需求後由 ${esc(C.OWNER_NAME)} 確認雙方意願，再幫你們牽線。</p>`);
     const b = $('#goIntro', sh); if (b) b.onclick = () => openMatch(p);
   }
@@ -434,42 +542,145 @@
   /* ---------- 我想加入 ---------- */
   const IND_OPTIONS = () => [...new Set(Object.keys(C.COLORS).concat(people.map(p => p.industry)))];
   function openJoin() {
-    const state = { c: A.normalize(LS.get('plaza_me', A.PRESETS[0])), step: 1, data: {} };
+    const state = { c: A.normalize(LS.get('plaza_me', A.PRESETS[0])), step: 1, data: {}, x: { photo: '', links: [{ label: '', url: '' }], works: [] }, busy: 0 };
+    const STEPS = n => `<div class="steps-mini">${[1, 2, 3].map(i => `<span class="${i <= n ? 'on' : ''}"></span>`).join('')}</div>`;
     const render = () => {
       if (state.step === 1) {
-        const sh = openModal(head('加入人脈廣場', '第 1 步：打造你在廣場上的形象') + '<div class="steps-mini"><span class="on"></span><span></span></div>' + customizer(state.c) +
+        const sh = openModal(head('加入人脈廣場', '第 1 步：打造你在廣場上的形象') + STEPS(1) + customizer(state.c) +
           `<div class="acts-row"><button class="btn red" id="jNext">下一步：填寫資料</button><button class="btn ghost" data-x>取消</button></div>`, true);
         bindCustomizer(sh, state);
         $('#jNext', sh).onclick = () => { state.step = 2; render(); };
         return;
       }
+      if (state.step === 3) return renderStep3();
       const v = k => esc(state.data[k] || '');
-      const sh = openModal(head('加入人脈廣場', '第 2 步：介紹你自己（審核通過後才會公開）') + '<div class="steps-mini"><span class="on"></span><span class="on"></span></div>' +
+      const sh = openModal(head('加入人脈廣場', '第 2 步：介紹你自己（審核通過後才會公開）') + STEPS(2) +
         `<form class="f" novalidate>${honeypot}
           <div class="two"><div><label>姓名/暱稱 *</label><input name="name" required maxlength="20" value="${v('name')}"></div>
           <div><label>產業 * <small>可自行輸入</small></label><input name="industry" required maxlength="12" list="indList" value="${v('industry')}"><datalist id="indList">${IND_OPTIONS().map(i => `<option value="${esc(i)}">`).join('')}</datalist></div></div>
           <div class="two"><div><label>職稱/角色 *</label><input name="title" required maxlength="24" value="${v('title')}"></div>
-          <div><label>所在城市</label><input name="city" maxlength="10" placeholder="例：台中" value="${v('city')}"></div></div>
+          <div><label>所在縣市</label><input name="city" maxlength="10" list="cityList" placeholder="例：台中" value="${v('city')}"><datalist id="cityList">${COUNTIES.map(c => `<option value="${c}">`).join('')}</datalist></div></div>
           <label>一句話介紹 * <small>30–60 字</small></label><textarea name="short_intro" rows="2" required maxlength="80">${v('short_intro')}</textarea>
           <label>可提供的產品/服務 *</label><input name="services" required maxlength="80" value="${v('services')}">
           <label>可以幫助別人的資源</label><input name="can_help_with" maxlength="80" value="${v('can_help_with')}">
           <label>目前想認識的產業或對象 *</label><input name="looking_for" required maxlength="80" placeholder="例：室內設計、旅宿業主" value="${v('looking_for')}">
-          <label>一頁式介紹連結 <small>網站、社群或雲端介紹</small></label><input name="profile_url" type="url" maxlength="200" placeholder="https://" value="${v('profile_url')}">
           <div class="two"><div><label>手機 <small>不公開</small></label><input name="phone" maxlength="20" inputmode="tel" value="${v('phone')}"></div>
           <div><label>LINE ID <small>不公開</small></label><input name="line_id" maxlength="40" value="${v('line_id')}"></div></div>
           <div class="two"><div><label>Email <small>不公開</small></label><input name="email" type="email" maxlength="80" value="${v('email')}"></div>
           <div><label>怎麼認識 ${esc(C.OWNER_NAME)} 的</label><select name="source_circle"><option>BNI</option><option>讀書會</option><option>客戶</option><option>朋友介紹</option><option>其他</option></select></div></div>
-          <label class="chk"><input type="checkbox" name="consent" value="yes" required> 我同意公開我的商務介紹資料（手機、LINE、Email 不會公開）</label>
+          <label class="chk"><input type="checkbox" name="consent" value="yes" required ${state.data.consent === 'yes' ? 'checked' : ''}> 我同意公開我的商務介紹資料（手機、LINE、Email 不會公開）</label>
           <div class="err"></div>
-          <div class="acts-row"><button class="btn red" type="submit">送出申請</button><button class="btn ghost" type="button" id="jBack">上一步</button></div></form>`);
+          <div class="acts-row"><button class="btn red" type="submit">下一步：一頁式介紹</button><button class="btn ghost" type="button" id="jBack">上一步</button></div></form>`);
+      const sel = $('select[name=source_circle]', sh); if (state.data.source_circle) sel.value = state.data.source_circle;
       $('#jBack', sh).onclick = () => { state.data = Object.fromEntries(new FormData($('form', sh))); state.step = 1; render(); };
-      bindForm(sh, 'join', () => ({ avatar: JSON.stringify(state.c) }), d => {
+      $('form', sh).onsubmit = e => {
+        e.preventDefault();
+        const d = Object.fromEntries(new FormData(e.target));
+        try { checkJoin(d); } catch (x) { $('.err', sh).textContent = x.message; return; }
+        state.data = d; state.step = 3; render();
+      };
+    };
+
+    // 第 3 步：一頁式介紹（照片、連結、作品，全部選填）
+    function renderStep3() {
+      const x = state.x;
+      const sh = openModal(head('加入人脈廣場', '第 3 步：一頁式介紹（選填，可直接送出）') + STEPS(3) +
+        `<form class="f" novalidate>
+          <h4 class="f-h">人像照片</h4>
+          <div class="ph-row"><div class="ph-prev" id="phPrev"></div>
+            <div><label class="btn ghost sm upl">上傳照片<input type="file" accept="image/*" id="phFile" hidden></label>
+            <button type="button" class="btn ghost sm" id="phDel">移除</button>
+            <p class="note">建議清楚的半身照。沒有照片時，介紹頁會用你的卡通形象。</p></div></div>
+          <h4 class="f-h">相關連結 <small>官網、FB、IG、LINE 官方帳號…最多 5 個</small></h4>
+          <div id="lnkList"></div><button type="button" class="btn ghost sm" id="lnkAdd">＋ 新增連結</button>
+          <h4 class="f-h">代表作品・指標客戶 <small>最多 6 項，例如服務過的客戶、代表產品</small></h4>
+          <div id="wkList" class="wk-list"></div><button type="button" class="btn ghost sm" id="wkAdd">＋ 新增作品</button>
+          <div class="err"></div>
+          <div class="acts-row"><button class="btn red" type="submit">送出申請</button><button class="btn ghost" type="button" id="jBack">上一步</button></div></form>`, true);
+      const paintPhoto = () => { $('#phPrev', sh).innerHTML = x.photo ? `<img src="${esc(x.photo)}" alt="">` : A.render(state.c); $('#phDel', sh).hidden = !x.photo; };
+      const paintLinks = () => {
+        $('#lnkList', sh).innerHTML = x.links.map((l, i) => `<div class="lk-row">
+          <input data-l="${i}" data-k="label" maxlength="20" placeholder="名稱，例：官網" value="${esc(l.label)}">
+          <input data-l="${i}" data-k="url" maxlength="300" inputmode="url" placeholder="https://" value="${esc(l.url)}">
+          <button type="button" class="x" data-ldel="${i}" aria-label="刪除這個連結">×</button></div>`).join('');
+        $('#lnkAdd', sh).hidden = x.links.length >= 5;
+      };
+      const paintWorks = () => {
+        $('#wkList', sh).innerHTML = x.works.map((w, i) => `<div class="wk-row">
+          <label class="wk-img" title="上傳圖片">${w.img === 'busy' ? '<span>處理中…</span>' : w.img ? `<img src="${esc(w.img)}" alt="">` : '<span>＋ 圖片</span>'}<input type="file" accept="image/*" data-wimg="${i}" hidden></label>
+          <div class="wk-f"><input data-w="${i}" data-k="title" maxlength="30" placeholder="名稱，例：○○飯店 POS 導入" value="${esc(w.title)}">
+          <textarea data-w="${i}" data-k="desc" rows="2" maxlength="120" placeholder="一兩句說明成果">${esc(w.desc)}</textarea>
+          <input data-w="${i}" data-k="url" maxlength="300" inputmode="url" placeholder="相關連結（選填）https://" value="${esc(w.url)}"></div>
+          <button type="button" class="x" data-wdel="${i}" aria-label="刪除這個作品">×</button></div>`).join('');
+        $('#wkAdd', sh).hidden = x.works.length >= 6;
+      };
+      paintPhoto(); paintLinks(); paintWorks();
+      const err = t => { $('.err', sh).textContent = t || ''; };
+      const load = async (file, max, set) => {
+        if (!file) return; err(''); state.busy++;
+        try { set(await K.compress(file, max)); } catch (e) { set(null); err(e.message); }
+        finally { state.busy--; }
+      };
+      sh.addEventListener('input', e => {
+        const t = e.target;
+        if (t.dataset.l != null) x.links[+t.dataset.l][t.dataset.k] = t.value;
+        if (t.dataset.w != null) x.works[+t.dataset.w][t.dataset.k] = t.value;
+      });
+      sh.addEventListener('change', e => {
+        const t = e.target;
+        if (t.id === 'phFile') { const f = t.files[0]; t.value = ''; load(f, 1000, v => { if (v) x.photo = v; paintPhoto(); }); }
+        if (t.dataset.wimg != null) {
+          const i = +t.dataset.wimg, f = t.files[0], w = x.works[i]; t.value = ''; if (!f) return;
+          const old = w.img; w.img = 'busy'; paintWorks();
+          load(f, 900, v => { w.img = v || old; paintWorks(); });
+        }
+      });
+      sh.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.id === 'phDel') { x.photo = ''; paintPhoto(); }
+        if (b.id === 'lnkAdd' && x.links.length < 5) { x.links.push({ label: '', url: '' }); paintLinks(); $$('#lnkList input', sh).slice(-2)[0].focus(); }
+        if (b.dataset.ldel != null) { x.links.splice(+b.dataset.ldel, 1); paintLinks(); }
+        if (b.id === 'wkAdd' && x.works.length < 6) { x.works.push({ title: '', desc: '', img: '', url: '' }); paintWorks(); $$('#wkList [data-k=title]', sh).slice(-1)[0].focus(); }
+        if (b.dataset.wdel != null) { x.works.splice(+b.dataset.wdel, 1); paintWorks(); }
+      });
+      $('#jBack', sh).onclick = () => { state.step = 2; render(); };
+      $('form', sh).onsubmit = async e => {
+        e.preventDefault(); err('');
+        if (state.busy) { err('圖片還在處理中，請稍等一下再送出'); return; }
+        let links, works;
+        try { links = cleanLinks(x.links); works = cleanWorks(x.works); } catch (z) { err(z.message); return; }
+        const d = { ...state.data, avatar: JSON.stringify(state.c), photo: x.photo, links: JSON.stringify(links), works: JSON.stringify(works) };
+        const btn = $('button[type=submit]', sh); btn.disabled = true; btn.textContent = x.photo || works.some(w => w.img) ? '上傳照片中…' : '送出中…';
+        try { await submit('join', d); }
+        catch (z) { err(z.message || '送出失敗，請稍後再試'); btn.disabled = false; btn.textContent = '重新送出'; return; }
         LS.set('plaza_me', state.c); refreshMe(state.c);
         if (!C.API_URL) { const p = { ...d, id: d._id, avatar: state.c, pending: true }; people.push(p); const n = makeNode(p, { fx: clamp(me.fx + .08, 0, 1), fy: me.fy }); nodes.push(n); say(n, '大家好！', 3000, 'hot'); }
-        success('已收到你的加入申請', `${esc(C.OWNER_NAME)} 審核通過後，你就會出現在廣場上。` + demoNote());
-      });
-    };
+        success('已收到你的加入申請', `${esc(C.OWNER_NAME)} 審核通過後，你就會出現在廣場上，也會有自己的一頁式介紹。` + demoNote());
+      };
+    }
     render();
+  }
+
+  const fixUrl = u => { u = String(u || '').trim(); if (u && !/^https?:\/\//i.test(u) && /^[\w-]+(\.[\w-]+)+/.test(u)) u = 'https://' + u; return u; };
+  function cleanLinks(list) {
+    return list.map(l => ({ label: String(l.label || '').trim(), url: fixUrl(l.url) })).filter(l => l.label || l.url).map(l => {
+      if (!K.okUrl(l.url)) throw new Error(`連結「${l.label || l.url}」的網址不正確，請以 https:// 開頭`);
+      return l;
+    });
+  }
+  function cleanWorks(list) {
+    return list.map(w => ({ title: String(w.title || '').trim(), desc: String(w.desc || '').trim(), img: w.img && w.img !== 'busy' ? w.img : '', url: fixUrl(w.url) }))
+      .filter(w => w.title || w.desc || w.img || w.url).map(w => {
+        if (!w.title) throw new Error('每個作品都要填名稱');
+        if (w.url && !K.okUrl(w.url)) throw new Error(`作品「${w.title}」的連結網址不正確`);
+        return w;
+      });
+  }
+  function checkJoin(data) {
+    const miss = ['name', 'industry', 'title', 'short_intro', 'services', 'looking_for'].filter(k => !String(data[k] || '').trim());
+    if (miss.length) throw new Error('請填寫所有標示 * 的欄位');
+    if (data.consent !== 'yes') throw new Error('請勾選同意公開商務介紹資料');
+    if (!data.phone && !data.line_id && !data.email) throw new Error('手機、LINE、Email 請至少留一項，方便我聯絡你');
   }
 
   /* ---------- 送出 ---------- */
@@ -479,10 +690,7 @@
     const need = { match: ['requester', 'contact', 'why'], need: ['need', 'detail', 'requester', 'contact'], join: ['name', 'industry', 'title', 'short_intro', 'services', 'looking_for'] }[kind];
     const miss = need.filter(k => !String(data[k] || '').trim());
     if (miss.length) throw new Error('請填寫所有標示 * 的欄位');
-    if (kind === 'join') {
-      if (data.consent !== 'yes') throw new Error('請勾選同意公開商務介紹資料');
-      if (!data.phone && !data.line_id && !data.email) throw new Error('手機、LINE、Email 請至少留一項，方便我聯絡你');
-    }
+    if (kind === 'join') checkJoin(data);
     const rl = LS.get('plaza_rl', []).filter(t => Date.now() - t < 600000);
     if (rl.length >= 8) throw new Error('送出太頻繁，請 10 分鐘後再試');
     rl.push(Date.now()); LS.set('plaza_rl', rl);
@@ -498,7 +706,7 @@
     data._id = id;
     const db = LS.get('plaza_demo_db', []);
     db.push({ ...payload, id, created_at: new Date().toISOString(), status: kind === 'join' ? '' : '新需求', approved: false, active: true, note: '' });
-    LS.set('plaza_demo_db', db);
+    if (!K.LS.set('plaza_demo_db', db)) throw new Error('Demo 模式的瀏覽器空間不夠放這些圖片，請少放幾張');
     return { ok: true, id };
   }
 
@@ -507,12 +715,17 @@
 
   /* ---------- 啟動 ---------- */
   let rz;
-  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { const was = isMobile(); measure(); if (people.length && was !== build.mobile) { build(); build.mobile = isMobile(); } }, 200); });
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { const was = isMobile(); measure(); applyView(); if (people.length && was !== build.mobile) { build(); build.mobile = isMobile(); } }, 200); });
   (async () => {
     measure(); stateMsg('人脈廣場準備中…');
-    try { people = await loadPeople(); stateMsg(people.length ? '' : '廣場上還沒有商家，歡迎成為第一位！'); }
-    catch (e) { people = []; stateMsg('資料暫時載入失敗，請稍後重新整理。'); }
-    build(); build.mobile = isMobile();
+    let ok = true;
+    try { people = await loadPeople(); }
+    catch (e) { people = []; ok = false; }
+    build(); build.mobile = isMobile(); applyView();
+    if (!ok) stateMsg('資料暫時載入失敗，請稍後重新整理。');
+    else if (!people.length) stateMsg('廣場上還沒有商家，歡迎成為第一位！');
+    const q = new URLSearchParams(location.search), want = q.get('intro');
+    if (want) { history.replaceState(null, '', location.pathname); const p = byId(want); if (p) setTimeout(() => openMatch(p), 400); }
     setTimeout(() => say(me, '我在這！', 2600, 'me'), 900);
     setTimeout(() => $('#hint').classList.add('off'), 9000);
     requestAnimationFrame(frame);
