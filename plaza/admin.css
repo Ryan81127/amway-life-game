@@ -55,3 +55,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .gap-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red))}
 .gap small{color:var(--mute)}
 @media(max-width:520px){.ad-card.mem{grid-template-columns:1fr}.ad-por{width:100%;height:110px}.ad-card dl{grid-template-columns:1fr}}
+.ad-por.photo img{width:100%;height:100%;object-fit:cover}
+.ad-works{display:flex;flex-wrap:wrap;gap:6px}
+.ad-works span{display:inline-flex;align-items:center;gap:6px;background:#f1ebe0;border-radius:10px;padding:3px 8px 3px 3px;font-size:13px}
+.ad-works img{width:28px;height:28px;border-radius:7px;object-fit:cover}

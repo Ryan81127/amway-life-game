@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261128c">
 </head>
 <body>
 <header class="top">
@@ -27,6 +27,13 @@
 </header>
 
 <main>
+  <section class="filters" aria-label="篩選廣場成員">
+    <label class="fl"><span>縣市</span><select id="fCity"><option value="">全部縣市</option></select></label>
+    <label class="fl"><span>產業</span><select id="fInd"><option value="">全部產業</option></select></label>
+    <label class="fl fq"><span class="sr">關鍵字</span><input id="fQ" type="search" maxlength="40" placeholder="搜尋姓名、服務、關鍵字…" autocomplete="off"></label>
+    <button type="button" class="btn ghost sm" id="fClear" hidden>清除篩選</button>
+    <span class="f-count" id="fCount"></span>
+  </section>
   <section class="stage-wrap">
     <div class="stage t-dusk" id="stage">
       <svg id="scene" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
@@ -178,6 +185,12 @@
         <p class="hud"><span class="live" aria-hidden="true"></span>廣場上有 <b id="cnt">0</b> 位商家 · 由 <span class="owner"></span> 親自牽線</p>
       </div>
       <button type="button" class="theme-btn" id="btnTheme" aria-label="切換時段">黃昏</button>
+      <div class="zoom" role="group" aria-label="廣場縮放">
+        <button type="button" id="zIn" aria-label="放大">＋</button>
+        <span id="zPct" aria-live="polite">100%</span>
+        <button type="button" id="zOut" aria-label="縮小">－</button>
+        <button type="button" id="zFit" class="zfit" aria-label="回到全景">全景</button>
+      </div>
 
       <div id="floor" aria-label="人脈廣場，點擊人物查看介紹"></div>
       <div class="hovercard" id="hover" aria-hidden="true"></div>
@@ -221,7 +234,8 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script src="data.js?v=20261128"></script>
-<script src="avatar.js"></script>
-<script src="app.js?v=20261128"></script>
+<script src="avatar.js?v=20261128"></script>
+<script src="kit.js?v=20261128"></script>
+<script src="app.js?v=20261128c"></script>
 </body>
 </html>
